@@ -444,6 +444,7 @@ void CTextService::_LoadKana()
 				{
 					rkc.soku = (_wtoi(r_itr->second.c_str()) & 0x1) ? TRUE : FALSE;
 					rkc.wait = (_wtoi(r_itr->second.c_str()) & 0x2) ? TRUE : FALSE;
+					rkc.func = (_wtoi(r_itr->second.c_str()) & 0x4) ? TRUE : FALSE;
 				}
 
 				if(pszb != NULL)

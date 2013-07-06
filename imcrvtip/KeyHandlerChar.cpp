@@ -98,6 +98,25 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 					break;
 				}
 
+				if(rkc.func)	//関数
+				{
+					if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
+					{
+						roman.clear();
+						kana.clear();
+						cursoridx = 0;
+						_HandleCharTerminate(ec, pContext, composition);
+						_HandleConvPoint(ec, pContext, ch);
+						break;
+					}
+					roman.clear();
+					kana.clear();
+					cursoridx = 0;
+					_HandleCharTerminate(ec, pContext, composition);
+					_HandleCharReturn(ec, pContext);
+					break;
+				}
+
 				switch(inputmode)
 				{
 				case im_hiragana:

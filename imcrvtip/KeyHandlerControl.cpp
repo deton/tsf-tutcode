@@ -341,57 +341,9 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_CONV_POINT:
-		if(abbrevmode && !showentry)
+		if(_HandleConvPoint(ec, pContext, ch) == S_OK)
 		{
-			break;
-		}
-		if(showentry)
-		{
-			_HandleCharReturn(ec, pContext);
-		}
-
-		switch(inputmode)
-		{
-		case im_hiragana:
-		case im_katakana:
-			if(!inputkey)
-			{
-				if(_ConvN(ch))
-				{
-					if(!kana.empty())
-					{
-						_HandleCharReturn(ec, pContext);
-					}
-					//見出し入力開始
-					inputkey = TRUE;
-					_Update(ec, pContext);
-				}
-			}
-			else
-			{
-				if(_ConvN(ch) && accompidx == 0)
-				{
-					//送り仮名入力開始
-					if(cursoridx == kana.size())
-					{
-						accompidx = cursoridx;
-					}
-					else if(cursoridx != 0)
-					{
-						kana.insert(cursoridx, 1, (roman.empty() ? ch : roman[0]));
-						accompidx = cursoridx;
-						cursoridx++;
-					}
-					_Update(ec, pContext);
-				}
-			}
-			if(ch == L'\0')
-			{
-				return S_OK;
-			}
-			break;
-		default:
-			break;
+			return S_OK;
 		}
 		break;
 
@@ -737,6 +689,64 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		}
 		break;
 
+	default:
+		break;
+	}
+
+	return E_PENDING;
+}
+
+HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR &ch)
+{
+	if(abbrevmode && !showentry)
+	{
+		return E_PENDING;
+	}
+	if(showentry)
+	{
+		_HandleCharReturn(ec, pContext);
+	}
+
+	switch(inputmode)
+	{
+	case im_hiragana:
+	case im_katakana:
+		if(!inputkey)
+		{
+			if(_ConvN(ch))
+			{
+				if(!kana.empty())
+				{
+					_HandleCharReturn(ec, pContext);
+				}
+				//見出し入力開始
+				inputkey = TRUE;
+				_Update(ec, pContext);
+			}
+		}
+		else
+		{
+			if(_ConvN(ch) && accompidx == 0)
+			{
+				//送り仮名入力開始
+				if(cursoridx == kana.size())
+				{
+					accompidx = cursoridx;
+				}
+				else if(cursoridx != 0)
+				{
+					kana.insert(cursoridx, 1, (roman.empty() ? ch : roman[0]));
+					accompidx = cursoridx;
+					cursoridx++;
+				}
+				_Update(ec, pContext);
+			}
+		}
+		if(ch == L'\0')
+		{
+			return S_OK;
+		}
+		break;
 	default:
 		break;
 	}

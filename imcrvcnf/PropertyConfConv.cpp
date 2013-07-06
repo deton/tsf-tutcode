@@ -385,6 +385,7 @@ void LoadConfigKana()
 				{
 					rkc.soku = (_wtoi(r_itr->second.c_str()) & 0x1) ? TRUE : FALSE;
 					rkc.wait = (_wtoi(r_itr->second.c_str()) & 0x2) ? TRUE : FALSE;
+					rkc.func = (_wtoi(r_itr->second.c_str()) & 0x4) ? TRUE : FALSE;
 				}
 
 				if(pszb != NULL)
@@ -442,7 +443,7 @@ void LoadKana(HWND hwnd)
 		item.iSubItem = 3;
 		ListView_SetItem(hWndList, &item);
 		soku[1] = L'\0';
-		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0);
+		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0) + (roman_kana_conv[i].func ? 4 : 0);
 		item.pszText = soku;
 		item.iItem = i;
 		item.iSubItem = 4;
@@ -474,6 +475,7 @@ void SaveKana(HWND hwnd)
 		ListView_GetItemText(hWndListView, i, 4, soku, _countof(soku));
 		((soku[0] - L'0') & 0x1) != 0 ? rkc.soku = TRUE : rkc.soku = FALSE;
 		((soku[0] - L'0') & 0x2) != 0 ? rkc.wait = TRUE : rkc.wait = FALSE;
+		((soku[0] - L'0') & 0x4) != 0 ? rkc.func = TRUE : rkc.func = FALSE;
 
 		roman_kana_conv.push_back(rkc);
 	}
@@ -500,7 +502,7 @@ void SaveKana(HWND hwnd)
 
 		attr.first = AttributeSpOp;
 		soku[1] = L'\0';
-		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0);
+		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0) + (roman_kana_conv[i].func ? 4 : 0);
 		attr.second = soku;
 		row.push_back(attr);
 
@@ -690,6 +692,7 @@ void LoadConfigKanaTxt(LPCWSTR path)
 		_snwprintf_s(soku, _TRUNCATE, L"%s", &b[sidx]);
 		rkc.soku = (_wtoi(soku) & 0x1) ? TRUE : FALSE;
 		rkc.wait = (_wtoi(soku) & 0x2) ? TRUE : FALSE;
+		rkc.func = (_wtoi(soku) & 0x4) ? TRUE : FALSE;
 
 		ZeroMemory(b, sizeof(b));
 
@@ -740,7 +743,7 @@ void LoadKanaTxt(HWND hwnd, LPCWSTR path)
 		item.iSubItem = 3;
 		ListView_SetItem(hWndList, &item);
 		soku[1] = L'\0';
-		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0);
+		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0) + (roman_kana_conv[i].func ? 4 : 0);
 		item.pszText = soku;
 		item.iItem = i;
 		item.iSubItem = 4;

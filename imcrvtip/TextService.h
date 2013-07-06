@@ -143,6 +143,7 @@ public:
 
 	// KeyHandlerControl
 	HRESULT _HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR &ch);
+	HRESULT _HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR &ch);
 
 	// KeyHandlerConv
 	WCHAR _GetCh(BYTE vk, BYTE vkoff = 0);
