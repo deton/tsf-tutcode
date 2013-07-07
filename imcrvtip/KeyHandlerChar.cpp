@@ -2,6 +2,7 @@
 #include "imcrvtip.h"
 #include "TextService.h"
 #include "CandidateList.h"
+#include "mozc/win32/tip/tip_surrounding_text.h"
 
 HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::wstring &composition, WCHAR ch, WCHAR chO)
 {
@@ -107,6 +108,16 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 						cursoridx = 0;
 						_HandleCharTerminate(ec, pContext, composition);
 						_HandleConvPoint(ec, pContext, ch);
+						break;
+					}
+					else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
+					{
+						int count = _wtoi(rkc.hiragana + 4);
+						roman.clear();
+						kana.clear();
+						cursoridx = 0;
+						_HandleCharTerminate(ec, pContext, composition);
+						_HandlePostKata(ec, pContext, count);
 						break;
 					}
 					roman.clear();
@@ -248,6 +259,20 @@ HRESULT CTextService::_HandleCharTerminate(TfEditCookie ec, ITfContext *pContext
 		_Update(ec, pContext, composition, TRUE);
 		_TerminateComposition(ec, pContext);
 	}
+
+	return S_OK;
+}
+
+HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count)
+{
+	//TODO
+	//カーソル直前の文字列を取得
+	mozc::win32::tsf::TipSurroundingTextInfo info;
+	if (!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info)) {
+		return E_FAIL;
+	}
+	//ひらがなをカタカナに変換
+	//カーソル直前の文字列を置換
 
 	return S_OK;
 }
