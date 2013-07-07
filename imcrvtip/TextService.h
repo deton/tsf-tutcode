@@ -4,7 +4,6 @@
 
 #include "imcrvtip.h"
 #include "convtype.h"
-#include "mozc/win32/tip/tip_text_service.h"
 
 class CLangBarItemButton;
 class CCandidateList;
@@ -20,8 +19,7 @@ class CTextService :
 	public ITfDisplayAttributeProvider,
 	public ITfFunctionProvider,
 	public ITfFnConfigure,
-	public ITfFnShowHelp,
-	public mozc::win32::tsf::TipTextService
+	public ITfFnShowHelp
 {
 public:
 	CTextService();
@@ -89,15 +87,7 @@ public:
 	{
 		return _pThreadMgr;
 	}
-	ITfThreadMgr *GetThreadManager() const
-	{
-		return _pThreadMgr;
-	}
 	TfClientId _GetClientId()
-	{
-		return _ClientId;
-	}
-	TfClientId GetClientID() const
 	{
 		return _ClientId;
 	}
@@ -108,27 +98,6 @@ public:
 	CCandidateList *_GetCandidateList()
 	{
 		return _pCandidateList;
-	}
-	DWORD activate_flags() const
-	{
-		return _activate_flags;
-	}
-	mozc::win32::tsf::TipPrivateContext *GetPrivateContext(ITfContext *context)
-	{
-		return NULL;
-	}
-	TfGuidAtom input_attribute() const
-	{
-		return TF_INVALID_GUIDATOM;
-	}
-	TfGuidAtom converted_attribute() const
-	{
-		return TF_INVALID_GUIDATOM;
-	}
-
-	ITfCompositionSink *CreateCompositionSink(ITfContext *context)
-	{
-		return this;
 	}
 
 	// Compartment
@@ -215,11 +184,6 @@ public:
 	void _LoadKana();
 	void _LoadJLatin();
 
-	static TipTextService *Create()
-	{
-		return NULL;
-	}
-
 private:
 	LONG _cRef;
 
@@ -252,8 +216,6 @@ private:
 
 	ITfThreadMgr *_pThreadMgr;
 	TfClientId _ClientId;
-	// Stores the flag passed to ActivateEx.
-	DWORD _activate_flags;
 
 	DWORD _dwThreadMgrEventSinkCookie;
 	DWORD _dwThreadFocusSinkCookie;

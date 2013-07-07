@@ -19,7 +19,6 @@ CTextService::CTextService()
 	_pCandidateList = NULL;
 
 	_dwActiveFlags = 0;
-	_activate_flags = 0;
 
 	hPipe = INVALID_HANDLE_VALUE;
 
@@ -131,7 +130,6 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 	_pThreadMgr = ptim;
 	_pThreadMgr->AddRef();
 	_ClientId = tid;
-	_activate_flags = dwFlags;
 	
 	if(!_InitThreadMgrEventSink())
 	{
