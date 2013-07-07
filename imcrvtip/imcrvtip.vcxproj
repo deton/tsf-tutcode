@@ -41,7 +41,8 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+    <UseOfAtl>Static</UseOfAtl>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -135,17 +136,17 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;IMCRVTIP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;IMCRVTIP_EXPORTS;OS_WIN;COMPILER_MSVC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)common;$(ProjectDir)mozc;$(ProjectDir)mozc\win32\atl_wrapper</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>common.lib;shlwapi.lib;xmllite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>common.lib;shlwapi.lib;xmllite.lib;tip_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>imcrvtip.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\mozc;$(OutDir)</AdditionalLibraryDirectories>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
@@ -184,6 +185,7 @@
     <ClInclude Include="EnumDisplayAttributeInfo.h" />
     <ClInclude Include="imcrvtip.h" />
     <ClInclude Include="LanguageBar.h" />
+    <ClInclude Include="mozc\win32\tip\tip_surrounding_text.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TextService.h" />
   </ItemGroup>
