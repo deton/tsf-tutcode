@@ -29,10 +29,16 @@
 
 #include "win32/tip/tip_composition_util.h"
 
+#ifndef IMCRVTIP_EXPORTS
 #include "win32/base/tsf_profile.h"
 #include "win32/tip/tip_command_handler.h"
+#else
+#include "../../../imcrvtip.h"
+#endif
 #include "win32/tip/tip_range_util.h"
+#ifndef IMCRVTIP_EXPORTS
 #include "win32/tip/tip_text_service.h"
+#endif
 
 namespace mozc {
 namespace win32 {
@@ -66,7 +72,11 @@ CComPtr<ITfCompositionView> TipCompositionUtil::GetComposition(
     if (FAILED(composition_view->GetOwnerClsid(&clsid))) {
       continue;
     }
+#ifndef IMCRVTIP_EXPORTS
     if (!::IsEqualCLSID(TsfProfile::GetTextServiceGuid(), clsid)) {
+#else
+    if (!::IsEqualCLSID(c_clsidTextService, clsid)) {
+#endif
       continue;
     }
     // Although TSF supports multiple composition, Mozc uses only one
@@ -117,6 +127,7 @@ HRESULT TipCompositionUtil::ClearProperties(ITfContext *context,
   return S_OK;
 }
 
+#ifndef IMCRVTIP_EXPORTS
 HRESULT TipCompositionUtil::OnEndEdit(TipTextService *text_service,
                                       ITfContext *context,
                                       ITfComposition *composition,
@@ -178,6 +189,7 @@ HRESULT TipCompositionUtil::OnEndEdit(TipTextService *text_service,
 
   return S_OK;
 }
+#endif // !IMCRVTIP_EXPORTS
 
 }  // namespace tsf
 }  // namespace win32

@@ -41,8 +41,8 @@
 #ifndef IMCRVTIP_EXPORTS
 #include "base/util.h"
 #include "win32/base/imm_reconvert_string.h"
-#include "win32/tip/tip_composition_util.h"
 #endif
+#include "win32/tip/tip_composition_util.h"
 #include "win32/tip/tip_range_util.h"
 #include "win32/tip/tip_ref_count.h"
 #ifndef IMCRVTIP_EXPORTS
@@ -127,13 +127,11 @@ class SurroudingTextUpdater : public ITfEditSession {
       result_.is_transitory =
           ((status.dwStaticFlags & TF_SS_TRANSITORY) == TF_SS_TRANSITORY);
     }
-#ifndef IMCRVTIP_EXPORTS
     {
       CComPtr<ITfCompositionView> composition_view =
           TipCompositionUtil::GetComposition(context_, edit_cookie);
       result_.in_composition = !!composition_view;
     }
-#endif
 
     CComPtr<ITfRange> selected_range;
     {

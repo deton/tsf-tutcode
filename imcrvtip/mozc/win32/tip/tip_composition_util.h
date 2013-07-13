@@ -59,6 +59,7 @@ class TipCompositionUtil {
                                  ITfComposition *composition,
                                  TfEditCookie write_cookie);
 
+#ifndef IMCRVTIP_EXPORTS
   // Does post-edit status checking for composition (if exists). For example,
   // when the composition is cancelled by the application, this method sends
   // REVERT message to the server so that the status is kept to be consistent.
@@ -67,6 +68,7 @@ class TipCompositionUtil {
                            ITfComposition *composition,
                            TfEditCookie edit_cookie,
                            ITfEditRecord *edit_record);
+#endif
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(TipCompositionUtil);
