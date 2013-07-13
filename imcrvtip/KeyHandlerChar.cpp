@@ -267,7 +267,8 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 {
 	//カーソル直前の文字列を取得
 	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if (!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info)) {
+	if (!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
+	{
 		return E_FAIL;
 	}
 
@@ -275,22 +276,28 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	std::wstring kata;
 	int size = info.preceding_text.size();
 	int st = size - count;
-	if (count == 0) { //TODO: ひらがなが続く間
-	    st = 0;
-	} else if (count < 0) { //負の場合、カタカナ変換から除外する文字数
-	    st = -count;
-	    if (st > size) {
+	if (count == 0) //TODO: ひらがなが続く間
+	{
+		st = 0;
+	}
+	else if (count < 0)
+	{ //負の場合、カタカナ変換から除外する文字数
+		st = -count;
+		if (st > size)
+		{
 			st = size;
-	    }
+		}
 	}
 	int cnt = size - st;
-	if (cnt > 0) {
-	    _ConvKanaToKana(kata, im_katakana, info.preceding_text.substr(st, size), im_hiragana);
+	if (cnt > 0)
+	{
+		_ConvKanaToKana(kata, im_katakana, info.preceding_text.substr(st, size), im_hiragana);
 
-	    //カーソル直前の文字列を置換
-	    if (!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, cnt)) {
+		//カーソル直前の文字列を置換
+		if (!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, cnt))
+		{
 			return E_FAIL;
-	    }
+		}
 		kana.insert(cursoridx, kata);
 		accompidx = 0;
 		cursoridx += kata.size();
