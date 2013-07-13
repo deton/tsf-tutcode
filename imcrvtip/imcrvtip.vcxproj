@@ -209,6 +209,10 @@
     <ClCompile Include="KeyHandlerConv.cpp" />
     <ClCompile Include="KeyHandlerDictionary.cpp" />
     <ClCompile Include="LanguageBar.cpp" />
+    <ClCompile Include="mozc\win32\tip\tip_range_util.cc" />
+    <ClCompile Include="mozc\win32\tip\tip_ref_count.cc" />
+    <ClCompile Include="mozc\win32\tip\tip_surrounding_text.cc" />
+    <ClCompile Include="mozc\win32\tip\tip_transitory_extension.cc" />
     <ClCompile Include="Register.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="stdafx.cpp">

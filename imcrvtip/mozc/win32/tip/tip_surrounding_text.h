@@ -38,6 +38,10 @@
 struct ITfContext;
 struct ITfEditSession;
 
+#ifdef IMCRVTIP_EXPORTS
+class CTextService;
+#endif
+
 namespace mozc {
 
 namespace commands {
@@ -47,7 +51,9 @@ class Output;
 namespace win32 {
 namespace tsf {
 
+#ifndef IMCRVTIP_EXPORTS
 class TipTextService;
+#endif
 
 struct TipSurroundingTextInfo {
   TipSurroundingTextInfo();
@@ -71,7 +77,11 @@ class TipSurroundingText {
   //     session is guaranteed to be safe. A keyevent hander is one of
   //     examples. See the following document for details.
   //     http://blogs.msdn.com/b/tsfaware/archive/2007/05/17/rules-of-text-services.aspx
+#ifndef IMCRVTIP_EXPORTS
   static bool Get(TipTextService *text_service,
+#else
+  static bool Get(CTextService *text_service,
+#endif
                   ITfContext *context,
                   TipSurroundingTextInfo *info);
 
@@ -80,9 +90,11 @@ class TipSurroundingText {
   // Another difference is that this method uses IMM32 message when fails to
   // retrieve/update the selection.
   // TODO(yukawa): Consider to unify this method with TipSurroundingText::Get.
+#ifndef IMCRVTIP_EXPORTS
   static bool PrepareForReconversion(TipTextService *text_service,
                                      ITfContext *context,
                                      TipSurroundingTextInfo *info);
+#endif
 
   // Returns true when succeeds to delete preceeding text from the beginning of
   // the selected range.
@@ -93,7 +105,11 @@ class TipSurroundingText {
   //     session is guaranteed to be safe. A keyevent hander is one of
   //     examples. See the following document for details.
   //     http://blogs.msdn.com/b/tsfaware/archive/2007/05/17/rules-of-text-services.aspx
+#ifndef IMCRVTIP_EXPORTS
   static bool DeletePrecedingText(TipTextService *text_service,
+#else
+  static bool DeletePrecedingText(CTextService *text_service,
+#endif
                                   ITfContext *context,
                                   size_t num_characters_to_be_deleted_in_ucs4);
 

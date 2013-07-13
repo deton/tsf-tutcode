@@ -27,42 +27,22 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "win32/tip/tip_ref_count.h"
+// This header file is made as a workaround againt
+// http://support.microsoft.com/kb/813540.
+// See the following thread for details.
+// http://connect.microsoft.com/VisualStudio/feedback/details/535704/atlcomcli-h-cvartypeinfo-char-cannot-be-compiled-with-j-or-char-unsigned-flage-enabled
 
-#ifndef IMCRVTIP_EXPORTS
-#include "win32/tip/tip_dll_module.h"
-#endif
+#ifndef MOZC_WIN32_ATL_WRAPPER_ATL_BASE_MOZC_H_
+#define MOZC_WIN32_ATL_WRAPPER_ATL_BASE_MOZC_H_
 
-namespace mozc {
-namespace win32 {
-namespace tsf {
+#if _MSC_VER >= 1600
+#include <atldef.h>
+#pragma push_macro("ATLSTATIC_ASSERT")
+#undef ATLSTATIC_ASSERT
+#define ATLSTATIC_ASSERT(a, b)
+#include <atlcomcli.h>
+#pragma pop_macro("ATLSTATIC_ASSERT")
+#endif  // _MSC_VER >= 1600
+#include <atlbase.h>
 
-TipRefCount::TipRefCount()
-    : reference_count_(0) {
-#ifndef IMCRVTIP_EXPORTS
-  TipDllModule::AddRef();
-#endif
-}
-
-TipRefCount::~TipRefCount() {
-#ifndef IMCRVTIP_EXPORTS
-  TipDllModule::Release();
-#endif
-}
-
-ULONG TipRefCount::AddRefImpl() {
-  return ::InterlockedIncrement(&reference_count_);
-}
-
-ULONG TipRefCount::ReleaseImpl() {
-  const LONG count = ::InterlockedDecrement(&reference_count_);
-  if (reference_count_ <= 0) {
-    return 0;
-  }
-  return count;
-}
-
-}  // namespace tsf
-}  // namespace win32
-}  // namespace mozc
-
+#endif  // MOZC_WIN32_ATL_WRAPPER_ATL_BASE_MOZC_H_

@@ -125,6 +125,18 @@
     <ClCompile Include="ThreadMgrEventSink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mozc\win32\tip\tip_surrounding_text.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mozc\win32\tip\tip_transitory_extension.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mozc\win32\tip\tip_range_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mozc\win32\tip\tip_ref_count.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="imcrvtip.def">
