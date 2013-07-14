@@ -41,19 +41,28 @@
 */
 
 #include "bushu_dic.h"
+#ifndef IMCRV
 #include "debug.h"
+#endif
 
+#ifndef IMCRV
 #define MOJI_BUSHU_NL B2MOJI('N', 'L')
 //#define MOJI_BUSHU_NL 0
+#endif
 
 BushuDic::BushuDic() {
+#ifndef IMCRV
     nent = 0;
+#endif
 }
 
 BushuDic::~BushuDic() {
+#ifndef IMCRV
     for (int i = 0; i < nent; i++) { delete(ent[i]); }
+#endif
 }
 
+#ifndef IMCRV
 void BushuDic::readFile(ifstream *is) {
     // 作業領域
     char buffer[2048];
@@ -87,14 +96,22 @@ void BushuDic::readFile(ifstream *is) {
         ent[nent]->c = c;
     }
 }
+#endif // !IMCRV
 
 // kanji を 2 つの部品に分解する
 // 成功したら 1 を、失敗したら 0 を返す
 int BushuDic::decompose(MOJI kanji, MOJI &c1, MOJI &c2) {
+#ifndef IMCRV
     for (int i = 0; i < nent; i++) {
         if (ent[i]->c == kanji) {
             c1 = ent[i]->a;
             c2 = ent[i]->b;
+#else
+    for (int i = 0; ent[i].c != L'\0'; i++) {
+        if (ent[i].c == kanji) {
+            c1 = ent[i].a;
+            c2 = ent[i].b;
+#endif
             return 1;
         }
     }
@@ -118,12 +135,21 @@ MOJI BushuDic::alternative(MOJI c) {
 // a と b を直接組み合わせてできる外字を探す。
 // 見つからなかった場合は 0 を返す。XXX
 MOJI BushuDic::lookSub(MOJI a, MOJI b) {
+#ifndef IMCRV
     for (int i = 0; i < nent; i++) {
         if (ent[i]->a == a && ent[i]->b == b) {
             // ここで a と b を入れ換えて合成可能な
             // ent[i]->a == b && ent[i]->b == a
             // という状況は考えない
             return ent[i]->c;
+#else
+    for (int i = 0; ent[i].c != L'\0'; i++) {
+        if (ent[i].a == a && ent[i].b == b) {
+            // ここで a と b を入れ換えて合成可能な
+            // ent[i].a == b && ent[i].b == a
+            // という状況は考えない
+            return ent[i].c;
+#endif
         }
     }
     return 0;

@@ -2,14 +2,27 @@
 #define BUSHU_H
 // -------------------------------------------------------------------
 
+#ifndef IMCRV
 #include <iostream>
 #include <fstream>
+#endif
 #include <windows.h>
 
 using namespace std;
 
+#ifndef IMCRV
 #include "moji.h"
 #include "tc.h"                 // TC_BUSHU_ALGO_{OKA,YAMANOBE}
+#else
+// from moji.h
+typedef WCHAR MOJI;
+#define B2MOJI(h, l) MOJI((unsigned)((h) & 0xff) << 8 | (unsigned)((l) & 0xff))
+// from bushu_dic.cpp for bushuent.cpp
+#define MOJI_BUSHU_NL B2MOJI('N', 'L')
+// from tc.h
+#define TC_BUSHU_ALGO_OKA      1 // 岡アルゴリズム (tc.el)
+#define TC_BUSHU_ALGO_YAMANOBE 2 // 山辺アルゴリズム [tcode-ml:2652]
+#endif
 
 // 部首合成辞書 bushu.rev の中の行の意味:
 // * "CAB" → C := A + B (例: "茜サ西")
@@ -26,8 +39,12 @@ struct BushuEnt {
 
 class BushuDic {
 public:
+#ifndef IMCRV
     BushuEnt *ent[BUSHUDIC_MAXENT];
     int nent;
+#else
+    static const BushuEnt ent[];
+#endif
 
     BushuDic();
     ~BushuDic();
