@@ -1,7 +1,7 @@
-/* $Id: bushu_dic.c,v 1.6 2006/03/25 10:22:17 yuse Exp $ */
+﻿/* $Id: bushu_dic.c,v 1.6 2006/03/25 10:22:17 yuse Exp $ */
 
 /* comp.c from tserv-0.2 <http://www.tcp-ip.or.jp/~tagawa/archive/>.
- * modified for ����Win.
+ * modified for 漢直Win.
  */
 
 /*
@@ -12,8 +12,8 @@
  */
 
 /*
-  ���̃v���O�����̌��^��, tc.el �������܂���.  tc.el �� Copyright
-  �͈ȉ��̒ʂ�ł�.
+  このプログラムの原型は, tc.el から作られました.  tc.el の Copyright
+  は以下の通りです.
 ;;
 ;; T-Code frontend for Nemacs.
 ;; Author : Yasushi Saito (yasushi@is.s.u-tokyo.ac.jp)
@@ -55,7 +55,7 @@ BushuDic::~BushuDic() {
 }
 
 void BushuDic::readFile(ifstream *is) {
-    // ��Ɨ̈�
+    // 作業領域
     char buffer[2048];
     //int line = 1;
 
@@ -65,13 +65,13 @@ void BushuDic::readFile(ifstream *is) {
         is->getline(buffer, sizeof(buffer));
         if (*buffer == 0) { break; } // XXX; ?
         char *s = buffer;
-        // "CAB" �� C := A + B
+        // "CAB" → C := A + B
         MOJI c = str2moji(s, &s);
         MOJI a = str2moji(s, &s);
         MOJI b = str2moji(s, &s);
-        // "BC" �� B �� C
-        // ���ԈႦ���c�c��������
-        // "CB" �� B �� C
+        // "BC" → B ≡ C
+        // ↑間違えた……正しくは
+        // "CB" → B ≡ C
 #ifdef _MSC_VER //<OKA>
         if (b == MOJI('\r') || b == MOJI('\n') || b == 0) { // XXX
 #else
@@ -88,8 +88,8 @@ void BushuDic::readFile(ifstream *is) {
     }
 }
 
-// kanji �� 2 �̕��i�ɕ�������
-// ���������� 1 ���A���s������ 0 ��Ԃ�
+// kanji を 2 つの部品に分解する
+// 成功したら 1 を、失敗したら 0 を返す
 int BushuDic::decompose(MOJI kanji, MOJI &c1, MOJI &c2) {
     for (int i = 0; i < nent; i++) {
         if (ent[i]->c == kanji) {
@@ -104,8 +104,8 @@ int BushuDic::decompose(MOJI kanji, MOJI &c1, MOJI &c2) {
     return 0;
 }
 
-// c �Ɠ����ȕ��� eqc ��Ԃ��B���ɂȂ���� c ���g��Ԃ��B
-// �����ł���Ƃ� c := NL + eqc �ƒ�`����Ă��邱�Ƃł���B
+// c と等価な文字 eqc を返す。特になければ c 自身を返す。
+// 等価であるとは c := NL + eqc と定義されていることである。
 MOJI BushuDic::alternative(MOJI c) {
     MOJI a, b;
 
@@ -115,50 +115,50 @@ MOJI BushuDic::alternative(MOJI c) {
     return c;
 }
 
-// a �� b �𒼐ڑg�ݍ��킹�Ăł���O����T���B
-// ������Ȃ������ꍇ�� 0 ��Ԃ��BXXX
+// a と b を直接組み合わせてできる外字を探す。
+// 見つからなかった場合は 0 を返す。XXX
 MOJI BushuDic::lookSub(MOJI a, MOJI b) {
     for (int i = 0; i < nent; i++) {
         if (ent[i]->a == a && ent[i]->b == b) {
-            // ������ a �� b ����ꊷ���č����\��
+            // ここで a と b を入れ換えて合成可能な
             // ent[i]->a == b && ent[i]->b == a
-            // �Ƃ����󋵂͍l���Ȃ�
+            // という状況は考えない
             return ent[i]->c;
         }
     }
     return 0;
 }
 
-// a �� b ��g�ݍ��킹�Ăł���O����T���B
-// ������Ȃ������ꍇ�� 0 ��Ԃ��BXXX
+// a と b を組み合わせてできる外字を探す。
+// 見つからなかった場合は 0 を返す。XXX
 //
-// �ȉ��̃R�[�h�́A
-// �� �r�s (OKA Toshiyuki) <oka@nova.co.jp>
-// ����ɂ��A���S���Y����p�������́B
+// 以下のコードは、
+// 岡 俊行 (OKA Toshiyuki) <oka@nova.co.jp>
+// さんによるアルゴリズムを用いたもの。
 MOJI BushuDic::look(MOJI ca, MOJI cb) {
     return look(ca, cb, TC_BUSHU_ALGO_OKA);
 }
 
 MOJI BushuDic::look(MOJI ca, MOJI cb, int bushu_algo) {
-    // ���̃��[�`���ł́A������̕��������̕����ɖ߂�Ȃ��悤
-    // ���ӂ��Ȃ���΂Ȃ�Ȃ�
+    // このルーチンでは、合成後の文字が元の文字に戻らないよう
+    // 注意しなければならない
 #define RETURN(x) if (x != ca && x != cb) return x
 
-    // �S�p�����Ŕ��p�ɒ����镶���͔��p�ɂ��Ă���
-    // XXX (���̂��������\��)
-    // �c�c�Ǝv�������Abushu.rev ��
-    // > 3�R
-    // �̂悤�ȓ�����`�������đΏ����Ă��炤���Ƃɂ����B
+    // 全角文字で半角に直せる文字は半角にしておく
+    // XXX (そのうち書く予定)
+    // ……と思ったが、bushu.rev に
+    // > 3３
+    // のような等価定義を書いて対処してもらうことにした。
 
-    // �����ȕ��i��p�ӂ��Ă���
+    // 等価な部品を用意しておく
     MOJI a = alternative(ca);
     MOJI b = alternative(cb);
-    // ����ɁA�������Ă���
+    // さらに、分解しておく
     MOJI a1, a2, b1, b2;
     decompose(a, a1, a2);       // a := a1 + a2
     decompose(b, b1, b2);       // b := b1 + b2
 
-    // NL �͔�����
+    // NL は避ける
     if (a1 == MOJI_BUSHU_NL) { a1 = 0; }
     if (a2 == MOJI_BUSHU_NL) { a2 = 0; }
     if (b1 == MOJI_BUSHU_NL) { b1 = 0; }
@@ -168,10 +168,10 @@ MOJI BushuDic::look(MOJI ca, MOJI cb, int bushu_algo) {
 
     for (int i = 0; i < 2; i++) {
         MOJI r;
-        // �܂��A�����Z
+        // まず、足し算
         if ((r = lookSub(ca, cb)) != 0) RETURN(r);
 
-        // �����������m�ő����Z
+        // 等価文字同士で足し算
         if ((r = lookSub(a, b)) != 0) RETURN(r);
 #define lookSub_L2R(x, y, z) ((r = lookSub(x, y)) != 0 && (r = lookSub(r, z)) != 0)
 #define lookSub_R2L(x, y, z) ((r = lookSub(y, z)) != 0 && (r = lookSub(x, r)) != 0)
@@ -187,7 +187,7 @@ MOJI BushuDic::look(MOJI ca, MOJI cb, int bushu_algo) {
             }
         }
 
-        // ���́A�����Z
+        // 次は、引き算
         if (a2 && a1 && a2 == b) RETURN(a1);
         if (a1 && a2 && a1 == b) RETURN(a2);
         // YAMANOBE algorithm
@@ -210,7 +210,7 @@ MOJI BushuDic::look(MOJI ca, MOJI cb, int bushu_algo) {
             }
         }
 
-        // ��������i�ɂ�鑫���Z
+        // 一方が部品による足し算
         if (a && b1 && (r = lookSub(a, b1)) != 0) RETURN(r);
         if (a && b2 && (r = lookSub(a, b2)) != 0) RETURN(r);
         if (a1 && b && (r = lookSub(a1, b)) != 0) RETURN(r);
@@ -235,13 +235,13 @@ MOJI BushuDic::look(MOJI ca, MOJI cb, int bushu_algo) {
             }
         }
 
-        // ���������i�ɂ�鑫���Z
+        // 両方が部品による足し算
         if (a1 && b1 && (r = lookSub(a1, b1)) != 0) RETURN(r);
         if (a1 && b2 && (r = lookSub(a1, b2)) != 0) RETURN(r);
         if (a2 && b1 && (r = lookSub(a2, b1)) != 0) RETURN(r);
         if (a2 && b2 && (r = lookSub(a2, b2)) != 0) RETURN(r);
 
-        // ���i�ɂ������Z
+        // 部品による引き算
         if (a2 && b1 && a2 == b1) RETURN(a1);
         if (a2 && b2 && a2 == b2) RETURN(a1);
         if (a1 && b1 && a1 == b1) RETURN(a2);
@@ -257,7 +257,7 @@ MOJI BushuDic::look(MOJI ca, MOJI cb, int bushu_algo) {
             }
         }
 
-        // �����̏������t�ɂ��Ă݂�
+        // 文字の順序を逆にしてみる
         MOJI t = ca; ca = cb, cb = t;
         t = a, a = b, b = t;
         t = a1, a1 = b1, b1 = t;

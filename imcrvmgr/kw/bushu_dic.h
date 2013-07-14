@@ -1,4 +1,4 @@
-#ifndef BUSHU_H
+ï»¿#ifndef BUSHU_H
 #define BUSHU_H
 // -------------------------------------------------------------------
 
@@ -11,11 +11,11 @@ using namespace std;
 #include "moji.h"
 #include "tc.h"                 // TC_BUSHU_ALGO_{OKA,YAMANOBE}
 
-// •”ñ‡¬«‘ bushu.rev ‚Ì’†‚Ìs‚ÌˆÓ–¡:
-// * "CAB" ¨ C := A + B (—á: "ˆ©ƒT¼")
-// * "BC"  ¨ B ß C     (—á: "‰@ƒA")
-// * ªŠÔˆá‚¦‚½cc³‚µ‚­‚Í
-// * "CB" ¨ B ß C      (—á: "‰@ƒA")
+// éƒ¨é¦–åˆæˆè¾æ›¸ bushu.rev ã®ä¸­ã®è¡Œã®æ„å‘³:
+// * "CAB" â†’ C := A + B (ä¾‹: "èŒœã‚µè¥¿")
+// * "BC"  â†’ B â‰¡ C     (ä¾‹: "é™¢ã‚¢")
+// * â†‘é–“é•ãˆãŸâ€¦â€¦æ­£ã—ãã¯
+// * "CB" â†’ B â‰¡ C      (ä¾‹: "é™¢ã‚¢")
 struct BushuEnt {
     MOJI a;
     MOJI b;
