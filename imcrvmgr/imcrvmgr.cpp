@@ -203,6 +203,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //save user dictionary
 //	request	"S\n"
 //	reply	"1"
+//bushu conversion
+//	request	"b\n<bushu1>\t<bushu2>\n"
+//	reply	"1\n<candidate converted>\n":hit, "4":nothing
 
 void SrvProc(WCHAR *wbuf, size_t size)
 {
@@ -252,6 +255,35 @@ void SrvProc(WCHAR *wbuf, size_t size)
 		{
 			wbuf[0] = REP_FALSE;
 			wbuf[1] = L'\0';
+		}
+		break;
+
+	case REQ_BUSHU:
+		token = wcstok_s(&wbuf[2], seps, &next_token);
+		if(token != NULL)
+		{
+			key.assign(token);
+			token = wcstok_s(NULL, seps, &next_token);
+		}
+		if(token != NULL)
+		{
+			keyorg.assign(token);
+		}
+		{
+			WCHAR r = ConvBushu(key, keyorg);
+			if(r != 0)
+			{
+				wbuf[0] = REP_OK;
+				wbuf[1] = L'\n';
+				wbuf[2] = r;
+				wbuf[3] = L'\n';
+				wbuf[4] = L'\0';
+			}
+			else
+			{
+				wbuf[0] = REP_FALSE;
+				wbuf[1] = L'\0';
+			}
 		}
 		break;
 

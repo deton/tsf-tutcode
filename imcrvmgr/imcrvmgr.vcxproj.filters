@@ -50,6 +50,15 @@
     <ClCompile Include="ConvNum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kw\bushu_dic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kw\bushuent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConvBushu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="imcrvmgr.rc">

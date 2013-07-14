@@ -38,6 +38,7 @@
 #define REQ_USER_DEL_0	L'C'	//ユーザ辞書削除(送りあり、補完なし)
 #define REQ_USER_DEL_1	L'D'	//ユーザ辞書削除(送りなし、補完あり)
 #define REQ_USER_SAVE	L'S'	//ユーザ辞書保存
+#define REQ_BUSHU		L'b'	//部首合成変換
 //reply
 #define REP_OK			L'1'	//hit
 #define REP_FALSE		L'4'	//nothing

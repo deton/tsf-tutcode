@@ -120,6 +120,15 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 						_HandlePostKata(ec, pContext, count);
 						break;
 					}
+					else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
+					{
+						roman.clear();
+						kana.clear();
+						cursoridx = 0;
+						_HandleCharTerminate(ec, pContext, composition);
+						_HandlePostBushu(ec, pContext);
+						break;
+					}
 					roman.clear();
 					kana.clear();
 					cursoridx = 0;
@@ -263,6 +272,7 @@ HRESULT CTextService::_HandleCharTerminate(TfEditCookie ec, ITfContext *pContext
 	return S_OK;
 }
 
+//後置型カタカナ変換
 HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count)
 {
 	//カーソル直前の文字列を取得
@@ -301,6 +311,40 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		kana.insert(cursoridx, kata);
 		accompidx = 0;
 		cursoridx += kata.size();
+		_HandleCharReturn(ec, pContext);
+	}
+
+	return S_OK;
+}
+
+//後置型部首合成変換
+HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
+{
+	//カーソル直前の文字列を取得
+	mozc::win32::tsf::TipSurroundingTextInfo info;
+	if(!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
+	{
+		return E_FAIL;
+	}
+
+	int size = info.preceding_text.size();
+	if(size >= 2)
+	{
+		WCHAR bushu1 = info.preceding_text[size - 2];
+		WCHAR bushu2 = info.preceding_text[size - 1];
+		//部首合成変換
+		WCHAR kanji = _SearchBushuDic(bushu1, bushu2);
+		if(kanji != 0)
+		{
+			//カーソル直前の文字列を置換
+			if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, 2))
+			{
+				return E_FAIL;
+			}
+			kana.insert(cursoridx, 1, kanji);
+			accompidx = 0;
+			cursoridx++;
+		}
 		_HandleCharReturn(ec, pContext);
 	}
 

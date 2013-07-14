@@ -135,6 +135,7 @@ public:
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharTerminate(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count);
+	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerCompostion
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed = FALSE, BOOL back = FALSE);
@@ -165,6 +166,7 @@ public:
 	void _ConnectDic();
 	void _DisconnectDic();
 	void _SearchDic(WCHAR command);
+	WCHAR _SearchBushuDic(WCHAR bushu1, WCHAR bushu2);
 	void _ConvertCandidate(std::wstring &conv, const std::wstring &key, const std::wstring &candidate);
 	void _AddUserDic(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &annotation);
 	void _DelUserDic(WCHAR command, const std::wstring &key, const std::wstring &candidate);

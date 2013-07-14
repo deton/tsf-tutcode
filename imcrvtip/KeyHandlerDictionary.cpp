@@ -100,6 +100,51 @@ exit:
 	_DisconnectDic();
 }
 
+WCHAR CTextService::_SearchBushuDic(WCHAR bushu1, WCHAR bushu2)
+{
+	WCHAR wbuf[PIPEBUFSIZE];
+	DWORD bytesWrite, bytesRead;
+	WCHAR ret = 0;
+
+	_StartManager();
+
+	_ConnectDic();
+
+	ZeroMemory(wbuf, sizeof(wbuf));
+
+	//_snwprintf_s(wbuf, _TRUNCATE, L"%c\n%c\t%c\n", REQ_BUSHU, bushu1, bushu2);
+	wbuf[0] = REQ_BUSHU;
+	wbuf[1] = L'\n';
+	wbuf[2] = bushu1;
+	wbuf[3] = L'\t';
+	wbuf[4] = bushu2;
+	wbuf[5] = L'\n';
+	wbuf[6] = L'\0';
+
+	if(WriteFile(hPipe, wbuf, (DWORD)(wcslen(wbuf)*sizeof(WCHAR)), &bytesWrite, NULL) == FALSE)
+	{
+		goto exit;
+	}
+
+	ZeroMemory(wbuf, sizeof(wbuf));
+
+	if(ReadFile(hPipe, wbuf, sizeof(wbuf), &bytesRead, NULL) == FALSE)
+	{
+		goto exit;
+	}
+
+	if(wbuf[0] != REP_OK)
+	{
+		goto exit;
+	}
+
+	ret = wbuf[2];
+
+exit:
+	_DisconnectDic();
+	return ret;
+}
+
 void CTextService::_ConvertCandidate(std::wstring &conv, const std::wstring &key, const std::wstring &candidate)
 {
 	WCHAR wbuf[PIPEBUFSIZE];

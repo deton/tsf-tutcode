@@ -65,6 +65,9 @@ void ConnectSKKServer();
 void DisconnectSKKServer();
 void GetSKKServerVersion();
 
+// ConvBushu
+WCHAR ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
+
 extern LPCWSTR TextServiceDesc;
 
 extern CRITICAL_SECTION csUserDataSave;
