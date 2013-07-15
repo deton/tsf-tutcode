@@ -323,4 +323,5 @@ void CTextService::_ResetStatus()
 	accompidx = 0;
 
 	cursoridx = 0;
+	postKataPrevLen = 0;
 }

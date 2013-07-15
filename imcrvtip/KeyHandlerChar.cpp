@@ -112,12 +112,26 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 					}
 					else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
 					{
-						int count = _wtoi(rkc.hiragana + 4);
+						int offset = 4;
+						int isShrink = 0;
+						if(rkc.hiragana[4] == L'>')
+						{
+							offset = 5;
+							isShrink = 1;
+						}
+						int count = _wtoi(rkc.hiragana + offset);
 						roman.clear();
 						kana.clear();
 						cursoridx = 0;
 						_HandleCharTerminate(ec, pContext, composition);
-						_HandlePostKata(ec, pContext, count);
+						if(isShrink)
+						{
+							_HandlePostKataShrink(ec, pContext, count);
+						}
+						else
+						{
+							_HandlePostKata(ec, pContext, count);
+						}
 						break;
 					}
 					else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
@@ -290,13 +304,13 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	{
 		for(st = size - 1; 0 <= st; st--)
 		{
-//TRUEの文字が続く間、後置型かたかな変換対象とする(ひらがな、「ー」)
+//TRUEの文字が続く間、後置型カタカナ変換対象とする(ひらがな、「ー」)
 #define TYOON(m) ((m) == 0x30FC)
 #define IN_KATARANGE(m) (0x3041 <= (m) && (m) <= 0x309F || TYOON(m))
 			WCHAR m = info.preceding_text[st];
 			if(!IN_KATARANGE(m))
 			{
-				// 「キーとばりゅー」に対し1文字残してかたかな変換で
+				// 「キーとばりゅー」に対し1文字残してカタカナ変換で
 				// 「キーとバリュー」になるように「ー」は除く
 				while(st < size - 1)
 				{
@@ -316,13 +330,13 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		st++;
 		if(count < 0)
 		{
-			st += -count; // 指定文字数を除いてかたかなに変換
+			st += -count; // 指定文字数を除いてカタカナに変換
 		}
 	}
 	int cnt = size - st;
 	if(cnt > 0)
 	{
-		_ConvKanaToKana(kata, im_katakana, info.preceding_text.substr(st, size), im_hiragana);
+		_ConvKanaToKana(kata, im_katakana, info.preceding_text.substr(st), im_hiragana);
 
 		//カーソル直前の文字列を置換
 		if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, cnt))
@@ -333,8 +347,68 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		accompidx = 0;
 		cursoridx += kata.size();
 		_HandleCharReturn(ec, pContext);
+		postKataPrevLen = cnt;
+	}
+	else
+	{
+		_HandleCharReturn(ec, pContext);
+		postKataPrevLen = 0;
 	}
 
+	return S_OK;
+}
+
+//直前の後置型カタカナ変換を縮める
+//例: 「例えばあぷりけーしょん」ひらがなが続く間カタカナに変換
+//	→「例エバアプリケーション」2文字縮める
+//	→「例えばアプリケーション」
+HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count)
+{
+	if(postKataPrevLen == 0)
+	{
+		_HandleCharReturn(ec, pContext);
+		return S_OK;
+	}
+
+	//カーソル直前の文字列を取得
+	mozc::win32::tsf::TipSurroundingTextInfo info;
+	if(!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
+	{
+		return E_FAIL;
+	}
+
+	//countぶん縮める部分をひらがなにする
+	int size = info.preceding_text.size();
+	if(size < postKataPrevLen)
+	{
+		_HandleCharReturn(ec, pContext);
+		return S_OK;
+	}
+	int kataLen = postKataPrevLen - count;
+	if(kataLen < 0)
+	{
+		kataLen = 0;
+	}
+	//縮めることでひらがなになる文字列
+	std::wstring hira;
+	_ConvKanaToKana(hira, im_hiragana, info.preceding_text.substr(size - postKataPrevLen, count), im_katakana);
+	kana.insert(cursoridx, hira);
+	accompidx = 0;
+	cursoridx += hira.size();
+	if(kataLen > 0)
+	{
+		//カタカナのままにする文字列
+		kana.insert(cursoridx, info.preceding_text.substr(size - kataLen));
+		cursoridx += kataLen;
+	}
+
+	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, postKataPrevLen))
+	{
+		return E_FAIL;
+	}
+	_HandleCharReturn(ec, pContext);
+	postKataPrevLen = kataLen; //繰り返しShrinkできるように
+	//TODO:カーソル移動時はpostKataPrevLenは0にする
 	return S_OK;
 }
 

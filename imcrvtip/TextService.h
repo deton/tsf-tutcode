@@ -135,6 +135,7 @@ public:
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharTerminate(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count);
+	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerCompostion
@@ -307,6 +308,8 @@ public:
 	size_t candorgcnt;		//オリジナル見出し語の候補数
 
 	size_t cursoridx;		//カーソルインデックス
+
+	int postKataPrevLen;	//直前の後置型カタカナ変換で変換した文字数
 
 	//候補一覧選択キー
 	WCHAR selkey[MAX_SELKEY_C][2][2];
