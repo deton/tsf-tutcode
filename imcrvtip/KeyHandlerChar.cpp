@@ -378,7 +378,7 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	}
 
 	//countぶん縮める部分をひらがなにする
-	int size = info.preceding_text.size();
+	size_t size = info.preceding_text.size();
 	if(size < postKataPrevLen)
 	{
 		_HandleCharReturn(ec, pContext);
@@ -422,7 +422,7 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 		return E_FAIL;
 	}
 
-	int size = info.preceding_text.size();
+	size_t size = info.preceding_text.size();
 	if(size >= 2)
 	{
 		WCHAR bushu1 = info.preceding_text[size - 2];
