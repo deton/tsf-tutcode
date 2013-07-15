@@ -16,9 +16,8 @@ using namespace std;
 #else
 // from moji.h
 typedef WCHAR MOJI;
-#define B2MOJI(h, l) MOJI((unsigned)((h) & 0xff) << 8 | (unsigned)((l) & 0xff))
 // from bushu_dic.cpp for bushuent.cpp
-#define MOJI_BUSHU_NL B2MOJI('N', 'L')
+#define MOJI_BUSHU_NL L'\n'
 // from tc.h
 #define TC_BUSHU_ALGO_OKA      1 // 岡アルゴリズム (tc.el)
 #define TC_BUSHU_ALGO_YAMANOBE 2 // 山辺アルゴリズム [tcode-ml:2652]
