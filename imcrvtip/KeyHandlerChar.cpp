@@ -286,16 +286,37 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	std::wstring kata;
 	int size = info.preceding_text.size();
 	int st = size - count;
-	if(count == 0) //TODO: ひらがなが続く間
+	if(count <= 0) //0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
-		st = 0;
-	}
-	else if(count < 0)
-	{ //負の場合、カタカナ変換から除外する文字数
-		st = -count;
-		if(st > size)
+		for(st = size - 1; 0 <= st; st--)
 		{
-			st = size;
+//TRUEの文字が続く間、後置型かたかな変換対象とする(ひらがな、「ー」)
+#define TYOON(m) ((m) == 0x30FC)
+#define IN_KATARANGE(m) (0x3041 <= (m) && (m) <= 0x309F || TYOON(m))
+			WCHAR m = info.preceding_text[st];
+			if(!IN_KATARANGE(m))
+			{
+				// 「キーとばりゅー」に対し1文字残してかたかな変換で
+				// 「キーとバリュー」になるように「ー」は除く
+				while(st < size - 1)
+				{
+					m = info.preceding_text[st + 1];
+					if(TYOON(m))
+					{
+						st++;
+					}
+					else
+					{
+						break;
+					}
+				}
+				break;
+			}
+		}
+		st++;
+		if(count < 0)
+		{
+			st += -count; // 指定文字数を除いてかたかなに変換
 		}
 	}
 	int cnt = size - st;
