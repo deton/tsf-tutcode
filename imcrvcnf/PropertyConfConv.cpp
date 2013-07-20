@@ -233,15 +233,6 @@ void LoadConfigConvPoint()
 			i++;
 		}
 	}
-	else
-	{
-		for(i=0; i<26; i++)
-		{
-			conv_point[i][0][0] = L'A' + (WCHAR)i;
-			conv_point[i][1][0] = L'a' + (WCHAR)i;
-			conv_point[i][2][0] = L'a' + (WCHAR)i;
-		}
-	}
 }
 
 void LoadConvPoint(HWND hwnd)
