@@ -2,8 +2,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define TEXTSERVICE_NAME	L"CorvusSKK"
-#define TEXTSERVICE_VER		L"0.12.0"
+#define TEXTSERVICE_NAME	L"tsf-tutcode"
+#define TEXTSERVICE_VER		L"0.0.1"
 
 #ifndef _DEBUG
 #define TEXTSERVICE_DESC	TEXTSERVICE_NAME
@@ -12,10 +12,10 @@
 #endif
 
 //for resource
-#define RC_AUTHOR			"Nathan Corvus Solis"
-#define RC_PRODUCT			"CorvusSKK"
-#define RC_VERSION			"0.12.0"
-#define RC_VERSION_D		0,12,0,0
+#define RC_AUTHOR			"KIHARA Hideto"
+#define RC_PRODUCT			"tsf-tutcode"
+#define RC_VERSION			"0.0.1"
+#define RC_VERSION_D		0,0,1,0
 
 #define DICBUFSIZE			0x2000
 #define PIPEBUFSIZE			0x2000
@@ -43,12 +43,12 @@
 #define REP_OK			L'1'	//hit
 #define REP_FALSE		L'4'	//nothing
 
-#define CORVUSMGREXE		L"imcrvmgr.exe"
-#define CORVUSCNFEXE		L"imcrvcnf.exe"
+#define CORVUSMGREXE		L"imtutmgr.exe"
+#define CORVUSCNFEXE		L"imtutcnf.exe"
 #ifndef _DEBUG
-#define CORVUSKRNLOBJ		L"corvus-skk-"
+#define CORVUSKRNLOBJ		L"tsf-tutcode-"
 #else
-#define CORVUSKRNLOBJ		L"corvus-skk-debug-"
+#define CORVUSKRNLOBJ		L"tsf-tutcode-debug-"
 #endif
 #define CORVUSMGRMUTEX		CORVUSKRNLOBJ L"mgr-"
 #define CORVUSCNFMUTEX		CORVUSKRNLOBJ L"cnf-"

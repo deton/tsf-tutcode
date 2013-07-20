@@ -7,6 +7,6 @@ pushd config-sample
 move config-sample.7z ..\
 popd
 
-7za.exe a corvusskk.7z corvusskk-x64.msi corvusskk-x86.msi README.TXT ..\LICENSE.TXT config-sample.7z
+7za.exe a tsftutcode.7z tsftutcode-x64.msi tsftutcode-x86.msi README.TXT ..\LICENSE.TXT config-sample.7z
 
 popd
