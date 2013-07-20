@@ -33,12 +33,12 @@
 #include <string>
 
 #include "base/port.h"
-#include "base/namespace.h"
 
 struct ITfContext;
 struct ITfEditSession;
 
 #ifdef IMCRVTIP_EXPORTS
+#include "base/namespace.h" // std:: for wstring
 class CTextService;
 #endif
 

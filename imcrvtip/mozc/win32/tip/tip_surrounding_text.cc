@@ -37,7 +37,8 @@
 #include <atlcom.h>
 #include <msctf.h>
 
-#include "base/scoped_ptr.h"
+#include <memory>
+
 #ifndef IMCRVTIP_EXPORTS
 #include "base/util.h"
 #include "win32/base/imm_reconvert_string.h"
@@ -59,6 +60,7 @@ namespace tsf {
 using ATL::CComPtr;
 using ATL::CComQIPtr;
 using ATL::CComVariant;
+using std::unique_ptr;
 
 namespace {
 
@@ -346,7 +348,7 @@ bool PrepareForReconversionIMM32(ITfContext *context,
   }
 
   const size_t buffer_size = static_cast<size_t>(result);
-  scoped_array<BYTE> buffer(new BYTE[buffer_size]);
+  unique_ptr<BYTE[]> buffer(new BYTE[buffer_size]);
 
   RECONVERTSTRING *reconvert_string =
       reinterpret_cast<RECONVERTSTRING *>(buffer.get());
@@ -412,7 +414,7 @@ bool TipSurroundingText::Get(CTextService *text_service,
 
   // When RequestEditSession fails, it does not maintain the reference count.
   // So we need to ensure that AddRef/Release should be called at least once
-  // per oject.
+  // per object.
   CComPtr<SurroudingTextUpdater> updater(
       new SurroudingTextUpdater(target_context, false));
 
