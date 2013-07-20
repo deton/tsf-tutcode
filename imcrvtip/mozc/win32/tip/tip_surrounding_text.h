@@ -92,9 +92,11 @@ class TipSurroundingText {
   // TODO(yukawa): Consider to unify this method with TipSurroundingText::Get.
 #ifndef IMCRVTIP_EXPORTS
   static bool PrepareForReconversion(TipTextService *text_service,
+#else
+  static bool PrepareForReconversion(CTextService *text_service,
+#endif
                                      ITfContext *context,
                                      TipSurroundingTextInfo *info);
-#endif
 
   // Returns true when succeeds to delete preceeding text from the beginning of
   // the selected range.

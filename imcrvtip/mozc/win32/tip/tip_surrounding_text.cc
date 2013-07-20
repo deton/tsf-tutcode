@@ -41,8 +41,8 @@
 
 #ifndef IMCRVTIP_EXPORTS
 #include "base/util.h"
-#include "win32/base/imm_reconvert_string.h"
 #endif
+#include "win32/base/imm_reconvert_string.h"
 #include "win32/tip/tip_composition_util.h"
 #include "win32/tip/tip_range_util.h"
 #include "win32/tip/tip_ref_count.h"
@@ -325,7 +325,6 @@ class PrecedingTextDeleter : public ITfEditSession {
 };
 
 
-#ifndef IMCRVTIP_EXPORTS
 bool PrepareForReconversionIMM32(ITfContext *context,
                                  TipSurroundingTextInfo *info) {
   CComPtr<ITfContextView> context_view;
@@ -383,7 +382,6 @@ bool PrepareForReconversionIMM32(ITfContext *context,
 
   return true;
 }
-#endif // !IMCRVTIP_EXPORTS
 
 }  // namespace
 
@@ -442,6 +440,9 @@ bool TipSurroundingText::Get(CTextService *text_service,
 
 #ifndef IMCRVTIP_EXPORTS
 bool PrepareForReconversionTSF(TipTextService *text_service,
+#else
+bool PrepareForReconversionTSF(CTextService *text_service,
+#endif
                                ITfContext *context,
                                TipSurroundingTextInfo *info) {
   // Use Transitory Extensions when supported. Common controls provides
@@ -457,7 +458,11 @@ bool PrepareForReconversionTSF(TipTextService *text_service,
 
   HRESULT edit_session_result = S_OK;
   const HRESULT hr = target_context->RequestEditSession(
+#ifndef IMCRVTIP_EXPORTS
       text_service->GetClientID(),
+#else
+      text_service->_GetClientId(),
+#endif
       updater,
       TF_ES_SYNC | TF_ES_READWRITE,
       &edit_session_result);
@@ -473,7 +478,11 @@ bool PrepareForReconversionTSF(TipTextService *text_service,
 }
 
 bool TipSurroundingText::PrepareForReconversion(
+#ifndef IMCRVTIP_EXPORTS
     TipTextService *text_service,
+#else
+    CTextService *text_service,
+#endif
     ITfContext *context,
     TipSurroundingTextInfo *info) {
   if (info == nullptr) {
@@ -490,7 +499,6 @@ bool TipSurroundingText::PrepareForReconversion(
   }
   return PrepareForReconversionIMM32(context, info);
 }
-#endif // !IMCRVTIP_EXPORTS
 
 bool TipSurroundingText::DeletePrecedingText(
 #ifndef IMCRVTIP_EXPORTS

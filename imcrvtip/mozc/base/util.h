@@ -38,12 +38,15 @@
 
 #include "base/logging.h"
 #include "base/port.h"
+#ifndef IMCRVTIP_EXPORTS
 #include "base/string_piece.h"
+#endif
 
 struct tm;
 
 namespace mozc {
 
+#ifndef IMCRVTIP_EXPORTS
 // SplitIterator - Iteratively splits a StringPiece to sub-StringPieces.
 //
 // This template class takes two template parameters, Delimiter and Option.
@@ -102,9 +105,11 @@ class SplitIterator {
   void Next();
   bool Done() const;
 };
+#endif // !IMCRVTIP_EXPORTS
 
 class Util {
  public:
+#ifndef IMCRVTIP_EXPORTS
   // String utils
   template <typename StringContainer>
   static void PushBackStringPiece(StringPiece s, StringContainer *container) {
@@ -449,6 +454,7 @@ class Util {
   // Escape unsafe CSS characters like <.  Note > and & are not
   // escaped becaused they are operands of CSS.
   static void EscapeCss(const string &text, string *result);
+#endif // !IMCRVTIP_EXPORTS
 
   enum ScriptType {
     UNKNOWN_SCRIPT,
@@ -464,6 +470,7 @@ class Util {
   // return script type of w
   static ScriptType GetScriptType(char32 w);
 
+#ifndef IMCRVTIP_EXPORTS
   // return script type of first character in [begin, end)
   // This function finds the first UTF-8 chars and returns its script type.
   // The length of the character will be returned in *mblen.
@@ -526,11 +533,13 @@ class Util {
   // if the given string contains multiple charasets, return
   // the maximum character set.
   static CharacterSet GetCharacterSet(const string &str);
+#endif // !IMCRVTIP_EXPORTS
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(Util);
 };
 
+#ifndef IMCRVTIP_EXPORTS
 // Const iterator implementation to traverse on a (utf8) string as a char32
 // string.
 //
@@ -645,6 +654,7 @@ class SplitIterator<Delimiter, AllowEmpty> {
 
   DISALLOW_COPY_AND_ASSIGN(SplitIterator);
 };
+#endif // !IMCRVTIP_EXPORTS
 
 }  // namespace mozc
 

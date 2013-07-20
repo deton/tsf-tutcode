@@ -291,7 +291,7 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 {
 	//カーソル直前の文字列を取得
 	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if(!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
+	if(!mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
 	{
 		return E_FAIL;
 	}
@@ -372,7 +372,7 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 
 	//カーソル直前の文字列を取得
 	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if(!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
+	if(!mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
 	{
 		return E_FAIL;
 	}
@@ -417,7 +417,7 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 {
 	//カーソル直前の文字列を取得
 	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if(!mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
+	if(!mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
 	{
 		return E_FAIL;
 	}

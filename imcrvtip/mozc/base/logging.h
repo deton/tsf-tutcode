@@ -178,9 +178,15 @@ class NullLogFinalizer {
   mozc::NullLogFinalizer(mozc::LOG_##severity) & \
   mozc::Logging::GetNullLogStream()
 
+#ifndef IMCRVTIP_EXPORTS
 #define CHECK(condition) \
   (condition) ? (void) 0 : \
   mozc::NullLogFinalizer(mozc::LOG_FATAL) & mozc::Logging::GetNullLogStream()
+#else
+#define CHECK(condition) \
+  (condition) ? (void) 0 : \
+  ::RaiseException(::GetLastError(), EXCEPTION_NONCONTINUABLE, NULL, NULL);
+#endif
 
 #else   // NO_LOGGING
 

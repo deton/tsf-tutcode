@@ -140,6 +140,12 @@
     <ClCompile Include="mozc\win32\tip\tip_composition_util.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mozc\win32\base\imm_reconvert_string.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mozc\base\util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="imcrvtip.def">

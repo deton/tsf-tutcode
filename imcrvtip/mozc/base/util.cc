@@ -29,6 +29,7 @@
 
 #include "base/util.h"
 
+#ifndef IMCRVTIP_EXPORTS
 #ifdef OS_WIN
 #include <Windows.h>
 #include <WinCrypt.h>
@@ -66,8 +67,10 @@
 #include "base/singleton.h"
 #include "base/string_piece.h"
 #include "base/text_converter.h"
+#endif // !IMCRVTIP_EXPORTS
 
 
+#ifndef IMCRVTIP_EXPORTS
 namespace {
 
 // Lower-level routine that takes a va_list and appends to a specified
@@ -118,9 +121,11 @@ void StringAppendV(string *dst, const char *format, va_list ap) {
   }
 }
 }   // namespace
+#endif // !IMCRVTIP_EXPORTS
 
 namespace mozc {
 
+#ifndef IMCRVTIP_EXPORTS
 ConstChar32Iterator::ConstChar32Iterator(StringPiece utf8_string)
     : utf8_string_(utf8_string),
       current_(0),
@@ -1576,6 +1581,7 @@ void Util::EscapeCss(const string &plain, string *escaped) {
   // CSS.
   StringReplace(plain, "<", "&lt;", true, escaped);
 }
+#endif // !IMCRVTIP_EXPORTS
 
 #define INRANGE(w, a, b) ((w) >= (a) && (w) <= (b))
 
@@ -1639,6 +1645,7 @@ Util::ScriptType Util::GetScriptType(char32 w) {
   return UNKNOWN_SCRIPT;
 }
 
+#ifndef IMCRVTIP_EXPORTS
 Util::FormType Util::GetFormType(char32 w) {
   // 'Unicode Standard Annex #11: EAST ASIAN WIDTH'
   // http://www.unicode.org/reports/tr11/
@@ -1802,5 +1809,6 @@ Util::CharacterSet Util::GetCharacterSet(const string &str) {
   }
   return result;
 }
+#endif // !IMCRVTIP_EXPORTS
 
 }  // namespace mozc
