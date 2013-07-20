@@ -21,7 +21,7 @@
   <ItemGroup>
     <None Include="..\LICENSE.TXT" />
     <None Include="ms-pl.rtf" />
-    <None Include="README.TXT" />
+    <None Include="..\README.TXT" />
     <None Include="tsftutcode-x64.wxs" />
     <None Include="tsftutcode-x86.wxs" />
   </ItemGroup>
