@@ -137,6 +137,7 @@ public:
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext);
+	HRESULT _AcquirePrecedingText(ITfContext *pContext, std::wstring *text);
 
 	// KeyHandlerCompostion
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed = FALSE, BOOL back = FALSE);
@@ -309,6 +310,7 @@ public:
 
 	size_t cursoridx;		//カーソルインデックス
 
+	std::wstring postbuf;	//直近に確定した文字列
 	int postKataPrevLen;	//直前の後置型カタカナ変換で変換した文字数
 
 	//候補一覧選択キー

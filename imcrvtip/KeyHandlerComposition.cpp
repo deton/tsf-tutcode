@@ -315,6 +315,17 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 		return S_OK;
 	}
 
+	if(fixed)
+	{
+		//TODO:Backspaceの場合は削る
+		postbuf.append(text);
+#define MAX_POSTBUF 10
+		if(postbuf.size() > MAX_POSTBUF)
+		{
+			postbuf = postbuf.substr(postbuf.size() - MAX_POSTBUF);
+		}
+	}
+
 	if(!_IsComposing())
 	{
 		_StartComposition(pContext);

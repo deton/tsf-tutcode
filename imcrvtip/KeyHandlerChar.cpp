@@ -292,15 +292,12 @@ HRESULT CTextService::_HandleCharTerminate(TfEditCookie ec, ITfContext *pContext
 HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count)
 {
 	//カーソル直前の文字列を取得
-	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if(!mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
-	{
-		return E_FAIL;
-	}
+	std::wstring text;
+	_AcquirePrecedingText(pContext, &text);
 
 	//ひらがなをカタカナに変換
 	std::wstring kata;
-	int size = info.preceding_text.size();
+	int size = text.size();
 	int st = size - count;
 	if(count <= 0) //0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
@@ -309,14 +306,14 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 //TRUEの文字が続く間、後置型カタカナ変換対象とする(ひらがな、「ー」)
 #define TYOON(m) ((m) == 0x30FC)
 #define IN_KATARANGE(m) (0x3041 <= (m) && (m) <= 0x309F || TYOON(m))
-			WCHAR m = info.preceding_text[st];
+			WCHAR m = text[st];
 			if(!IN_KATARANGE(m))
 			{
 				// 「キーとばりゅー」に対し1文字残してカタカナ変換で
 				// 「キーとバリュー」になるように「ー」は除く
 				while(st < size - 1)
 				{
-					m = info.preceding_text[st + 1];
+					m = text[st + 1];
 					if(TYOON(m))
 					{
 						st++;
@@ -338,7 +335,7 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	int cnt = size - st;
 	if(cnt > 0)
 	{
-		_ConvKanaToKana(kata, im_katakana, info.preceding_text.substr(st), im_hiragana);
+		_ConvKanaToKana(kata, im_katakana, text.substr(st), im_hiragana);
 
 		//カーソル直前の文字列を置換
 		if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, cnt))
@@ -377,14 +374,11 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	}
 
 	//カーソル直前の文字列を取得
-	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if(!mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
-	{
-		return E_FAIL;
-	}
+	std::wstring text;
+	_AcquirePrecedingText(pContext, &text);
 
 	//countぶん縮める部分をひらがなにする
-	size_t size = info.preceding_text.size();
+	size_t size = text.size();
 	if(size < postKataPrevLen)
 	{
 		_HandleCharReturn(ec, pContext);
@@ -397,14 +391,14 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	}
 	//縮めることでひらがなになる文字列
 	std::wstring hira;
-	_ConvKanaToKana(hira, im_hiragana, info.preceding_text.substr(size - postKataPrevLen, count), im_katakana);
+	_ConvKanaToKana(hira, im_hiragana, text.substr(size - postKataPrevLen, count), im_katakana);
 	kana.insert(cursoridx, hira);
 	accompidx = 0;
 	cursoridx += hira.size();
 	if(kataLen > 0)
 	{
 		//カタカナのままにする文字列
-		kana.insert(cursoridx, info.preceding_text.substr(size - kataLen));
+		kana.insert(cursoridx, text.substr(size - kataLen));
 		cursoridx += kataLen;
 	}
 
@@ -426,17 +420,14 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 {
 	//カーソル直前の文字列を取得
-	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if(!mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
-	{
-		return E_FAIL;
-	}
+	std::wstring text;
+	_AcquirePrecedingText(pContext, &text);
 
-	size_t size = info.preceding_text.size();
+	size_t size = text.size();
 	if(size >= 2)
 	{
-		WCHAR bushu1 = info.preceding_text[size - 2];
-		WCHAR bushu2 = info.preceding_text[size - 1];
+		WCHAR bushu1 = text[size - 2];
+		WCHAR bushu2 = text[size - 1];
 		//部首合成変換
 		WCHAR kanji = _SearchBushuDic(bushu1, bushu2);
 		if(kanji != 0)
@@ -454,8 +445,24 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 			accompidx = 0;
 			cursoridx++;
 		}
-		_HandleCharReturn(ec, pContext);
 	}
+	_HandleCharReturn(ec, pContext);
 
+	return S_OK;
+}
+
+//カーソル直前の文字列を取得
+HRESULT CTextService::_AcquirePrecedingText(ITfContext *pContext, std::wstring *text)
+{
+	text->clear();
+	mozc::win32::tsf::TipSurroundingTextInfo info;
+	if(mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
+	{
+		text->append(info.preceding_text);
+	}
+	else
+	{
+		text->append(postbuf);
+	}
 	return S_OK;
 }
