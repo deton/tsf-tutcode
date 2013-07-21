@@ -146,6 +146,15 @@
     <ClCompile Include="mozc\base\util.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mozc\win32\base\deleter.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mozc\win32\base\input_state.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mozc\win32\base\keyboard.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="imcrvtip.def">

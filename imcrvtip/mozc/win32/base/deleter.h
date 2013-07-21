@@ -38,7 +38,17 @@
 
 namespace mozc {
 namespace commands {
+#ifndef IMCRVTIP_EXPORTS
 class Output;
+#else
+class Output {
+ public:
+  Output() {
+  }
+  ~Output() {
+  }
+};
+#endif
 }  // namespace commands
 
 namespace win32 {

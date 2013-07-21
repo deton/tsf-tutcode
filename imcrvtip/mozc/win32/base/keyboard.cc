@@ -46,7 +46,9 @@ BYTE ParseVirtualKey(UINT combined_virtual_key) {
   if (loword <= 0xff) {
     return loword;
   }
+#ifndef IMCRVTIP_EXPORTS
   DLOG(INFO) << "Unexpected VK found. VK = " << loword;
+#endif
   return 0;
 }
 
@@ -162,7 +164,9 @@ class DefaultKeyboardInterface : public Win32KeyboardInterface {
     const bool result = (::SetKeyboardState(copy.mutable_status()) != FALSE);
     if (!result) {
       const int error = ::GetLastError();
+#ifndef IMCRVTIP_EXPORTS
       LOG(ERROR) << "SetKeyboardState failed. error = " << error;
+#endif
     }
     return result;
   }
@@ -176,7 +180,9 @@ class DefaultKeyboardInterface : public Win32KeyboardInterface {
         (::GetKeyboardState(keyboard_state->mutable_status()) != FALSE);
     if (!result) {
       const int error = ::GetLastError();
+#ifndef IMCRVTIP_EXPORTS
       LOG(ERROR) << "GetKeyboardState failed. error = " << error;
+#endif
     }
     return result;
   }
@@ -234,7 +240,9 @@ KeyboardStatus::KeyboardStatus(const BYTE key_status[256]) {
 
 BYTE KeyboardStatus::GetState(int virtual_key) const {
   if (virtual_key < 0 || arraysize(status_) <= virtual_key) {
+#ifndef IMCRVTIP_EXPORTS
     DLOG(ERROR) << "index out of range. index = " << virtual_key;
+#endif
     return 0;
   }
   return status_[virtual_key];
@@ -242,7 +250,9 @@ BYTE KeyboardStatus::GetState(int virtual_key) const {
 
 void KeyboardStatus::SetState(int virtual_key, BYTE value) {
   if (virtual_key < 0 || arraysize(status_) <= virtual_key) {
+#ifndef IMCRVTIP_EXPORTS
     DLOG(ERROR) << "index out of range. index = " << virtual_key;
+#endif
     return;
   }
   status_[virtual_key] = value;

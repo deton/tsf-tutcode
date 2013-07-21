@@ -33,7 +33,9 @@
 #include <vector>
 
 #include "base/logging.h"
+#ifndef IMCRVTIP_EXPORTS
 #include "session/commands.pb.h"
+#endif
 #include "win32/base/input_state.h"
 #include "win32/base/keyboard.h"
 
@@ -69,14 +71,18 @@ void VKBackBasedDeleter::BeginDeletion(int deletion_count,
 
   wait_queue_->clear();
   *pending_ime_state_ = InputState();
+#ifndef IMCRVTIP_EXPORTS
   pending_output_->Clear();
+#endif
 
   if (deletion_count == 0) {
     return;
   }
 
   *pending_ime_state_ = ime_state;
+#ifndef IMCRVTIP_EXPORTS
   pending_output_->CopyFrom(output);
+#endif
 
   wait_queue_->push_back(make_pair(
       WAIT_INITIAL_VK_BACK_TESTDOWN, SEND_KEY_TO_APPLICATION));
@@ -158,7 +164,9 @@ VKBackBasedDeleter::ClientAction VKBackBasedDeleter::OnKeyEvent(
       matched = ((vk == VK_BACK) && !is_keydown && !is_test_key);
       break;
     default:
+#ifndef IMCRVTIP_EXPORTS
       DLOG(FATAL) << "unexpected state found";
+#endif
       break;
   }
   if (matched) {

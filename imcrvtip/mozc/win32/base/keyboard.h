@@ -35,6 +35,9 @@
 #include <vector>
 
 #include "base/port.h"
+#ifdef IMCRVTIP_EXPORTS
+#include "base/namespace.h"
+#endif
 
 namespace mozc {
 namespace win32 {
