@@ -341,10 +341,12 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, cnt))
 		{
 			//Backspaceを送って消す
+#if 0
 			mozc::win32::VKBackBasedDeleter deleter;
 			mozc::commands::Output dummy1;
 			mozc::win32::InputState dummy2;
 			deleter.BeginDeletion(cnt, dummy1, dummy2);
+#endif
 		}
 		kana.insert(cursoridx, kata);
 		accompidx = 0;
@@ -405,10 +407,12 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, postKataPrevLen))
 	{
 		//Backspaceを送って消す
+#if 0
 		mozc::win32::VKBackBasedDeleter deleter;
 		mozc::commands::Output dummy1;
 		mozc::win32::InputState dummy2;
 		deleter.BeginDeletion(postKataPrevLen, dummy1, dummy2);
+#endif
 	}
 	_HandleCharReturn(ec, pContext);
 	postKataPrevLen = kataLen; //繰り返しShrinkできるように
@@ -436,10 +440,12 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 			if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, 2))
 			{
 				//Backspaceを送って消す
+#if 0
 				mozc::win32::VKBackBasedDeleter deleter;
 				mozc::commands::Output dummy1;
 				mozc::win32::InputState dummy2;
 				deleter.BeginDeletion(2, dummy1, dummy2);
+#endif
 			}
 			kana.insert(cursoridx, 1, kanji);
 			accompidx = 0;
@@ -456,7 +462,7 @@ HRESULT CTextService::_AcquirePrecedingText(ITfContext *pContext, std::wstring *
 {
 	text->clear();
 	mozc::win32::tsf::TipSurroundingTextInfo info;
-	if(mozc::win32::tsf::TipSurroundingText::PrepareForReconversion(this, pContext, &info))
+	if(mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
 	{
 		text->append(info.preceding_text);
 	}

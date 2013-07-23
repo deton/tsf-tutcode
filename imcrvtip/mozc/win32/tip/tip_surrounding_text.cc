@@ -393,6 +393,69 @@ TipSurroundingTextInfo::TipSurroundingTextInfo()
       in_composition(false) {
 }
 
+#ifdef IMCRVTIP_EXPORTS
+bool GetTSF(CTextService *text_service,
+            ITfContext *context,
+            TipSurroundingTextInfo *info);
+bool GetIMM32(ITfContext *context,
+              TipSurroundingTextInfo *info) {
+  CComPtr<ITfContextView> context_view;
+  if (FAILED(context->GetActiveView(&context_view))) {
+    return false;
+  }
+  if (context_view == nullptr) {
+    return false;
+  }
+  HWND attached_window = nullptr;
+  if (FAILED(context_view->GetWnd(&attached_window))) {
+    return false;
+  }
+
+  LRESULT result = ::SendMessage(
+      attached_window, WM_IME_REQUEST, IMR_DOCUMENTFEED, 0);
+  if (result == 0) {
+    // IMR_DOCUMENTFEED is not supported.
+    return false;
+  }
+
+  const size_t buffer_size = static_cast<size_t>(result);
+  unique_ptr<BYTE[]> buffer(new BYTE[buffer_size]);
+
+  RECONVERTSTRING *reconvert_string =
+      reinterpret_cast<RECONVERTSTRING *>(buffer.get());
+  reconvert_string->dwSize = buffer_size;
+  reconvert_string->dwVersion = 0;
+
+  result = ::SendMessage(
+      attached_window, WM_IME_REQUEST, IMR_DOCUMENTFEED,
+      reinterpret_cast<LPARAM>(reconvert_string));
+  if (result == 0) {
+    return false;
+  }
+
+  wstring preceding_text;
+  wstring preceding_composition;
+  wstring target;
+  wstring following_composition;
+  wstring following_text;
+  if (!ReconvertString::Decompose(
+          reconvert_string, &preceding_text, &preceding_composition, &target,
+          &following_composition, &following_text)) {
+    return false;
+  }
+  info->in_composition = false;
+  info->is_transitory = false;
+  info->has_preceding_text = true;
+  info->preceding_text = preceding_text;
+  info->has_selected_text = true;
+  info->selected_text = preceding_composition + target + following_composition;
+  info->has_following_text = true;
+  info->following_text = following_text;
+
+  return true;
+}
+#endif // IMCRVTIP_EXPORTS
+
 #ifndef IMCRVTIP_EXPORTS
 bool TipSurroundingText::Get(TipTextService *text_service,
 #else
@@ -405,6 +468,19 @@ bool TipSurroundingText::Get(CTextService *text_service,
   }
   *info = TipSurroundingTextInfo();
 
+#ifdef IMCRVTIP_EXPORTS
+  if (GetTSF(text_service, context, info)) {
+    if (!info->is_transitory) {
+      return true;
+    }
+  }
+  return GetIMM32(context, info);
+}
+
+bool GetTSF(CTextService *text_service,
+            ITfContext *context,
+            TipSurroundingTextInfo *info) {
+#endif
   // Use Transitory Extensions when supported. Common controls provides
   // surrounding text via Transitory Extensions.
   CComPtr<ITfContext> target_context(
