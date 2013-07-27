@@ -69,8 +69,8 @@ extern LPCWSTR fnskkdic;	//取込SKK辞書
 extern LPCWSTR fnskkidx;	//取込SKK辞書インデックス
 
 void debugout(LPCWSTR format, ...);
-BOOL IsVersion6AndOver(OSVERSIONINFOW ovi);
-BOOL IsVersion62AndOver(OSVERSIONINFOW ovi);
+BOOL IsVersion6AndOver();
+BOOL IsVersion62AndOver();
 BOOL GetMD5(MD5_DIGEST *digest, CONST BYTE *data, DWORD datalen);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
 
