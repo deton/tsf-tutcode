@@ -214,7 +214,6 @@
     <ClCompile Include="KeyHandlerConv.cpp" />
     <ClCompile Include="KeyHandlerDictionary.cpp" />
     <ClCompile Include="LanguageBar.cpp" />
-    <ClCompile Include="mozc\base\util.cc" />
     <ClCompile Include="mozc\win32\base\deleter.cc" />
     <ClCompile Include="mozc\win32\base\imm_reconvert_string.cc" />
     <ClCompile Include="mozc\win32\base\input_state.cc" />

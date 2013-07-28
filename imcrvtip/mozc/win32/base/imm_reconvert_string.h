@@ -81,6 +81,7 @@ class ReconvertString {
   // Returns true if the given |reconvert_string| is valid.
   static bool Validate(const RECONVERTSTRING *reconvert_string);
 
+#ifndef IMCRVTIP_EXPORTS
   // If the composition range is empty, this function tries to update
   // |reconvert_string| so that characters in the compositoin consist of the
   // same script type.
@@ -88,6 +89,7 @@ class ReconvertString {
   // Returns true if |reconvert_string| is valid and has a non-empty
   // composition range finally.
   static bool EnsureCompositionIsNotEmpty(RECONVERTSTRING *reconvert_string);
+#endif
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ReconvertString);

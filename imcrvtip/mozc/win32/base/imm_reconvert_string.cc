@@ -32,7 +32,9 @@
 #include <safeint.h>
 
 #include "base/logging.h"
+#ifndef IMCRVTIP_EXPORTS
 #include "base/util.h"
+#endif
 
 namespace mozc {
 namespace win32 {
@@ -345,6 +347,7 @@ bool ReconvertString::Validate(const RECONVERTSTRING *reconvert_string) {
                    nullptr);
 }
 
+#ifndef IMCRVTIP_EXPORTS
 bool ReconvertString::EnsureCompositionIsNotEmpty(
     RECONVERTSTRING *reconvert_string) {
   wstring preceding_text;
@@ -488,5 +491,6 @@ bool ReconvertString::EnsureCompositionIsNotEmpty(
 
   return true;
 }
+#endif // !IMCRVTIP_EXPORTS
 }  // namespace win32
 }  // namespace mozc
