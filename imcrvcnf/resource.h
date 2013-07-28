@@ -120,6 +120,7 @@
 #define IDC_BUTTON_KANATBL_W                    3110
 #define IDC_BUTTON_KANATBL_D                    3111
 #define IDC_BUTTON_LOADKANA                     3112
+#define IDC_CHECKBOX_KANATBL_FUNC               3113
 
 #define IDC_LIST_JLATTBL                        3301
 #define IDC_EDIT_JLATTBL_A                      3302
