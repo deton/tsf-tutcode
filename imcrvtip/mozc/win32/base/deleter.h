@@ -47,6 +47,16 @@ class Output {
   }
   ~Output() {
   }
+  void Clear() {
+    kana.clear();
+    postKataPrevLen = 0;
+  }
+  void CopyFrom(const Output& from) {
+    kana = from.kana;
+    postKataPrevLen = from.postKataPrevLen;
+  }
+  std::wstring kana;
+  int postKataPrevLen;
 };
 #endif
 }  // namespace commands

@@ -4,6 +4,7 @@
 
 #include "imcrvtip.h"
 #include "convtype.h"
+#include "mozc/win32/base/deleter.h"
 
 class CLangBarItemButton;
 class CCandidateList;
@@ -137,7 +138,9 @@ public:
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext);
-	HRESULT _AcquirePrecedingText(ITfContext *pContext, std::wstring *text);
+	int _AcquirePrecedingText(ITfContext *pContext, std::wstring *text);
+	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int tsf_imm, int delete_count, int pending_len);
+	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len);
 
 	// KeyHandlerCompostion
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed = FALSE, BOOL back = FALSE);
@@ -216,7 +219,7 @@ private:
 	BOOL _InitFunctionProvider();
 	void _UninitFunctionProvider();
 
-	BOOL _IsKeyEaten(ITfContext *pContext, WPARAM wParam);
+	int _IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam, bool isKeyDown, bool isTest);
 
 	ITfThreadMgr *_pThreadMgr;
 	TfClientId _ClientId;
@@ -238,6 +241,8 @@ private:
 	TfGuidAtom _gaDisplayAttributeInput;
 	TfGuidAtom _gaDisplayAttributeCandidate;
 	TfGuidAtom _gaDisplayAttributeAnnotation;
+
+	mozc::win32::VKBackBasedDeleter deleter;
 
 private:
 	//ファイルパス

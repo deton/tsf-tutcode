@@ -3,10 +3,12 @@
 #include "TextService.h"
 #include "CandidateList.h"
 #include "LanguageBar.h"
+#include "mozc/win32/base/deleter.h"
+#include "mozc/win32/base/keyboard.h"
 
 static LPCWSTR c_PreservedKeyDesc = L"OnOff";
 
-BOOL CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam)
+int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam, bool isKeyDown, bool isTest)
 {
 	if(_IsKeyboardDisabled())
 	{
@@ -16,6 +18,54 @@ BOOL CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam)
 	if(!_IsKeyboardOpen())
 	{
 		return FALSE;
+	}
+
+	//カーソル直前文字列削除をBSを送って消す場合のDeleter用処理。
+	//(TSFによるカーソル直前文字列削除ができなかった場合用。)
+	//mozcのwin32/tip/tip_keyevent_handler.ccから。
+	bool is_key_down = isKeyDown;
+	if(isTest)
+	{
+		const mozc::win32::LParamKeyInfo key_info(lParam);
+		is_key_down = key_info.IsKeyDownInImeProcessKey();
+	}
+	const mozc::win32::VKBackBasedDeleter::ClientAction vk_back_action =
+		deleter.OnKeyEvent(wParam, is_key_down, isTest);
+
+	switch(vk_back_action)
+	{
+	case mozc::win32::VKBackBasedDeleter::DO_DEFAULT_ACTION:
+		// do nothing.
+		break;
+	case mozc::win32::VKBackBasedDeleter::CALL_END_DELETION_THEN_DO_DEFAULT_ACTION:
+		deleter.EndDeletion();
+		break;
+	case mozc::win32::VKBackBasedDeleter::SEND_KEY_TO_APPLICATION:
+		return FALSE; // Do not consume this key.
+	case mozc::win32::VKBackBasedDeleter::CONSUME_KEY_BUT_NEVER_SEND_TO_SERVER:
+		return -1; // Consume this key but do not send this key to server.
+	case mozc::win32::VKBackBasedDeleter::CALL_END_DELETION_BUT_NEVER_SEND_TO_SERVER:
+		if(!isTest)
+		{
+			deleter.EndDeletion();
+			return -1;
+		}
+		else
+		{
+			return FALSE;
+		}
+	case mozc::win32::VKBackBasedDeleter::APPLY_PENDING_STATUS:
+		if(!isTest)
+		{
+			_InvokeKeyHandler(pContext, wParam, lParam, SKK_AFTER_DELETER);
+			return -1;
+		}
+		else
+		{
+			return FALSE;
+		}
+	default:
+		break;
 	}
 
 	if(_pCandidateList && _pCandidateList->_IsContextCandidateWindow(pContext))
@@ -100,7 +150,13 @@ STDAPI CTextService::OnSetFocus(BOOL fForeground)
 
 STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
-	*pfEaten = _IsKeyEaten(pic, wParam);
+	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, TRUE);
+	if(eaten == -1)
+	{
+		*pfEaten = TRUE;
+		return S_OK;
+	}
+	*pfEaten = (eaten == TRUE);
 
 	if(_pCandidateList == NULL || !_pCandidateList->_IsShowCandidateWindow())
 	{
@@ -124,7 +180,13 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 
 STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
-	*pfEaten = _IsKeyEaten(pic, wParam);
+	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, FALSE);
+	if(eaten == -1)
+	{
+		*pfEaten = TRUE;
+		return S_OK;
+	}
+	*pfEaten = (eaten == TRUE);
 
 	if(*pfEaten)
 	{
@@ -135,13 +197,25 @@ STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BO
 
 STDAPI CTextService::OnTestKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
-	*pfEaten = _IsKeyEaten(pic, wParam);
+	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, TRUE);
+	if(eaten == -1)
+	{
+		*pfEaten = TRUE;
+		return S_OK;
+	}
+	*pfEaten = (eaten == TRUE);
 	return S_OK;
 }
 
 STDAPI CTextService::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
-	*pfEaten = _IsKeyEaten(pic, wParam);
+	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, FALSE);
+	if(eaten == -1)
+	{
+		*pfEaten = TRUE;
+		return S_OK;
+	}
+	*pfEaten = (eaten == TRUE);
 	return S_OK;
 }
 

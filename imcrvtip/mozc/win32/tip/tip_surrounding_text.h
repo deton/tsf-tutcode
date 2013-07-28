@@ -80,6 +80,7 @@ class TipSurroundingText {
 #ifndef IMCRVTIP_EXPORTS
   static bool Get(TipTextService *text_service,
 #else
+  static bool GetIMM32(ITfContext *context, TipSurroundingTextInfo *info);
   static bool Get(CTextService *text_service,
 #endif
                   ITfContext *context,

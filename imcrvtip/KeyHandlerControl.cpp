@@ -689,6 +689,22 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		}
 		break;
 
+	//DeleterがBS送り付けによりカーソル直前文字列を削除した後に実行される。
+	//削除した文字列を置換する文字列を確定する。
+	//(TSFによるカーソル直前文字列削除ができなかった場合用。)
+	case SKK_AFTER_DELETER:
+		{
+			mozc::commands::Output pending;
+			pending.CopyFrom(deleter.pending_output());
+			kana = pending.kana;
+			cursoridx = kana.size();
+			accompidx = 0;
+			_HandleCharReturn(ec, pContext);
+			postKataPrevLen = pending.postKataPrevLen;
+		}
+		return S_OK;
+		break;
+
 	default:
 		break;
 	}
