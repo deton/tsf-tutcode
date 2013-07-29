@@ -124,6 +124,9 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 						kana.clear();
 						cursoridx = 0;
 						_HandleCharTerminate(ec, pContext, composition);
+						//wordpadやWord2010だと、以下2行が無いとうまく動かず
+						_Update(ec, pContext, TRUE);
+						_TerminateComposition(ec, pContext);
 						if(isShrink)
 						{
 							_HandlePostKataShrink(ec, pContext, count);
@@ -139,6 +142,9 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 						kana.clear();
 						cursoridx = 0;
 						_HandleCharTerminate(ec, pContext, composition);
+						//wordpadやWord2010だと、以下2行が無いとうまく動かず
+						_Update(ec, pContext, TRUE);
+						_TerminateComposition(ec, pContext);
 						_HandlePostBushu(ec, pContext);
 						break;
 					}
@@ -291,10 +297,16 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	//カーソル直前の文字列を取得
 	std::wstring text;
 	int tsf_imm = _AcquirePrecedingText(pContext, &text);
+	int size = text.size();
+	if(size == 0)
+	{
+		_HandleCharReturn(ec, pContext);
+		postKataPrevLen = 0;
+		return S_OK;
+	}
 
 	//ひらがなをカタカナに変換
 	std::wstring kata;
-	int size = text.size();
 	int st = size - count;
 	if(count <= 0) //0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
@@ -367,7 +379,7 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 
 	//countぶん縮める部分をひらがなにする
 	size_t size = text.size();
-	if(size < postKataPrevLen)
+	if(size == 0 || size < postKataPrevLen)
 	{
 		_HandleCharReturn(ec, pContext);
 		return S_OK;
