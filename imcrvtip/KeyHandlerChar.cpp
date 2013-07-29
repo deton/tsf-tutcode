@@ -121,6 +121,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 							isShrink = 1;
 						}
 						int count = _wtoi(rkc.hiragana + offset);
+						roman.clear();
 						kana.clear();
 						cursoridx = 0;
 						_HandleCharTerminate(ec, pContext, composition);
@@ -139,6 +140,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 					}
 					else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
 					{
+						roman.clear();
 						kana.clear();
 						cursoridx = 0;
 						_HandleCharTerminate(ec, pContext, composition);
