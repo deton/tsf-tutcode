@@ -138,8 +138,8 @@ public:
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext);
-	int _AcquirePrecedingText(ITfContext *pContext, std::wstring *text);
-	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int tsf_imm, int delete_count, int pending_len);
+	HRESULT _AcquirePrecedingText(ITfContext *pContext, std::wstring *text);
+	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len);
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len);
 
 	// KeyHandlerCompostion

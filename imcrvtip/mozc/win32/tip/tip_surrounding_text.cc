@@ -397,7 +397,7 @@ TipSurroundingTextInfo::TipSurroundingTextInfo()
 bool GetTSF(CTextService *text_service,
             ITfContext *context,
             TipSurroundingTextInfo *info);
-bool TipSurroundingText::GetIMM32(ITfContext *context,
+bool GetIMM32(ITfContext *context,
               TipSurroundingTextInfo *info) {
   CComPtr<ITfContextView> context_view;
   if (FAILED(context->GetActiveView(&context_view))) {
@@ -474,9 +474,7 @@ bool TipSurroundingText::Get(CTextService *text_service,
       return true;
     }
   }
-  // Caller want to know whether TSF is usable.
-  //return GetIMM32(context, info);
-  return false;
+  return GetIMM32(context, info);
 }
 
 bool GetTSF(CTextService *text_service,
