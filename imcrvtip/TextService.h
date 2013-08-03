@@ -324,6 +324,7 @@ public:
 
 	TF_PRESERVEDKEY preservedkeyon[MAX_PRESERVEDKEY];
 	TF_PRESERVEDKEY preservedkeyoff[MAX_PRESERVEDKEY];
+	TF_PRESERVEDKEY preservedkeyonoff[MAX_PRESERVEDKEY];
 };
 
 #endif //TEXTSERVICE_H

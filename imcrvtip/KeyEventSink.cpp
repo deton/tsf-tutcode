@@ -6,6 +6,7 @@
 #include "mozc/win32/base/deleter.h"
 #include "mozc/win32/base/keyboard.h"
 
+static LPCWSTR c_PreservedKeyOnOffDesc = L"OnOff";
 static LPCWSTR c_PreservedKeyOnDesc = L"On";
 static LPCWSTR c_PreservedKeyOffDesc = L"Off";
 
@@ -222,7 +223,21 @@ STDAPI CTextService::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL
 
 STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEaten)
 {
-	if(IsEqualGUID(rguid, c_guidPreservedKeyOn))
+	if(IsEqualGUID(rguid, c_guidPreservedKeyOnOff))
+	{
+		BOOL fOpen = _IsKeyboardOpen();
+		if(!fOpen)
+		{
+			exinputmode = im_default;	// -> OnChange() -> _KeyboardChanged()
+		}
+		else
+		{
+			_ClearComposition();
+		}
+		_SetKeyboardOpen(fOpen ? FALSE : TRUE);
+		*pfEaten = TRUE;
+	}
+	else if(IsEqualGUID(rguid, c_guidPreservedKeyOn))
 	{
 		BOOL fOpen = _IsKeyboardOpen();
 		if(!fOpen)
@@ -283,6 +298,20 @@ void CTextService::_UninitKeyEventSink()
 	}
 }
 
+#define _PRESERVE_KEY(preservedkey, c_guidPreservedKey, c_PreservedKeyDesc) \
+do \
+{ \
+	for(i=0; i<MAX_PRESERVEDKEY; i++) \
+	{ \
+		if(preservedkey[i].uVKey == 0 && preservedkey[i].uModifiers == 0) \
+		{ \
+			break; \
+		} \
+		hr = pKeystrokeMgr->PreserveKey(_ClientId, c_guidPreservedKey, \
+			&preservedkey[i], c_PreservedKeyDesc, (ULONG)wcslen(c_PreservedKeyDesc)); \
+	} \
+} while(0)
+
 BOOL CTextService::_InitPreservedKey()
 {
 	ITfKeystrokeMgr *pKeystrokeMgr;
@@ -291,30 +320,28 @@ BOOL CTextService::_InitPreservedKey()
 
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pKeystrokeMgr)) == S_OK)
 	{
-		for(i=0; i<MAX_PRESERVEDKEY; i++)
-		{
-			if(preservedkeyon[i].uVKey == 0 && preservedkeyon[i].uModifiers == 0)
-			{
-				break;
-			}
-			hr = pKeystrokeMgr->PreserveKey(_ClientId, c_guidPreservedKeyOn,
-				&preservedkeyon[i], c_PreservedKeyOnDesc, (ULONG)wcslen(c_PreservedKeyOnDesc));
-		}
-		for(i=0; i<MAX_PRESERVEDKEY; i++)
-		{
-			if(preservedkeyoff[i].uVKey == 0 && preservedkeyoff[i].uModifiers == 0)
-			{
-				break;
-			}
-			hr = pKeystrokeMgr->PreserveKey(_ClientId, c_guidPreservedKeyOff,
-				&preservedkeyoff[i], c_PreservedKeyOffDesc, (ULONG)wcslen(c_PreservedKeyOffDesc));
-		}
+		_PRESERVE_KEY(preservedkeyon, c_guidPreservedKeyOn, c_PreservedKeyOnDesc);
+		_PRESERVE_KEY(preservedkeyoff, c_guidPreservedKeyOff, c_PreservedKeyOffDesc);
+		_PRESERVE_KEY(preservedkeyonoff, c_guidPreservedKeyOnOff, c_PreservedKeyOnOffDesc);
 
 		pKeystrokeMgr->Release();
 	}
 
 	return (hr == S_OK);
 }
+
+#define _UNPRESERVE_KEY(preservedkey, c_guidPreservedKey) \
+do \
+{ \
+	for(i=0; i<MAX_PRESERVEDKEY; i++) \
+	{ \
+		if(preservedkey[i].uVKey == 0 && preservedkey[i].uModifiers == 0) \
+		{ \
+			break; \
+		} \
+		pKeystrokeMgr->UnpreserveKey(c_guidPreservedKey, &preservedkey[i]); \
+	} \
+} while(0)
 
 void CTextService::_UninitPreservedKey()
 {
@@ -323,22 +350,9 @@ void CTextService::_UninitPreservedKey()
 
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pKeystrokeMgr)) == S_OK)
 	{
-		for(i=0; i<MAX_PRESERVEDKEY; i++)
-		{
-			if(preservedkeyon[i].uVKey == 0 && preservedkeyon[i].uModifiers == 0)
-			{
-				break;
-			}
-			pKeystrokeMgr->UnpreserveKey(c_guidPreservedKeyOn, &preservedkeyon[i]);
-		}
-		for(i=0; i<MAX_PRESERVEDKEY; i++)
-		{
-			if(preservedkeyoff[i].uVKey == 0 && preservedkeyoff[i].uModifiers == 0)
-			{
-				break;
-			}
-			pKeystrokeMgr->UnpreserveKey(c_guidPreservedKeyOff, &preservedkeyoff[i]);
-		}
+		_UNPRESERVE_KEY(preservedkeyon, c_guidPreservedKeyOn);
+		_UNPRESERVE_KEY(preservedkeyoff, c_guidPreservedKeyOff);
+		_UNPRESERVE_KEY(preservedkeyonoff, c_guidPreservedKeyOnOff);
 
 		pKeystrokeMgr->Release();
 	}

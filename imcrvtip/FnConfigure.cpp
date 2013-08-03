@@ -200,10 +200,64 @@ void CTextService::_LoadSelKey()
 	}
 }
 
+static BOOL _isExists(const TF_PRESERVEDKEY haystack[], const TF_PRESERVEDKEY needle)
+{
+	int i;
+	for(i=0; i<MAX_PRESERVEDKEY; i++)
+	{
+		if(haystack[i].uVKey == needle.uVKey && haystack[i].uModifiers == needle.uModifiers)
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 void CTextService::_LoadPreservedKey()
 {
-	_LoadPreservedKeySub(SectionPreservedKeyOn, preservedkeyon);
-	_LoadPreservedKeySub(SectionPreservedKeyOff, preservedkeyoff);
+	TF_PRESERVEDKEY on[MAX_PRESERVEDKEY];
+	TF_PRESERVEDKEY off[MAX_PRESERVEDKEY];
+	_LoadPreservedKeySub(SectionPreservedKeyOn, on);
+	_LoadPreservedKeySub(SectionPreservedKeyOff, off);
+
+	ZeroMemory(preservedkeyon, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
+	ZeroMemory(preservedkeyoff, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
+	ZeroMemory(preservedkeyonoff, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
+	//OnとOff両方に同じ定義がある場合は、トグルとして扱う
+	int i, j;
+	int idxonoff = 0;
+	int idxon = 0;
+	for(i=0; i<MAX_PRESERVEDKEY; i++)
+	{
+		if(on[i].uVKey == 0 && on[i].uModifiers == 0)
+		{
+			break;
+		}
+		if(_isExists(off, on[i]))
+		{
+			preservedkeyonoff[idxonoff] = on[i];
+			idxonoff++;
+		}
+		else
+		{
+			preservedkeyon[idxon] = on[i];
+			idxon++;
+		}
+	}
+	//Onに無くOffだけにある定義
+	int idxoff = 0;
+	for(j=0; j<MAX_PRESERVEDKEY; j++)
+	{
+		if(off[j].uVKey == 0 && off[j].uModifiers == 0)
+		{
+			break;
+		}
+		if(!_isExists(on, off[j]))
+		{
+			preservedkeyoff[idxoff] = off[j];
+			idxoff++;
+		}
+	}
 }
 
 void CTextService::_LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
