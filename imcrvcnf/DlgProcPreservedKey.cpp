@@ -3,10 +3,34 @@
 #include "imcrvcnf.h"
 #include "resource.h"
 
+static void InitPreservedKeyListView(HWND hWndListView, LPWSTR header)
+{
+	LV_COLUMNW lvc;
+	ListView_SetExtendedListViewStyle(hWndListView, LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+	lvc.fmt = LVCFMT_CENTER;
+
+	lvc.iSubItem = 0;
+	lvc.cx = 80;
+	lvc.pszText = header;
+	ListView_InsertColumn(hWndListView, 0, &lvc);
+	lvc.iSubItem = 1;
+	lvc.cx = 60;
+	lvc.pszText = L"ALT";
+	ListView_InsertColumn(hWndListView, 1, &lvc);
+	lvc.iSubItem = 2;
+	lvc.cx = 60;
+	lvc.pszText = L"CTRL";
+	ListView_InsertColumn(hWndListView, 2, &lvc);
+	lvc.iSubItem = 3;
+	lvc.cx = 60;
+	lvc.pszText = L"SHIFT";
+	ListView_InsertColumn(hWndListView, 3, &lvc);
+}
+
 INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HWND hWndListView;
-	LV_COLUMNW lvc;
 	LVITEMW item;
 	int index, count;
 	WCHAR key[8];
@@ -17,28 +41,12 @@ INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPA
 	{
 	case WM_INITDIALOG:
 		hWndListView = GetDlgItem(hDlg, IDC_LIST_PRSRVKEY);
-		ListView_SetExtendedListViewStyle(hWndListView, LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-		lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-		lvc.fmt = LVCFMT_CENTER;
-
-		lvc.iSubItem = 0;
-		lvc.cx = 60;
-		lvc.pszText = L"仮想ｷｰ";
-		ListView_InsertColumn(hWndListView, 0, &lvc);
-		lvc.iSubItem = 1;
-		lvc.cx = 60;
-		lvc.pszText = L"ALT";
-		ListView_InsertColumn(hWndListView, 1, &lvc);
-		lvc.iSubItem = 2;
-		lvc.cx = 60;
-		lvc.pszText = L"CTRL";
-		ListView_InsertColumn(hWndListView, 2, &lvc);
-		lvc.iSubItem = 3;
-		lvc.cx = 60;
-		lvc.pszText = L"SHIFT";
-		ListView_InsertColumn(hWndListView, 3, &lvc);
+		InitPreservedKeyListView(hWndListView, L"ON仮想ｷｰ");
+		hWndListView = GetDlgItem(hDlg, IDC_LIST_PRSRVKEYOFF);
+		InitPreservedKeyListView(hWndListView, L"OFF仮想ｷｰ");
 
 		SetDlgItemText(hDlg, IDC_EDIT_PRSRVKEY_VKEY, L"");
+		CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_OFF, BST_UNCHECKED);
 		CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_MKEY_ALT, BST_UNCHECKED);
 		CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_MKEY_CTRL, BST_UNCHECKED);
 		CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_MKEY_SHIFT, BST_UNCHECKED);
@@ -49,6 +57,10 @@ INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPA
 
 	case WM_COMMAND:
 		hWndListView = GetDlgItem(hDlg, IDC_LIST_PRSRVKEY);
+		if(IsDlgButtonChecked(hDlg, IDC_CHECKBOX_PRSRVKEY_OFF) == BST_CHECKED)
+		{
+			hWndListView = GetDlgItem(hDlg, IDC_LIST_PRSRVKEYOFF);
+		}
 		switch(LOWORD(wParam))
 		{
 		case IDC_BUTTON_PRSRVKEY_W:
@@ -184,6 +196,7 @@ INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPA
 				if(index == -1)
 				{
 					SetDlgItemText(hDlg, IDC_EDIT_PRSRVKEY_VKEY, L"");
+					CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_OFF, BST_UNCHECKED);
 					CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_MKEY_ALT, BST_UNCHECKED);
 					CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_MKEY_CTRL, BST_UNCHECKED);
 					CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_MKEY_SHIFT, BST_UNCHECKED);
@@ -192,6 +205,8 @@ INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPA
 				{
 					ListView_GetItemText(hWndListView, index, 0, key, _countof(key));
 					SetDlgItemText(hDlg, IDC_EDIT_PRSRVKEY_VKEY, key);
+					HWND hWndListViewOff = GetDlgItem(hDlg, IDC_LIST_PRSRVKEYOFF);
+					CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_OFF, hWndListView == hWndListViewOff ? BST_CHECKED : BST_UNCHECKED);
 					ListView_GetItemText(hWndListView, index, 1, key, _countof(key));
 					CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_MKEY_ALT, key[0] == L'1' ? BST_CHECKED : BST_UNCHECKED);
 					ListView_GetItemText(hWndListView, index, 2, key, _countof(key));

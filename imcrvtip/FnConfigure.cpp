@@ -202,12 +202,18 @@ void CTextService::_LoadSelKey()
 
 void CTextService::_LoadPreservedKey()
 {
+	_LoadPreservedKeySub(SectionPreservedKeyOn, preservedkeyon);
+	_LoadPreservedKeySub(SectionPreservedKeyOff, preservedkeyoff);
+}
+
+void CTextService::_LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
+{
 	APPDATAXMLLIST list;
 	APPDATAXMLLIST::iterator l_itr;
 	APPDATAXMLROW::iterator r_itr;
 	int i = 0;
 
-	ZeroMemory(preservedkey, sizeof(preservedkey));
+	ZeroMemory(preservedkey, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
 
 	if(ReadList(pathconfigxml, SectionPreservedKey, list) == S_OK && list.size() != 0)
 	{

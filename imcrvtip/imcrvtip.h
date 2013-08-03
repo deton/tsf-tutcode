@@ -87,7 +87,8 @@ extern const TF_DISPLAYATTRIBUTE c_daDisplayAttributeAnnotation;
 
 extern const CLSID c_clsidTextService;
 extern const GUID c_guidProfile;
-extern const GUID c_guidPreservedKeyOnOff;
+extern const GUID c_guidPreservedKeyOn;
+extern const GUID c_guidPreservedKeyOff;
 extern const GUID c_guidLangBarItemButton;
 extern const GUID c_guidDisplayAttributeInput;
 extern const GUID c_guidDisplayAttributeCandidate;

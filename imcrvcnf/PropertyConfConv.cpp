@@ -9,7 +9,8 @@
 WCHAR conv_point[CONV_POINT_NUM][3][2];
 std::vector<ROMAN_KANA_CONV> roman_kana_conv;
 ASCII_JLATIN_CONV ascii_jlatin_conv[ASCII_JLATIN_TBL_NUM];
-TF_PRESERVEDKEY preservedkey[MAX_PRESERVEDKEY];
+TF_PRESERVEDKEY preservedkeyon[MAX_PRESERVEDKEY];
+TF_PRESERVEDKEY preservedkeyoff[MAX_PRESERVEDKEY];
 
 void LoadCheckButton(HWND hDlg, int nIDDlgItem, LPCWSTR lpAppName, LPCWSTR lpKeyName)
 {
@@ -46,14 +47,14 @@ void SaveKeyMap(HWND hDlg, int nIDDlgItem, LPCWSTR lpKeyName)
 	WriterKey(pXmlWriter, lpKeyName, keyre);
 }
 
-void LoadConfigPreservedKey()
+static void LoadConfigPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
 {
 	APPDATAXMLLIST list;
 	APPDATAXMLLIST::iterator l_itr;
 	APPDATAXMLROW::iterator r_itr;
 	int i = 0;
 
-	ZeroMemory(preservedkey, sizeof(preservedkey));
+	ZeroMemory(preservedkey, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
 
 	if(ReadList(pathconfigxml, SectionPreservedKey, list) == S_OK && list.size() != 0)
 	{
@@ -91,16 +92,17 @@ void LoadConfigPreservedKey()
 	}
 }
 
-void LoadPreservedKey(HWND hwnd)
+void LoadConfigPreservedKey()
 {
-	HWND hWndList;
+	LoadConfigPreservedKeySub(SectionPreservedKeyOn, preservedkeyon);
+	LoadConfigPreservedKeySub(SectionPreservedKeyOff, preservedkeyoff);
+}
+
+static void LoadPreservedKeySub(HWND hWndList, const TF_PRESERVEDKEY preservedkey[])
+{
 	int i;
 	LVITEMW item;
 	WCHAR num[8];
-
-	LoadConfigPreservedKey();
-
-	hWndList = GetDlgItem(hwnd, IDC_LIST_PRSRVKEY);
 
 	for(i=0; i<MAX_PRESERVEDKEY; i++)
 	{
@@ -134,16 +136,22 @@ void LoadPreservedKey(HWND hwnd)
 	}
 }
 
-void SavePreservedKey(HWND hwnd)
+void LoadPreservedKey(HWND hwnd)
+{
+	LoadConfigPreservedKey();
+
+	LoadPreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEY), preservedkeyon);
+	LoadPreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEYOFF), preservedkeyoff);
+}
+
+static void SavePreservedKeySub(HWND hWndListView, LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
 {
 	int i, count;
-	HWND hWndListView;
 	WCHAR key[8];
 	APPDATAXMLATTR attr;
 	APPDATAXMLROW row;
 	APPDATAXMLLIST list;
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_PRSRVKEY);
 	count = ListView_GetItemCount(hWndListView);
 	for(i=0; i<count && i<MAX_PRESERVEDKEY; i++)
 	{
@@ -199,6 +207,12 @@ void SavePreservedKey(HWND hwnd)
 	WriterList(pXmlWriter, list);
 
 	WriterEndSection(pXmlWriter);
+}
+
+void SavePreservedKey(HWND hwnd)
+{
+	SavePreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEY), SectionPreservedKeyOn, preservedkeyon);
+	SavePreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEYOFF), SectionPreservedKeyOff, preservedkeyoff);
 }
 
 void LoadConfigConvPoint()

@@ -76,7 +76,8 @@ LPCWSTR ValueServerTimeOut = L"timeout";
 LPCWSTR SectionSelKey = L"selkey";
 
 //section
-LPCWSTR SectionPreservedKey = L"preservedkey";
+LPCWSTR SectionPreservedKeyOn = L"preservedkeyon";
+LPCWSTR SectionPreservedKeyOff = L"preservedkeyoff";
 
 //section
 LPCWSTR SectionKeyMap = L"keymap";

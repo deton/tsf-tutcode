@@ -72,6 +72,8 @@
 #define IDC_BUTTON_PRSRVKEY_DOWN                1707
 #define IDC_BUTTON_PRSRVKEY_W                   1708
 #define IDC_BUTTON_PRSRVKEY_D                   1709
+#define IDC_LIST_PRSRVKEYOFF                    1710
+#define IDC_CHECKBOX_PRSRVKEY_OFF               1711
 
 #define IDC_EDIT_KANA                           2101
 #define IDC_EDIT_CONV_CHAR                      2102

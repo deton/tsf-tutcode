@@ -107,7 +107,8 @@ extern LPCWSTR ValueServerTimeOut;
 extern LPCWSTR SectionSelKey;
 
 //section
-extern LPCWSTR SectionPreservedKey;
+extern LPCWSTR SectionPreservedKeyOn;
+extern LPCWSTR SectionPreservedKeyOff;
 
 //section
 extern LPCWSTR SectionKeyMap;
