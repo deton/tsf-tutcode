@@ -200,17 +200,14 @@ void CTextService::_LoadSelKey()
 	}
 }
 
-static BOOL _isExists(const TF_PRESERVEDKEY haystack[], const TF_PRESERVEDKEY needle)
+static int operator ==(const TF_PRESERVEDKEY &a, const TF_PRESERVEDKEY &b)
 {
-	int i;
-	for(i=0; i<MAX_PRESERVEDKEY; i++)
+	int keydiff = b.uVKey - a.uVKey;
+	if(keydiff != 0)
 	{
-		if(haystack[i].uVKey == needle.uVKey && haystack[i].uModifiers == needle.uModifiers)
-		{
-			return TRUE;
-		}
+		return keydiff;
 	}
-	return FALSE;
+	return b.uModifiers - a.uModifiers;
 }
 
 void CTextService::_LoadPreservedKey()
@@ -233,7 +230,7 @@ void CTextService::_LoadPreservedKey()
 		{
 			break;
 		}
-		if(_isExists(off, on[i]))
+		if(std::count(off, off + MAX_PRESERVEDKEY, on[i]) > 0)
 		{
 			preservedkeyonoff[idxonoff] = on[i];
 			idxonoff++;
@@ -252,7 +249,7 @@ void CTextService::_LoadPreservedKey()
 		{
 			break;
 		}
-		if(!_isExists(on, off[j]))
+		if(std::count(on, on + MAX_PRESERVEDKEY, off[j]) == 0)
 		{
 			preservedkeyoff[idxoff] = off[j];
 			idxoff++;
