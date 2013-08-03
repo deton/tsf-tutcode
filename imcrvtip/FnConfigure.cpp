@@ -200,14 +200,9 @@ void CTextService::_LoadSelKey()
 	}
 }
 
-static int operator ==(const TF_PRESERVEDKEY &a, const TF_PRESERVEDKEY &b)
+static bool operator ==(const TF_PRESERVEDKEY &a, const TF_PRESERVEDKEY &b)
 {
-	int keydiff = b.uVKey - a.uVKey;
-	if(keydiff != 0)
-	{
-		return keydiff;
-	}
-	return b.uModifiers - a.uModifiers;
+	return a.uVKey == b.uVKey && a.uModifiers == b.uModifiers;
 }
 
 void CTextService::_LoadPreservedKey()
