@@ -103,11 +103,13 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 				if(rkc.func)	//関数
 				{
 					_PrepareForFunc(ec, pContext, composition);
+					//後置型交ぜ書き変換
 					if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 					{
 						_HandleConvPoint(ec, pContext, ch);
 						break;
 					}
+					//後置型カタカナ変換
 					else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
 					{
 						int offset = 4;
@@ -128,6 +130,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 						}
 						break;
 					}
+					//後置型部首合成変換
 					else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
 					{
 						_HandlePostBushu(ec, pContext);
@@ -278,6 +281,7 @@ void CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::w
 	roman.clear();
 	kana.clear();
 	cursoridx = 0;
+	accompidx = 0;
 	_HandleCharTerminate(ec, pContext, composition);
 	//wordpadやWord2010だと以下2行でcomposition表示をクリアしないとうまく動かず
 	_Update(ec, pContext, TRUE);
@@ -303,6 +307,7 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	int st = size - count;
 	if(count <= 0) //0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
+		//TODO:サロゲートペアや結合文字等の考慮
 		for(st = size - 1; 0 <= st; st--)
 		{
 //TRUEの文字が続く間、後置型カタカナ変換対象とする(ひらがな、「ー」)
@@ -340,7 +345,6 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		_ConvKanaToKana(kata, im_katakana, text.substr(st), im_hiragana);
 		//カーソル直前の文字列を置換
 		kana.insert(cursoridx, kata);
-		accompidx = 0;
 		cursoridx += kata.size();
 
 		_ReplacePrecedingText(ec, pContext, cnt, cnt);
@@ -386,7 +390,6 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	std::wstring hira;
 	_ConvKanaToKana(hira, im_hiragana, text.substr(size - postKataPrevLen, count), im_katakana);
 	kana.insert(cursoridx, hira);
-	accompidx = 0;
 	cursoridx += hira.size();
 	if(kataLen > 0)
 	{
@@ -411,6 +414,7 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 	size_t size = text.size();
 	if(size >= 2)
 	{
+		//TODO:サロゲートペアや結合文字等の考慮
 		WCHAR bushu1 = text[size - 2];
 		WCHAR bushu2 = text[size - 1];
 		//部首合成変換
@@ -419,7 +423,6 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 		{
 			//カーソル直前の文字列を置換
 			kana.insert(cursoridx, 1, kanji);
-			accompidx = 0;
 			cursoridx++;
 
 			_ReplacePrecedingText(ec, pContext, 2, postKataPrevLen);
