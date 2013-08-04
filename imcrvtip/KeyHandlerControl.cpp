@@ -690,7 +690,8 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	//DeleterがBS送り付けによりカーソル直前文字列を削除した後に実行される。
-	//削除した文字列を置換する文字列を確定する。
+	//+ 削除した文字列を置換する文字列を確定する。
+	//+ pending.mazeの場合、交ぜ書き変換の候補表示を開始する。
 	//(TSFによるカーソル直前文字列削除ができなかった場合用。)
 	case SKK_AFTER_DELETER:
 		{
@@ -698,9 +699,19 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			pending.CopyFrom(deleter.pending_output());
 			kana = pending.kana;
 			cursoridx = kana.size();
-			accompidx = 0;
-			_HandleCharReturn(ec, pContext);
-			postKataPrevLen = pending.postKataPrevLen;
+			if(pending.maze)
+			{
+				//交ぜ書き変換候補表示開始
+				showentry = TRUE;
+				inputkey = TRUE;
+				_StartConv();
+				_Update(ec, pContext);
+			}
+			else
+			{
+				_HandleCharReturn(ec, pContext);
+				postKataPrevLen = pending.postKataPrevLen;
+			}
 		}
 		return S_OK;
 		break;

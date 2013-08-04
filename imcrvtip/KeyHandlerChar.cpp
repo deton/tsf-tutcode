@@ -103,10 +103,17 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 				if(rkc.func)	//関数
 				{
 					_PrepareForFunc(ec, pContext, composition);
-					//後置型交ぜ書き変換
-					if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
+					//前置型交ぜ書き変換
+					if(wcsncmp(rkc.hiragana, L"maze", 4) == 0)
 					{
 						_HandleConvPoint(ec, pContext, ch);
+						break;
+					}
+					//後置型交ぜ書き変換
+					else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
+					{
+						int count = _wtoi(rkc.hiragana + 4);
+						_HandlePostMaze(ec, pContext, count);
 						break;
 					}
 					//後置型カタカナ変換
@@ -288,6 +295,24 @@ void CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::w
 	_TerminateComposition(ec, pContext);
 }
 
+//後置型交ぜ書き変換
+HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count)
+{
+	//カーソル直前の文字列を取得
+	std::wstring text;
+	_AcquirePrecedingText(pContext, &text);
+	size_t size = text.size();
+	if(size < count)
+	{
+		_HandleCharReturn(ec, pContext);
+		return S_OK;
+	}
+	//TODO:サロゲートペアや結合文字等の考慮
+	kana.insert(cursoridx, text.substr(size - count));
+	cursoridx += kana.size();
+	return _ReplacePrecedingText(ec, pContext, count, 0, true);
+}
+
 //後置型カタカナ変換
 HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count)
 {
@@ -451,24 +476,36 @@ HRESULT CTextService::_AcquirePrecedingText(ITfContext *pContext, std::wstring *
 }
 
 //カーソル直前の文字列を、kanaに置換
-HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len)
+HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len, bool startMaze)
 {
 	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, delete_count))
 	{
-		return _ReplacePrecedingTextIMM32(ec, pContext, delete_count, pending_len);
+		return _ReplacePrecedingTextIMM32(ec, pContext, delete_count, pending_len, startMaze);
 	}
-	_HandleCharReturn(ec, pContext);
-	postKataPrevLen = pending_len;
+	if(startMaze)
+	{
+		//交ぜ書き変換候補表示開始
+		showentry = TRUE;
+		inputkey = TRUE;
+		_StartConv();
+		_Update(ec, pContext);
+	}
+	else
+	{
+		_HandleCharReturn(ec, pContext);
+		postKataPrevLen = pending_len;
+	}
 	return S_OK;
 }
 
 //カーソル直前文字列をBackspaceを送って消した後、置換文字列を確定する。
-HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len)
+HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len, bool startMaze)
 {
 	mozc::commands::Output pending;
 	mozc::win32::InputState dummy;
 	pending.kana = kana;
 	pending.postKataPrevLen = pending_len;
+	pending.maze = startMaze;
 	_ResetStatus();
 	_HandleCharReturn(ec, pContext);
 	deleter.BeginDeletion(delete_count, pending, dummy);
