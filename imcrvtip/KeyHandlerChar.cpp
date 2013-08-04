@@ -102,12 +102,9 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 
 				if(rkc.func)	//関数
 				{
+					_PrepareForFunc(ec, pContext, composition);
 					if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 					{
-						roman.clear();
-						kana.clear();
-						cursoridx = 0;
-						_HandleCharTerminate(ec, pContext, composition);
 						_HandleConvPoint(ec, pContext, ch);
 						break;
 					}
@@ -121,13 +118,6 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 							isShrink = 1;
 						}
 						int count = _wtoi(rkc.hiragana + offset);
-						roman.clear();
-						kana.clear();
-						cursoridx = 0;
-						_HandleCharTerminate(ec, pContext, composition);
-						//wordpadやWord2010だと、以下2行が無いとうまく動かず
-						_Update(ec, pContext, TRUE);
-						_TerminateComposition(ec, pContext);
 						if(isShrink)
 						{
 							_HandlePostKataShrink(ec, pContext, count);
@@ -140,20 +130,9 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 					}
 					else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
 					{
-						roman.clear();
-						kana.clear();
-						cursoridx = 0;
-						_HandleCharTerminate(ec, pContext, composition);
-						//wordpadやWord2010だと、以下2行が無いとうまく動かず
-						_Update(ec, pContext, TRUE);
-						_TerminateComposition(ec, pContext);
 						_HandlePostBushu(ec, pContext);
 						break;
 					}
-					roman.clear();
-					kana.clear();
-					cursoridx = 0;
-					_HandleCharTerminate(ec, pContext, composition);
 					_HandleCharReturn(ec, pContext);
 					break;
 				}
@@ -291,6 +270,18 @@ HRESULT CTextService::_HandleCharTerminate(TfEditCookie ec, ITfContext *pContext
 	}
 
 	return S_OK;
+}
+
+//入力シーケンスに割り当てられた「機能」の実行前に、composition表示等をクリア
+void CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition)
+{
+	roman.clear();
+	kana.clear();
+	cursoridx = 0;
+	_HandleCharTerminate(ec, pContext, composition);
+	//wordpadやWord2010だと以下2行でcomposition表示をクリアしないとうまく動かず
+	_Update(ec, pContext, TRUE);
+	_TerminateComposition(ec, pContext);
 }
 
 //後置型カタカナ変換
