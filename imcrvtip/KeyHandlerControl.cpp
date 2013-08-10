@@ -702,7 +702,10 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			if(pending.maze)
 			{
 				//(候補無し時、登録に入るため。でないと読みが削除されただけ状態)
-				_StartComposition(pContext);
+				if(!_IsComposing())
+				{
+					_StartComposition(pContext);
+				}
 				//交ぜ書き変換候補表示開始
 				showentry = TRUE;
 				inputkey = TRUE;

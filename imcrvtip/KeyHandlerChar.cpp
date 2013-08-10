@@ -290,9 +290,11 @@ void CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::w
 	cursoridx = 0;
 	accompidx = 0;
 	_HandleCharTerminate(ec, pContext, composition);
-	//wordpadやWord2010だと以下2行でcomposition表示をクリアしないとうまく動かず
+	//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
 	_Update(ec, pContext, TRUE);
-	_TerminateComposition(ec, pContext);
+	int tmp = postKataPrevLen;
+	_ClearComposition();
+	postKataPrevLen = tmp;
 }
 
 //後置型交ぜ書き変換
@@ -485,7 +487,10 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 	if(startMaze)
 	{
 		//(候補無し時、登録に入るため。でないと読みが削除されただけの状態)
-		_StartComposition(pContext);
+		if(!_IsComposing())
+		{
+			_StartComposition(pContext);
+		}
 		//交ぜ書き変換候補表示開始
 		showentry = TRUE;
 		inputkey = TRUE;
