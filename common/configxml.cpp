@@ -59,6 +59,7 @@ LPCWSTR ValueDelOkuriCncl = L"delokuricncl";
 LPCWSTR ValueBackIncEnter = L"backincenter";
 LPCWSTR ValueAddCandKtkn = L"addcandktkn";
 LPCWSTR ValueShowModeImm = L"showmodeimm";
+LPCWSTR ValueNoRomanComp = L"noromancomp";
 
 //section
 LPCWSTR SectionDictionary = L"dictionary";

@@ -205,7 +205,10 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 			case E_PENDING:	//途中まで一致
 				_HandleCharTerminate(ec, pContext, composition);
 				roman.push_back(ch);
-				_Update(ec, pContext);
+				if(!c_noromancomp)
+				{
+					_Update(ec, pContext);
+				}
 				break;
 			
 			case E_ABORT:	//不一致
@@ -285,15 +288,10 @@ HRESULT CTextService::_HandleCharTerminate(TfEditCookie ec, ITfContext *pContext
 //入力シーケンスに割り当てられた「機能」の実行前に、composition表示等をクリア
 void CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition)
 {
-	roman.clear();
-	kana.clear();
-	cursoridx = 0;
-	accompidx = 0;
-	_HandleCharTerminate(ec, pContext, composition);
 	//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
-	_Update(ec, pContext, TRUE);
 	int tmp = postKataPrevLen;
-	_ClearComposition();
+	_ResetStatus();
+	_HandleCharReturn(ec, pContext);
 	postKataPrevLen = tmp;
 }
 

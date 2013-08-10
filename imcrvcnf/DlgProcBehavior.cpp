@@ -126,6 +126,7 @@ INT_PTR CALLBACK DlgProcBehavior(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		LoadCheckButton(hDlg, IDC_CHECKBOX_BACKINCENTER, SectionBehavior, ValueBackIncEnter);
 		LoadCheckButton(hDlg, IDC_CHECKBOX_ADDCANDKTKN, SectionBehavior, ValueAddCandKtkn);
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEIMM, SectionBehavior, ValueShowModeImm);
+		LoadCheckButton(hDlg, IDC_CHECKBOX_NOROMANCOMP, SectionBehavior, ValueNoRomanComp);
 
 		return TRUE;
 
@@ -309,6 +310,7 @@ INT_PTR CALLBACK DlgProcBehavior(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			SaveCheckButton(hDlg, IDC_CHECKBOX_BACKINCENTER, SectionBehavior, ValueBackIncEnter);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_ADDCANDKTKN, SectionBehavior, ValueAddCandKtkn);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEIMM, SectionBehavior, ValueShowModeImm);
+			SaveCheckButton(hDlg, IDC_CHECKBOX_NOROMANCOMP, SectionBehavior, ValueNoRomanComp);
 
 			WriterEndSection(pXmlWriter);
 

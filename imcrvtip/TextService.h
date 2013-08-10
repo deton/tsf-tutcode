@@ -301,6 +301,7 @@ public:
 	BOOL c_backincenter;	//後退に確定を含める
 	BOOL c_addcandktkn;		//候補に片仮名変換を追加する
 	BOOL c_showmodeimm;		//没入型で入力モードを表示する
+	BOOL c_noromancomp;		//入力途中のキーシーケンスを表示しない
 
 	//ローマ字・仮名
 	std::wstring roman;		//ローマ字
