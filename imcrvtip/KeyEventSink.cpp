@@ -75,7 +75,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		return FALSE;
 	}
 
-	if(_IsComposing())
+	if(_IsComposing() || c_noromancomp && !roman.empty())
 	{
 		if(inputmode != im_ascii)
 		{

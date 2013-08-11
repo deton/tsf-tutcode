@@ -8,6 +8,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 {
 	size_t i;
 	ASCII_JLATIN_CONV ajc;
+	BOOL skipupdate = FALSE;
 
 	switch(sf)
 	{
@@ -409,6 +410,10 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if(!roman.empty())
 		{
 			roman.pop_back();
+			if(c_noromancomp)
+			{
+				skipupdate = TRUE;
+			}
 		}
 		else
 		{
@@ -446,7 +451,10 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			cursoridx--;
 		}
 
-		_Update(ec, pContext);
+		if(!skipupdate)
+		{
+			_Update(ec, pContext);
+		}
 
 		if(!inputkey && roman.empty() && kana.empty())
 		{
