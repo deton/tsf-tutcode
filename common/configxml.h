@@ -90,7 +90,7 @@ extern LPCWSTR ValueDelOkuriCncl;
 extern LPCWSTR ValueBackIncEnter;
 extern LPCWSTR ValueAddCandKtkn;
 extern LPCWSTR ValueShowModeImm;
-extern LPCWSTR ValueNoRomanComp;
+extern LPCWSTR ValueShowRomanComp;
 
 //section
 extern LPCWSTR SectionDictionary;

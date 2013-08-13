@@ -410,7 +410,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if(!roman.empty())
 		{
 			roman.pop_back();
-			if(c_noromancomp)
+			if(!c_showromancomp)
 			{
 				skipupdate = TRUE;
 			}

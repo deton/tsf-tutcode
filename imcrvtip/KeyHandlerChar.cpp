@@ -205,7 +205,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 			case E_PENDING:	//途中まで一致
 				_HandleCharTerminate(ec, pContext, composition);
 				roman.push_back(ch);
-				if(!c_noromancomp)
+				if(c_showromancomp)
 				{
 					_Update(ec, pContext);
 				}

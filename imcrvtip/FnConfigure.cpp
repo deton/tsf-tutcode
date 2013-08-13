@@ -176,7 +176,7 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(ValueBackIncEnter, c_backincenter);
 	_ReadBoolValue(ValueAddCandKtkn, c_addcandktkn);
 	_ReadBoolValue(ValueShowModeImm, c_showmodeimm);
-	_ReadBoolValue(ValueNoRomanComp, c_noromancomp);
+	_ReadBoolValue(ValueShowRomanComp, c_showromancomp);
 }
 
 void CTextService::_LoadSelKey()
