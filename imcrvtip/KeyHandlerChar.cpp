@@ -100,50 +100,9 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 					break;
 				}
 
-				if(rkc.func)	//関数
+				if(rkc.func)	//機能
 				{
-					_PrepareForFunc(ec, pContext, composition);
-					//前置型交ぜ書き変換
-					if(wcsncmp(rkc.hiragana, L"maze", 4) == 0)
-					{
-						_HandleConvPoint(ec, pContext, ch);
-						break;
-					}
-					//後置型交ぜ書き変換
-					else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
-					{
-						int count = _wtoi(rkc.hiragana + 4);
-						_HandlePostMaze(ec, pContext, count);
-						break;
-					}
-					//後置型カタカナ変換
-					else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
-					{
-						int offset = 4;
-						int isShrink = 0;
-						if(rkc.hiragana[4] == L'>')
-						{
-							offset = 5;
-							isShrink = 1;
-						}
-						int count = _wtoi(rkc.hiragana + offset);
-						if(isShrink)
-						{
-							_HandlePostKataShrink(ec, pContext, count);
-						}
-						else
-						{
-							_HandlePostKata(ec, pContext, count);
-						}
-						break;
-					}
-					//後置型部首合成変換
-					else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
-					{
-						_HandlePostBushu(ec, pContext);
-						break;
-					}
-					_HandleCharReturn(ec, pContext);
+					_HandleFunc(ec, pContext, rkc, ch, composition);
 					break;
 				}
 
@@ -283,6 +242,52 @@ HRESULT CTextService::_HandleCharTerminate(TfEditCookie ec, ITfContext *pContext
 	}
 
 	return S_OK;
+}
+
+void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch, std::wstring &composition)
+{
+	_PrepareForFunc(ec, pContext, composition);
+	//前置型交ぜ書き変換
+	if(wcsncmp(rkc.hiragana, L"maze", 4) == 0)
+	{
+		_HandleConvPoint(ec, pContext, ch);
+		return;
+	}
+	//後置型交ぜ書き変換
+	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
+	{
+		int count = _wtoi(rkc.hiragana + 4);
+		_HandlePostMaze(ec, pContext, count);
+		return;
+	}
+	//後置型カタカナ変換
+	else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
+	{
+		int offset = 4;
+		int isShrink = 0;
+		if(rkc.hiragana[4] == L'>')
+		{
+			offset = 5;
+			isShrink = 1;
+		}
+		int count = _wtoi(rkc.hiragana + offset);
+		if(isShrink)
+		{
+			_HandlePostKataShrink(ec, pContext, count);
+		}
+		else
+		{
+			_HandlePostKata(ec, pContext, count);
+		}
+		return;
+	}
+	//後置型部首合成変換
+	else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
+	{
+		_HandlePostBushu(ec, pContext);
+		return;
+	}
+	_HandleCharReturn(ec, pContext);
 }
 
 //入力シーケンスに割り当てられた「機能」の実行前に、composition表示等をクリア

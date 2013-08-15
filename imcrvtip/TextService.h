@@ -135,6 +135,7 @@ public:
 	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, std::wstring &composition, WCHAR ch, WCHAR chO);
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharTerminate(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
+	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch, std::wstring &composition);
 	void _PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
 	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count);
