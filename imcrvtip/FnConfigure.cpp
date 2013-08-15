@@ -224,7 +224,7 @@ void CTextService::_LoadPreservedKey()
 		{
 			break;
 		}
-		if(std::count(off, off + MAX_PRESERVEDKEY, on[i]) > 0)
+		if(std::find(off, off + MAX_PRESERVEDKEY, on[i]) < off + MAX_PRESERVEDKEY)
 		{
 			preservedkeyonoff[idxonoff] = on[i];
 			idxonoff++;
@@ -243,7 +243,7 @@ void CTextService::_LoadPreservedKey()
 		{
 			break;
 		}
-		if(std::count(on, on + MAX_PRESERVEDKEY, off[j]) == 0)
+		if(std::find(on, on + MAX_PRESERVEDKEY, off[j]) == on + MAX_PRESERVEDKEY)
 		{
 			preservedkeyoff[idxoff] = off[j];
 			idxoff++;
