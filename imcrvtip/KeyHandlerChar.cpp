@@ -307,7 +307,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 	std::wstring text;
 	_AcquirePrecedingText(pContext, &text);
 	size_t size = text.size();
-	if(size < count)
+	if(size == 0)
 	{
 		_HandleCharReturn(ec, pContext);
 		return S_OK;
@@ -335,6 +335,10 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	//ひらがなをカタカナに変換
 	std::wstring kata;
 	int st = size - count;
+	if(st < 0)
+	{
+		st = 0;
+	}
 	if(count <= 0) //0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
 		//TODO:サロゲートペアや結合文字等の考慮
