@@ -312,6 +312,10 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		_HandleCharReturn(ec, pContext);
 		return S_OK;
 	}
+	if(size < count)
+	{
+		count = size;
+	}
 	//TODO:サロゲートペアや結合文字等の考慮
 	kana.insert(cursoridx, text.substr(size - count));
 	cursoridx += kana.size();
