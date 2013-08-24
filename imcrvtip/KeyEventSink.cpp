@@ -147,10 +147,32 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		return TRUE;
 	}
 
-	if(wParam == VK_BACK && is_key_down && isTest)
+	if((wParam == VK_BACK || wParam == VK_LEFT) && is_key_down && isTest)
 	{
 		postbuf.pop_back();
 	}
+	else
+	{
+		switch(wParam)
+		{
+		//case VK_LEFT:
+		case VK_RIGHT:
+		case VK_UP:
+		case VK_DOWN:
+		case VK_HOME:
+		case VK_END:
+		case VK_PRIOR:
+		case VK_NEXT:
+			if(is_key_down && isTest)
+			{
+				postbuf.clear();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
 	return FALSE;
 }
 
