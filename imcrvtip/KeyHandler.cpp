@@ -279,6 +279,7 @@ void CTextService::_KeyboardChanged()
 		_ResetStatus();
 
 		_ClearComposition();
+		postbuf.clear();
 	}
 
 	_UpdateLanguageBar();

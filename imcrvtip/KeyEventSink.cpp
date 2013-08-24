@@ -233,6 +233,7 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 		else
 		{
 			_ClearComposition();
+			postbuf.clear();
 		}
 		_SetKeyboardOpen(fOpen ? FALSE : TRUE);
 		*pfEaten = TRUE;
@@ -261,6 +262,7 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 		else
 		{
 			_ClearComposition();
+			postbuf.clear();
 		}
 		_SetKeyboardOpen(FALSE);
 		*pfEaten = TRUE;
