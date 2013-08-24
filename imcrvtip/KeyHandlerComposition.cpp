@@ -317,7 +317,6 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 
 	if(fixed)
 	{
-		//TODO:Backspaceの場合は削る
 		postbuf.append(text);
 #define MAX_POSTBUF 10
 		if(postbuf.size() > MAX_POSTBUF)

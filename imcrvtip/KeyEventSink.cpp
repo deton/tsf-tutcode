@@ -43,6 +43,10 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		deleter.EndDeletion();
 		break;
 	case mozc::win32::VKBackBasedDeleter::SEND_KEY_TO_APPLICATION:
+		if(is_key_down && isTest)
+		{
+			postbuf.pop_back();
+		}
 		return FALSE; // Do not consume this key.
 	case mozc::win32::VKBackBasedDeleter::CONSUME_KEY_BUT_NEVER_SEND_TO_SERVER:
 		return -1; // Consume this key but do not send this key to server.
@@ -129,6 +133,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 	//処理しないCtrlキー
 	if(vk_ctrl)
 	{
+		postbuf.clear();
 		return FALSE;
 	}
 	//ASCIIモード、かなキーロック
@@ -142,6 +147,10 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		return TRUE;
 	}
 
+	if(wParam == VK_BACK && is_key_down && isTest)
+	{
+		postbuf.pop_back();
+	}
 	return FALSE;
 }
 
