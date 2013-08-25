@@ -304,7 +304,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 	//カーソル直前の文字列を取得
 	std::wstring text;
 	_AcquirePrecedingText(pContext, &text);
-	size_t size = text.size();
+	int size = text.size();
 	if(size == 0)
 	{
 		_HandleCharReturn(ec, pContext);
@@ -408,8 +408,8 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	std::wstring text;
 	_AcquirePrecedingText(pContext, &text);
 
-	size_t prevsize = prevkata.size();
-	size_t size = text.size();
+	int prevsize = prevkata.size();
+	int size = text.size();
 	if(size == 0 || size < prevsize || prevkata != text.substr(size - prevsize))
 	{
 		_HandleCharReturn(ec, pContext);
