@@ -294,10 +294,8 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 void CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition)
 {
 	//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
-	int tmp = postKataPrevLen;
 	_ResetStatus();
 	_HandleCharReturn(ec, pContext);
-	postKataPrevLen = tmp;
 }
 
 //後置型交ぜ書き変換
@@ -319,7 +317,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 	//TODO:サロゲートペアや結合文字等の考慮
 	kana.insert(cursoridx, text.substr(size - count));
 	cursoridx += kana.size();
-	return _ReplacePrecedingText(ec, pContext, count, 0, true);
+	return _ReplacePrecedingText(ec, pContext, count, true);
 }
 
 //後置型カタカナ変換
@@ -332,7 +330,6 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	if(size == 0)
 	{
 		_HandleCharReturn(ec, pContext);
-		postKataPrevLen = 0;
 		return S_OK;
 	}
 
@@ -384,13 +381,12 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		//カーソル直前の文字列を置換
 		kana.insert(cursoridx, kata);
 		cursoridx += kata.size();
-
-		_ReplacePrecedingText(ec, pContext, cnt, cnt);
+		prevkata = kata;
+		_ReplacePrecedingText(ec, pContext, cnt);
 	}
 	else
 	{
 		_HandleCharReturn(ec, pContext);
-		postKataPrevLen = 0;
 	}
 
 	return S_OK;
@@ -402,7 +398,7 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 //	→「例えばアプリケーション」
 HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count)
 {
-	if(postKataPrevLen == 0)
+	if(prevkata.empty())
 	{
 		_HandleCharReturn(ec, pContext);
 		return S_OK;
@@ -412,33 +408,35 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	std::wstring text;
 	_AcquirePrecedingText(pContext, &text);
 
-	//countぶん縮める部分をひらがなにする
+	size_t prevsize = prevkata.size();
 	size_t size = text.size();
-	if(size == 0 || size < postKataPrevLen)
+	if(size == 0 || size < prevsize || prevkata != text.substr(size - prevsize))
 	{
 		_HandleCharReturn(ec, pContext);
 		return S_OK;
 	}
-	int kataLen = postKataPrevLen - count;
+	//countぶん縮める部分をひらがなにする
+	int kataLen = prevsize - count;
 	if(kataLen < 0)
 	{
 		kataLen = 0;
+		count = prevsize;
 	}
 	//縮めることでひらがなになる文字列
 	std::wstring hira;
-	_ConvKanaToKana(hira, im_hiragana, text.substr(size - postKataPrevLen, count), im_katakana);
+	_ConvKanaToKana(hira, im_hiragana, prevkata.substr(0, count), im_katakana);
 	kana.insert(cursoridx, hira);
 	cursoridx += hira.size();
 	if(kataLen > 0)
 	{
 		//カタカナのままにする文字列
-		kana.insert(cursoridx, text.substr(size - kataLen));
+		//繰り返しShrinkできるように、prevkataを縮める
+		prevkata = prevkata.substr(prevsize - kataLen);
+		kana.insert(cursoridx, prevkata);
 		cursoridx += kataLen;
 	}
 
-	//繰り返しShrinkできるように、pending_lenにkataLenを指定
-	_ReplacePrecedingText(ec, pContext, postKataPrevLen, kataLen);
-	//TODO:カーソル移動時はpostKataPrevLenは0にする
+	_ReplacePrecedingText(ec, pContext, prevsize);
 	return S_OK;
 }
 
@@ -463,7 +461,7 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext)
 			kana.insert(cursoridx, 1, kanji);
 			cursoridx++;
 
-			_ReplacePrecedingText(ec, pContext, 2, postKataPrevLen);
+			_ReplacePrecedingText(ec, pContext, 2);
 			return S_OK;
 		}
 	}
@@ -489,11 +487,11 @@ HRESULT CTextService::_AcquirePrecedingText(ITfContext *pContext, std::wstring *
 }
 
 //カーソル直前の文字列を、kanaに置換
-HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len, bool startMaze)
+HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, bool startMaze)
 {
 	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, delete_count))
 	{
-		return _ReplacePrecedingTextIMM32(ec, pContext, delete_count, pending_len, startMaze);
+		return _ReplacePrecedingTextIMM32(ec, pContext, delete_count, startMaze);
 	}
 	if(startMaze)
 	{
@@ -512,18 +510,16 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 	else
 	{
 		_HandleCharReturn(ec, pContext);
-		postKataPrevLen = pending_len;
 	}
 	return S_OK;
 }
 
 //カーソル直前文字列をBackspaceを送って消した後、置換文字列を確定する。
-HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, int pending_len, bool startMaze)
+HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, bool startMaze)
 {
 	mozc::commands::Output pending;
 	mozc::win32::InputState dummy;
 	pending.kana = kana;
-	pending.postKataPrevLen = pending_len;
 	pending.maze = startMaze;
 	_ResetStatus();
 	_HandleCharReturn(ec, pContext);

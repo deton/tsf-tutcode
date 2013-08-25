@@ -724,7 +724,6 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			else
 			{
 				_HandleCharReturn(ec, pContext);
-				postKataPrevLen = pending.postKataPrevLen;
 			}
 		}
 		return S_OK;

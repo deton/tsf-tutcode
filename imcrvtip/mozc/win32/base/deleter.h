@@ -49,16 +49,13 @@ class Output {
   }
   void Clear() {
     kana.clear();
-    postKataPrevLen = 0;
     maze = false;
   }
   void CopyFrom(const Output& from) {
     kana = from.kana;
-    postKataPrevLen = from.postKataPrevLen;
     maze = from.maze;
   }
   std::wstring kana;
-  int postKataPrevLen;
   bool maze;
 };
 #endif
