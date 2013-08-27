@@ -43,7 +43,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		deleter.EndDeletion();
 		break;
 	case mozc::win32::VKBackBasedDeleter::SEND_KEY_TO_APPLICATION:
-		if(is_key_down && isTest)
+		if(is_key_down && isTest && !postbuf.empty())
 		{
 			postbuf.pop_back();
 		}
@@ -147,29 +147,32 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		return TRUE;
 	}
 
-	if((wParam == VK_BACK || wParam == VK_LEFT) && is_key_down && isTest)
+	if(!postbuf.empty())
 	{
-		postbuf.pop_back();
-	}
-	else
-	{
-		switch(wParam)
+		if((wParam == VK_BACK || wParam == VK_LEFT) && is_key_down && isTest)
 		{
-		//case VK_LEFT:
-		case VK_RIGHT:
-		case VK_UP:
-		case VK_DOWN:
-		case VK_HOME:
-		case VK_END:
-		case VK_PRIOR:
-		case VK_NEXT:
-			if(is_key_down && isTest)
+			postbuf.pop_back();
+		}
+		else
+		{
+			switch(wParam)
 			{
-				postbuf.clear();
+			//case VK_LEFT:
+			case VK_RIGHT:
+			case VK_UP:
+			case VK_DOWN:
+			case VK_HOME:
+			case VK_END:
+			case VK_PRIOR:
+			case VK_NEXT:
+				if(is_key_down && isTest)
+				{
+					postbuf.clear();
+				}
+				break;
+			default:
+				break;
 			}
-			break;
-		default:
-			break;
 		}
 	}
 
