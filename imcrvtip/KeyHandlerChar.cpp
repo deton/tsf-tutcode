@@ -410,7 +410,7 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 
 	int prevsize = prevkata.size();
 	int size = text.size();
-	if(size == 0 || size < prevsize || prevkata != text.substr(size - prevsize))
+	if(size < prevsize || text.compare(size - prevsize, prevsize, prevkata) != 0)
 	{
 		_HandleCharReturn(ec, pContext);
 		return S_OK;
@@ -431,7 +431,7 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	{
 		//カタカナのままにする文字列
 		//繰り返しShrinkできるように、prevkataを縮める
-		prevkata = prevkata.substr(prevsize - kataLen);
+		prevkata.erase(0, count);
 		kana.insert(cursoridx, prevkata);
 		cursoridx += kataLen;
 	}

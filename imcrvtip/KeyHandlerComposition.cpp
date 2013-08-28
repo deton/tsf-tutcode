@@ -321,7 +321,7 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 #define MAX_POSTBUF 10
 		if(postbuf.size() > MAX_POSTBUF)
 		{
-			postbuf = postbuf.substr(postbuf.size() - MAX_POSTBUF);
+			postbuf.erase(0, postbuf.size() - MAX_POSTBUF);
 		}
 	}
 
