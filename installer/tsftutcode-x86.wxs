@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <?define version="0.0.2" ?>
+    <?define version="0.0.3" ?>
     <Product Id="*" Name="tsf-tutcode" Language="1033" Version="$(var.version)" Manufacturer="KIHARA Hideto" UpgradeCode="31DA56FD-D180-4C9B-8F1E-AA935A0119B4">
         <Package Id="*" Compressed="yes" Description="tsf-tutcode" Comments="version $(var.version)" Platform="x86" InstallerVersion="200" InstallScope="perMachine" InstallPrivileges="elevated" />
         <Media Id="1" Cabinet="tsftutcode.cab" EmbedCab="yes" />
