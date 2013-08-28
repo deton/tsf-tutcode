@@ -553,18 +553,23 @@ bool PrepareForReconversionTSF(CTextService *text_service,
   return true;
 }
 
-bool TipSurroundingText::PrepareForReconversion(
+bool TipSurroundingText::PrepareForReconversionFromIme(
 #ifndef IMCRVTIP_EXPORTS
     TipTextService *text_service,
 #else
     CTextService *text_service,
 #endif
     ITfContext *context,
-    TipSurroundingTextInfo *info) {
+    TipSurroundingTextInfo *info,
+    bool *need_async_reconversion) {
   if (info == nullptr) {
     return false;
   }
+  if (need_async_reconversion == nullptr) {
+    return false;
+  }
   *info = TipSurroundingTextInfo();
+  *need_async_reconversion = false;
   if (PrepareForReconversionTSF(text_service, context, info)) {
     // Here we assume selection text info is valid iff |info->is_transitory| is
     // false.
@@ -573,7 +578,12 @@ bool TipSurroundingText::PrepareForReconversion(
       return true;
     }
   }
-  return PrepareForReconversionIMM32(context, info);
+  if (!PrepareForReconversionIMM32(context, info)) {
+    return false;
+  }
+  // IMM32-like reconversion requires async edit session.
+  *need_async_reconversion = true;
+  return true;
 }
 
 bool TipSurroundingText::DeletePrecedingText(
