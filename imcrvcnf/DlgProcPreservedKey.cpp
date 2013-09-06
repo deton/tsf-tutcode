@@ -3,7 +3,7 @@
 #include "imcrvcnf.h"
 #include "resource.h"
 
-static void InitPreservedKeyListView(HWND hWndListView, LPWSTR header)
+static void InitPreservedKeyListView(HWND hDlg, HWND hWndListView, LPWSTR header)
 {
 	LV_COLUMNW lvc;
 	ListView_SetExtendedListViewStyle(hWndListView, LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -11,19 +11,19 @@ static void InitPreservedKeyListView(HWND hWndListView, LPWSTR header)
 	lvc.fmt = LVCFMT_CENTER;
 
 	lvc.iSubItem = 0;
-	lvc.cx = 80;
+	lvc.cx = GetScaledSizeX(hDlg, 80);
 	lvc.pszText = header;
 	ListView_InsertColumn(hWndListView, 0, &lvc);
 	lvc.iSubItem = 1;
-	lvc.cx = 60;
+	lvc.cx = GetScaledSizeX(hDlg, 60);
 	lvc.pszText = L"ALT";
 	ListView_InsertColumn(hWndListView, 1, &lvc);
 	lvc.iSubItem = 2;
-	lvc.cx = 60;
+	lvc.cx = GetScaledSizeX(hDlg, 60);
 	lvc.pszText = L"CTRL";
 	ListView_InsertColumn(hWndListView, 2, &lvc);
 	lvc.iSubItem = 3;
-	lvc.cx = 60;
+	lvc.cx = GetScaledSizeX(hDlg, 60);
 	lvc.pszText = L"SHIFT";
 	ListView_InsertColumn(hWndListView, 3, &lvc);
 }
@@ -41,9 +41,9 @@ INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPA
 	{
 	case WM_INITDIALOG:
 		hWndListView = GetDlgItem(hDlg, IDC_LIST_PRSRVKEY);
-		InitPreservedKeyListView(hWndListView, L"ON仮想ｷｰ");
+		InitPreservedKeyListView(hDlg, hWndListView, L"ON仮想ｷｰ");
 		hWndListView = GetDlgItem(hDlg, IDC_LIST_PRSRVKEYOFF);
-		InitPreservedKeyListView(hWndListView, L"OFF仮想ｷｰ");
+		InitPreservedKeyListView(hDlg, hWndListView, L"OFF仮想ｷｰ");
 
 		SetDlgItemText(hDlg, IDC_EDIT_PRSRVKEY_VKEY, L"");
 		CheckDlgButton(hDlg, IDC_CHECKBOX_PRSRVKEY_OFF, BST_UNCHECKED);

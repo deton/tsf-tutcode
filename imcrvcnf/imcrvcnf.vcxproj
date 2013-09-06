@@ -108,6 +108,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
       <Culture>0x0411</Culture>
     </ResourceCompile>
+    <Manifest>
+      <EnableDPIAwareness>true</EnableDPIAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -128,6 +131,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
       <Culture>0x0411</Culture>
     </ResourceCompile>
+    <Manifest>
+      <EnableDPIAwareness>true</EnableDPIAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -151,6 +157,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
       <Culture>0x0411</Culture>
     </ResourceCompile>
+    <Manifest>
+      <EnableDPIAwareness>true</EnableDPIAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -174,6 +183,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
       <Culture>0x0411</Culture>
     </ResourceCompile>
+    <Manifest>
+      <EnableDPIAwareness>true</EnableDPIAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="imcrvcnf.ico" />
