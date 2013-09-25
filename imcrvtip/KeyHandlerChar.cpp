@@ -497,7 +497,14 @@ HRESULT CTextService::_AcquirePrecedingText(ITfContext *pContext, std::wstring *
 	mozc::win32::tsf::TipSurroundingTextInfo info;
 	if(mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
 	{
-		text->append(info.preceding_text);
+		if(info.preceding_text.size() > 0)
+		{
+			text->append(info.preceding_text);
+		}
+		else
+		{
+			text->append(postbuf);
+		}
 	}
 	else
 	{
