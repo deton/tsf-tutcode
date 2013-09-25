@@ -3,7 +3,7 @@
 #define COMMON_H
 
 #define TEXTSERVICE_NAME	L"tsf-tutcode"
-#define TEXTSERVICE_VER		L"0.0.4"
+#define TEXTSERVICE_VER		L"0.0.5"
 
 #ifndef _DEBUG
 #define TEXTSERVICE_DESC	TEXTSERVICE_NAME
@@ -14,8 +14,8 @@
 //for resource
 #define RC_AUTHOR			"KIHARA Hideto"
 #define RC_PRODUCT			"tsf-tutcode"
-#define RC_VERSION			"0.0.4"
-#define RC_VERSION_D		0,0,4,0
+#define RC_VERSION			"0.0.5"
+#define RC_VERSION_D		0,0,5,0
 
 #define DICBUFSIZE			0x2000
 #define PIPEBUFSIZE			0x2000

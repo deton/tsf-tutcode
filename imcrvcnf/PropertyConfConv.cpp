@@ -12,11 +12,11 @@ ASCII_JLATIN_CONV ascii_jlatin_conv[ASCII_JLATIN_TBL_NUM];
 TF_PRESERVEDKEY preservedkeyon[MAX_PRESERVEDKEY];
 TF_PRESERVEDKEY preservedkeyoff[MAX_PRESERVEDKEY];
 
-void LoadCheckButton(HWND hDlg, int nIDDlgItem, LPCWSTR lpAppName, LPCWSTR lpKeyName)
+void LoadCheckButton(HWND hDlg, int nIDDlgItem, LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault)
 {
 	std::wstring strxmlval;
 
-	ReadValue(pathconfigxml, lpAppName, lpKeyName, strxmlval);
+	ReadValue(pathconfigxml, lpAppName, lpKeyName, strxmlval, lpDefault);
 	CheckDlgButton(hDlg, nIDDlgItem, (_wtoi(strxmlval.c_str()) == TRUE ? BST_CHECKED : BST_UNCHECKED));
 }
 
