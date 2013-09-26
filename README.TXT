@@ -1,6 +1,6 @@
 ﻿
 ================================================================================
-     tsf-tutcode version 0.0.5 (2013-09-XXX)
+     tsf-tutcode version 0.1.0 (2013-09-XXX)
 
      https://github.com/deton/tsf-tutcode
      deton@m1.interq.or.jp
