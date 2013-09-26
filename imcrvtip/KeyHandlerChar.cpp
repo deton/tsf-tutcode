@@ -284,7 +284,16 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 	{
 		int count = _wtoi(rkc.hiragana + 4);
-		_HandlePostMaze(ec, pContext, count, incomp);
+		if(!incomp)
+		{
+			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
+			//は未対応。候補表示等の制御が面倒なので。
+			_HandlePostMaze(ec, pContext, count);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 		return;
 	}
 	//後置型カタカナ変換
@@ -350,22 +359,15 @@ BOOL CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::w
 }
 
 //後置型交ぜ書き変換
-HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp)
+HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count)
 {
 	//カーソル直前の文字列を取得
 	std::wstring text;
-	_AcquirePrecedingText(pContext, incomp, &text);
+	_AcquirePrecedingText(pContext, FALSE, &text);
 	int size = text.size();
 	if(size == 0)
 	{
-		if(!incomp)
-		{
-			_HandleCharReturn(ec, pContext);
-		}
-		else
-		{
-			_Update(ec, pContext);
-		}
+		_HandleCharReturn(ec, pContext);
 		return S_OK;
 	}
 	if(size < count)
@@ -373,7 +375,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		count = size;
 	}
 	//TODO:サロゲートペアや結合文字等の考慮
-	return _ReplacePrecedingText(ec, pContext, count, text.substr(size - count), incomp, TRUE);
+	return _ReplacePrecedingText(ec, pContext, count, text.substr(size - count), FALSE, TRUE);
 }
 
 //後置型カタカナ変換
