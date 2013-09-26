@@ -136,14 +136,14 @@ public:
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharTerminate(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
 	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch, std::wstring &composition);
-	void _PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
-	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count);
-	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count);
-	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count);
-	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext);
-	HRESULT _AcquirePrecedingText(ITfContext *pContext, std::wstring *text);
-	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, bool startMaze = false);
-	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, bool startMaze = false);
+	BOOL _PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
+	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp);
+	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp);
+	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp);
+	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BOOL incomp);
+	HRESULT _AcquirePrecedingText(ITfContext *pContext, BOOL incomp, std::wstring *text);
+	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL incomp, BOOL startMaze = false);
+	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL startMaze = false);
 
 	// KeyHandlerCompostion
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed = FALSE, BOOL back = FALSE);
