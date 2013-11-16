@@ -170,7 +170,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icon\CorvusSKK.ico">
+    <Image Include="Icon\kanchoku.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Icon\xAscii.ico">

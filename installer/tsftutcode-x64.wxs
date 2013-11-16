@@ -52,7 +52,7 @@
         </Feature>
         <UI />
         <WixVariable Id="WixUILicenseRtf" Value="ms-pl.rtf" />
-        <Icon Id="tsftutcode.ico" SourceFile="..\imcrvtip\Icon\CorvusSKK.ico" />
+        <Icon Id="tsftutcode.ico" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
         <Property Id="ARPPRODUCTICON" Value="tsftutcode.ico" />
         <Property Id="WIX_MINIMAL" Value="tsf-tutcode" />
         <UIRef Id="WixUI_Minimal" />
