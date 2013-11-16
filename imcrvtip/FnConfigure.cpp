@@ -89,9 +89,9 @@ void CTextService::_CreateConfigPath()
 	{
 		if(GetMD5(&digest, (CONST BYTE *)pszUserSid, (DWORD)wcslen(pszUserSid)*sizeof(WCHAR)))
 		{
-			for(i=0; i<_countof(digest.digest); i++)
+			for(i = 0; i < _countof(digest.digest); i++)
 			{
-				_snwprintf_s(&szDigest[i*2], _countof(szDigest)-i*2, _TRUNCATE, L"%02x", digest.digest[i]);
+				_snwprintf_s(&szDigest[i * 2], _countof(szDigest) - i * 2, _TRUNCATE, L"%02x", digest.digest[i]);
 			}
 		}
 
@@ -149,7 +149,7 @@ void CTextService::_LoadBehavior()
 		maxwidth = MAX_WIDTH_DEFAULT;
 	}
 
-	for(i=0; i<_countof(colors); i++)
+	for(i = 0; i < _countof(colors); i++)
 	{
 		colors[i] = colorsxmlvalue[i].color;
 		ReadValue(pathconfigxml, SectionBehavior, colorsxmlvalue[i].value, strxmlval);
@@ -190,7 +190,7 @@ void CTextService::_LoadSelKey()
 
 	ZeroMemory(selkey, sizeof(selkey));
 
-	for(i=0; i<MAX_SELKEY_C; i++)
+	for(i = 0; i < MAX_SELKEY_C; i++)
 	{
 		num[0] = L'0' + i + 1;
 		num[1] = L'\0';
@@ -288,7 +288,7 @@ void CTextService::_LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVE
 	}
 	else
 	{
-		for(i=0; i<_countof(configpreservedkey); i++)
+		for(i = 0; i < _countof(configpreservedkey); i++)
 		{
 			preservedkey[i] = configpreservedkey[i];
 		}
@@ -308,7 +308,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 	ZeroMemory(&keymap, sizeof(keymap));
 	key[1] = L'\0';
 
-	for(i=0; i<_countof(configkeymap); i++)
+	for(i = 0; i < _countof(configkeymap); i++)
 	{
 		if(configkeymap[i].skkfunc == SKK_NULL)
 		{
@@ -334,7 +334,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		case SKK_RIGHT:
 		case SKK_DOWN:
 		case SKK_PASTE:
-			for(ch=0x01; ch<KEYMAPNUM; ch++)
+			for(ch = 0x01; ch < KEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -366,7 +366,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		case SKK_VOID:
 			break;
 		default:
-			for(ch=0x01; ch<KEYMAPNUM; ch++)
+			for(ch = 0x01; ch < KEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -390,7 +390,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		switch(configkeymap[i].skkfunc)
 		{
 		case SKK_VOID:
-			for(ch=0x01; ch<KEYMAPNUM; ch++)
+			for(ch = 0x01; ch < KEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);

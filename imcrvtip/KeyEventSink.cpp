@@ -351,7 +351,7 @@ void CTextService::_UninitKeyEventSink()
 #define _PRESERVE_KEY(preservedkey, c_guidPreservedKey, c_PreservedKeyDesc) \
 do \
 { \
-	for(i=0; i<MAX_PRESERVEDKEY; i++) \
+	for(i = 0; i < MAX_PRESERVEDKEY; i++) \
 	{ \
 		if(preservedkey[i].uVKey == 0 && preservedkey[i].uModifiers == 0) \
 		{ \
@@ -383,7 +383,7 @@ BOOL CTextService::_InitPreservedKey()
 #define _UNPRESERVE_KEY(preservedkey, c_guidPreservedKey) \
 do \
 { \
-	for(i=0; i<MAX_PRESERVEDKEY; i++) \
+	for(i = 0; i < MAX_PRESERVEDKEY; i++) \
 	{ \
 		if(preservedkey[i].uVKey == 0 && preservedkey[i].uModifiers == 0) \
 		{ \
