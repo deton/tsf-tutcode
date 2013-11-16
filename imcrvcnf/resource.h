@@ -6,7 +6,8 @@
 #define IDC_STATIC (-1)
 #endif
 
-#define IDD_DIALOG_BEHAVIOR                     111
+#define IDD_DIALOG_BEHAVIOR1                    111
+#define IDD_DIALOG_BEHAVIOR2                    112
 #define IDD_DIALOG_DICTIONARY                   113
 #define IDD_DIALOG_SELKEY                       115
 #define IDD_DIALOG_PRSRVKEY                     117
@@ -33,13 +34,17 @@
 #define IDC_CHECKBOX_ANNOTATION                 1115
 #define IDC_RADIO_ANNOTATALL                    1116
 #define IDC_RADIO_ANNOTATLST                    1117
-#define IDC_CHECKBOX_NOMODEMARK                 1118
-#define IDC_CHECKBOX_NOOKURICONV                1119
-#define IDC_CHECKBOX_DELOKURICNCL               1120
-#define IDC_CHECKBOX_BACKINCENTER               1121
-#define IDC_CHECKBOX_ADDCANDKTKN                1122
-#define IDC_CHECKBOX_SHOWMODEIMM                1123
+#define IDC_CHECKBOX_SHOWMODEINL                1118
+#define IDC_RADIO_SHOWMODEALL                   1119
+#define IDC_RADIO_SHOWMODEIMM                   1120
+#define IDC_CHECKBOX_NOMODEMARK                 1121
 #define IDC_CHECKBOX_SHOWROMANCOMP              1124
+
+#define IDC_CHECKBOX_NOOKURICONV                1201
+#define IDC_CHECKBOX_DELCVPOSCNCL               1202
+#define IDC_CHECKBOX_DELOKURICNCL               1203
+#define IDC_CHECKBOX_BACKINCENTER               1204
+#define IDC_CHECKBOX_ADDCANDKTKN                1205
 
 #define IDC_LIST_SKK_DIC                        1301
 #define IDC_BUTTON_SKK_DIC_ADD                  1302
@@ -87,6 +92,7 @@
 #define IDC_EDIT_PURGE_DIC                      2110
 #define IDC_EDIT_NEXT_COMP                      2111
 #define IDC_EDIT_PREV_COMP                      2112
+#define IDC_EDIT_HINT                           2113
 
 #define IDC_EDIT_CONV_POINT                     2121
 #define IDC_EDIT_DIRECT                         2122

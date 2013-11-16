@@ -92,8 +92,55 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 		break;
 	}
 
+	if(purgedicmode)	//辞書削除
+	{
+		switch(sf)
+		{
+		case SKK_ENTER:
+			sf = SKK_PURGE_DIC;
+			break;
+		case SKK_CANCEL:
+			purgedicmode = FALSE;
+			_Update(ec, pContext);
+			return S_OK;
+			break;
+		default:
+			switch(ch)
+			{
+			case L'Y': case 'y':
+				sf = SKK_PURGE_DIC;
+				break;
+			case L'N': case L'n':
+				purgedicmode = FALSE;
+				_Update(ec, pContext);
+				return S_OK;
+				break;
+			default:
+				return S_FALSE;
+			}
+			break;
+		}
+	}
+
 	BOOL iscomp = _IsComposing();
-	
+
+	if(sf == SKK_CONV_POINT)
+	{
+		if(!abbrevmode || showentry)
+		{
+			//ローマ字仮名変換表を優先させる
+			ROMAN_KANA_CONV rkc;
+			std::wstring roman_conv;
+			roman_conv = roman;
+			roman_conv.push_back(ch);
+			wcsncpy_s(rkc.roman, roman_conv.c_str(), _TRUNCATE);
+			if(_ConvRomanKana(&rkc) != E_ABORT)
+			{
+				sf = SKK_NULL;
+			}
+		}
+	}
+
 	if(_HandleControl(ec, pContext, sf, ch) == S_OK)
 	{
 		if(pContext != NULL && !iscomp && _IsKeyVoid(ch, (BYTE)wParam))
@@ -185,7 +232,7 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 			chO = roman[0];
 		}
 		romanN = roman;
-		if(_HandleChar(ec, pContext, composition, ch, chO) == E_ABORT)
+		if(_HandleChar(ec, pContext, composition, wParam, ch, chO) == E_ABORT)
 		{
 			//待機処理等
 			switch(inputmode)
@@ -212,7 +259,16 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 						{
 							_Update(ec, pContext);
 						}
-						_HandleChar(ec, pContext, composition, ch, chO);
+						if(sf == SKK_DIRECT && inputkey && !showentry)
+						{
+							kana.insert(cursoridx, 1, ch);
+							cursoridx++;
+							_Update(ec, pContext);
+						}
+						else
+						{
+							_HandleChar(ec, pContext, composition, wParam, ch, chO);
+						}
 					}
 					else
 					{
@@ -230,7 +286,7 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 	return S_OK;
 }
 
-void CTextService::_KeyboardChanged()
+void CTextService::_KeyboardOpenCloseChanged()
 {
 	if(_pThreadMgr == NULL)
 	{
@@ -261,15 +317,15 @@ void CTextService::_KeyboardChanged()
 	BOOL fOpen = _IsKeyboardOpen();
 	if(fOpen)
 	{
-		//OnPreservedKey()経由ならひらがなモード
-		//OnChange()経由なら前回のモード
-		switch(exinputmode)
+		//OnPreservedKey(),CLangBarItemButton::OnClick()経由ならひらがなモード
+		//それ以外なら現在のモード
+		switch(inputmode)
 		{
-		case im_default:
+		case im_disable:
 			inputmode = im_hiragana;
 			break;
 		default:
-			inputmode = exinputmode;
+			_KeyboardInputConversionChanged();
 			break;
 		}
 
@@ -292,13 +348,9 @@ void CTextService::_KeyboardChanged()
 	}
 	else
 	{
-		exinputmode = inputmode;
 		inputmode = im_default;
 
-		if(exinputmode != im_default)
-		{
-			_SaveUserDic();
-		}
+		_SaveUserDic();
 
 		_UninitPreservedKey();
 		_LoadPreservedKey();
@@ -311,6 +363,54 @@ void CTextService::_KeyboardChanged()
 	}
 
 	_UpdateLanguageBar();
+}
+
+void CTextService::_KeyboardInputConversionChanged()
+{
+	VARIANT var;
+	int inputmode_bak = inputmode;
+
+	if(_GetCompartment(GUID_COMPARTMENT_KEYBOARD_INPUTMODE_CONVERSION, &var) == S_OK)
+	{
+		if(_IsKeyboardOpen())
+		{
+			LONG lval = var.lVal & (TF_CONVERSIONMODE_ALPHANUMERIC |
+				TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_KATAKANA | TF_CONVERSIONMODE_FULLSHAPE);
+			switch(lval)
+			{
+			case TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_FULLSHAPE:
+				inputmode = im_hiragana;
+				break;
+			case TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_KATAKANA | TF_CONVERSIONMODE_FULLSHAPE:
+				inputmode = im_katakana;
+				break;
+			case TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_KATAKANA:
+				inputmode = im_katakana_ank;
+				break;
+			case TF_CONVERSIONMODE_ALPHANUMERIC | TF_CONVERSIONMODE_FULLSHAPE:
+				inputmode = im_jlatin;
+				break;
+			case TF_CONVERSIONMODE_ALPHANUMERIC:
+				inputmode = im_ascii;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	else
+	{
+		var.vt = VT_I4;
+		var.lVal = TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_FULLSHAPE;
+		_SetCompartment(GUID_COMPARTMENT_KEYBOARD_INPUTMODE_CONVERSION, &var);
+	}
+
+	if(inputmode != inputmode_bak)
+	{
+		_ResetStatus();
+		_ClearComposition();
+		_UpdateLanguageBar();
+	}
 }
 
 BOOL CTextService::_IsKeyVoid(WCHAR ch, BYTE vk)
@@ -339,6 +439,8 @@ void CTextService::_ResetStatus()
 	showentry = FALSE;
 	showcandlist = FALSE;
 	complement = FALSE;
+	purgedicmode = FALSE;
+	hintmode = FALSE;
 
 	searchkey.clear();
 	searchkeyorg.clear();

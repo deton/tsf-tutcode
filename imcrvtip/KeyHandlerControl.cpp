@@ -280,7 +280,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			roman.clear();
 			kana.push_back(ch);
 			cursoridx = kana.size();
-			if(!c_nookuriconv)
+			if(!c_nookuriconv && !hintmode)
 			{
 				//辞書検索開始(接頭辞)
 				showentry = TRUE;
@@ -325,6 +325,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				return S_OK;
 			}
 			//候補表示開始
+			cursoridx = kana.size();
 			showentry = TRUE;
 			_StartConv();
 			_Update(ec, pContext);
@@ -348,12 +349,24 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	case SKK_PURGE_DIC:
 		if(showentry)
 		{
-			_DelUserDic((accompidx == 0 ? REQ_USER_DEL_1 : REQ_USER_DEL_0),
-				((candorgcnt <= candidx) ? searchkey : searchkeyorg),
-				candidates[candidx].second.first);
-			showentry = FALSE;
-			candidx = 0;
-			_Update(ec, pContext);
+			if(purgedicmode)
+			{
+				purgedicmode = FALSE;
+				_DelUserDic((accompidx == 0 ? REQ_USER_DEL_1 : REQ_USER_DEL_0),
+					((candorgcnt <= candidx) ? searchkey : searchkeyorg),
+					candidates[candidx].second.first);
+				showentry = FALSE;
+				candidx = 0;
+				kana.clear();
+				accompidx = 0;
+				cursoridx = 0;
+				_HandleCharReturn(ec, pContext);
+			}
+			else
+			{
+				purgedicmode = TRUE;
+				_Update(ec, pContext);
+			}
 			return S_OK;
 		}
 		break;
@@ -372,6 +385,28 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if(inputkey && !showentry)
 		{
 			_PrevComp();
+			_Update(ec, pContext);
+			return S_OK;
+		}
+		break;
+
+	case SKK_HINT:
+		if(inputkey)
+		{
+			if(showentry)
+			{
+				candidx = 0;
+				showentry = FALSE;
+			}
+			_ConvN(WCHAR_MAX);
+			if(roman.empty() && !kana.empty() &&
+				kana.find_first_of(CHAR_SKK_HINT) == std::wstring::npos)
+			{
+				hintmode = TRUE;
+				cursoridx = kana.size();
+				kana.insert(cursoridx, 1, CHAR_SKK_HINT);
+				cursoridx++;
+			}
 			_Update(ec, pContext);
 			return S_OK;
 		}
@@ -406,18 +441,26 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	case SKK_CANCEL:
 		if(showentry)
 		{
+			candidx = 0;
+			showentry = FALSE;
 			if(c_delokuricncl && accompidx != 0)
 			{
 				kana = kana.substr(0, accompidx);
 				accompidx = 0;
 				cursoridx = kana.size();
 			}
-			showentry = FALSE;
+			if(c_delcvposcncl && accompidx != 0)
+			{
+				kana.erase(accompidx, 1);
+				accompidx = 0;
+				cursoridx--;
+			}
 			_Update(ec, pContext);
 		}
 		else
 		{
 			kana.clear();
+			accompidx = 0;
 			cursoridx = 0;
 			_HandleCharReturn(ec, pContext);
 		}
@@ -719,9 +762,26 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 							{
 								roman.clear();
 							}
+							if(accompidx != 0)
+							{
+								if(accompidx + 1 == cursoridx)
+								{
+									kana.erase(cursoridx - 1, 1);
+									cursoridx--;
+									accompidx = 0;
+								}
+								if(accompidx == kana.size())
+								{
+									accompidx = 0;
+								}
+							}
 							std::wstring s = pwCB;
-							s = std::regex_replace(s, std::wregex(L"\t|\r|\n|\x20"), std::wstring(L""));
+							s = std::regex_replace(s, std::wregex(L"[\\x00-\\x20]"), std::wstring(L""));
 							kana.insert(cursoridx, s);
+							if(accompidx != 0 && cursoridx <= accompidx)
+							{
+								accompidx += s.size();
+							}
 							cursoridx += s.size();
 							_Update(ec, pContext);
 							GlobalUnlock(hCB);

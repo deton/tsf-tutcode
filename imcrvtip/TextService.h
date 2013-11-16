@@ -20,7 +20,8 @@ class CTextService :
 	public ITfDisplayAttributeProvider,
 	public ITfFunctionProvider,
 	public ITfFnConfigure,
-	public ITfFnShowHelp
+	public ITfFnShowHelp,
+	public ITfFnGetPreferredTouchKeyboardLayout
 {
 public:
 	CTextService();
@@ -71,9 +72,9 @@ public:
 	STDMETHODIMP GetDisplayAttributeInfo(REFGUID guid, ITfDisplayAttributeInfo **ppInfo);
 
 	// ITfFunctionProvider
-    STDMETHODIMP GetType(GUID *pguid);
-    STDMETHODIMP GetDescription(BSTR *pbstrDesc);
-    STDMETHODIMP GetFunction(REFGUID rguid, REFIID riid, IUnknown **ppunk);
+	STDMETHODIMP GetType(GUID *pguid);
+	STDMETHODIMP GetDescription(BSTR *pbstrDesc);
+	STDMETHODIMP GetFunction(REFGUID rguid, REFIID riid, IUnknown **ppunk);
 
 	// ITfFunction
 	STDMETHODIMP GetDisplayName(BSTR *pbstrName);
@@ -83,6 +84,9 @@ public:
 
 	// ITfFnShowHelp
 	STDMETHODIMP Show(HWND hwndParent);
+
+	// ITfFnGetPreferredTouchKeyboardLayout
+	STDMETHODIMP GetLayout(TKBLayoutType *pTKBLayoutType, WORD *pwPreferredLayoutId);
 
 	ITfThreadMgr *_GetThreadMgr()
 	{
@@ -103,6 +107,7 @@ public:
 
 	// Compartment
 	HRESULT _SetCompartment(REFGUID rguid, const VARIANT *pvar);
+	HRESULT _GetCompartment(REFGUID rguid, VARIANT *pvar);
 	BOOL _IsKeyboardDisabled();
 	BOOL _IsKeyboardOpen();
 	HRESULT _SetKeyboardOpen(BOOL fOpen);
@@ -127,12 +132,13 @@ public:
 	// KeyHandler
 	HRESULT _InvokeKeyHandler(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BYTE bSf);
 	HRESULT _HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, BYTE bSf);
-	void _KeyboardChanged();
+	void _KeyboardOpenCloseChanged();
+	void _KeyboardInputConversionChanged();
 	BOOL _IsKeyVoid(WCHAR ch, BYTE vk);
 	void _ResetStatus();
 
 	// KeyHandlerChar
-	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, std::wstring &composition, WCHAR ch, WCHAR chO);
+	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, std::wstring &composition, WPARAM wParam, WCHAR ch, WCHAR chO);
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharTerminate(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
 	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch, std::wstring &composition);
@@ -161,6 +167,7 @@ public:
 	HRESULT _ConvRomanKana(ROMAN_KANA_CONV *pconv);
 	HRESULT _ConvAsciiJLatin(ASCII_JLATIN_CONV *pconv);
 	void _StartConv();
+	void _StartSubConv();
 	void _NextConv();
 	void _PrevConv();
 	void _NextComp();
@@ -230,7 +237,8 @@ private:
 
 	DWORD _dwThreadMgrEventSinkCookie;
 	DWORD _dwThreadFocusSinkCookie;
-	DWORD _dwCompartmentEventSinkCookie;
+	DWORD _dwCompartmentEventSinkOpenCloseCookie;
+	DWORD _dwCompartmentEventSinkInputmodeConversionCookie;
 
 	ITfContext *_pTextEditSinkContext;
 	DWORD _dwTextEditSinkCookie;
@@ -282,27 +290,31 @@ public:
 	BOOL showentry;			//候補表示▼モード
 	BOOL showcandlist;		//候補リスト表示
 	BOOL complement;		//補完
-
-	int exinputmode;		//入力モードの前回状態
+	BOOL purgedicmode;		//辞書削除モード
+	BOOL hintmode;			//ヒントモード
 
 	//動作設定
-	WCHAR fontname[LF_FACESIZE];	//候補一覧のフォント設定
-	int fontpoint;					//候補一覧のフォント設定
-	int fontweight;					//候補一覧のフォント設定
-	BOOL fontitalic;				//候補一覧のフォント設定
+	WCHAR fontname[LF_FACESIZE];	//候補一覧のフォント設定(フォント名)
+	int fontpoint;					//候補一覧のフォント設定(サイズ)
+	int fontweight;					//候補一覧のフォント設定(太さ)
+	BOOL fontitalic;				//候補一覧のフォント設定(イタリック)
+
 	LONG maxwidth;			//候補一覧の最大幅
 	COLORREF colors[8];		//候補一覧の色
 	size_t c_untilcandlist;	//候補一覧表示に要する変換回数(0:表示なし/1:1回目)
 	BOOL c_dispcandnum;		//候補一覧表示なしのとき候補数を表示する
 	BOOL c_annotation;		//注釈を表示する
-	BOOL c_annotatlst;		//（候補一覧のみ）
+	BOOL c_annotatlst;		//注釈を表示する（候補一覧のみ）
+	BOOL c_showmodeinl;		//入力モードを表示する
+	BOOL c_showmodeimm;		//入力モードを表示する（没入型のみ）
 	BOOL c_nomodemark;		//▽▼*マークを表示しない
+	BOOL c_showromancomp;	//入力途中のキーシーケンスを表示する
+
 	BOOL c_nookuriconv;		//送り仮名が決定したとき変換を開始しない
+	BOOL c_delcvposcncl;	//取消のとき変換位置を削除する
 	BOOL c_delokuricncl;	//取消のとき送り仮名を削除する
 	BOOL c_backincenter;	//後退に確定を含める
 	BOOL c_addcandktkn;		//候補に片仮名変換を追加する
-	BOOL c_showmodeimm;		//没入型のとき入力モードを表示する
-	BOOL c_showromancomp;	//入力途中のキーシーケンスを表示する
 
 	//ローマ字・仮名
 	std::wstring roman;		//ローマ字

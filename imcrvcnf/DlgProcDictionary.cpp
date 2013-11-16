@@ -3,7 +3,6 @@
 #include "imcrvcnf.h"
 #include "resource.h"
 
-//デフォルト
 static LPCWSTR defaultHost = L"localhost";
 static LPCWSTR defaultPort = L"1178";
 static LPCWSTR defaultTimeOut = L"1000";
@@ -187,7 +186,7 @@ INT_PTR CALLBACK DlgProcDictionary(HWND hDlg, UINT message, WPARAM wParam, LPARA
 
 			WriterStartSection(pXmlWriter, SectionServer);
 
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SKKSRV, SectionServer, ValueServerServ);
+			SaveCheckButton(hDlg, IDC_CHECKBOX_SKKSRV, ValueServerServ);
 
 			GetDlgItemTextW(hDlg, IDC_EDIT_SKKSRV_HOST, host, _countof(host));
 			WriterKey(pXmlWriter, ValueServerHost, host);
@@ -195,7 +194,7 @@ INT_PTR CALLBACK DlgProcDictionary(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			GetDlgItemTextW(hDlg, IDC_EDIT_SKKSRV_PORT, port, _countof(port));
 			WriterKey(pXmlWriter, ValueServerPort, port);
 
-			SaveCheckButton(hDlg, IDC_RADIO_UTF8, SectionServer, ValueServerEncoding);
+			SaveCheckButton(hDlg, IDC_RADIO_UTF8, ValueServerEncoding);
 
 			GetDlgItemTextW(hDlg, IDC_EDIT_SKKSRV_TIMEOUT, num, _countof(num));
 			WriterKey(pXmlWriter, ValueServerTimeOut, num);

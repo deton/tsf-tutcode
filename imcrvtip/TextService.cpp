@@ -12,7 +12,8 @@ CTextService::CTextService()
 	_pThreadMgr = NULL;
 	_dwThreadMgrEventSinkCookie = TF_INVALID_COOKIE;
 	_dwThreadFocusSinkCookie = TF_INVALID_COOKIE;
-	_dwCompartmentEventSinkCookie = TF_INVALID_COOKIE;
+	_dwCompartmentEventSinkOpenCloseCookie = TF_INVALID_COOKIE;
+	_dwCompartmentEventSinkInputmodeConversionCookie = TF_INVALID_COOKIE;
 	_pTextEditSinkContext = NULL;
 	_dwTextEditSinkCookie = TF_INVALID_COOKIE;
 	_pComposition = NULL;
@@ -23,7 +24,6 @@ CTextService::CTextService()
 	hPipe = INVALID_HANDLE_VALUE;
 
 	inputmode = im_default;
-	exinputmode = im_default;
 
 	_ResetStatus();
 }
@@ -89,6 +89,10 @@ STDAPI CTextService::QueryInterface(REFIID riid, void **ppvObj)
 	else if(IsEqualIID(riid, IID_ITfFnShowHelp))
 	{
 		*ppvObj = (ITfFnShowHelp *)this;
+	}
+	else if(IsEqualIID(riid, IID_ITfFnGetPreferredTouchKeyboardLayout))
+	{
+		*ppvObj = (ITfFnGetPreferredTouchKeyboardLayout *)this;
 	}
 
 	if(*ppvObj)
@@ -180,7 +184,7 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 		goto exit;
 	}
 
-	_KeyboardChanged();
+	_KeyboardOpenCloseChanged();
 
 	return S_OK;
 

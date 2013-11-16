@@ -276,7 +276,7 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 		BOOL fOpen = _IsKeyboardOpen();
 		if(!fOpen)
 		{
-			exinputmode = im_default;	// -> OnChange() -> _KeyboardChanged()
+			inputmode = im_disable;
 		}
 		else
 		{
@@ -291,7 +291,7 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 		BOOL fOpen = _IsKeyboardOpen();
 		if(!fOpen)
 		{
-			exinputmode = im_default;	// -> OnChange() -> _KeyboardChanged()
+			inputmode = im_default;
 		}
 		else
 		{
@@ -305,7 +305,7 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 		BOOL fOpen = _IsKeyboardOpen();
 		if(!fOpen)
 		{
-			exinputmode = im_default;	// -> OnChange() -> _KeyboardChanged()
+			inputmode = im_default;
 		}
 		else
 		{

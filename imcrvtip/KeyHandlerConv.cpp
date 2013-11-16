@@ -7,8 +7,8 @@
 WCHAR CTextService::_GetCh(BYTE vk, BYTE vkoff)
 {
 	BYTE keystate[256];
-	WCHAR szU[4];
-	WCHAR u;
+	WCHAR ubuff;
+	WCHAR u = L'\0';
 	
 	GetKeyboardState(keystate);
 
@@ -18,7 +18,7 @@ WCHAR CTextService::_GetCh(BYTE vk, BYTE vkoff)
 	case im_katakana:
 	case im_katakana_ank:
 		keystate[VK_CAPITAL] = 0;
-		if(abbrevmode)
+		if(abbrevmode || purgedicmode)
 		{
 			keystate[VK_KANA] = 0;
 		}
@@ -35,14 +35,10 @@ WCHAR CTextService::_GetCh(BYTE vk, BYTE vkoff)
 		break;
 	}
 
-	int retu = ToUnicode(vk, 0, keystate, szU, _countof(szU), 0);
-	if(retu != 1)
+	int retu = ToUnicode(vk, 0, keystate, &ubuff, 1, 0);
+	if(retu == 1)
 	{
-		u = L'\0';
-	}
-	else
-	{
-		u = szU[0];
+		u = ubuff;
 	}
 
 	return u;
@@ -85,6 +81,18 @@ BYTE CTextService::_GetSf(BYTE vk, WCHAR ch)
 		default:
 			break;
 		}
+	}
+
+	switch(ch)
+	{
+	case TKB_NEXT_PAGE:
+		k = SKK_NEXT_CAND;
+		break;
+	case TKB_PREV_PAGE:
+		k = SKK_PREV_CAND;
+		break;
+	default:
+		break;
 	}
 
 	return k;
@@ -150,6 +158,86 @@ HRESULT CTextService::_ConvAsciiJLatin(ASCII_JLATIN_CONV *pconv)
 }
 
 void CTextService::_StartConv()
+{
+	CANDIDATES candidates_sel;
+	CANDIDATES candidates_hint;
+	CANDIDATES::iterator candidates_itr;
+	CANDIDATES::iterator candidates_hint_itr;
+	std::wstring keyhint, key, hint;
+	std::wstring candidate, str;
+	size_t accompidx_bak;
+	size_t i;
+
+	size_t hintchidx = kana.find_first_of(CHAR_SKK_HINT);
+
+	if(!hintmode || hintchidx == std::wstring::npos)
+	{
+		_StartSubConv();
+	}
+	else
+	{
+		keyhint = kana;
+
+		key = keyhint.substr(0, hintchidx);
+		if(accompidx > key.size())
+		{
+			keyhint = keyhint.substr(0, accompidx + 1);
+			accompidx = 0;
+		}
+		accompidx_bak = accompidx;
+		accompidx = 0;
+		hint = keyhint.substr(hintchidx + 1);
+
+		//ヒント検索
+		kana = hint;
+		_StartSubConv();
+		candidates_hint = candidates;
+
+		//通常検索
+		accompidx = accompidx_bak;
+		kana = key;
+		cursoridx = kana.size();
+		_StartSubConv();
+
+		//ヒント候補の文字を含む通常候補をヒント候補順で抽出
+		for(candidates_hint_itr = candidates_hint.begin(); candidates_hint_itr != candidates_hint.end(); candidates_hint_itr++)
+		{
+			candidate = candidates_hint_itr->first.first;
+			for(i=0; i<candidate.size(); i++)
+			{
+				str.clear();
+				if(i+1 != candidate.size() && IS_SURROGATE_PAIR(candidate[i], candidate[i+1]))
+				{
+					str.push_back(candidate[i]);
+					str.push_back(candidate[i+1]);
+					i++;
+				}
+				else
+				{
+					str.push_back(candidate[i]);
+				}
+
+				for(candidates_itr = candidates.begin(); candidates_itr != candidates.end(); )
+				{
+					if(candidates_itr->first.first.find(str) != std::wstring::npos)
+					{
+						candidates_sel.push_back(*candidates_itr);
+						candidates_itr = candidates.erase(candidates_itr);
+					}
+					else
+					{
+						candidates_itr++;
+					}
+				}
+			}
+		}
+		candidates = candidates_sel;
+	}
+
+	hintmode = FALSE;
+}
+
+void CTextService::_StartSubConv()
 {
 	CANDIDATES::iterator candidates_itr;
 	CANDIDATES candidates_bak;
@@ -259,13 +347,8 @@ void CTextService::_NextConv()
 	}
 	else
 	{
-		if(c_delokuricncl && accompidx != 0)
-		{
-			kana = kana.substr(0, accompidx);
-			accompidx = 0;
-		}
-		candidx = 0;
 		showentry = FALSE;
+		candidx = 0;
 	}
 }
 
@@ -278,6 +361,18 @@ void CTextService::_PrevConv()
 	else
 	{
 		showentry = FALSE;
+		if(c_delokuricncl && accompidx != 0)
+		{
+			kana = kana.substr(0, accompidx);
+			accompidx = 0;
+			cursoridx = kana.size();
+		}
+		if(c_delcvposcncl && accompidx != 0)
+		{
+			kana.erase(accompidx, 1);
+			accompidx = 0;
+			cursoridx--;
+		}
 	}
 }
 
@@ -574,7 +669,7 @@ void CTextService::_ConvKanaToKana(std::wstring &dst, int dstmode, const std::ws
 {
 	size_t i, j, count;
 	BOOL exist;
-	WCHAR *convkana;
+	WCHAR *convkana = NULL;
 	WCHAR srckana[3];
 	std::wstring dsttmp;
 

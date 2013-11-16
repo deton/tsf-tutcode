@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{22523C04-5D55-4A25-B228-161A29344DA6}</ProjectGuid>
+    <ProjectGuid>{56319425-6482-41CF-8B63-BC33D6EEBB52}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>imcrvcnf</RootNamespace>
   </PropertyGroup>
@@ -96,6 +96,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
+      <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -109,7 +110,7 @@
       <Culture>0x0411</Culture>
     </ResourceCompile>
     <Manifest>
-      <EnableDPIAwareness>true</EnableDPIAwareness>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -119,6 +120,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
+      <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -132,7 +134,7 @@
       <Culture>0x0411</Culture>
     </ResourceCompile>
     <Manifest>
-      <EnableDPIAwareness>true</EnableDPIAwareness>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,6 +146,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
+      <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -158,7 +161,7 @@
       <Culture>0x0411</Culture>
     </ResourceCompile>
     <Manifest>
-      <EnableDPIAwareness>true</EnableDPIAwareness>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -170,6 +173,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
+      <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -184,12 +188,9 @@
       <Culture>0x0411</Culture>
     </ResourceCompile>
     <Manifest>
-      <EnableDPIAwareness>true</EnableDPIAwareness>
+      <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <None Include="imcrvcnf.ico" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convtable.h" />
     <ClInclude Include="imcrvcnf.h" />
@@ -199,7 +200,8 @@
   <ItemGroup>
     <ClCompile Include="ConfigCnf.cpp" />
     <ClCompile Include="convtable.cpp" />
-    <ClCompile Include="DlgProcBehavior.cpp" />
+    <ClCompile Include="DlgProcBehavior1.cpp" />
+    <ClCompile Include="DlgProcBehavior2.cpp" />
     <ClCompile Include="DlgProcConvPoint.cpp" />
     <ClCompile Include="DlgProcDictionary.cpp" />
     <ClCompile Include="DlgProcJLatin.cpp" />
@@ -220,6 +222,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="imcrvcnf.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="imcrvcnf.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

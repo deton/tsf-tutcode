@@ -4,19 +4,16 @@
 
 #include "common.h"
 
-//for resource
-#define RC_FILE				"imcrvtip"
-
 //入力モード
 enum
 {
-	im_disable = 0,		//無効
-    im_default,			//デフォルト
-    im_hiragana,		//ひらがな
-    im_katakana,		//カタカナ
-    im_katakana_ank,	//半角ｶﾀｶﾅ
-    im_jlatin,			//全英
-    im_ascii			//ASCII
+	im_disable = -1,	//無効
+	im_default,			//デフォルト
+	im_hiragana,		//ひらがな
+	im_katakana,		//カタカナ
+	im_katakana_ank,	//半角ｶﾀｶﾅ
+	im_jlatin,			//全英
+	im_ascii			//ASCII
 };
 
 //候補   pair< candidate, annotation >
@@ -43,6 +40,7 @@ typedef std::vector< CANDIDATE > CANDIDATES;
 #define SKK_PURGE_DIC	0x58	// 辞書削除		X
 #define SKK_NEXT_COMP	0x09	// 次補完		c-i(HT)
 #define SKK_PREV_COMP	0x15	// 前補完		c-u
+#define SKK_HINT		0x3B	// 絞り込み		;
 
 #define SKK_CONV_POINT	0x51	// 変換位置		Q ;
 #define SKK_DIRECT		0x30	// 直接入力		0-9
@@ -63,6 +61,11 @@ typedef struct {
 	BYTE keyjmode[KEYMAPNUM];	//ひらがな/カタカナ
 	BYTE keyvoid[KEYMAPNUM];	//無効
 } KEYMAP;
+
+#define CHAR_SKK_HINT	L'\x20'
+
+#define TKB_NEXT_PAGE	L'\uF003'	//next page key on touch-optimized keyboard
+#define TKB_PREV_PAGE	L'\uF004'	//previous page key on touch-optimized keyboard
 
 //候補一覧選択キー数
 #define MAX_SELKEY		7
@@ -115,6 +118,36 @@ LONG DllRelease();
 extern const GUID GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT;
 extern const GUID GUID_TFCAT_TIPCAP_SYSTRAYSUPPORT;
 extern const GUID GUID_LBI_INPUTMODE;
+
+// from mozc/win32/tip/tip_text_service.cc
+// ITfFnGetPreferredTouchKeyboardLayout is available on Windows 8 SDK and later.
+#ifndef TKBL_UNDEFINED
+#define TKBL_UNDEFINED                             0x0000
+#define TKBL_CLASSIC_TRADITIONAL_CHINESE_PHONETIC  0x0404
+#define TKBL_CLASSIC_TRADITIONAL_CHINESE_CHANGJIE  0xF042
+#define TKBL_CLASSIC_TRADITIONAL_CHINESE_DAYI      0xF043
+#define TKBL_OPT_JAPANESE_ABC                      0x0411
+#define TKBL_OPT_KOREAN_HANGUL_2_BULSIK            0x0412
+#define TKBL_OPT_SIMPLIFIED_CHINESE_PINYIN         0x0804
+#define TKBL_OPT_TRADITIONAL_CHINESE_PHONETIC      0x0404
+
+enum TKBLayoutType {
+  TKBLT_UNDEFINED = 0,
+  TKBLT_CLASSIC = 1,
+  TKBLT_OPTIMIZED = 2
+};
+
+extern const IID IID_ITfFnGetPreferredTouchKeyboardLayout;
+
+// Note: "5F309A41-590A-4ACC-A97F-D8EFFF13FDFC" is equivalent to
+// IID_ITfFnGetPreferredTouchKeyboardLayout
+struct __declspec(uuid("5F309A41-590A-4ACC-A97F-D8EFFF13FDFC"))
+ITfFnGetPreferredTouchKeyboardLayout : public ITfFunction {
+ public:
+  virtual HRESULT STDMETHODCALLTYPE GetLayout(TKBLayoutType *layout_type,
+                                              WORD *preferred_layout_id) = 0;
+};
+#endif // TKBL_UNDEFINED
 #endif
 
 #endif //IMCRVTIP_H
