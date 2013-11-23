@@ -289,25 +289,14 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 	else if(IsEqualGUID(rguid, c_guidPreservedKeyOn))
 	{
 		BOOL fOpen = _IsKeyboardOpen();
-		if(!fOpen)
-		{
-			inputmode = im_default;
-		}
-		else
-		{
-			_ClearComposition();
-		}
+		inputmode = im_disable;
 		_SetKeyboardOpen(TRUE);
 		*pfEaten = TRUE;
 	}
 	else if(IsEqualGUID(rguid, c_guidPreservedKeyOff))
 	{
 		BOOL fOpen = _IsKeyboardOpen();
-		if(!fOpen)
-		{
-			inputmode = im_default;
-		}
-		else
+		if(fOpen)
 		{
 			_ClearComposition();
 			postbuf.clear();
