@@ -280,7 +280,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			roman.clear();
 			kana.push_back(ch);
 			cursoridx = kana.size();
-			if(!c_nookuriconv && !hintmode)
+			if(cx_begincvokuri && !hintmode)
 			{
 				//辞書検索開始(接頭辞)
 				showentry = TRUE;
@@ -443,13 +443,13 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			candidx = 0;
 			showentry = FALSE;
-			if(c_delokuricncl && accompidx != 0)
+			if(cx_delokuricncl && accompidx != 0)
 			{
 				kana = kana.substr(0, accompidx);
 				accompidx = 0;
 				cursoridx = kana.size();
 			}
-			if(c_delcvposcncl && accompidx != 0)
+			if(cx_delcvposcncl && accompidx != 0)
 			{
 				kana.erase(accompidx, 1);
 				accompidx = 0;
@@ -470,7 +470,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	case SKK_BACK:
 		if(showentry)
 		{
-			if(_HandleControl(ec, pContext, (c_backincenter ? SKK_ENTER : SKK_PREV_CAND), ch) == S_OK)
+			if(_HandleControl(ec, pContext, (cx_backincenter ? SKK_ENTER : SKK_PREV_CAND), ch) == S_OK)
 			{
 				return S_OK;
 			}
@@ -489,7 +489,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if(!roman.empty())
 		{
 			roman.pop_back();
-			if(!c_showromancomp)
+			if(!cx_showromancomp)
 			{
 				skipupdate = TRUE;
 			}

@@ -63,10 +63,11 @@ LPCWSTR ValueAnnotation = L"annotation";
 LPCWSTR ValueAnnotatLst = L"annotatlst";
 LPCWSTR ValueShowModeInl = L"showmodeinl";
 LPCWSTR ValueShowModeImm = L"showmodeimm";
-LPCWSTR ValueNoModeMark = L"nomodemark";
+LPCWSTR ValueShowModeMark = L"showmodemark";
 LPCWSTR ValueShowRomanComp = L"showromancomp";
 
-LPCWSTR ValueNoOkuriConv = L"nookuriconv";
+LPCWSTR ValueBeginCvOkuri = L"begincvokuri";
+LPCWSTR ValueKeepInputNoR = L"keepinputnor";
 LPCWSTR ValueDelCvPosCncl = L"delcvposcncl";
 LPCWSTR ValueDelOkuriCncl = L"delokuricncl";
 LPCWSTR ValueBackIncEnter = L"backincenter";

@@ -173,7 +173,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 				else
 				{
 					_HandleCharTerminate(ec, pContext, composition);
-					if(!kana.empty() && accompidx != 0 && !rkc.soku && !c_nookuriconv && !hintmode && !rkc.wait)
+					if(!kana.empty() && accompidx != 0 && !rkc.soku && cx_begincvokuri && !hintmode && !rkc.wait)
 					{
 						cursoridx = kana.size();
 						showentry = TRUE;
@@ -190,7 +190,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 			case E_PENDING:	//途中まで一致
 				_HandleCharTerminate(ec, pContext, composition);
 				roman.push_back(ch);
-				if(c_showromancomp)
+				if(cx_showromancomp)
 				{
 					_Update(ec, pContext);
 				}
