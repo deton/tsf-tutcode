@@ -286,17 +286,42 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 					}
 					else
 					{
-						roman.clear();
 						if(cx_keepinputnor)
 						{
+							//不一致のシーケンスはそのまま確定
+							//(短い単語を大文字入力等)
+							kana.insert(cursoridx, roman);
+							cursoridx += roman.size();
+							roman.clear();
+							if(!inputkey)
+							{
+								_HandleCharReturn(ec, pContext);
+							}
+							//今回入力された文字を処理
+							//return _HandleChar(ec, pContext, composition, wParam, ch, chO);
 							WCHAR nch = _GetCh((BYTE)wParam);
 							BYTE nsf = _GetSf((BYTE)wParam, nch);
 							return _HandleKey(ec, pContext, wParam, nsf);
 						}
 						else
 						{
+							roman.clear();
 							_Update(ec, pContext);
 						}
+					}
+				}
+				else
+				{
+					if(cx_keepinputnor)
+					{
+						//今回入力された文字単独で不一致の場合そのまま確定
+						kana.insert(cursoridx, 1, ch);
+						cursoridx++;
+						if(!inputkey)
+						{
+							_HandleCharReturn(ec, pContext);
+						}
+						_Update(ec, pContext);
 					}
 				}
 				break;
