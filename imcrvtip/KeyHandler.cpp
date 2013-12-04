@@ -299,9 +299,12 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 							}
 							//今回入力された文字を処理
 							//return _HandleChar(ec, pContext, composition, wParam, ch, chO);
+							return _HandleKey(ec, pContext, wParam, SKK_NULL);
+							/* "S "と打つと、Sの後に" "でなく変な文字が入るので
 							WCHAR nch = _GetCh((BYTE)wParam);
 							BYTE nsf = _GetSf((BYTE)wParam, nch);
 							return _HandleKey(ec, pContext, wParam, nsf);
+							*/
 						}
 						else
 						{
