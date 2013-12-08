@@ -546,36 +546,6 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	return S_OK;
 }
 
-//打鍵ヘルプ表示: 漢索窓が起動されていれば、そこに表示
-static HRESULT _ShowAutoHelp(const std::wstring &kanji)
-{
-	HWND hwnd = FindWindow(L"kansaku", NULL);
-	if(hwnd == NULL)
-	{
-		return E_FAIL;
-	}
-	//XXX:クリップボード内容を上書きされるのはユーザにはうれしくない
-	if(OpenClipboard(NULL))
-	{
-		size_t len = kanji.size() + 1;
-		size_t size = len * sizeof(WCHAR);
-		HGLOBAL hMem = GlobalAlloc(GMEM_FIXED, size);
-		if(hMem != NULL)
-		{
-			LPWSTR pMem = (LPWSTR)hMem;
-			wcsncpy_s(pMem, len, kanji.c_str(), _TRUNCATE);
-			EmptyClipboard();
-			SetClipboardData(CF_UNICODETEXT, hMem);
-		}
-		CloseClipboard();
-		if(hMem != NULL)
-		{
-			PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
-		}
-	}
-	return S_OK;
-}
-
 //後置型部首合成変換
 HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BOOL incomp)
 {
@@ -596,7 +566,7 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BO
 			//カーソル直前の文字列を置換
 			std::wstring kanjistr(1, kanji);
 			_ReplacePrecedingText(ec, pContext, 2, kanjistr, incomp);
-			_ShowAutoHelp(kanjistr);
+			_ShowAutoHelp(kanjistr, L"");
 			return S_OK;
 		}
 	}
@@ -695,4 +665,54 @@ HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pC
 	_HandleCharReturn(ec, pContext);
 	deleter.BeginDeletion(delete_count, pending, dummy);
 	return E_PENDING;
+}
+
+//打鍵ヘルプ表示: 漢索窓が起動されていれば、そこに表示
+HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi)
+{
+	HWND hwnd = FindWindow(L"kansaku", NULL);
+	if(hwnd == NULL)
+	{
+		return E_FAIL;
+	}
+
+	std::wstring str;
+	//ヘルプ表示不要(読みとして入力した文字/重複する文字)かどうか
+	class skiphelp
+	{
+		const std::wstring _yomi;
+		const std::wstring _helpstr;
+	public:
+		skiphelp(const std::wstring& yomi, const std::wstring& helpstr):
+			_yomi(yomi), _helpstr(helpstr)
+		{
+		}
+		bool operator()(wchar_t c)
+		{
+			return _yomi.find(c) != std::wstring::npos
+				|| _helpstr.find(c) != std::wstring::npos;
+		}
+	};
+	remove_copy_if(kanji.begin(), kanji.end(), back_inserter(str), skiphelp(yomi, str));
+
+	//XXX:クリップボード内容を上書きされるのはユーザにはうれしくない
+	if(OpenClipboard(NULL))
+	{
+		size_t len = str.size() + 1;
+		size_t size = len * sizeof(WCHAR);
+		HGLOBAL hMem = GlobalAlloc(GMEM_FIXED, size);
+		if(hMem != NULL)
+		{
+			LPWSTR pMem = (LPWSTR)hMem;
+			wcsncpy_s(pMem, len, str.c_str(), _TRUNCATE);
+			EmptyClipboard();
+			SetClipboardData(CF_UNICODETEXT, hMem);
+		}
+		CloseClipboard();
+		if(hMem != NULL)
+		{
+			PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
+		}
+	}
+	return S_OK;
 }

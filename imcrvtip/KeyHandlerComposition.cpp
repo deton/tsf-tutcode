@@ -82,6 +82,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			{
 				_AddUserDic(useraddmode, ((candorgcnt <= candidx) ? searchkey : searchkeyorg),
 					candidates[candidx].second.first, candidates[candidx].second.second);
+				_ShowAutoHelp(candidates[candidx].second.first, searchkeyorg);
 			}
 		}
 		else

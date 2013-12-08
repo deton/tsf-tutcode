@@ -150,6 +150,7 @@ public:
 	HRESULT _AcquirePrecedingText(ITfContext *pContext, BOOL incomp, std::wstring *text);
 	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL incomp, BOOL startMaze = false);
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL startMaze = false);
+	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 
 	// KeyHandlerCompostion
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed = FALSE, BOOL back = FALSE);
