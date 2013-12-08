@@ -107,6 +107,7 @@
 #define IDC_EDIT_RIGHT                          2130
 #define IDC_EDIT_DOWN                           2131
 #define IDC_EDIT_PASTE                          2132
+#define IDC_EDIT_OTHERIME                       2133
 
 #define IDC_LIST_CONVPOINT                      2501
 #define IDC_EDIT_CONVPOINT_ST                   2502

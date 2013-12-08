@@ -3,6 +3,7 @@
 #include "TextService.h"
 #include "LanguageBar.h"
 #include "convtype.h"
+#include "KeySender.h"
 
 HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR &ch)
 {
@@ -791,6 +792,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				}
 			}
 		}
+		break;
+
+	case SKK_OTHERIME:
+		_ClearComposition();
+		postbuf.clear();
+		_SetKeyboardOpen(FALSE);
+
+		KeySender::OtherIme();
+		return S_OK;
 		break;
 
 	//DeleterがBS送り付けによりカーソル直前文字列を削除した後に実行される。

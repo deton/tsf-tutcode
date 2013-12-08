@@ -29,7 +29,8 @@ static const KEYMAPCNF KeyMap1[] =
 	{IDC_EDIT_UP,			ValueKeyMapUp,			L"\\ca"},
 	{IDC_EDIT_RIGHT,		ValueKeyMapRight,		L"\\cf"},
 	{IDC_EDIT_DOWN,			ValueKeyMapDown,		L"\\ce"},
-	{IDC_EDIT_PASTE,		ValueKeyMapPaste,		L"\\cy|\\cv"}
+	{IDC_EDIT_PASTE,		ValueKeyMapPaste,		L"\\cy|\\cv"},
+	{IDC_EDIT_OTHERIME,		ValueKeyMapOtherIme,	L""},
 };
 
 INT_PTR CALLBACK DlgProcKeyMap1(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -73,6 +74,7 @@ INT_PTR CALLBACK DlgProcKeyMap1(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		case IDC_EDIT_RIGHT:
 		case IDC_EDIT_DOWN:
 		case IDC_EDIT_PASTE:
+		case IDC_EDIT_OTHERIME:
 			switch(HIWORD(wParam))
 			{
 			case EN_CHANGE:

@@ -54,6 +54,7 @@ typedef std::vector< CANDIDATE > CANDIDATES;
 #define SKK_RIGHT		0x06	// 右移動		c-f	VK_RIGHT
 #define SKK_DOWN		0x05	// 末尾移動		c-e	VK_DOWN
 #define SKK_PASTE		0x19	// 貼付			c-y	(c-v)
+#define SKK_OTHERIME	0x1B	// 他IME切替
 #define SKK_AFTER_DELETER		0xFE	// Deleterによる直前文字列削除後
 
 typedef struct {

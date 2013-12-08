@@ -34,6 +34,7 @@ static const struct {
 	{SKK_RIGHT,		ValueKeyMapRight},
 	{SKK_DOWN,		ValueKeyMapDown},
 	{SKK_PASTE,		ValueKeyMapPaste},
+	{SKK_OTHERIME,	ValueKeyMapOtherIme},
 	{SKK_NULL,		L""}
 };
 
@@ -335,6 +336,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		case SKK_RIGHT:
 		case SKK_DOWN:
 		case SKK_PASTE:
+		case SKK_OTHERIME:
 			for(ch = 0x01; ch < KEYMAPNUM; ch++)
 			{
 				key[0] = ch;

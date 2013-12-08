@@ -133,6 +133,7 @@ LPCWSTR ValueKeyMapUp = L"up";
 LPCWSTR ValueKeyMapRight = L"right";
 LPCWSTR ValueKeyMapDown = L"down";
 LPCWSTR ValueKeyMapPaste = L"paste";
+LPCWSTR ValueKeyMapOtherIme = L"otherime";
 
 //convpoint section
 

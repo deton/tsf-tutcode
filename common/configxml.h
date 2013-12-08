@@ -165,6 +165,7 @@ extern LPCWSTR ValueKeyMapUp;
 extern LPCWSTR ValueKeyMapRight;
 extern LPCWSTR ValueKeyMapDown;
 extern LPCWSTR ValueKeyMapPaste;
+extern LPCWSTR ValueKeyMapOtherIme;
 
 //convpoint section
 
