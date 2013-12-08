@@ -546,6 +546,36 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	return S_OK;
 }
 
+//打鍵ヘルプ表示: 漢索窓が起動されていれば、そこに表示
+static HRESULT _ShowAutoHelp(const std::wstring &kanji)
+{
+	HWND hwnd = FindWindow(L"kansaku", NULL);
+	if(hwnd == NULL)
+	{
+		return E_FAIL;
+	}
+	//XXX:クリップボード内容を上書きされるのはユーザにはうれしくない
+	if(OpenClipboard(NULL))
+	{
+		size_t len = kanji.size() + 1;
+		size_t size = len * sizeof(WCHAR);
+		HGLOBAL hMem = GlobalAlloc(GMEM_FIXED, size);
+		if(hMem != NULL)
+		{
+			LPWSTR pMem = (LPWSTR)hMem;
+			wcsncpy_s(pMem, len, kanji.c_str(), _TRUNCATE);
+			EmptyClipboard();
+			SetClipboardData(CF_UNICODETEXT, hMem);
+		}
+		CloseClipboard();
+		if(hMem != NULL)
+		{
+			PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
+		}
+	}
+	return S_OK;
+}
+
 //後置型部首合成変換
 HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BOOL incomp)
 {
@@ -566,6 +596,7 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BO
 			//カーソル直前の文字列を置換
 			std::wstring kanjistr(1, kanji);
 			_ReplacePrecedingText(ec, pContext, 2, kanjistr, incomp);
+			_ShowAutoHelp(kanjistr);
 			return S_OK;
 		}
 	}
