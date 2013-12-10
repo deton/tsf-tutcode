@@ -712,6 +712,17 @@ HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstrin
 		if(hMem != NULL)
 		{
 			PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
+			//漢索窓を最前面に表示させる
+			HWND foreWin = GetForegroundWindow();
+			DWORD foreThread = GetWindowThreadProcessId(foreWin, NULL);
+			DWORD selfThread = GetCurrentThreadId();
+			AttachThreadInput(selfThread, foreThread, TRUE);
+			SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_ASYNCWINDOWPOS);
+			//最前面に出たままになって邪魔にならないように
+			SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
+			AttachThreadInput(selfThread, foreThread, FALSE);
 		}
 	}
 	return S_OK;
