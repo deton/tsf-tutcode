@@ -346,6 +346,17 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		_HandlePostBushu(ec, pContext, incomp);
 		return;
 	}
+	//打鍵ヘルプ
+	else if(wcsncmp(rkc.hiragana, L"Help", 4) == 0)
+	{
+		int count = _wtoi(rkc.hiragana + 4);
+		if(count == 0)
+		{
+			count = 1;
+		}
+		_HandlePostHelp(ec, pContext, incomp, count);
+		return;
+	}
 	else
 	{
 		if(!incomp)
@@ -582,15 +593,37 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BO
 	return S_OK;
 }
 
+//打鍵ヘルプ
+HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, BOOL incomp, int count)
+{
+	std::wstring text;
+	AcquiredFrom from = _AcquirePrecedingText(pContext, incomp, &text, TRUE);
+
+	size_t size = text.size();
+	if(size > 0)
+	{
+		if(from != SELECTION && size > count)
+		{
+			_ShowAutoHelp(text.substr(size - count), L"");
+		}
+		else
+		{
+			_ShowAutoHelp(text, L"");
+		}
+	}
+
+	return S_OK;
+}
+
 //カーソル直前の文字列を取得
-HRESULT CTextService::_AcquirePrecedingText(ITfContext *pContext, BOOL incomp, std::wstring *text)
+CTextService::AcquiredFrom CTextService::_AcquirePrecedingText(ITfContext *pContext, BOOL incomp, std::wstring *text, BOOL useSelectedText)
 {
 	text->clear();
 	//前置型交ぜ書き変換の読み入力中の場合は、入力済みの読みを対象にする
 	if(incomp)
 	{
 		text->append(kana.substr(0, cursoridx));
-		return S_OK;
+		return COMPOSITION;
 	}
 	kana.clear();
 	cursoridx = 0;
@@ -598,20 +631,27 @@ HRESULT CTextService::_AcquirePrecedingText(ITfContext *pContext, BOOL incomp, s
 	mozc::win32::tsf::TipSurroundingTextInfo info;
 	if(mozc::win32::tsf::TipSurroundingText::Get(this, pContext, &info))
 	{
-		if(info.preceding_text.size() > 0)
+		if(useSelectedText && info.selected_text.size() > 0)
+		{
+			text->append(info.selected_text);
+			return SELECTION;
+		}
+		else if(info.preceding_text.size() > 0)
 		{
 			text->append(info.preceding_text);
+			return PRECEDING;
 		}
 		else
 		{
 			text->append(postbuf);
+			return POSTBUF;
 		}
 	}
 	else
 	{
 		text->append(postbuf);
+		return POSTBUF;
 	}
-	return S_OK;
 }
 
 //カーソル直前の文字列を、kanaに置換
