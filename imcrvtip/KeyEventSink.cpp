@@ -283,6 +283,11 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 		}
 		else
 		{
+			//入力途中のシーケンスはそのまま確定
+			if(cx_keepinputnor)
+			{
+				_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
+			}
 			_ClearComposition();
 			postbuf.clear();
 		}
@@ -301,6 +306,10 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 		BOOL fOpen = _IsKeyboardOpen();
 		if(fOpen)
 		{
+			if(cx_keepinputnor)
+			{
+				_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
+			}
 			_ClearComposition();
 			postbuf.clear();
 		}
