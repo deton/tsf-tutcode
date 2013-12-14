@@ -434,8 +434,21 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_ENTER:
-		_ConvN(WCHAR_MAX);
-		_HandleCharReturn(ec, pContext, (_GetSf(0, ch) == SKK_BACK ? TRUE : FALSE));
+		if(_ConvN(WCHAR_MAX))
+		{
+			_HandleCharReturn(ec, pContext, (_GetSf(0, ch) == SKK_BACK ? TRUE : FALSE));
+		}
+		else
+		{
+			if(cx_keepinputnor)
+			{
+				//不一致のシーケンスはそのまま確定(短い単語を大文字入力等)
+				kana.insert(cursoridx, roman);
+				cursoridx += roman.size();
+				roman.clear();
+				_HandleCharReturn(ec, pContext, (_GetSf(0, ch) == SKK_BACK ? TRUE : FALSE));
+			}
+		}
 		return S_OK;
 		break;
 
@@ -898,4 +911,21 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 	}
 
 	return E_PENDING;
+}
+
+//入力途中のシーケンスを確定する
+HRESULT CTextService::_CommitRoman(TfEditCookie ec, ITfContext *pContext)
+{
+	kana.insert(cursoridx, roman);
+	cursoridx += roman.size();
+	roman.clear();
+	if(!inputkey)
+	{
+		_HandleCharReturn(ec, pContext);
+	}
+	else
+	{
+		_Update(ec, pContext);
+	}
+	return S_OK;
 }

@@ -290,13 +290,7 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 						{
 							//不一致のシーケンスはそのまま確定
 							//(短い単語を大文字入力等)
-							kana.insert(cursoridx, roman);
-							cursoridx += roman.size();
-							roman.clear();
-							if(!inputkey)
-							{
-								_HandleCharReturn(ec, pContext);
-							}
+							_CommitRoman(ec, pContext);
 							//今回入力された文字を処理
 							//return _HandleChar(ec, pContext, composition, wParam, ch, chO);
 							return _HandleKey(ec, pContext, wParam, SKK_NULL);

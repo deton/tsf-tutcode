@@ -169,6 +169,7 @@ public:
 	// KeyHandlerControl
 	HRESULT _HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR &ch);
 	HRESULT _HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR &ch);
+	HRESULT _CommitRoman(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerConv
 	WCHAR _GetCh(BYTE vk, BYTE vkoff = 0);
