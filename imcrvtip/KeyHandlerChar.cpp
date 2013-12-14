@@ -306,11 +306,15 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	//後置型交ぜ書き変換
 	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 	{
-		int count = _wtoi(rkc.hiragana + 4);
 		if(!incomp)
 		{
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
 			//は未対応。候補表示等の制御が面倒なので。
+			int count = _wtoi(rkc.hiragana + 4);
+			if(count <= 0)
+			{
+				count = 1; //TODO:count=0の場合、なるべく長く読みとみなす
+			}
 			_HandlePostMaze(ec, pContext, count);
 		}
 		else
@@ -350,7 +354,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	else if(wcsncmp(rkc.hiragana, L"Help", 4) == 0)
 	{
 		int count = _wtoi(rkc.hiragana + 4);
-		if(count == 0)
+		if(count <= 0)
 		{
 			count = 1;
 		}
