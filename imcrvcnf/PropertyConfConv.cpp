@@ -182,7 +182,7 @@ static void SavePreservedKeySub(HWND hWndListView, LPCWSTR SectionPreservedKey, 
 		preservedkey[count].uModifiers = 0;
 	}
 
-	WriterStartSection(pXmlWriter, SectionPreservedKey);
+	WriterStartSection(pXmlWriter, SectionPreservedKey);	//Start of SectionPreservedKey
 
 	for(i = 0; i < MAX_PRESERVEDKEY; i++)
 	{
@@ -208,7 +208,7 @@ static void SavePreservedKeySub(HWND hWndListView, LPCWSTR SectionPreservedKey, 
 
 	WriterList(pXmlWriter, list);
 
-	WriterEndSection(pXmlWriter);
+	WriterEndSection(pXmlWriter);	//End of SectionPreservedKey
 }
 
 void SavePreservedKey(HWND hwnd)
@@ -315,7 +315,7 @@ void SaveConvPoint(HWND hwnd)
 		conv_point[count][2][0] = L'\0';
 	}
 
-	WriterStartSection(pXmlWriter, SectionConvPoint);
+	WriterStartSection(pXmlWriter, SectionConvPoint);	//Start of SectionConvPoint
 
 	for(i = 0; i < CONV_POINT_NUM; i++)
 	{
@@ -344,7 +344,7 @@ void SaveConvPoint(HWND hwnd)
 
 	WriterList(pXmlWriter, list);
 
-	WriterEndSection(pXmlWriter);
+	WriterEndSection(pXmlWriter);	//End of SectionConvPoint
 }
 
 void LoadConfigKana()
@@ -491,7 +491,7 @@ void SaveKana(HWND hwnd)
 		roman_kana_conv.push_back(rkc);
 	}
 
-	WriterStartSection(pXmlWriter, SectionKana);
+	WriterStartSection(pXmlWriter, SectionKana);	//Start of SectionKana
 
 	for(i = 0; i < count; i++)
 	{
@@ -523,7 +523,7 @@ void SaveKana(HWND hwnd)
 
 	WriterList(pXmlWriter, list);
 
-	WriterEndSection(pXmlWriter);
+	WriterEndSection(pXmlWriter);	//End of SectionKana
 }
 
 void LoadConfigJLatin()
@@ -627,7 +627,7 @@ void SaveJLatin(HWND hwnd)
 		ascii_jlatin_conv[count].jlatin[0] = L'\0';
 	}
 
-	WriterStartSection(pXmlWriter, SectionJLatin);
+	WriterStartSection(pXmlWriter, SectionJLatin);	//Start of SectionJLatin
 
 	for(i = 0; ; i++)
 	{
@@ -651,7 +651,7 @@ void SaveJLatin(HWND hwnd)
 
 	WriterList(pXmlWriter, list);
 
-	WriterEndSection(pXmlWriter);
+	WriterEndSection(pXmlWriter);	//End of SectionJLatin
 }
 
 void LoadConfigKanaTxt(LPCWSTR path)

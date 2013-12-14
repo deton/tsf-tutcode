@@ -384,6 +384,7 @@ void CTextService::_KeyboardOpenCloseChanged()
 
 		_ResetStatus();
 
+		_LoadDisplayAttr();
 		_LoadBehavior();
 		_LoadSelKey();
 
@@ -502,7 +503,7 @@ void CTextService::_ResetStatus()
 
 	roman.clear();
 	kana.clear();
-	accompidx = 0;
+	okuriidx = 0;
 
 	cursoridx = 0;
 }
