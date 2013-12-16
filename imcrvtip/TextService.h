@@ -174,6 +174,7 @@ public:
 	// KeyHandlerConv
 	WCHAR _GetCh(BYTE vk, BYTE vkoff = 0);
 	BYTE _GetSf(BYTE vk, WCHAR ch);
+	WORD _GetModifiers();
 	HRESULT _ConvRomanKana(ROMAN_KANA_CONV *pconv);
 	HRESULT _ConvAsciiJLatin(ASCII_JLATIN_CONV *pconv);
 	void _StartConv();
@@ -208,6 +209,7 @@ public:
 	void _LoadSelKey();
 	void _LoadPreservedKey();
 	void _LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[]);
+	void _LoadVKeyMap();
 	void _LoadKeyMap(LPCWSTR section, KEYMAP &keymap);
 	void _LoadConvPoint();
 	void _LoadKana();
@@ -285,7 +287,7 @@ private:
 
 	//キーマップ
 	KEYMAP ckeymap;
-	KEYMAP vkeymap;
+	VKEYMAP vkeymap;
 
 	//変換位置指定（開始,代替,送り）
 	WCHAR conv_point[CONV_POINT_NUM][3];

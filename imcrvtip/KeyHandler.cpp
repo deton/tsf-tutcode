@@ -387,7 +387,7 @@ void CTextService::_KeyboardOpenCloseChanged()
 		_InitPreservedKey();
 
 		_LoadKeyMap(SectionKeyMap, ckeymap);
-		_LoadKeyMap(SectionVKeyMap, vkeymap);
+		_LoadVKeyMap();
 		_LoadConvPoint();
 		_LoadKana();
 		_LoadJLatin();
@@ -468,9 +468,11 @@ BOOL CTextService::_IsKeyVoid(WCHAR ch, BYTE vk)
 			return TRUE;
 		}
 	}
-	if(vk < KEYMAPNUM)
+
+	WORD vkm = (_GetModifiers() << 8) | vk;
+	if(vkeymap.keyvoid.find(vkm) != vkeymap.keyvoid.end())
 	{
-		if(vkeymap.keyvoid[vk] == SKK_VOID)
+		if(vkeymap.keyvoid[vkm] == SKK_VOID)
 		{
 			return TRUE;
 		}

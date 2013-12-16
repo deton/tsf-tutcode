@@ -63,6 +63,12 @@ typedef struct {
 	BYTE keyvoid[KEYMAPNUM];	//無効
 } KEYMAP;
 
+typedef struct {
+	std::map<WORD,BYTE> keylatin;	//全英/アスキー モード用
+	std::map<WORD,BYTE> keyjmode;	//ひらがな/カタカナ モード用
+	std::map<WORD,BYTE> keyvoid;	//無効 SKK_VOID用
+} VKEYMAP;
+
 #define CHAR_SKK_HINT	L'\x20'
 
 #define TKB_NEXT_PAGE	L'\uF003'	//next page key on touch-optimized keyboard

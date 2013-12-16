@@ -47,25 +47,30 @@ WCHAR CTextService::_GetCh(BYTE vk, BYTE vkoff)
 BYTE CTextService::_GetSf(BYTE vk, WCHAR ch)
 {
 	BYTE k = SKK_NULL;
+	WORD vkm = (_GetModifiers() << 8) | vk;
 
-	if(ch == L'\0' && vk < KEYMAPNUM)
+	switch(inputmode)
 	{
-		switch(inputmode)
+	case im_ascii:
+	case im_jlatin:
+		if(vkeymap.keylatin.find(vkm) != vkeymap.keylatin.end())
 		{
-		case im_ascii:
-		case im_jlatin:
-			k = vkeymap.keylatin[vk];
-			break;
-		case im_hiragana:
-		case im_katakana:
-		case im_katakana_ank:
-			k = vkeymap.keyjmode[vk];
-			break;
-		default:
-			break;
+			k = vkeymap.keylatin[vkm];
 		}
+		break;
+	case im_hiragana:
+	case im_katakana:
+	case im_katakana_ank:
+		if(vkeymap.keyjmode.find(vkm) != vkeymap.keyjmode.end())
+		{
+			k = vkeymap.keyjmode[vkm];
+		}
+		break;
+	default:
+		break;
 	}
-	else if(ch < KEYMAPNUM)
+
+	if(k == SKK_NULL && ch < KEYMAPNUM)
 	{
 		switch(inputmode)
 		{
@@ -96,6 +101,26 @@ BYTE CTextService::_GetSf(BYTE vk, WCHAR ch)
 	}
 
 	return k;
+}
+
+WORD CTextService::_GetModifiers()
+{
+	BYTE m = 0;
+	BYTE keystate[256];
+	GetKeyboardState(keystate);
+	if((keystate[VK_SHIFT] & 0x80) == 0x80)
+	{
+		m |= TF_MOD_SHIFT; //0x0004
+	}
+	if((keystate[VK_CONTROL] & 0x80) == 0x80)
+	{
+		m |= TF_MOD_CONTROL; //0x0002
+	}
+	if((keystate[VK_MENU] & 0x80) == 0x80)
+	{
+		m |= TF_MOD_ALT; //0x0001
+	}
+	return m;
 }
 
 HRESULT CTextService::_ConvRomanKana(ROMAN_KANA_CONV *pconv)

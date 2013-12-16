@@ -7,7 +7,7 @@ static const struct {
 	int idd;
 	LPCWSTR keyName;
 	LPCWSTR defaultValue;
-} KeyMap[2][26] =
+} KeyMap[1][26] =
 {
 	{
 		{IDC_EDIT_KANA,			ValueKeyMapKana,		L""},
@@ -36,49 +36,16 @@ static const struct {
 		{IDC_EDIT_DOWN,			ValueKeyMapDown,		L"\\ce"},
 		{IDC_EDIT_PASTE,		ValueKeyMapPaste,		L"\\cy|\\cv"},
 		{IDC_EDIT_OTHERIME,		ValueKeyMapOtherIme,	L""},
-	},
-	{
-		{IDC_EDIT_KANA,			ValueKeyMapKana,		L""},
-		{IDC_EDIT_CONV_CHAR,	ValueKeyMapConvChar,	L""},
-		{IDC_EDIT_JLATIN,		ValueKeyMapJLatin,		L""},
-		{IDC_EDIT_ASCII,		ValueKeyMapAscii,		L""},
-		{IDC_EDIT_JMODE,		ValueKeyMapJMode,		L""},
-		{IDC_EDIT_ABBREV,		ValueKeyMapAbbrev,		L""},
-		{IDC_EDIT_AFFIX,		ValueKeyMapAffix,		L""},
-		{IDC_EDIT_NEXT_CAND,	ValueKeyMapNextCand,	L""},
-		{IDC_EDIT_PREV_CAND,	ValueKeyMapPrevCand,	L""},
-		{IDC_EDIT_PURGE_DIC,	ValueKeyMapPurgeDic,	L""},
-		{IDC_EDIT_NEXT_COMP,	ValueKeyMapNextComp,	L""},
-		{IDC_EDIT_PREV_COMP,	ValueKeyMapPrevComp,	L""},
-		{IDC_EDIT_HINT,			ValueKeyMapHint,		L""},
-		{IDC_EDIT_CONV_POINT,	ValueKeyMapConvPoint,	L""},
-		{IDC_EDIT_DIRECT,		ValueKeyMapDirect,		L""},
-		{IDC_EDIT_ENTER,		ValueKeyMapEnter,		L""},
-		{IDC_EDIT_CANCEL,		ValueKeyMapCancel,		L""},
-		{IDC_EDIT_BACK,			ValueKeyMapBack,		L""},
-		{IDC_EDIT_DELETE,		ValueKeyMapDelete,		L"\\x2E"},
-		{IDC_EDIT_VOID,			ValueKeyMapVoid,		L""},
-		{IDC_EDIT_LEFT,			ValueKeyMapLeft,		L"\\x25"},
-		{IDC_EDIT_UP,			ValueKeyMapUp,			L"\\x26"},
-		{IDC_EDIT_RIGHT,		ValueKeyMapRight,		L"\\x27"},
-		{IDC_EDIT_DOWN,			ValueKeyMapDown,		L"\\x28"},
-		{IDC_EDIT_PASTE,		ValueKeyMapPaste,		L""},
-		{IDC_EDIT_OTHERIME,		ValueKeyMapOtherIme,	L""},
 	}
 };
 
-static LPCWSTR SectionName[2] = {SectionKeyMap, SectionVKeyMap};
+static LPCWSTR SectionName[1] = {SectionKeyMap};
 
 INT_PTR CALLBACK DlgProcKeyMap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam, int no);
 
 INT_PTR CALLBACK DlgProcKeyMap1(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	return DlgProcKeyMap(hDlg, message, wParam, lParam, 0);
-}
-
-INT_PTR CALLBACK DlgProcKeyMap2(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	return DlgProcKeyMap(hDlg, message, wParam, lParam, 1);
 }
 
 INT_PTR CALLBACK DlgProcKeyMap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam, int no)

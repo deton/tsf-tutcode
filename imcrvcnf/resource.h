@@ -163,6 +163,17 @@
 #define IDC_EDIT_PASTE                          3332
 #define IDC_EDIT_OTHERIME                       3333
 
+#define IDC_LIST_VKEYMAP                        3401
+#define IDC_EDIT_VKEYMAP_VKEY                   3402
+#define IDC_CHECKBOX_VKEYMAP_MKEY_ALT           3403
+#define IDC_CHECKBOX_VKEYMAP_MKEY_CTRL          3404
+#define IDC_CHECKBOX_VKEYMAP_MKEY_SHIFT         3405
+#define IDC_COMBO_SKKFUNCLIST                   3406
+#define IDC_BUTTON_VKEYMAP_UP                   3407
+#define IDC_BUTTON_VKEYMAP_DOWN                 3408
+#define IDC_BUTTON_VKEYMAP_W                    3409
+#define IDC_BUTTON_VKEYMAP_D                    3410
+
 #define IDC_LIST_CONVPOINT                      4101
 #define IDC_EDIT_CONVPOINT_ST                   4102
 #define IDC_EDIT_CONVPOINT_AL                   4103
