@@ -606,7 +606,7 @@ HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, BOO
 	size_t size = text.size();
 	if(size > 0)
 	{
-		if(from != SELECTION && size > count)
+		if(from != SELECTION && size - count > 0)
 		{
 			_ShowAutoHelp(text.substr(size - count), L"");
 		}
@@ -704,7 +704,7 @@ HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pC
 	mozc::commands::Output pending;
 	mozc::win32::InputState dummy;
 	pending.kana = replstr;
-	pending.maze = startMaze;
+	pending.maze = startMaze ? true : false;
 	_ResetStatus();
 	_HandleCharReturn(ec, pContext);
 	deleter.BeginDeletion(delete_count, pending, dummy);
