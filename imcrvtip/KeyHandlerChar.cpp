@@ -389,9 +389,12 @@ BOOL CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::w
 	}
 	else
 	{
-		//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
 		_ResetStatus();
-		_HandleCharReturn(ec, pContext);
+		if(cx_showromancomp)
+		{
+			//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
+			_HandleCharReturn(ec, pContext);
+		}
 		return FALSE;
 	}
 }
