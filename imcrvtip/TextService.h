@@ -8,6 +8,7 @@
 
 class CLangBarItemButton;
 class CCandidateList;
+class CInputModeWindow;
 
 class CTextService :
 	public ITfTextInputProcessorEx,
@@ -124,6 +125,7 @@ public:
 
 	// LanguageBar
 	void _UpdateLanguageBar(BOOL showinputmode = TRUE);
+	void _GetIcon(HICON *phIcon);
 	
 	// DisplayAttribureProvider
 	void _ClearCompositionDisplayAttributes(TfEditCookie ec, ITfContext *pContext);
@@ -262,6 +264,8 @@ private:
 	CLangBarItemButton *_pLangBarItemI;
 
 	CCandidateList *_pCandidateList;
+
+	CInputModeWindow *_pInputModeWindow;
 
 	TfGuidAtom _gaDisplayAttributeInputMark;
 	TfGuidAtom _gaDisplayAttributeInputText;

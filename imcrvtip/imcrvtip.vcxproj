@@ -193,6 +193,7 @@
     <ClInclude Include="EditSession.h" />
     <ClInclude Include="EnumDisplayAttributeInfo.h" />
     <ClInclude Include="imcrvtip.h" />
+    <ClInclude Include="InputModeWindow.h" />
     <ClInclude Include="LanguageBar.h" />
     <ClInclude Include="mozc\win32\tip\tip_surrounding_text.h" />
     <ClInclude Include="resource.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="FnConfigure.cpp" />
     <ClCompile Include="FunctionProvider.cpp" />
     <ClCompile Include="Globals.cpp" />
+    <ClCompile Include="InputModeWindow.cpp" />
     <ClCompile Include="KeyEventSink.cpp" />
     <ClCompile Include="KeyHandler.cpp" />
     <ClCompile Include="KeyHandlerChar.cpp" />

@@ -45,6 +45,9 @@
     <ClInclude Include="TextService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InputModeWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="mozc\win32\tip\tip_surrounding_text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -87,6 +90,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyEventSink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputModeWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyHandler.cpp">
