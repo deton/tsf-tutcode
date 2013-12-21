@@ -189,7 +189,7 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionDisplay, ValueShowModeImm, cx_showmodeimm, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueShowModeMark, cx_showmodemark, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueShowRoman, cx_showroman, TRUE);
-	_ReadBoolValue(SectionDisplay, ValueShowRomanComp, cx_showromancomp, TRUE);
+	_ReadBoolValue(SectionDisplay, ValueShowRomanComp, cx_showromancomp, FALSE);
 }
 
 void CTextService::_LoadDisplayAttr()

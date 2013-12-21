@@ -134,7 +134,7 @@ INT_PTR CALLBACK DlgProcDisplay(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, SectionDisplay, ValueShowModeMark, L"1");
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, SectionDisplay, ValueShowRoman, L"1");
-		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, SectionDisplay, ValueShowRomanComp, L"1");
+		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, SectionDisplay, ValueShowRomanComp, L"0");
 
 		return TRUE;
 
