@@ -3,7 +3,7 @@
 #define COMMON_H
 
 #define TEXTSERVICE_NAME	L"tsf-tutcode"
-#define TEXTSERVICE_VER		L"0.2.0"
+#define TEXTSERVICE_VER		L"0.2.1"
 
 #ifndef _DEBUG
 #define TEXTSERVICE_DESC	TEXTSERVICE_NAME
@@ -14,8 +14,8 @@
 //for resource
 #define RC_AUTHOR			"KIHARA Hideto"
 #define RC_PRODUCT			"tsf-tutcode"
-#define RC_VERSION			"0.2.0"
-#define RC_VERSION_D		0,2,0,0
+#define RC_VERSION			"0.2.1"
+#define RC_VERSION_D		0,2,1,0
 
 #define DICBUFSIZE			0x2000
 #define PIPEBUFSIZE			0x2000
@@ -84,5 +84,6 @@ extern const BOOL c_daDisplayAttributeSeries[DISPLAYATTRIBUTE_INFO_NUM];
 BOOL IsVersion62AndOver();
 BOOL GetMD5(MD5_DIGEST *digest, CONST BYTE *data, DWORD datalen);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
+BOOL GetLogonSid(LPWSTR *ppszLogonSid);
 
 #endif //COMMON_H
