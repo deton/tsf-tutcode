@@ -186,12 +186,21 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			_ConvN(WCHAR_MAX);
 			if(roman.empty())
 			{
-				//アスキーモードへ
 				_HandleCharReturn(ec, pContext);
-				inputmode = im_ascii;
-				_UpdateLanguageBar();
-				return S_OK;
 			}
+			else if(cx_keepinputnor)
+			{
+				//入力途中のシーケンスはそのまま確定(短い単語を大文字入力等)
+				_CommitRoman(ec, pContext);
+			}
+			else
+			{
+				roman.clear();
+			}
+			//アスキーモードへ
+			inputmode = im_ascii;
+			_UpdateLanguageBar();
+			return S_OK;
 			break;
 		default:
 			break;
