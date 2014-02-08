@@ -82,6 +82,7 @@ extern const TF_DISPLAYATTRIBUTE c_daDisplayAttributeConvAnnot;
 extern const BOOL c_daDisplayAttributeSeries[DISPLAYATTRIBUTE_INFO_NUM];
 
 BOOL IsVersion62AndOver();
+BOOL GetSidMD5Digest(LPWSTR *ppszDigest);
 BOOL GetMD5(MD5_DIGEST *digest, CONST BYTE *data, DWORD datalen);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
 BOOL GetLogonSid(LPWSTR *ppszLogonSid);
