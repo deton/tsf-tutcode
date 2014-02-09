@@ -971,13 +971,13 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, BOOL showc
 	_Update();
 }
 
-void CCandidateWindow::_GetPrecedingRegWordText(std::wstring *text)
+void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 {
 	text->clear();
 	text->append(regwordtext.substr(0, regwordtextpos));
 }
 
-HRESULT CCandidateWindow::_ReplacePrecedingRegWordText(int delete_count, const std::wstring &replstr, BOOL startMaze)
+void CCandidateWindow::_DeletePrecedingText(int delete_count)
 {
 	if(regwordtextpos - delete_count >= 0 && regwordtext.size() - delete_count >= 0)
 	{
@@ -989,14 +989,6 @@ HRESULT CCandidateWindow::_ReplacePrecedingRegWordText(int delete_count, const s
 		regwordtextpos = 0;
 		regwordtext.clear();
 	}
-
-	if(!startMaze)
-	{
-		regwordtext.insert(regwordtextpos, replstr);
-		regwordtextpos += replstr.size();
-	}
-	_Update();
-	return S_OK;
 }
 
 void CCandidateWindow::_PreEnd()

@@ -648,7 +648,7 @@ CTextService::AcquiredFrom CTextService::_AcquirePrecedingText(ITfContext *pCont
 	{
 		if(_pCandidateList != NULL)
 		{
-			_pCandidateList->_GetPrecedingRegWordText(text);
+			_pCandidateList->_GetPrecedingText(text);
 		}
 		return AF_REGWORD;
 	}
@@ -697,12 +697,15 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 	{
 		if(_pCandidateList != NULL)
 		{
-			HRESULT hr = _pCandidateList->_ReplacePrecedingRegWordText(delete_count, replstr, startMaze);
-			if(startMaze && hr == S_OK)
+			_pCandidateList->_DeletePrecedingText(delete_count);
+			if(startMaze)
 			{
 				_StartConvWithYomi(ec, pContext, replstr);
 			}
-			return hr;
+			else
+			{
+				_pCandidateList->_SetText(replstr, TRUE, FALSE, FALSE);
+			}
 		}
 		return S_OK;
 	}
