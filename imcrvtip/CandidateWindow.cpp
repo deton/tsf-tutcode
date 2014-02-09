@@ -995,10 +995,6 @@ HRESULT CCandidateWindow::_ReplacePrecedingRegWordText(int delete_count, const s
 		regwordtext.insert(regwordtextpos, replstr);
 		regwordtextpos += replstr.size();
 	}
-	else
-	{
-		//TODO: 後置型交ぜ書き変換開始: 交ぜ書き変換候補表示開始(読み:replstr)
-	}
 	_Update();
 	return S_OK;
 }

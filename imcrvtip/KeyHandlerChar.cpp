@@ -697,7 +697,12 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 	{
 		if(_pCandidateList != NULL)
 		{
-			return _pCandidateList->_ReplacePrecedingRegWordText(delete_count, replstr, startMaze);
+			HRESULT hr = _pCandidateList->_ReplacePrecedingRegWordText(delete_count, replstr, startMaze);
+			if(startMaze && hr == S_OK)
+			{
+				_StartConvWithYomi(ec, pContext, replstr);
+			}
+			return hr;
 		}
 		return S_OK;
 	}
@@ -706,27 +711,35 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 	{
 		return _ReplacePrecedingTextIMM32(ec, pContext, delete_count, replstr, startMaze);
 	}
-	kana = replstr;
-	cursoridx = kana.size();
 	if(startMaze)
 	{
-		//(候補無し時、登録に入るため。でないと読みが削除されただけの状態)
-		if(!_IsComposing())
-		{
-			_StartComposition(pContext);
-		}
-		//交ぜ書き変換候補表示開始
-		showentry = TRUE;
-		inputkey = TRUE;
-		_StartConv();
-		_Update(ec, pContext);
-		//TODO:cancel時は前置型読み入力モードでなく後置型開始前の状態に
+		_StartConvWithYomi(ec, pContext, replstr);
 	}
 	else
 	{
+		kana = replstr;
+		cursoridx = kana.size();
 		_HandleCharReturn(ec, pContext);
 	}
 	return S_OK;
+}
+
+//(後置型交ぜ書き変換開始時に)指定した読み文字列で交ぜ書き変換を開始する
+void CTextService::_StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, const std::wstring &yomi)
+{
+	kana = yomi;
+	cursoridx = kana.size();
+	//(候補無し時、登録に入るため。でないと読みが削除されただけの状態)
+	if(!_IsComposing())
+	{
+		_StartComposition(pContext);
+	}
+	//交ぜ書き変換候補表示開始
+	showentry = TRUE;
+	inputkey = TRUE;
+	_StartConv();
+	_Update(ec, pContext);
+	//TODO:cancel時は前置型読み入力モードでなく後置型開始前の状態に
 }
 
 //カーソル直前文字列をBackspaceを送って消した後、置換文字列を確定する。

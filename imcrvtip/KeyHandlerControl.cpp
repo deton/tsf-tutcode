@@ -833,24 +833,14 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			mozc::commands::Output pending;
 			pending.CopyFrom(deleter.pending_output());
-			kana = pending.kana;
-			cursoridx = kana.size();
 			if(pending.maze)
 			{
-				//(候補無し時、登録に入るため。でないと読みが削除されただけ状態)
-				if(!_IsComposing())
-				{
-					_StartComposition(pContext);
-				}
-				//交ぜ書き変換候補表示開始
-				showentry = TRUE;
-				inputkey = TRUE;
-				_StartConv();
-				_Update(ec, pContext);
-				//TODO:cancel時は前置型読み入力モードでなく後置型開始前の状態に
+				_StartConvWithYomi(ec, pContext, pending.kana);
 			}
 			else
 			{
+				kana = pending.kana;
+				cursoridx = kana.size();
 				_HandleCharReturn(ec, pContext);
 			}
 		}
