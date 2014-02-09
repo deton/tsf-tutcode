@@ -119,7 +119,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 
 				if(rkc.func)	//機能
 				{
-					_HandleFunc(ec, pContext, rkc, ch, composition);
+					_HandleFunc(ec, pContext, rkc, ch);
 					break;
 				}
 
@@ -287,13 +287,13 @@ HRESULT CTextService::_HandleCharTerminate(TfEditCookie ec, ITfContext *pContext
 	return S_OK;
 }
 
-void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch, std::wstring &composition)
+void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch)
 {
-	BOOL incomp = _PrepareForFunc(ec, pContext, composition);
+	PostConvContext postconvctx = _PrepareForFunc(ec, pContext);
 	//前置型交ぜ書き変換
 	if(wcsncmp(rkc.hiragana, L"maze", 4) == 0)
 	{
-		if(!incomp)
+		if(postconvctx != PCC_COMPOSITION)
 		{
 			_HandleConvPoint(ec, pContext, ch);
 		}
@@ -306,7 +306,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	//後置型交ぜ書き変換
 	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 	{
-		if(!incomp)
+		if(postconvctx != PCC_COMPOSITION)
 		{
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
 			//は未対応。候補表示等の制御が面倒なので。
@@ -315,7 +315,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 			{
 				count = 1; //TODO:count=0の場合、なるべく長く読みとみなす
 			}
-			_HandlePostMaze(ec, pContext, count);
+			_HandlePostMaze(ec, pContext, count, postconvctx);
 		}
 		else
 		{
@@ -336,18 +336,18 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		int count = _wtoi(rkc.hiragana + offset);
 		if(isShrink)
 		{
-			_HandlePostKataShrink(ec, pContext, count, incomp);
+			_HandlePostKataShrink(ec, pContext, count, postconvctx);
 		}
 		else
 		{
-			_HandlePostKata(ec, pContext, count, incomp);
+			_HandlePostKata(ec, pContext, count, postconvctx);
 		}
 		return;
 	}
 	//後置型部首合成変換
 	else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
 	{
-		_HandlePostBushu(ec, pContext, incomp);
+		_HandlePostBushu(ec, pContext, postconvctx);
 		return;
 	}
 	//打鍵ヘルプ
@@ -358,18 +358,18 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		{
 			count = 1;
 		}
-		_HandlePostHelp(ec, pContext, incomp, count);
+		_HandlePostHelp(ec, pContext, postconvctx, count);
 		return;
 	}
 	else
 	{
-		if(!incomp)
+		if(postconvctx != PCC_COMPOSITION)
 		{
 			kana.clear();
 			cursoridx = 0;
 		}
 	}
-	if(!incomp)
+	if(postconvctx == PCC_APP)
 	{
 		_HandleCharReturn(ec, pContext);
 	}
@@ -380,12 +380,16 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 }
 
 //入力シーケンスに割り当てられた「機能」の実行前に、composition表示等をクリア
-BOOL CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition)
+CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext)
 {
 	roman.clear();
 	if(inputkey && !kana.empty())
 	{
-		return TRUE;
+		return PCC_COMPOSITION; //前置型交ぜ書き入力の読み入力中
+	}
+	else if (pContext == NULL)
+	{
+		return PCC_REGWORD; //辞書登録用編集中
 	}
 	else
 	{
@@ -395,20 +399,27 @@ BOOL CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::w
 			//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
 			_HandleCharReturn(ec, pContext);
 		}
-		return FALSE;
+		return PCC_APP;
 	}
 }
 
 //後置型交ぜ書き変換
-HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count)
+HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
 {
 	//カーソル直前の文字列を取得
 	std::wstring text;
-	_AcquirePrecedingText(pContext, FALSE, &text);
+	_AcquirePrecedingText(pContext, postconvctx, &text);
 	int size = text.size();
 	if(size == 0)
 	{
-		_HandleCharReturn(ec, pContext);
+		if(postconvctx == PCC_APP)
+		{
+			_HandleCharReturn(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 		return S_OK;
 	}
 	if(size < count)
@@ -416,19 +427,19 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		count = size;
 	}
 	//TODO:サロゲートペアや結合文字等の考慮
-	return _ReplacePrecedingText(ec, pContext, count, text.substr(size - count), FALSE, TRUE);
+	return _ReplacePrecedingText(ec, pContext, count, text.substr(size - count), postconvctx, TRUE);
 }
 
 //後置型カタカナ変換
-HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp)
+HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
 {
 	//カーソル直前の文字列を取得
 	std::wstring text;
-	_AcquirePrecedingText(pContext, incomp, &text);
+	_AcquirePrecedingText(pContext, postconvctx, &text);
 	int size = text.size();
 	if(size == 0)
 	{
-		if(!incomp)
+		if(postconvctx == PCC_APP)
 		{
 			_HandleCharReturn(ec, pContext);
 		}
@@ -486,11 +497,11 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		_ConvKanaToKana(kata, im_katakana, text.substr(st), im_hiragana);
 		//カーソル直前の文字列を置換
 		prevkata = kata;
-		_ReplacePrecedingText(ec, pContext, cnt, kata, incomp);
+		_ReplacePrecedingText(ec, pContext, cnt, kata, postconvctx);
 	}
 	else
 	{
-		if(!incomp)
+		if(postconvctx == PCC_APP)
 		{
 			_HandleCharReturn(ec, pContext);
 		}
@@ -507,11 +518,11 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 //例: 「例えばあぷりけーしょん」ひらがなが続く間カタカナに変換
 //	→「例エバアプリケーション」2文字縮める
 //	→「例えばアプリケーション」
-HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp)
+HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
 {
 	if(prevkata.empty())
 	{
-		if(!incomp)
+		if(postconvctx == PCC_APP)
 		{
 			kana.clear();
 			cursoridx = 0;
@@ -526,13 +537,13 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 
 	//カーソル直前の文字列を取得
 	std::wstring text;
-	_AcquirePrecedingText(pContext, incomp, &text);
+	_AcquirePrecedingText(pContext, postconvctx, &text);
 
 	int prevsize = prevkata.size();
 	int size = text.size();
 	if(size < prevsize || text.compare(size - prevsize, prevsize, prevkata) != 0)
 	{
-		if(!incomp)
+		if(postconvctx == PCC_APP)
 		{
 			_HandleCharReturn(ec, pContext);
 		}
@@ -560,16 +571,16 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 		hira.append(prevkata);
 	}
 
-	_ReplacePrecedingText(ec, pContext, prevsize, hira, incomp);
+	_ReplacePrecedingText(ec, pContext, prevsize, hira, postconvctx);
 	return S_OK;
 }
 
 //後置型部首合成変換
-HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BOOL incomp)
+HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx)
 {
 	//カーソル直前の文字列を取得
 	std::wstring text;
-	_AcquirePrecedingText(pContext, incomp, &text);
+	_AcquirePrecedingText(pContext, postconvctx, &text);
 
 	size_t size = text.size();
 	if(size >= 2)
@@ -583,12 +594,12 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BO
 		{
 			//カーソル直前の文字列を置換
 			std::wstring kanjistr(1, kanji);
-			_ReplacePrecedingText(ec, pContext, 2, kanjistr, incomp);
+			_ReplacePrecedingText(ec, pContext, 2, kanjistr, postconvctx);
 			_ShowAutoHelp(kanjistr, L"");
 			return S_OK;
 		}
 	}
-	if(!incomp)
+	if(postconvctx == PCC_APP)
 	{
 		_HandleCharReturn(ec, pContext);
 	}
@@ -601,15 +612,15 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BO
 }
 
 //打鍵ヘルプ
-HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, BOOL incomp, int count)
+HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, int count)
 {
 	std::wstring text;
-	AcquiredFrom from = _AcquirePrecedingText(pContext, incomp, &text, TRUE);
+	AcquiredFrom from = _AcquirePrecedingText(pContext, postconvctx, &text, TRUE);
 
 	size_t size = text.size();
 	if(size > 0)
 	{
-		if(from != SELECTION && size - count > 0)
+		if(from != AF_SELECTION && size - count > 0)
 		{
 			_ShowAutoHelp(text.substr(size - count), L"");
 		}
@@ -623,14 +634,23 @@ HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, BOO
 }
 
 //カーソル直前の文字列を取得
-CTextService::AcquiredFrom CTextService::_AcquirePrecedingText(ITfContext *pContext, BOOL incomp, std::wstring *text, BOOL useSelectedText)
+CTextService::AcquiredFrom CTextService::_AcquirePrecedingText(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, BOOL useSelectedText)
 {
 	text->clear();
 	//前置型交ぜ書き変換の読み入力中の場合は、入力済みの読みを対象にする
-	if(incomp)
+	if(postconvctx == PCC_COMPOSITION)
 	{
 		text->append(kana.substr(0, cursoridx));
-		return COMPOSITION;
+		return AF_COMPOSITION;
+	}
+	// 辞書登録用エントリ編集中は、編集中文字列を対象にする
+	else if(postconvctx == PCC_REGWORD)
+	{
+		if(_pCandidateList != NULL)
+		{
+			_pCandidateList->_GetPrecedingRegWordText(text);
+		}
+		return AF_REGWORD;
 	}
 	kana.clear();
 	cursoridx = 0;
@@ -641,36 +661,44 @@ CTextService::AcquiredFrom CTextService::_AcquirePrecedingText(ITfContext *pCont
 		if(useSelectedText && info.selected_text.size() > 0)
 		{
 			text->append(info.selected_text);
-			return SELECTION;
+			return AF_SELECTION;
 		}
 		else if(info.preceding_text.size() > 0)
 		{
 			text->append(info.preceding_text);
-			return PRECEDING;
+			return AF_PRECEDING;
 		}
 		else
 		{
 			text->append(postbuf);
-			return POSTBUF;
+			return AF_POSTBUF;
 		}
 	}
 	else
 	{
 		text->append(postbuf);
-		return POSTBUF;
+		return AF_POSTBUF;
 	}
 }
 
 //カーソル直前の文字列を、kanaに置換
-HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL incomp, BOOL startMaze)
+HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, PostConvContext postconvctx, BOOL startMaze)
 {
-	if(incomp)
+	if(postconvctx == PCC_COMPOSITION)
 	{
 		kana.erase(cursoridx - delete_count, delete_count);
 		cursoridx -= delete_count;
 		kana.insert(cursoridx, replstr);
 		cursoridx += replstr.size();
 		_Update(ec, pContext);
+		return S_OK;
+	}
+	else if(postconvctx == PCC_REGWORD)
+	{
+		if(_pCandidateList != NULL)
+		{
+			return _pCandidateList->_ReplacePrecedingRegWordText(delete_count, replstr, startMaze);
+		}
 		return S_OK;
 	}
 

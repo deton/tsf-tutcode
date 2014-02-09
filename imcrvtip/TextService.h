@@ -143,22 +143,30 @@ public:
 	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, std::wstring &composition, WPARAM wParam, WCHAR ch, WCHAR chO);
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharTerminate(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
-	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch, std::wstring &composition);
-	BOOL _PrepareForFunc(TfEditCookie ec, ITfContext *pContext, std::wstring &composition);
-	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count);
-	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp);
-	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, BOOL incomp);
-	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, BOOL incomp);
-	HRESULT _HandlePostHelp(TfEditCookie ec, ITfContext *pContext, BOOL incomp, int count);
+
+	enum PostConvContext
+	{
+		PCC_COMPOSITION, //交ぜ書き変換の読み入力中 (全てtsf-tutcodeの管理下)
+		PCC_REGWORD, 	 //辞書登録用エントリ編集中 (全てtsf-tutcodeの管理下)
+		PCC_APP			 //通常時 (TSF等でアプリ等とのやりとりが必要)
+	};
+	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch);
+	PostConvContext _PrepareForFunc(TfEditCookie ec, ITfContext *pContext);
+	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
+	HRESULT _HandlePostHelp(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, int count);
 	enum AcquiredFrom
 	{
-		COMPOSITION,
-		POSTBUF,
-		PRECEDING,
-		SELECTION,
+		AF_COMPOSITION,
+		AF_REGWORD,
+		AF_POSTBUF,
+		AF_PRECEDING,
+		AF_SELECTION,
 	};
-	AcquiredFrom _AcquirePrecedingText(ITfContext *pContext, BOOL incomp, std::wstring *text, BOOL useSelectedText = FALSE);
-	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL incomp, BOOL startMaze = false);
+	AcquiredFrom _AcquirePrecedingText(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, BOOL useSelectedText = FALSE);
+	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, PostConvContext postconvctx, BOOL startMaze = false);
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL startMaze = false);
 	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 

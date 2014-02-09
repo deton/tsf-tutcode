@@ -36,6 +36,8 @@ public:
 	void _InvokeSfHandler(BYTE sf);
 	void _Show(BOOL bShow);
 	void _SetText(const std::wstring &text, BOOL fixed, BOOL showcandlist, BOOL showreg);
+	void _GetPrecedingRegWordText(std::wstring *text);
+	HRESULT _ReplacePrecedingRegWordText(int delete_count, const std::wstring &replstr, BOOL startMaze);
 	void _Move(LPRECT lpr);
 
 private:

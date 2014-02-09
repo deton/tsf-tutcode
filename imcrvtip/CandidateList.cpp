@@ -433,6 +433,27 @@ void CCandidateList::_SetText(const std::wstring &text, BOOL fixed, BOOL showcan
 	}
 }
 
+void CCandidateList::_GetPrecedingRegWordText(std::wstring *text)
+{
+	if(_pCandidateWindow != NULL)
+	{
+		_pCandidateWindow->_GetPrecedingRegWordText(text);
+	}
+	else
+	{
+		text->clear();
+	}
+}
+
+HRESULT CCandidateList::_ReplacePrecedingRegWordText(int delete_count, const std::wstring &replstr, BOOL startMaze)
+{
+	if(_pCandidateWindow != NULL)
+	{
+		return _pCandidateWindow->_ReplacePrecedingRegWordText(delete_count, replstr, startMaze);
+	}
+	return E_FAIL;
+}
+
 void CCandidateList::_Move(LPRECT lpr)
 {
 	if(_pCandidateWindow != NULL)

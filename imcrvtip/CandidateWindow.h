@@ -56,6 +56,8 @@ public:
 	HRESULT _OnKeyDown(UINT uVKey);
 
 	void _SetText(const std::wstring &text, BOOL fixed, BOOL showcandlist, BOOL showreg);
+	void _GetPrecedingRegWordText(std::wstring *text);
+	HRESULT _ReplacePrecedingRegWordText(int delete_count, const std::wstring &replstr, BOOL startMaze);
 	void _PreEnd();
 	void _End();
 

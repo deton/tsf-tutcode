@@ -971,6 +971,38 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, BOOL showc
 	_Update();
 }
 
+void CCandidateWindow::_GetPrecedingRegWordText(std::wstring *text)
+{
+	text->clear();
+	text->append(regwordtext.substr(0, regwordtextpos));
+}
+
+HRESULT CCandidateWindow::_ReplacePrecedingRegWordText(int delete_count, const std::wstring &replstr, BOOL startMaze)
+{
+	if(regwordtextpos - delete_count >= 0 && regwordtext.size() - delete_count >= 0)
+	{
+		regwordtext.erase(regwordtextpos - delete_count, delete_count);
+		regwordtextpos -= delete_count;
+	}
+	else
+	{
+		regwordtextpos = 0;
+		regwordtext.clear();
+	}
+
+	if(!startMaze)
+	{
+		regwordtext.insert(regwordtextpos, replstr);
+		regwordtextpos += replstr.size();
+	}
+	else
+	{
+		//TODO: 後置型交ぜ書き変換開始: 交ぜ書き変換候補表示開始(読み:replstr)
+	}
+	_Update();
+	return S_OK;
+}
+
 void CCandidateWindow::_PreEnd()
 {
 	_preEnd = TRUE;
