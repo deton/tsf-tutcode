@@ -817,6 +817,17 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_OTHERIME:
+		if(_ConvN(WCHAR_MAX))
+		{
+			_HandleCharReturn(ec, pContext);
+		}
+		else
+		{
+			if(cx_keepinputnor)
+			{
+				_CommitRoman(ec, pContext);
+			}
+		}
 		_ClearComposition();
 		postbuf.clear();
 		_SetKeyboardOpen(FALSE);
