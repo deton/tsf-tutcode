@@ -121,6 +121,12 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		case SKK_OTHERIME:
 			return TRUE;
 			break;
+		case SKK_VIESC:
+			inputmode = im_ascii;
+			_UpdateLanguageBar();
+			postbuf.clear();
+			return FALSE;
+			break;
 		default:
 			break;
 		}
@@ -135,6 +141,11 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		case SKK_OTHERIME:
 			return TRUE;
 			break;
+		case SKK_VIESC:
+			inputmode = im_ascii;
+			_UpdateLanguageBar();
+			postbuf.clear();
+			return FALSE;
 		default:
 			break;
 		}

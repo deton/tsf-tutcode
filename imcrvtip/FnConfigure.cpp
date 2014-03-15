@@ -35,6 +35,7 @@ static const struct {
 	{SKK_DOWN,		ValueKeyMapDown},
 	{SKK_PASTE,		ValueKeyMapPaste},
 	{SKK_OTHERIME,	ValueKeyMapOtherIme},
+	{SKK_VIESC,		ValueKeyMapViEsc},
 	{SKK_NULL,		L""}
 };
 
@@ -340,6 +341,7 @@ static void _LoadVKeyMapSub(BYTE vk, BYTE modifiers, BYTE skkfunc, VKEYMAP *vkey
 	case SKK_DOWN:
 	case SKK_PASTE:
 	case SKK_OTHERIME:
+	case SKK_VIESC:
 		if(vkeymap->keylatin.find(vkm) != vkeymap->keylatin.end())
 		{
 			if(vkeymap->keylatin[vkm] != SKK_JMODE)	//「ひらがな」が優先
@@ -467,6 +469,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		case SKK_DOWN:
 		case SKK_PASTE:
 		case SKK_OTHERIME:
+		case SKK_VIESC:
 			for(ch = 0x01; ch < KEYMAPNUM; ch++)
 			{
 				key[0] = ch;

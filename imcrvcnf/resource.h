@@ -163,6 +163,7 @@
 #define IDC_EDIT_DOWN                           3331
 #define IDC_EDIT_PASTE                          3332
 #define IDC_EDIT_OTHERIME                       3333
+#define IDC_EDIT_VIESC                          3334
 
 #define IDC_LIST_VKEYMAP                        3401
 #define IDC_EDIT_VKEYMAP_VKEY                   3402

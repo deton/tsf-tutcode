@@ -34,6 +34,7 @@ static const struct {
 	{L"末尾移動",	ValueKeyMapDown},
 	{L"貼付",		ValueKeyMapPaste},
 	{L"他IME切替",	ValueKeyMapOtherIme},
+	{L"Vi Esc",		ValueKeyMapViEsc},
 	{NULL,	NULL},
 };
 
