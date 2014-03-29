@@ -49,28 +49,49 @@ BYTE CTextService::_GetSf(BYTE vk, WCHAR ch)
 	BYTE k = SKK_NULL;
 	WORD vkm = (_GetModifiers() << 8) | vk;
 
-	switch(inputmode)
+	if(vk < VKEYMAPNUM)
 	{
-	case im_ascii:
-	case im_jlatin:
-		if(vkeymap.keylatin.find(vkm) != vkeymap.keylatin.end())
+		SHORT vk_shift = GetKeyState(VK_SHIFT) & 0x8000;
+		SHORT vk_ctrl = GetKeyState(VK_CONTROL) & 0x8000;
+		switch(inputmode)
 		{
-			k = vkeymap.keylatin[vkm];
+		case im_ascii:
+		case im_jlatin:
+			if(vk_shift)
+			{
+				k = vkeymap_shift.keylatin[vk];
+			}
+			else if(vk_ctrl)
+			{
+				k = vkeymap_ctrl.keylatin[vk];
+			}
+			else
+			{
+				k = vkeymap.keylatin[vk];
+			}
+			break;
+		case im_hiragana:
+		case im_katakana:
+		case im_katakana_ank:
+			if(vk_shift)
+			{
+				k = vkeymap_shift.keyjmode[vk];
+			}
+			else if(vk_ctrl)
+			{
+				k = vkeymap_ctrl.keyjmode[vk];
+			}
+			else
+			{
+				k = vkeymap.keyjmode[vk];
+			}
+			break;
+		default:
+			break;
 		}
-		break;
-	case im_hiragana:
-	case im_katakana:
-	case im_katakana_ank:
-		if(vkeymap.keyjmode.find(vkm) != vkeymap.keyjmode.end())
-		{
-			k = vkeymap.keyjmode[vkm];
-		}
-		break;
-	default:
-		break;
 	}
-
-	if(k == SKK_NULL && ch < KEYMAPNUM)
+	
+	if(k == SKK_NULL && ch < CKEYMAPNUM)
 	{
 		switch(inputmode)
 		{

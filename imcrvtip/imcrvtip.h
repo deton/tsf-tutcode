@@ -23,7 +23,8 @@ typedef std::pair< std::wstring, std::wstring > CANDIDATEBASE;
 typedef std::pair< CANDIDATEBASE, CANDIDATEBASE > CANDIDATE;
 typedef std::vector< CANDIDATE > CANDIDATES;
 
-#define KEYMAPNUM		0x80
+#define CKEYMAPNUM		0x80	// 0x00-0x7F
+#define VKEYMAPNUM		0x100	// 0x00-0xFF
 
 //skk function code
 #define SKK_NULL		0x00	// NUL
@@ -58,16 +59,16 @@ typedef std::vector< CANDIDATE > CANDIDATES;
 #define SKK_VIESC		0x1B	// Vi Esc
 #define SKK_AFTER_DELETER		0xFE	// Deleterによる直前文字列削除後
 
-typedef struct {
-	BYTE keylatin[KEYMAPNUM];	//全英/アスキー
-	BYTE keyjmode[KEYMAPNUM];	//ひらがな/カタカナ
-	BYTE keyvoid[KEYMAPNUM];	//無効
-} KEYMAP;
+typedef struct {	//キー設定(文字)
+	BYTE keylatin[CKEYMAPNUM];	//全英/アスキー
+	BYTE keyjmode[CKEYMAPNUM];	//ひらがな/カタカナ
+	BYTE keyvoid[CKEYMAPNUM];	//無効
+} CKEYMAP;
 
-typedef struct {
-	std::map<WORD,BYTE> keylatin;	//全英/アスキー モード用
-	std::map<WORD,BYTE> keyjmode;	//ひらがな/カタカナ モード用
-	std::map<WORD,BYTE> keyvoid;	//無効 SKK_VOID用
+typedef struct {	//キー設定(仮想キー)
+	BYTE keylatin[VKEYMAPNUM];	//全英/アスキー
+	BYTE keyjmode[VKEYMAPNUM];	//ひらがな/カタカナ
+	BYTE keyvoid[VKEYMAPNUM];	//無効
 } VKEYMAP;
 
 #define CHAR_SKK_HINT	L'\x20'

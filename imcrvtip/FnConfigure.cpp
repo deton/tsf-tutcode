@@ -324,112 +324,7 @@ void CTextService::_LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVE
 	}
 }
 
-static void _LoadVKeyMapSub(BYTE vk, BYTE modifiers, BYTE skkfunc, VKEYMAP *vkeymap)
-{
-	WORD vkm = (modifiers<<8) | vk;
-	//全英/アスキーモード
-	switch(skkfunc)
-	{
-	case SKK_JMODE:
-	case SKK_ENTER:
-	case SKK_CANCEL:
-	case SKK_BACK:
-	case SKK_DELETE:
-	case SKK_LEFT:
-	case SKK_UP:
-	case SKK_RIGHT:
-	case SKK_DOWN:
-	case SKK_PASTE:
-	case SKK_OTHERIME:
-	case SKK_VIESC:
-		if(vkeymap->keylatin.find(vkm) != vkeymap->keylatin.end())
-		{
-			if(vkeymap->keylatin[vkm] != SKK_JMODE)	//「ひらがな」が優先
-			{
-				vkeymap->keylatin[vkm] = skkfunc;
-			}
-		}
-		else
-		{
-			vkeymap->keylatin[vkm] = skkfunc;
-		}
-		break;
-	default:
-		break;
-	}
-
-	//ひらがな/カタカナモード
-	switch(skkfunc)
-	{
-	case SKK_JMODE:
-	case SKK_VOID:
-		break;
-	default:
-		vkeymap->keyjmode[vkm] = skkfunc;
-		break;
-	}
-
-	//無効
-	if(skkfunc == SKK_VOID)
-	{
-		vkeymap->keyvoid[vkm] = skkfunc;
-	}
-}
-
-void CTextService::_LoadVKeyMap()
-{
-	APPDATAXMLLIST list;
-	APPDATAXMLLIST::iterator l_itr;
-	APPDATAXMLROW::iterator r_itr;
-
-	if(ReadList(pathconfigxml, SectionVKeyMap, list) == S_OK)
-	{
-		for(l_itr = list.begin(); l_itr != list.end(); l_itr++)
-		{
-			BYTE vk = 0;
-			BYTE m = 0;
-			BYTE skkfunc = 0;
-			for(r_itr = l_itr->begin(); r_itr != l_itr->end(); r_itr++)
-			{
-				if(r_itr->first == AttributeVKey)
-				{
-					vk = wcstoul(r_itr->second.c_str(), NULL, 0);
-				}
-				else if(r_itr->first == AttributeMKey)
-				{
-					m = wcstoul(r_itr->second.c_str(), NULL, 0) & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT);
-				}
-				else if(r_itr->first == AttributeName)
-				{
-					LPCWSTR name = r_itr->second.c_str();
-					for(size_t i = 0; i < _countof(configkeymap); i++)
-					{
-						if(wcscmp(configkeymap[i].keyname, name) == 0)
-						{
-							skkfunc = configkeymap[i].skkfunc;
-							break;
-						}
-					}
-				}
-			}
-
-			if(vk != 0 && skkfunc != 0)
-			{
-				_LoadVKeyMapSub(vk, m, skkfunc, &vkeymap);
-			}
-		}
-	}
-	else
-	{
-		_LoadVKeyMapSub(VK_DELETE, 0, SKK_DELETE, &vkeymap);
-		_LoadVKeyMapSub(VK_LEFT,   0, SKK_LEFT,   &vkeymap);
-		_LoadVKeyMapSub(VK_UP,     0, SKK_UP,     &vkeymap);
-		_LoadVKeyMapSub(VK_RIGHT,  0, SKK_RIGHT,  &vkeymap);
-		_LoadVKeyMapSub(VK_DOWN,   0, SKK_DOWN,   &vkeymap);
-	}
-}
-
-void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
+void CTextService::_LoadCKeyMap(LPCWSTR section)
 {
 	size_t i;
 	WCHAR ch;
@@ -439,7 +334,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 	std::wregex re;
 	std::wstring strxmlval;
 
-	ZeroMemory(&keymap, sizeof(keymap));
+	ZeroMemory(&ckeymap, sizeof(ckeymap));
 	key[1] = L'\0';
 
 	for(i = 0; i < _countof(configkeymap); i++)
@@ -470,7 +365,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		case SKK_PASTE:
 		case SKK_OTHERIME:
 		case SKK_VIESC:
-			for(ch = 0x01; ch < KEYMAPNUM; ch++)
+			for(ch = 0x01; ch < CKEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -479,9 +374,9 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 					re.assign(keyre);
 					if(std::regex_match(s, re))
 					{
-						if(keymap.keylatin[ch] != SKK_JMODE)	//「ひらがな」が優先
+						if(ckeymap.keylatin[ch] != SKK_JMODE)	//「ひらがな」が優先
 						{
-							keymap.keylatin[ch] = configkeymap[i].skkfunc;
+							ckeymap.keylatin[ch] = configkeymap[i].skkfunc;
 						}
 					}
 				}
@@ -502,7 +397,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		case SKK_VOID:
 			break;
 		default:
-			for(ch = 0x01; ch < KEYMAPNUM; ch++)
+			for(ch = 0x01; ch < CKEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -511,7 +406,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 					re.assign(keyre);
 					if(std::regex_match(s, re))
 					{
-						keymap.keyjmode[ch] = configkeymap[i].skkfunc;
+						ckeymap.keyjmode[ch] = configkeymap[i].skkfunc;
 					}
 				}
 				catch(...)
@@ -526,7 +421,7 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 		switch(configkeymap[i].skkfunc)
 		{
 		case SKK_VOID:
-			for(ch = 0x01; ch < KEYMAPNUM; ch++)
+			for(ch = 0x01; ch < CKEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -535,12 +430,193 @@ void CTextService::_LoadKeyMap(LPCWSTR section, KEYMAP &keymap)
 					re.assign(keyre);
 					if(std::regex_match(s, re))
 					{
-						keymap.keyvoid[ch] = configkeymap[i].skkfunc;
+						ckeymap.keyvoid[ch] = configkeymap[i].skkfunc;
 					}
 				}
 				catch(...)
 				{
 					break;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void CTextService::_LoadVKeyMap(LPCWSTR section)
+{
+	size_t i, j;
+	WCHAR ch;
+	WCHAR key[3];
+	WCHAR keyre[KEYRELEN];
+	std::wstring s;
+	std::wregex re;
+	std::wstring strxmlval;
+	VKEYMAP *pkeymaps[] = {&vkeymap, &vkeymap_shift, &vkeymap_ctrl};
+
+	for(j = 0; j < _countof(pkeymaps); j++)
+	{
+		ZeroMemory(pkeymaps[j], sizeof(*pkeymaps[j]));
+	}
+
+	for(i = 0; i < _countof(configkeymap); i++)
+	{
+		if(configkeymap[i].skkfunc == SKK_NULL)
+		{
+			break;
+		}
+		ReadValue(pathconfigxml, section, configkeymap[i].keyname, strxmlval);
+		wcsncpy_s(keyre, strxmlval.c_str(), _TRUNCATE);
+		if(keyre[0] == L'\0')
+		{
+			continue;
+		}
+
+		//全英/アスキーモード
+		switch(configkeymap[i].skkfunc)
+		{
+		case SKK_JMODE:
+		case SKK_ENTER:
+		case SKK_CANCEL:
+		case SKK_BACK:
+		case SKK_DELETE:
+		case SKK_LEFT:
+		case SKK_UP:
+		case SKK_RIGHT:
+		case SKK_DOWN:
+		case SKK_PASTE:
+		case SKK_OTHERIME:
+		case SKK_VIESC:
+			for(j = 0; j < _countof(pkeymaps); j++)
+			{
+				for(ch = 0x01; ch < VKEYMAPNUM; ch++)
+				{
+					switch(j)
+					{
+					case 0:
+						key[0] = ch;
+						key[1] = L'\0';
+						break;
+					case 1:
+						key[0] = L'S';
+						key[1] = ch;
+						key[2] = L'\0';
+						break;
+					case 2:
+						key[0] = L'C';
+						key[1] = ch;
+						key[2] = L'\0';
+						break;
+					}
+					s.assign(key);
+					try
+					{
+						re.assign(keyre);
+						if(std::regex_match(s, re))
+						{
+							if(pkeymaps[j]->keylatin[ch] != SKK_JMODE)	//「ひらがな」が優先
+							{
+								pkeymaps[j]->keylatin[ch] = configkeymap[i].skkfunc;
+							}
+						}
+					}
+					catch(...)
+					{
+						break;
+					}
+				}
+			}
+			break;
+		default:
+			break;
+		}
+
+		//ひらがな/カタカナモード
+		switch(configkeymap[i].skkfunc)
+		{
+		case SKK_JMODE:
+		case SKK_VOID:
+			break;
+		default:
+			for(j = 0; j < _countof(pkeymaps); j++)
+			{
+				for(ch = 0x01; ch < VKEYMAPNUM; ch++)
+				{
+					switch(j)
+					{
+					case 0:
+						key[0] = ch;
+						key[1] = L'\0';
+						break;
+					case 1:
+						key[0] = L'S';
+						key[1] = ch;
+						key[2] = L'\0';
+						break;
+					case 2:
+						key[0] = L'C';
+						key[1] = ch;
+						key[2] = L'\0';
+						break;
+					}
+					s.assign(key);
+					try
+					{
+						re.assign(keyre);
+						if(std::regex_match(s, re))
+						{
+							pkeymaps[j]->keyjmode[ch] = configkeymap[i].skkfunc;
+						}
+					}
+					catch(...)
+					{
+						break;
+					}
+				}
+			}
+			break;
+		}
+
+		//無効
+		switch(configkeymap[i].skkfunc)
+		{
+		case SKK_VOID:
+			for(j = 0; j < _countof(pkeymaps); j++)
+			{
+				for(ch = 0x01; ch < VKEYMAPNUM; ch++)
+				{
+					switch(j)
+					{
+					case 0:
+						key[0] = ch;
+						key[1] = L'\0';
+						break;
+					case 1:
+						key[0] = L'S';
+						key[1] = ch;
+						key[2] = L'\0';
+						break;
+					case 2:
+						key[0] = L'C';
+						key[1] = ch;
+						key[2] = L'\0';
+						break;
+					}
+					s.assign(key);
+					try
+					{
+						re.assign(keyre);
+						if(std::regex_match(s, re))
+						{
+							pkeymaps[j]->keyvoid[ch] = configkeymap[i].skkfunc;
+						}
+					}
+					catch(...)
+					{
+						break;
+					}
 				}
 			}
 			break;

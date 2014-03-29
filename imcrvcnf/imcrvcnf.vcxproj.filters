@@ -56,9 +56,6 @@
     <ClCompile Include="DlgProcKeyMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DlgProcKeyMap2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DlgProcPreservedKey.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
