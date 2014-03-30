@@ -307,6 +307,15 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 	else if(IsEqualGUID(rguid, c_guidPreservedKeyOn))
 	{
 		BOOL fOpen = _IsKeyboardOpen();
+		if(fOpen)
+		{
+			if(cx_keepinputnor)
+			{
+				_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
+			}
+			_ClearComposition();
+			postbuf.clear();
+		}
 		inputmode = im_disable;
 		_SetKeyboardOpen(TRUE);
 		*pfEaten = TRUE;
