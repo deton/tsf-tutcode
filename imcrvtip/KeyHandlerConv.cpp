@@ -307,6 +307,8 @@ void CTextService::_StartSubConv()
 	candidates.shrink_to_fit();
 	candorgcnt = 0;
 
+	searchkeyorg = searchkey;
+
 	//通常検索
 	_SearchDic(REQ_SEARCH);
 
