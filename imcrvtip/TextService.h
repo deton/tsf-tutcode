@@ -4,6 +4,7 @@
 
 #include "imcrvtip.h"
 #include "convtype.h"
+#include "parseskkdic.h"
 #include "mozc/win32/base/deleter.h"
 
 class CLangBarItemButton;

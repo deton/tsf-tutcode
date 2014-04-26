@@ -186,12 +186,12 @@
   <ItemGroup>
     <ClCompile Include="ConfigMgr.cpp" />
     <ClCompile Include="ConvBushu.cpp" />
-    <ClCompile Include="ConvCharacter.cpp" />
-    <ClCompile Include="ConvDictionary.cpp" />
     <ClCompile Include="ConvGadget.cpp" />
     <ClCompile Include="ConvNum.cpp" />
-    <ClCompile Include="ConvSKKServer.cpp" />
-    <ClCompile Include="ConvUserDictionary.cpp" />
+    <ClCompile Include="SearchCharacter.cpp" />
+    <ClCompile Include="SearchDictionary.cpp" />
+    <ClCompile Include="SearchSKKServer.cpp" />
+    <ClCompile Include="SearchUserDictionary.cpp" />
     <ClCompile Include="imcrvmgr.cpp" />
     <ClCompile Include="kw\bushuent.cpp" />
     <ClCompile Include="kw\bushu_dic.cpp" />
