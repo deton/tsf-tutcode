@@ -674,6 +674,7 @@ void CTextService::_LoadKana()
 
 	roman_kana_conv.clear();
 	roman_kana_conv.shrink_to_fit();
+	ZeroMemory(isroman_tbl, sizeof(isroman_tbl));
 
 	if(ReadList(pathconfigxml, SectionKana, list) == S_OK && list.size() != 0)
 	{
@@ -719,6 +720,11 @@ void CTextService::_LoadKana()
 			}
 
 			roman_kana_conv.push_back(rkc);
+			for(int j = 0; rkc.roman[j] != '\0'; j++) {
+				if(rkc.roman[j] <= ISROMAN_TBL_SIZE) {
+					isroman_tbl[rkc.roman[j]] = TRUE;
+				}
+			}
 			i++;
 		}
 	}

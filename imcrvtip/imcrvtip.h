@@ -72,6 +72,8 @@ typedef struct {	//キー設定(仮想キー)
 //候補一覧選択キー数
 #define MAX_SELKEY		7
 
+#define ISROMAN_TBL_SIZE	128
+
 #define CL_COLOR_BG		0
 #define CL_COLOR_FR		1
 #define CL_COLOR_SE		2

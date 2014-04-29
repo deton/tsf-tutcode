@@ -158,7 +158,9 @@ public:
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
+	HRESULT _HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostHelp(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, int count);
+	BOOL isroman(WCHAR ch);
 	enum AcquiredFrom
 	{
 		AF_COMPOSITION,
@@ -312,6 +314,8 @@ private:
 	//変換テーブル
 	std::vector<ROMAN_KANA_CONV> roman_kana_conv;
 	ASCII_JLATIN_CONV ascii_jlatin_conv[ASCII_JLATIN_TBL_NUM];
+	//roman_kana_convのromanで使用される文字かどうか
+	BOOL isroman_tbl[ISROMAN_TBL_SIZE];
 
 public:
 	DWORD _dwActiveFlags;	//ITfThreadMgrEx::GetActiveFlags()

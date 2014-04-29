@@ -374,6 +374,14 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		_HandlePostBushu(ec, pContext, postconvctx);
 		return;
 	}
+	//後置型入力シーケンス→漢字変換
+	//("Seq2Kanji"だとKANA_NUM(8)を越えるので"S2K")
+	else if(wcsncmp(rkc.hiragana, L"S2K", 3) == 0)
+	{
+		int count = _wtoi(rkc.hiragana + 3);
+		_HandlePostSeq2Kanji(ec, pContext, count, postconvctx);
+		return;
+	}
 	//打鍵ヘルプ
 	else if(wcsncmp(rkc.hiragana, L"Help", 4) == 0)
 	{
@@ -630,6 +638,106 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, Po
 	else
 	{
 		_Update(ec, pContext);
+	}
+
+	return S_OK;
+}
+
+//roman_kana_convのromanで使用される文字かどうか
+BOOL CTextService::isroman(WCHAR ch)
+{
+	if(ch > ISROMAN_TBL_SIZE) {
+		return FALSE;
+	}
+	return isroman_tbl[ch];
+}
+
+//後置型入力シーケンス→漢字変換
+HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
+{
+	//カーソル直前の文字列を取得
+	std::wstring text;
+	_AcquirePrecedingText(pContext, postconvctx, &text);
+	int size = text.size();
+	if(size == 0)
+	{
+		if(postconvctx == PCC_APP)
+		{
+			_HandleCharReturn(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
+		return S_OK;
+	}
+
+	//対象入力シーケンス文字列を特定
+	int st = size - count;
+	if(st < 0)
+	{
+		st = 0;
+	}
+	if(count <= 0) //0: 英字が続く間、負: そのまま残す文字数指定
+	{
+		//TODO:サロゲートペアや結合文字等の考慮
+		for(st = size - 1; 0 <= st; st--)
+		{
+			WCHAR m = text[st];
+			if(!isroman(m))
+			{
+				break;
+			}
+		}
+		st++;
+		if(count < 0)
+		{
+			st += -count; //指定文字数を除いて漢字に変換
+		}
+	}
+	int cnt = size - st;
+	if(cnt > 0)
+	{
+		//入力シーケンスを漢字に変換
+		ROMAN_KANA_CONV rkc;
+		std::wstring kanji;
+		int i = 0;
+		ZeroMemory(&rkc, sizeof(rkc));
+		for(; st < size; st++) {
+			rkc.roman[i] = text[st];
+			HRESULT ret = _ConvRomanKana(&rkc);
+			switch(ret)
+			{
+			case S_OK:	//一致
+				//TODO: 後置型部首合成変換等のfunc対応
+				kanji.append(rkc.hiragana);
+				i = 0;
+				ZeroMemory(&rkc, sizeof(rkc));
+				break;
+			case E_PENDING:	//途中まで一致
+				++i;
+				break;
+			case E_ABORT:	//一致する可能性なし
+			default:
+				kanji.append(rkc.roman);
+				i = 0;
+				ZeroMemory(&rkc, sizeof(rkc));
+				break;
+			}
+		}
+		//カーソル直前の文字列を置換
+		_ReplacePrecedingText(ec, pContext, cnt, kanji, postconvctx);
+	}
+	else
+	{
+		if(postconvctx == PCC_APP)
+		{
+			_HandleCharReturn(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 	}
 
 	return S_OK;
