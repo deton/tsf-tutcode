@@ -159,6 +159,7 @@ public:
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
 	HRESULT _HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostHelp(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, int count);
 	BOOL isroman(WCHAR ch);
 	enum AcquiredFrom
@@ -202,6 +203,7 @@ public:
 	BOOL _ConvN(WCHAR ch);
 	BOOL _ConvNN();
 	void _ConvKanaToKana(std::wstring &dst, int dstmode, const std::wstring &src, int srcmode);
+	void _ConvKanaToRoman(std::wstring &dst, const std::wstring &src, int srcmode);
 
 	// KeyHandlerDictionary
 	void _ConnectDic();

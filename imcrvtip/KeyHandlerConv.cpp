@@ -805,3 +805,76 @@ void CTextService::_ConvKanaToKana(std::wstring &dst, int dstmode, const std::ws
 
 	dst.assign(dsttmp);
 }
+
+void CTextService::_ConvKanaToRoman(std::wstring &dst, const std::wstring &src, int srcmode)
+{
+	size_t i, j, count;
+	BOOL exist;
+	WCHAR *convkana = NULL;
+	WCHAR srckana[3];
+	std::wstring dsttmp;
+
+	switch(srcmode)
+	{
+	case im_hiragana:
+	case im_katakana:
+		break;
+	default:
+		return;
+		break;
+	}
+
+	count = roman_kana_conv.size();
+
+	for(i = 0; i < src.size(); i++)
+	{
+		if(((i + 1) < src.size()) &&
+			(IS_SURROGATE_PAIR(src[i], src[i + 1]) || (src[i] == L'う' && src[i + 1] == L'゛')))
+		{
+			srckana[0] = src[i];
+			srckana[1] = src[i + 1];
+			srckana[2] = L'\0';
+			i++;
+		}
+		else
+		{
+			srckana[0] = src[i];
+			srckana[1] = L'\0';
+		}
+		exist = FALSE;
+
+		for(j = 0; j < count; j++)
+		{
+			if(roman_kana_conv[j].roman[0] == L'\0')
+			{
+				break;
+			}
+
+			switch(srcmode)
+			{
+			case im_hiragana:
+				convkana = roman_kana_conv[j].hiragana;
+				break;
+			case im_katakana:
+				convkana = roman_kana_conv[j].katakana;
+				break;
+			default:
+				break;
+			}
+
+			if(wcsncmp(convkana, srckana, KANA_NUM) == 0)
+			{
+				exist = TRUE;
+				dsttmp.append(roman_kana_conv[j].roman);
+				break;
+			}
+		}
+
+		if(!exist)	//ローマ字仮名変換表に無ければそのまま
+		{
+			dsttmp.append(srckana);
+		}
+	}
+
+	dst.assign(dsttmp);
+}

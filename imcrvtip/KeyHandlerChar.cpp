@@ -382,6 +382,13 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		_HandlePostSeq2Kanji(ec, pContext, count, postconvctx);
 		return;
 	}
+	//後置型漢字→入力シーケンス変換
+	else if(wcsncmp(rkc.hiragana, L"K2S", 3) == 0)
+	{
+		int count = _wtoi(rkc.hiragana + 3);
+		_HandlePostKanji2Seq(ec, pContext, count, postconvctx);
+		return;
+	}
 	//打鍵ヘルプ
 	else if(wcsncmp(rkc.hiragana, L"Help", 4) == 0)
 	{
@@ -727,6 +734,74 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 		}
 		//カーソル直前の文字列を置換
 		_ReplacePrecedingText(ec, pContext, cnt, kanji, postconvctx);
+	}
+	else
+	{
+		if(postconvctx == PCC_APP)
+		{
+			_HandleCharReturn(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
+	}
+
+	return S_OK;
+}
+
+//後置型漢字→入力シーケンス変換
+HRESULT CTextService::_HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
+{
+	//カーソル直前の文字列を取得
+	std::wstring text;
+	_AcquirePrecedingText(pContext, postconvctx, &text);
+	int size = text.size();
+	if(size == 0)
+	{
+		if(postconvctx == PCC_APP)
+		{
+			_HandleCharReturn(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
+		return S_OK;
+	}
+
+	//対象入力シーケンス文字列を特定
+	int st = size - count;
+	if(st < 0)
+	{
+		st = 0;
+	}
+	if(count <= 0) //0: 改行やタブまで
+	{
+		//TODO:サロゲートペアや結合文字等の考慮
+		for(st = size - 1; 0 <= st; st--)
+		{
+			WCHAR m = text[st];
+			//最後の' 'は飛ばす。途中打鍵を確定するために入力したものの可能性
+			if(m == L'\n' || m == L'\t' || m == L' ' && st != size - 1)
+			{
+				break;
+			}
+		}
+		st++;
+		if(count < 0)
+		{
+			st += -count; //指定文字数を除いて漢字に変換
+		}
+	}
+	int cnt = size - st;
+	if(cnt > 0)
+	{
+		//漢字を入力シーケンスに変換
+		std::wstring seq;
+		_ConvKanaToRoman(seq, text.substr(st), im_hiragana);
+		//カーソル直前の文字列を置換
+		_ReplacePrecedingText(ec, pContext, cnt, seq, postconvctx);
 	}
 	else
 	{
