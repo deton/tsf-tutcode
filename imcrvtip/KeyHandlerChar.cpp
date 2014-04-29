@@ -653,7 +653,8 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, Po
 //roman_kana_convのromanで使用される文字かどうか
 BOOL CTextService::isroman(WCHAR ch)
 {
-	if(ch > ISROMAN_TBL_SIZE) {
+	if(ch > ISROMAN_TBL_SIZE)
+	{
 		return FALSE;
 	}
 	return isroman_tbl[ch];
@@ -710,7 +711,8 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 		std::wstring kanji;
 		int i = 0;
 		ZeroMemory(&rkc, sizeof(rkc));
-		for(; st < size; st++) {
+		for(; st < size; st++)
+		{
 			rkc.roman[i] = text[st];
 			HRESULT ret = _ConvRomanKana(&rkc);
 			switch(ret)
@@ -782,9 +784,14 @@ HRESULT CTextService::_HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext
 		for(st = size - 1; 0 <= st; st--)
 		{
 			WCHAR m = text[st];
-			//最後の' 'は飛ばす。途中打鍵を確定するために入力したものの可能性
-			if(m == L'\n' || m == L'\t' || m == L' ' && st != size - 1)
+			if(m == L'\n' || m == L'\t')
 			{
+				break;
+			}
+			//最後の' 'は無視。途中打鍵を確定するために入力したものの可能性
+			if(m == L' ' && st != size - 1)
+			{
+				st--; //最初の' 'は含める。区切り用に入力したものを削るため
 				break;
 			}
 		}
@@ -800,6 +807,22 @@ HRESULT CTextService::_HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext
 		//漢字を入力シーケンスに変換
 		std::wstring seq;
 		_ConvKanaToRoman(seq, text.substr(st), im_hiragana);
+		//最後の連続する' 'は削除。途中打鍵を確定するために入力したもの
+		int seqsize = seq.size();
+		int trim = seqsize;
+		while(trim > 0 && seq[trim - 1] == L' ')
+		{
+			--trim;
+		}
+		if(trim < seqsize)
+		{
+			seq.erase(trim, seqsize - trim);
+		}
+		//区切り用に入力された最初のスペースは削る
+		if(seq[0] == L' ')
+		{
+			seq.erase(0, 1);
+		}
 		//カーソル直前の文字列を置換
 		_ReplacePrecedingText(ec, pContext, cnt, seq, postconvctx);
 	}
