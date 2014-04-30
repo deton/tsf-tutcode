@@ -375,17 +375,17 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		return;
 	}
 	//後置型入力シーケンス→漢字変換
-	//("Seq2Kanji"だとKANA_NUM(8)を越えるので"S2K")
-	else if(wcsncmp(rkc.hiragana, L"S2K", 3) == 0)
+	//("Seq2Kanji"だとKANA_NUM(8)を越えるので"StoK")
+	else if(wcsncmp(rkc.hiragana, L"StoK", 4) == 0)
 	{
-		int count = _wtoi(rkc.hiragana + 3);
+		int count = _wtoi(rkc.hiragana + 4);
 		_HandlePostSeq2Kanji(ec, pContext, count, postconvctx);
 		return;
 	}
 	//後置型漢字→入力シーケンス変換
-	else if(wcsncmp(rkc.hiragana, L"K2S", 3) == 0)
+	else if(wcsncmp(rkc.hiragana, L"KtoS", 4) == 0)
 	{
-		int count = _wtoi(rkc.hiragana + 3);
+		int count = _wtoi(rkc.hiragana + 4);
 		_HandlePostKanji2Seq(ec, pContext, count, postconvctx);
 		return;
 	}
