@@ -171,6 +171,7 @@ public:
 		AF_SELECTION,
 	};
 	AcquiredFrom _AcquirePrecedingText(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, BOOL useSelectedText = FALSE);
+	void _AddToPostBuf(const std::wstring &text);
 	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, PostConvContext postconvctx, BOOL startMaze = false);
 	void _StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, const std::wstring &yomi);
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL startMaze = false);
@@ -377,7 +378,7 @@ public:
 
 	size_t cursoridx;		//カーソルインデックス
 
-	std::wstring postbuf;	//直近に入力した文字列
+	std::wstring postbuf;	//直近に確定した文字列
 	std::wstring prevkata;	//直前の後置型カタカナ変換で変換した文字列
 
 	//候補一覧選択キー

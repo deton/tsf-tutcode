@@ -15,7 +15,12 @@ static LPCWSTR markCursor = L"|";
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed, BOOL back)
 {
 	std::wstring comptext;
-	return _Update(ec, pContext, comptext, fixed, back);
+	HRESULT ret = _Update(ec, pContext, comptext, fixed, back);
+	if(fixed && pContext != NULL)
+	{
+		_AddToPostBuf(comptext);
+	}
+	return ret;
 }
 
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext, BOOL fixed, BOOL back)
@@ -377,16 +382,6 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 	{
 		_pCandidateList->_SetText(text, fixed, FALSE, FALSE);
 		return S_OK;
-	}
-
-	if(fixed)
-	{
-		postbuf.append(text);
-#define MAX_POSTBUF 10
-		if(postbuf.size() > MAX_POSTBUF)
-		{
-			postbuf.erase(0, postbuf.size() - MAX_POSTBUF);
-		}
 	}
 
 	if(!_IsComposing())

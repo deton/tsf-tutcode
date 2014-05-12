@@ -19,6 +19,10 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 		{
 			comptext.clear();
 		}
+		else
+		{
+			_AddToPostBuf(comptext);
+		}
 		_ResetStatus();
 	}
 
@@ -288,6 +292,7 @@ HRESULT CTextService::_HandleCharShift(TfEditCookie ec, ITfContext *pContext)
 	if(pContext != NULL)
 	{
 		_HandleCharShift(ec, pContext, comptext);
+		_AddToPostBuf(comptext);
 	}
 
 	return S_OK;
@@ -908,6 +913,16 @@ CTextService::AcquiredFrom CTextService::_AcquirePrecedingText(ITfContext *pCont
 	{
 		text->append(postbuf);
 		return AF_POSTBUF;
+	}
+}
+
+void CTextService::_AddToPostBuf(const std::wstring &text)
+{
+	postbuf.append(text);
+#define MAX_POSTBUF 10
+	if(postbuf.size() > MAX_POSTBUF)
+	{
+		postbuf.erase(0, postbuf.size() - MAX_POSTBUF);
 	}
 }
 

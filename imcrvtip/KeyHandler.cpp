@@ -290,6 +290,10 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 							{
 								comptext.clear();
 							}
+							else
+							{
+								_AddToPostBuf(comptext);
+							}
 							_ResetStatus();
 						}
 						else
