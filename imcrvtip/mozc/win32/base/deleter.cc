@@ -1,4 +1,4 @@
-// Copyright 2010-2013, Google Inc.
+// Copyright 2010-2014, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -195,9 +195,9 @@ void VKBackBasedDeleter::UnsetModifiers() {
     to_be_updated = true;
     keyboard_state.SetState(VK_CONTROL, kUnsetState);
   }
-  if (keyboard_state.IsPressed(VK_SHIFT)) {
+  if (keyboard_state.IsPressed(VK_MENU)) {
     to_be_updated = true;
-    keyboard_state.SetState(VK_SHIFT, kUnsetState);
+    keyboard_state.SetState(VK_MENU, kUnsetState);
   }
   if (to_be_updated) {
     keyboard_->SetKeyboardState(keyboard_state);
