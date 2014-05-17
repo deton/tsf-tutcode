@@ -335,16 +335,23 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	//後置型交ぜ書き変換
 	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 	{
+		int offset = 4;
+		BOOL isKatuyo = FALSE;
+		if(rkc.hiragana[4] == L'K')
+		{
+			offset = 5;
+			isKatuyo = TRUE;
+		}
 		if(postconvctx != PCC_COMPOSITION)
 		{
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
 			//は未対応。候補表示等の制御が面倒なので。
-			int count = _wtoi(rkc.hiragana + 4);
+			int count = _wtoi(rkc.hiragana + offset);
 			if(count <= 0)
 			{
 				count = 1; //TODO:count=0の場合、なるべく長く読みとみなす
 			}
-			_HandlePostMaze(ec, pContext, count, postconvctx);
+			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo);
 		}
 		else
 		{
@@ -448,7 +455,7 @@ CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITf
 }
 
 //後置型交ぜ書き変換
-HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
+HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo)
 {
 	//カーソル直前の文字列を取得
 	std::wstring text;
@@ -471,7 +478,13 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		count = size;
 	}
 	//TODO:サロゲートペアや結合文字等の考慮
-	return _ReplacePrecedingText(ec, pContext, count, text.substr(size - count), postconvctx, TRUE);
+	std::wstring yomi(text.substr(size - count));
+	if(isKatuyo)
+	{
+		//TODO:読みに含まれる語尾を―に置き換えて変換
+		yomi.append(L"―");
+	}
+	return _ReplacePrecedingText(ec, pContext, count, yomi, postconvctx, TRUE);
 }
 
 //後置型カタカナ変換
