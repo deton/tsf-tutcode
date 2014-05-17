@@ -17,6 +17,15 @@
                         <Component Guid="*" Id="TIP_X86">
                             <File Id="tip_x86" Name="imtuttip.dll" Source="..\Win32\Release\imtuttip.dll" SelfRegCost="1" />
                         </Component>
+                        <Component Guid="*" Id="LUAEXE_X86">
+                            <File Id="luaexe_x86" Name="lua.exe" Source="..\Win32\Release\lua.exe" />
+                        </Component>
+                        <Component Guid="*" Id="LUADLL_X86">
+                            <File Id="luadll_x86" Name="lua52.dll" Source="..\Win32\Release\lua52.dll" />
+                        </Component>
+                        <Component Guid="*" Id="INITLUA_X86">
+                            <File Id="initlua_x86" Name="init.lua" Source="config-lua\init.lua" />
+                        </Component>
                     </Directory>
                 </Directory>
             </Directory>
@@ -30,6 +39,9 @@
             <ComponentRef Id="CNF_X86" />
             <ComponentRef Id="MGR_X86" />
             <ComponentRef Id="TIP_X86" />
+            <ComponentRef Id="LUAEXE_X86" />
+            <ComponentRef Id="LUADLL_X86" />
+            <ComponentRef Id="INITLUA_X86" />
             <ComponentRef Id="RegistryRun" />
         </Feature>
         <UI />
