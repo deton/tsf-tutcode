@@ -72,6 +72,7 @@ extern LPCWSTR fnskkdic;	//取込SKK辞書
 extern LPCWSTR fnskkidx;	//取込SKK辞書インデックス
 extern LPCWSTR fninitlua;	//init.lua
 
+#define DISPLAY_COLOR_NUM 8
 #define DISPLAYATTRIBUTE_INFO_NUM	7
 
 extern const TF_DISPLAYATTRIBUTE c_daDisplayAttributeInputMark;
