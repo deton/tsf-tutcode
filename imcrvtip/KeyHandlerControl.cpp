@@ -401,7 +401,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_HINT:
-		if(inputkey)
+		if(inputkey && !abbrevmode)
 		{
 			if(showentry)
 			{
@@ -409,7 +409,11 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				showentry = FALSE;
 			}
 			_ConvN(WCHAR_MAX);
-			if(roman.empty() && !kana.empty() &&
+			if(!roman.empty())
+			{
+				break;
+			}
+			if(!kana.empty() &&
 				kana.find_first_of(CHAR_SKK_HINT) == std::wstring::npos)
 			{
 				hintmode = TRUE;
