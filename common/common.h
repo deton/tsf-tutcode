@@ -91,4 +91,13 @@ BOOL GetMD5(MD5_DIGEST *digest, CONST BYTE *data, DWORD datalen);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
 BOOL GetLogonSid(LPWSTR *ppszLogonSid);
 
+#define FORWARD_ITERATION_I(iterator, container) \
+	for(auto (iterator) = (container).begin(); (iterator) != (container).end(); ++(iterator))
+#define FORWARD_ITERATION(iterator, container) \
+	for(auto (iterator) = (container).begin(); (iterator) != (container).end(); )
+#define REVERSE_ITERATION_I(reverse_iterator, container) \
+	for(auto (reverse_iterator) = (container).rbegin(); (reverse_iterator) != (container).rend(); ++(reverse_iterator))
+#define REVERSE_ITERATION(reverse_iterator, container) \
+	for(auto (reverse_iterator) = (container).rbegin(); (reverse_iterator) != (container).rend(); )
+
 #endif //COMMON_H

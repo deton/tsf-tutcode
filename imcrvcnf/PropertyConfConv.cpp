@@ -50,8 +50,6 @@ void SaveKeyMap(HWND hDlg, int nIDDlgItem, LPCWSTR lpKeyName)
 static void LoadConfigPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
 {
 	APPDATAXMLLIST list;
-	APPDATAXMLLIST::iterator l_itr;
-	APPDATAXMLROW::iterator r_itr;
 	int i = 0;
 	HRESULT hr;
 
@@ -60,9 +58,14 @@ static void LoadConfigPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDK
 
 	if(hr == S_OK && list.size() != 0)
 	{
-		for(l_itr = list.begin(); l_itr != list.end() && i < MAX_PRESERVEDKEY; l_itr++)
+		FORWARD_ITERATION_I(l_itr, list)
 		{
-			for(r_itr = l_itr->begin(); r_itr != l_itr->end(); r_itr++)
+			if(i >= MAX_PRESERVEDKEY)
+			{
+				break;
+			}
+
+			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
 				if(r_itr->first == AttributeVKey)
 				{
@@ -220,8 +223,6 @@ void SavePreservedKey(HWND hwnd)
 void LoadConfigConvPoint()
 {
 	APPDATAXMLLIST list;
-	APPDATAXMLLIST::iterator l_itr;
-	APPDATAXMLROW::iterator r_itr;
 	int i = 0;
 	HRESULT hr;
 
@@ -230,9 +231,14 @@ void LoadConfigConvPoint()
 
 	if(hr == S_OK && list.size() != 0)
 	{
-		for(l_itr = list.begin(); l_itr != list.end() && i < CONV_POINT_NUM; l_itr++)
+		FORWARD_ITERATION_I(l_itr, list)
 		{
-			for(r_itr = l_itr->begin(); r_itr != l_itr->end(); r_itr++)
+			if(i >= CONV_POINT_NUM)
+			{
+				break;
+			}
+
+			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
 				if(r_itr->first == AttributeCPStart)
 				{
@@ -350,8 +356,6 @@ void SaveConvPoint(HWND hwnd)
 void LoadConfigKana()
 {
 	APPDATAXMLLIST list;
-	APPDATAXMLLIST::iterator l_itr;
-	APPDATAXMLROW::iterator r_itr;
 	ROMAN_KANA_CONV rkc;
 	int i = 0;
 	WCHAR *pszb;
@@ -364,11 +368,16 @@ void LoadConfigKana()
 
 	if(hr == S_OK && list.size() != 0)
 	{
-		for(l_itr = list.begin(); l_itr != list.end() && i < ROMAN_KANA_TBL_MAX; l_itr++)
+		FORWARD_ITERATION_I(l_itr, list)
 		{
+			if(i >= ROMAN_KANA_TBL_MAX)
+			{
+				break;
+			}
+
 			ZeroMemory(&rkc, sizeof(rkc));
 
-			for(r_itr = l_itr->begin(); r_itr != l_itr->end(); r_itr++)
+			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
 				pszb = NULL;
 
@@ -529,8 +538,6 @@ void SaveKana(HWND hwnd)
 void LoadConfigJLatin()
 {
 	APPDATAXMLLIST list;
-	APPDATAXMLLIST::iterator l_itr;
-	APPDATAXMLROW::iterator r_itr;
 	int i = 0;
 	WCHAR *pszb;
 	size_t blen = 0;
@@ -541,9 +548,14 @@ void LoadConfigJLatin()
 
 	if(hr == S_OK && list.size() != 0)
 	{
-		for(l_itr = list.begin(); l_itr != list.end() && i < ASCII_JLATIN_TBL_NUM; l_itr++)
+		FORWARD_ITERATION_I(l_itr, list)
 		{
-			for(r_itr = l_itr->begin(); r_itr != l_itr->end(); r_itr++)
+			if(i >= ASCII_JLATIN_TBL_NUM)
+			{
+				break;
+			}
+
+			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
 				pszb = NULL;
 

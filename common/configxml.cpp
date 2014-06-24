@@ -1,4 +1,5 @@
 ﻿
+#include "common.h"
 #include "configxml.h"
 
 //tag
@@ -647,9 +648,8 @@ NOT_S_OK:
 HRESULT WriterRow(IXmlWriter *pWriter, const APPDATAXMLROW &row)
 {
 	HRESULT hr = S_FALSE;
-	APPDATAXMLROW::const_iterator r_itr;
 
-	for(r_itr = row.begin(); r_itr != row.end(); r_itr++)
+	FORWARD_ITERATION_I(r_itr, row)
 	{
 		hr = WriterAttribute(pWriter, r_itr->first.c_str(), r_itr->second.c_str());
 		EXIT_NOT_S_OK(hr);
@@ -662,7 +662,6 @@ NOT_S_OK:
 HRESULT WriterList(IXmlWriter *pWriter, const APPDATAXMLLIST &list, BOOL newline)
 {
 	HRESULT hr;
-	APPDATAXMLLIST::const_iterator l_itr;
 
 	hr = WriterStartElement(pWriter, TagList);
 	EXIT_NOT_S_OK(hr);
@@ -673,7 +672,7 @@ HRESULT WriterList(IXmlWriter *pWriter, const APPDATAXMLLIST &list, BOOL newline
 		EXIT_NOT_S_OK(hr);
 	}
 
-	for(l_itr = list.begin(); l_itr != list.end(); l_itr++)
+	FORWARD_ITERATION_I(l_itr, list)
 	{
 		hr = WriterStartElement(pWriter, TagRow);
 		EXIT_NOT_S_OK(hr);
