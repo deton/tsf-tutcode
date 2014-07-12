@@ -184,8 +184,8 @@ public:
 	HRESULT _ShowCandidateList(TfEditCookie ec, ITfContext *pContext, BOOL reg);
 
 	// KeyHandlerControl
-	HRESULT _HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR &ch);
-	HRESULT _HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR &ch);
+	HRESULT _HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR ch);
+	HRESULT _HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR ch);
 	HRESULT _CommitRoman(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerConv

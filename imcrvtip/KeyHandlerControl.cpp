@@ -5,7 +5,7 @@
 #include "convtype.h"
 #include "KeySender.h"
 
-HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR &ch)
+HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR ch)
 {
 	size_t i;
 	ASCII_JLATIN_CONV ajc;
@@ -869,7 +869,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	return E_PENDING;
 }
 
-HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR &ch)
+HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR ch)
 {
 	if(abbrevmode && !showentry)
 	{
