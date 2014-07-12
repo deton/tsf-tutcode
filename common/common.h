@@ -63,6 +63,8 @@ typedef struct {
 
 extern LPCWSTR RccsUNICODE;
 extern LPCWSTR WccsUNICODE;
+extern LPCWSTR RccsUTF8;
+extern LPCWSTR WccsUTF8;
 extern LPCWSTR RB;
 extern LPCWSTR WB;
 

@@ -520,7 +520,7 @@ BOOL CTextService::_ConvN(WCHAR ch)
 	case S_OK:	//一致
 		if(rkc.wait)	//待機
 		{
-			if(okuriidx != 0 && okuriidx == kana.size())
+			if(okuriidx != 0 && okuriidx + 1 == cursoridx)
 			{
 				chN = L'\0';
 				switch(inputmode)
@@ -560,8 +560,7 @@ BOOL CTextService::_ConvN(WCHAR ch)
 				}
 				else
 				{
-					kana.insert(cursoridx, 1, ch);
-					cursoridx++;
+					kana.replace(okuriidx, 1, 1, chO);
 				}
 			}
 
@@ -569,14 +568,26 @@ BOOL CTextService::_ConvN(WCHAR ch)
 			{
 			case im_hiragana:
 				kana.insert(cursoridx, rkc.hiragana);
+				if(okuriidx != 0 && cursoridx <= okuriidx)
+				{
+					okuriidx += wcslen(rkc.hiragana);
+				}
 				cursoridx += wcslen(rkc.hiragana);
 				break;
 			case im_katakana:
 				kana.insert(cursoridx, rkc.katakana);
+				if(okuriidx != 0 && cursoridx <= okuriidx)
+				{
+					okuriidx += wcslen(rkc.katakana);
+				}
 				cursoridx += wcslen(rkc.katakana);
 				break;
 			case im_katakana_ank:
 				kana.insert(cursoridx, rkc.katakana_ank);
+				if(okuriidx != 0 && cursoridx <= okuriidx)
+				{
+					okuriidx += wcslen(rkc.katakana_ank);
+				}
 				cursoridx += wcslen(rkc.katakana_ank);
 				break;
 			default:
@@ -606,14 +617,26 @@ BOOL CTextService::_ConvN(WCHAR ch)
 				{
 				case im_hiragana:
 					kana.insert(cursoridx, rkc.hiragana);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += wcslen(rkc.hiragana);
+					}
 					cursoridx += wcslen(rkc.hiragana);
 					break;
 				case im_katakana:
 					kana.insert(cursoridx, rkc.katakana);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += wcslen(rkc.katakana);
+					}
 					cursoridx += wcslen(rkc.katakana);
 					break;
 				case im_katakana_ank:
 					kana.insert(cursoridx, rkc.katakana_ank);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += wcslen(rkc.katakana_ank);
+					}
 					cursoridx += wcslen(rkc.katakana_ank);
 					break;
 				default:
@@ -677,14 +700,26 @@ BOOL CTextService::_ConvNN()
 				{
 				case im_hiragana:
 					kana.insert(cursoridx, rkc.hiragana);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += wcslen(rkc.hiragana);
+					}
 					cursoridx += wcslen(rkc.hiragana);
 					break;
 				case im_katakana:
 					kana.insert(cursoridx, rkc.katakana);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += wcslen(rkc.katakana);
+					}
 					cursoridx += wcslen(rkc.katakana);
 					break;
 				case im_katakana_ank:
 					kana.insert(cursoridx, rkc.katakana_ank);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += wcslen(rkc.katakana_ank);
+					}
 					cursoridx += wcslen(rkc.katakana_ank);
 					break;
 				default:
