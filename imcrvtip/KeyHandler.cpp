@@ -344,7 +344,7 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 	return S_OK;
 }
 
-void CTextService::_KeyboardOpenCloseChanged()
+void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 {
 	if(_pThreadMgr == NULL)
 	{
@@ -354,6 +354,7 @@ void CTextService::_KeyboardOpenCloseChanged()
 	_dwActiveFlags = 0;
 	_ImmersiveMode = FALSE;
 	_UILessMode = FALSE;
+	_ShowInputModeWindow = FALSE;
 
 	ITfThreadMgrEx *pThreadMgrEx;
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pThreadMgrEx)) == S_OK)
@@ -392,6 +393,9 @@ void CTextService::_KeyboardOpenCloseChanged()
 		_LoadConvPoint();
 		_LoadKana();
 		_LoadJLatin();
+
+		_ShowInputModeWindow = !_UILessMode && cx_showmodeinl &&
+			(!cx_showmodeimm || (cx_showmodeimm && _ImmersiveMode));
 
 		//OnPreservedKey(),CLangBarItemButton::OnClick()経由ならひらがなモード
 		//それ以外なら現在のモード
@@ -455,7 +459,7 @@ void CTextService::_KeyboardOpenCloseChanged()
 		postbuf.clear();
 	}
 
-	_UpdateLanguageBar();
+	_UpdateLanguageBar(showinputmode);
 }
 
 void CTextService::_KeyboardInputConversionChanged()
@@ -493,9 +497,12 @@ void CTextService::_KeyboardInputConversionChanged()
 	}
 	else
 	{
-		var.vt = VT_I4;
-		var.lVal = TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_FULLSHAPE | TF_CONVERSIONMODE_ROMAN;
-		_SetCompartment(GUID_COMPARTMENT_KEYBOARD_INPUTMODE_CONVERSION, &var);
+		if(!_KeyboardSetDefaultMode())
+		{
+			var.vt = VT_I4;
+			var.lVal = TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_FULLSHAPE | TF_CONVERSIONMODE_ROMAN;
+			_SetCompartment(GUID_COMPARTMENT_KEYBOARD_INPUTMODE_CONVERSION, &var);
+		}
 	}
 
 	if(inputmode != inputmode_bak)
@@ -504,6 +511,40 @@ void CTextService::_KeyboardInputConversionChanged()
 		_ClearComposition();
 		_UpdateLanguageBar();
 	}
+}
+
+BOOL CTextService::_KeyboardSetDefaultMode()
+{
+	BOOL open = FALSE;
+	BOOL mode = FALSE;
+	VARIANT var;
+
+	_ReadBoolValue(SectionBehavior, ValueDefaultMode, open, FALSE);
+	if(open)
+	{
+		_ReadBoolValue(SectionBehavior, ValueDefModeAscii, mode, FALSE);
+		if(mode)
+		{
+			inputmode = im_ascii;
+			var.vt = VT_I4;
+			var.lVal = TF_CONVERSIONMODE_ALPHANUMERIC;
+			_SetCompartment(GUID_COMPARTMENT_KEYBOARD_INPUTMODE_CONVERSION, &var);
+		}
+		else
+		{
+			inputmode = im_hiragana;
+			var.vt = VT_I4;
+			var.lVal = TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_FULLSHAPE | TF_CONVERSIONMODE_ROMAN;
+			_SetCompartment(GUID_COMPARTMENT_KEYBOARD_INPUTMODE_CONVERSION, &var);
+		}
+
+		if(!_IsKeyboardOpen())
+		{
+			_SetKeyboardOpen(TRUE);
+		}
+	}
+
+	return open;
 }
 
 BOOL CTextService::_IsKeyVoid(WCHAR ch, BYTE vk)
