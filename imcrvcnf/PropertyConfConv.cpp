@@ -799,6 +799,7 @@ void SaveKanaTxt(HWND hwnd, LPCWSTR path)
 		ListView_GetItemText(hWndListView, i, 4, soku, _countof(soku));
 		((soku[0] - L'0') & 1) ? rkc.soku = TRUE : rkc.soku = FALSE;
 		((soku[0] - L'0') & 2) ? rkc.wait = TRUE : rkc.wait = FALSE;
+		((soku[0] - L'0') & 4) ? rkc.func = TRUE : rkc.func = FALSE;
 
 		roman_kana_conv.push_back(rkc);
 	}
@@ -822,7 +823,7 @@ void SaveKanaTxt(HWND hwnd, LPCWSTR path)
 								roman_kana_conv[i].hiragana,
 								roman_kana_conv[i].katakana,
 								roman_kana_conv[i].katakana_ank,
-								roman_kana_conv[i].soku | (roman_kana_conv[i].wait << 1));
+								roman_kana_conv[i].soku | (roman_kana_conv[i].wait << 1) | (roman_kana_conv[i].func << 2));
 		}
 
 		fclose(fp);
