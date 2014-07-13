@@ -38,8 +38,8 @@
     <None Include="_debug_reg.cmd" />
     <None Include="_debug_unreg.cmd" />
     <None Include="_mkarc.cmd" />
-    <None Include="tutcode.tbl" />
-    <None Include="tcode.tbl" />
+    <None Include="kanatable-tutcode.txt" />
+    <None Include="kanatable-tcode.txt" />
     <None Include="maze.dic" />
   </ItemGroup>
   <ItemGroup>

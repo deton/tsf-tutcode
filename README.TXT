@@ -46,7 +46,7 @@
 ・初期設定
 
   設定ダイアログの「仮名」タブの「…」ボタンから、ローマ字・仮名変換表として
-  tutcode.tblやtcode.tblを読み込ませてください。
+  kanatable-tutcode.txtやkanatable-tcode.txtを読み込ませてください。
 
   設定ダイアログの「辞書」タブの「追加」ボタンから、maze.dicを選択し、
   「取込」ボタンを押してください。
