@@ -189,6 +189,10 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_ABBREV:
+		if(abbrevmode)
+		{
+			break;
+		}
 		switch(inputmode)
 		{
 		case im_hiragana:
@@ -711,7 +715,7 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 			if(_ConvN(ch) && (okuriidx == 0) && (cursoridx != 0))
 			{
 				//送り仮名入力開始
-				kana.insert(cursoridx, 1, L'\x20');
+				kana.insert(cursoridx, 1, CHAR_SKK_OKURI);	//送りローマ字
 				okuriidx = cursoridx;
 				cursoridx++;
 				_Update(ec, pContext);
