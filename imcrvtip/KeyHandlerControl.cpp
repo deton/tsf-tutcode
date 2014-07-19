@@ -428,6 +428,16 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			{
 				skipupdate = TRUE;
 			}
+			if(roman.empty())
+			{
+				if(okuriidx != 0 && okuriidx + 1 == cursoridx)
+				{
+					kana.erase(cursoridx - 1, 1);
+					cursoridx--;
+					okuriidx = 0;
+					skipupdate = FALSE;
+				}
+			}
 		}
 		else if(okuriidx != 0 && okuriidx + 1 == cursoridx)
 		{
