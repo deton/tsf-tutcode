@@ -153,17 +153,20 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 	default:
 		break;
 	}
+
 	//無効
 	if(_IsKeyVoid(ch, (BYTE)wParam))
 	{
 		return TRUE;
 	}
+
 	//処理しないCtrlキー
 	if(vk_ctrl)
 	{
 		postbuf.clear();
 		return FALSE;
 	}
+
 	//ASCIIモード、かなキーロック
 	if(inputmode == im_ascii && !vk_kana)
 	{
@@ -239,6 +242,7 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 			}
 		}
 	}
+
 	return S_OK;
 }
 
@@ -256,6 +260,7 @@ STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BO
 	{
 		_InvokeKeyHandler(pic, wParam, lParam, SKK_NULL);
 	}
+
 	return S_OK;
 }
 
@@ -268,6 +273,7 @@ STDAPI CTextService::OnTestKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, 
 		return S_OK;
 	}
 	*pfEaten = (eaten == TRUE);
+
 	return S_OK;
 }
 
@@ -280,6 +286,7 @@ STDAPI CTextService::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL
 		return S_OK;
 	}
 	*pfEaten = (eaten == TRUE);
+
 	return S_OK;
 }
 

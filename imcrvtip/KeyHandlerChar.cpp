@@ -5,7 +5,7 @@
 #include "mozc/win32/tip/tip_surrounding_text.h"
 #include "mozc/win32/base/input_state.h"
 
-HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext, WPARAM wParam, WCHAR ch, WCHAR chO)
+HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, WCHAR ch, WCHAR chO)
 {
 	ROMAN_KANA_CONV rkc;
 	ASCII_JLATIN_CONV ajc;
@@ -14,21 +14,15 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 
 	if(showentry)
 	{
-		_Update(ec, pContext, comptext, TRUE);
-		if(pContext == NULL)	//辞書登録用
-		{
-			comptext.clear();
-		}
-		else
-		{
-			_AddToPostBuf(comptext);
-		}
-		_ResetStatus();
+		_HandleCharShift(ec, pContext);
 	}
 
-	if((okuriidx != 0) && (okuriidx + 1 == cursoridx) && (chO != L'\0'))
+	if((okuriidx != 0) && (okuriidx + 1 == cursoridx))
 	{
-		kana.replace(okuriidx, 1, 1, chO);	//送りローマ字
+		if(chO != L'\0')
+		{
+			kana.replace(okuriidx, 1, 1, chO);	//送りローマ字
+		}
 	}
 
 	switch(inputmode)
@@ -38,8 +32,6 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 	case im_katakana_ank:
 		if(abbrevmode)
 		{
-			_HandleCharShift(ec, pContext, comptext);
-			roman.clear();
 			kana.insert(cursoridx, 1, ch);
 			cursoridx++;
 			_Update(ec, pContext);
@@ -114,7 +106,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 						break;
 					}
 
-					_HandleCharShift(ec, pContext, comptext);
+					_HandleCharShift(ec, pContext);
 					_Update(ec, pContext);
 					break;
 				}
@@ -159,7 +151,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 
 				if(inputkey)
 				{
-					_HandleCharShift(ec, pContext, comptext);
+					_HandleCharShift(ec, pContext);
 					if(!kana.empty() && okuriidx != 0 && !rkc.soku && cx_begincvokuri && !hintmode && !rkc.wait)
 					{
 						cursoridx = kana.size();
@@ -174,13 +166,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 				}
 				else
 				{
-					_HandleCharShift(ec, pContext, comptext);	//候補＋仮名
-					if(comptext.empty())
-					{
-						_HandleCharShift(ec, pContext);	//仮名のみ
-					}
-					kana.clear();
-					cursoridx = 0;
+					_HandleCharShift(ec, pContext);
 					if(rkc.soku)
 					{
 						roman.push_back(ch);
@@ -194,7 +180,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 				break;
 
 			case E_PENDING:	//途中まで一致
-				_HandleCharShift(ec, pContext, comptext);
+				_HandleCharShift(ec, pContext);
 				roman.push_back(ch);
 				if(cx_showromancomp)
 				{
@@ -203,7 +189,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, std::ws
 				break;
 
 			case E_ABORT:	//不一致
-				_HandleCharShift(ec, pContext, comptext);
+				_HandleCharShift(ec, pContext);
 				roman.clear();
 				if(okuriidx != 0 && okuriidx + 1 == cursoridx)
 				{
@@ -287,34 +273,22 @@ HRESULT CTextService::_HandleCharReturn(TfEditCookie ec, ITfContext *pContext, B
 
 HRESULT CTextService::_HandleCharShift(TfEditCookie ec, ITfContext *pContext)
 {
-	std::wstring comptext;
-
-	_Update(ec, pContext, comptext, TRUE);
-	_ResetStatus();
-	if(pContext != NULL)
-	{
-		_HandleCharShift(ec, pContext, comptext);
-		_AddToPostBuf(comptext);
-	}
-
-	return S_OK;
-}
-
-HRESULT CTextService::_HandleCharShift(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext)
-{
-	ITfRange *pRange;
-
-	if(!comptext.empty())
+	if(showentry || (!inputkey && !kana.empty() && roman.empty()))
 	{
 		//leave composition
 		cursoridx = kana.size();
-		_Update(ec, pContext, comptext, TRUE);
-		if(_IsComposing() && _pComposition->GetRange(&pRange) == S_OK)
+		_Update(ec, pContext, TRUE);
+		if(pContext != NULL)
 		{
-			pRange->Collapse(ec, TF_ANCHOR_END);
-			_pComposition->ShiftStart(ec, pRange);
-			pRange->Release();
+			ITfRange *pRange;
+			if(_IsComposing() && _pComposition->GetRange(&pRange) == S_OK)
+			{
+				pRange->Collapse(ec, TF_ANCHOR_END);
+				_pComposition->ShiftStart(ec, pRange);
+				pRange->Release();
+			}
 		}
+		_ResetStatus();
 	}
 
 	return S_OK;

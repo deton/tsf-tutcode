@@ -141,12 +141,13 @@ public:
 	BOOL _IsKeyVoid(WCHAR ch, BYTE vk);
 	void _ResetStatus();
 	void _GetActiveFlags();
+	void _InitFont();
+	void _UninitFont();
 
 	// KeyHandlerChar
-	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext, WPARAM wParam, WCHAR ch, WCHAR chO);
+	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, WCHAR ch, WCHAR chO);
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharShift(TfEditCookie ec, ITfContext *pContext);
-	HRESULT _HandleCharShift(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext);
 
 	enum PostConvContext
 	{
@@ -294,10 +295,6 @@ private:
 	TfGuidAtom _gaDisplayAttributeConvOkuri;
 	TfGuidAtom _gaDisplayAttributeConvAnnot;
 
-	//dummy
-	ID2D1Factory *_pDummyD2DFactory;
-	ID2D1DCRenderTarget *_pDummyD2DDCRT;
-
 	mozc::win32::VKBackBasedDeleter deleter;
 
 private:
@@ -328,6 +325,15 @@ private:
 	BOOL isroman_tbl[ISROMAN_TBL_SIZE];
 
 public:
+	ID2D1Factory *_pD2DFactory;
+	ID2D1DCRenderTarget *_pD2DDCRT;
+	ID2D1SolidColorBrush *_pD2DBrush[DISPLAY_COLOR_NUM];
+	D2D1_DRAW_TEXT_OPTIONS _drawtext_option;
+	IDWriteFactory *_pDWFactory;
+	IDWriteTextFormat *_pDWTF;
+
+	HFONT hFont;
+
 	DWORD _dwActiveFlags;	//ITfThreadMgrEx::GetActiveFlags()
 	BOOL _ImmersiveMode;	//Immersive Mode
 	BOOL _UILessMode;		//UILess Mode
