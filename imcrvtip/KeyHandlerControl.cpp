@@ -13,7 +13,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	switch(sf)
 	{
 	case SKK_KANA:
-		if(abbrevmode)
+		if(abbrevmode && !showentry)
 		{
 			break;
 		}
@@ -36,7 +36,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			}
 			else
 			{
-				if(_ShowInputModeWindow)
+				if(_ShowInputMode)
 				{
 					_HandleCharShift(ec, pContext);
 				}
@@ -52,7 +52,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			break;
 		case im_katakana_ank:
 			_ConvRoman();
-			if(_ShowInputModeWindow)
+			if(_ShowInputMode)
 			{
 				_HandleCharShift(ec, pContext);
 			}
@@ -71,7 +71,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_CONV_CHAR:
-		if(abbrevmode)
+		if(abbrevmode && !showentry)
 		{
 			//全英に変換
 			ASCII_JLATIN_CONV ajc;
@@ -109,7 +109,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			}
 			else
 			{
-				if(_ShowInputModeWindow)
+				if(_ShowInputMode)
 				{
 					_HandleCharShift(ec, pContext);
 				}
@@ -125,7 +125,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			break;
 		case im_katakana_ank:
 			_ConvRoman();
-			if(_ShowInputModeWindow)
+			if(_ShowInputMode)
 			{
 				_HandleCharShift(ec, pContext);
 			}
@@ -145,7 +145,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 	case SKK_JLATIN:
 	case SKK_ASCII:
-		if(abbrevmode)
+		if(abbrevmode && !showentry)
 		{
 			break;
 		}
@@ -155,8 +155,17 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		case im_katakana:
 		case im_katakana_ank:
 			_ConvRoman();
-			if(_ShowInputModeWindow)
+			if(_ShowInputMode)
 			{
+				if(!showentry)
+				{
+					inputkey = FALSE;
+					if(okuriidx != 0)
+					{
+						kana.erase(okuriidx, 1);
+						okuriidx = 0;
+					}
+				}
 				_HandleCharShift(ec, pContext);
 			}
 			else
@@ -189,7 +198,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_ABBREV:
-		if(abbrevmode)
+		if(abbrevmode && !showentry)
 		{
 			break;
 		}
@@ -268,6 +277,18 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		else if(inputkey)
 		{
 			_ConvRoman();
+			if(okuriidx != 0 && okuriidx < kana.size())
+			{
+				if(kana[okuriidx] == CHAR_SKK_OKURI)
+				{
+					kana.erase(okuriidx, 1);
+					if(okuriidx < cursoridx)
+					{
+						cursoridx--;
+					}
+					okuriidx = 0;
+				}
+			}
 			if(!kana.empty())
 			{
 				//候補表示開始
@@ -364,9 +385,10 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_DIRECT:
-		if(inputkey && !showentry && roman.empty() &&
+		if(inputkey && !showentry &&
 			((okuriidx == 0) || ((okuriidx != 0) && (okuriidx + 1 != cursoridx))))
 		{
+			_ConvRoman();
 			kana.insert(cursoridx, 1, ch);
 			cursoridx++;
 			_Update(ec, pContext);
@@ -381,6 +403,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_CANCEL:
+		_ConvRoman();
 		if(showentry)
 		{
 			candidx = 0;
@@ -499,6 +522,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+		_ConvRoman();
 		if(okuriidx != 0 && okuriidx == cursoridx)
 		{
 			kana.erase(cursoridx, 1);
@@ -619,6 +643,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+		_ConvRoman();
 		if(IsClipboardFormatAvailable(CF_UNICODETEXT))
 		{
 			if(OpenClipboard(NULL))
@@ -629,7 +654,6 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					PWCHAR pwCB = (PWCHAR)GlobalLock(hCB);
 					if(pwCB != NULL)
 					{
-						_ConvRoman();
 						std::wstring s = std::regex_replace(std::wstring(pwCB),
 							std::wregex(L"[\\x00-\\x19]"), std::wstring(L""));
 						kana.insert(cursoridx, s);
@@ -649,7 +673,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 	case SKK_OTHERIME:
 		_ConvRoman();
-		if(_ShowInputModeWindow)
+		if(_ShowInputMode)
 		{
 			_HandleCharShift(ec, pContext);
 		}

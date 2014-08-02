@@ -1,63 +1,30 @@
 ﻿
 #include "imcrvtip.h"
 #include "TextService.h"
-#include "EditSession.h"
 #include "InputModeWindow.h"
 
-#define MERGIN_X 2
-#define MERGIN_Y 2
-
-class CIMGetTextExtEditSession : public CEditSessionBase
-{
-public:
-	CIMGetTextExtEditSession(CTextService *pTextService, ITfContext *pContext, ITfContextView *pContextView, CInputModeWindow *pInputModeWindow) : CEditSessionBase(pTextService, pContext)
-	{
-		_pContextView = pContextView;
-		_pInputModeWindow = pInputModeWindow;
-	}
-
-	// ITfEditSession
-	STDMETHODIMP DoEditSession(TfEditCookie ec)
-	{
-		RECT rc;
-		BOOL fClipped;
-		ITfComposition *pComposition = _pTextService->_GetComposition();
-		if(pComposition != NULL)
-		{
-			ITfRange *pRange;
-			if(pComposition->GetRange(&pRange) == S_OK)
-			{
-				if(_pContextView->GetTextExt(ec, pRange, &rc, &fClipped) == S_OK)
-				{
-					_pInputModeWindow->_Move(rc.left, rc.bottom + MERGIN_Y);
-				}
-				pRange->Release();
-			}
-		}
-		return S_OK;
-	}
-
-private:
-	ITfContextView *_pContextView;
-	CInputModeWindow *_pInputModeWindow;
-};
+#define IMPUTMODE_TIMER_ID		0x54ab516b
+#define IMPUTMODE_TIMEOUT_MSEC	3000
 
 CInputModeWindow::CInputModeWindow()
 {
+	DllAddRef();
+
+	_cRef = 1;
+
 	_hwnd = NULL;
 	_hwndParent = NULL;
 	_pTextService = NULL;
 	_pContext = NULL;
 	_size = 0;
 
-	_cRef = 1;
-
-	DllAddRef();
+	_term = FALSE;
 }
 
 CInputModeWindow::~CInputModeWindow()
 {
 	_Destroy();
+
 	DllRelease();
 }
 
@@ -173,8 +140,6 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	RECT r;
 	POINT pt = {0, 0};
 	ITfContextView *pContextView;
-	CIMGetTextExtEditSession *pEditSession;
-	HRESULT hr;
 
 	if(pContext != NULL)
 	{
@@ -242,6 +207,10 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		SetWindowLongPtrW(_hwnd, GWLP_WNDPROC, (LONG_PTR)_WindowPreProc);
 		SetWindowPos(_hwnd, NULL, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		if(!_bCandidateWindow)
+		{
+			SetTimer(_hwnd, IMPUTMODE_TIMER_ID, IMPUTMODE_TIMEOUT_MSEC, NULL);
+		}
 	}
 
 	hdc = GetDC(NULL);
@@ -256,22 +225,8 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		ClientToScreen(_hwndParent, &pt);
 	}
 
-	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + MERGIN_Y,
-		_size + MERGIN_X * 2, _size + MERGIN_Y * 2, SWP_NOACTIVATE);
-
-	if(!_bCandidateWindow)
-	{
-		if(_pContext->GetActiveView(&pContextView) == S_OK)
-		{
-			pEditSession = new CIMGetTextExtEditSession(_pTextService, _pContext, pContextView, this);
-			if(pEditSession != NULL)
-			{
-				_pContext->RequestEditSession(_pTextService->_GetClientId(), pEditSession, TF_ES_SYNC | TF_ES_READ, &hr);
-				pEditSession->Release();
-			}
-			pContextView->Release();
-		}
-	}
+	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + IM_MERGIN_Y,
+		_size + IM_MERGIN_X * 2, _size + IM_MERGIN_Y * 2, SWP_NOACTIVATE);
 
 	return TRUE;
 }
@@ -301,6 +256,19 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 
 	switch(uMsg)
 	{
+	case WM_TIMER:
+		if(wParam == IMPUTMODE_TIMER_ID)
+		{
+			// CAUTION! killing self
+			_pTextService->_ClearComposition();
+		}
+		break;
+	case WM_DESTROY:
+		if(!_bCandidateWindow)
+		{
+			KillTimer(hWnd, IMPUTMODE_TIMER_ID);
+		}
+		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 
@@ -318,7 +286,7 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 		Rectangle(hmemdc, 0, 0, r.right, r.bottom);
 
 		_pTextService->_GetIcon(&hIcon);
-		DrawIconEx(hmemdc, MERGIN_X, MERGIN_Y, hIcon, _size, _size, 0, nbrush, DI_NORMAL);
+		DrawIconEx(hmemdc, IM_MERGIN_X, IM_MERGIN_Y, hIcon, _size, _size, 0, nbrush, DI_NORMAL);
 
 		SelectObject(hmemdc, pen);
 		SelectObject(hmemdc, brush);
@@ -351,11 +319,17 @@ void CInputModeWindow::_Destroy()
 		_hwnd = NULL;
 	}
 
-	if(_pContext)
+	if(_pContext != NULL)
 	{
 		_UnadviseTextLayoutSink();
 		_pContext->Release();
 		_pContext = NULL;
+	}
+
+	if(_pTextService != NULL)
+	{
+		_pTextService->Release();
+		_pTextService = NULL;
 	}
 }
 

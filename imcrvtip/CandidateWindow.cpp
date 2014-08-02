@@ -69,7 +69,7 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 		}
 	}
 
-	if(_hwnd != NULL && _pTextService->_ShowInputModeWindow)
+	if(_hwnd != NULL && _pTextService->_ShowInputMode)
 	{
 		_pInputModeWindow = new CInputModeWindow();
 		if(!_pInputModeWindow->_Create(_pTextService, NULL, TRUE, _hwnd))
@@ -135,7 +135,7 @@ void CCandidateWindow::_Destroy()
 		_hwnd = NULL;
 	}
 
-	if(_pInputModeWindow)
+	if(_pInputModeWindow != NULL)
 	{
 		_pInputModeWindow->_Destroy();
 		delete _pInputModeWindow;
@@ -241,7 +241,7 @@ void CCandidateWindow::_BeginUIElement()
 
 			if(_reg)
 			{
-				if(_pInputModeWindow)
+				if(_pInputModeWindow != NULL)
 				{
 					_pInputModeWindow->_Show(TRUE);
 				}
@@ -273,7 +273,7 @@ void CCandidateWindow::_EndUIElement()
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 
-		if(_pInputModeWindow)
+		if(_pInputModeWindow != NULL)
 		{
 			_pInputModeWindow->_Show(FALSE);
 		}
@@ -309,7 +309,7 @@ void CCandidateWindow::_Redraw()
 		InvalidateRect(_hwnd, NULL, FALSE);
 		UpdateWindow(_hwnd);
 
-		if(_pInputModeWindow)
+		if(_pInputModeWindow != NULL)
 		{
 			_pInputModeWindow->_Redraw();
 		}
@@ -339,7 +339,7 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 	switch(sf)
 	{
 	case SKK_CANCEL:
-		if(_pCandidateList)
+		if(_pCandidateList != NULL)
 		{
 			if(!regword)
 			{
@@ -501,7 +501,7 @@ void CCandidateWindow::_End()
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 	}
-	if(_pInputModeWindow)
+	if(_pInputModeWindow != NULL)
 	{
 		_pInputModeWindow->_Show(TRUE);
 	}
@@ -582,7 +582,7 @@ void CCandidateWindow::_NextPage()
 	uNewPage = uOldPage + 1;
 	if(uNewPage >= _uPageCnt)
 	{
-		if(_pCandidateList)
+		if(_pCandidateList != NULL)
 		{
 			if(_hwnd == NULL)
 			{
@@ -601,7 +601,7 @@ void CCandidateWindow::_NextPage()
 				_BackUpStatus();
 				_ClearStatus();
 
-				if(_pInputModeWindow)
+				if(_pInputModeWindow != NULL)
 				{
 					_pInputModeWindow->_Show(TRUE);
 				}
@@ -639,7 +639,7 @@ void CCandidateWindow::_PrevPage()
 	}
 	else
 	{
-		if(_pCandidateList)
+		if(_pCandidateList != NULL)
 		{
 			if(!regword)
 			{
@@ -730,7 +730,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 		_HandleKey(0, NULL, (WPARAM)uVKey, SKK_NULL);
 		_Update();
 
-		if(_pInputModeWindow)
+		if(_pInputModeWindow != NULL)
 		{
 			_pInputModeWindow->_Redraw();
 		}
@@ -741,7 +741,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 	{
 		_pTextService->_UpdateLanguageBar();
 
-		if(_pInputModeWindow)
+		if(_pInputModeWindow != NULL)
 		{
 			_pInputModeWindow->_Redraw();
 		}
@@ -762,6 +762,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 		regwordul = FALSE;
 		regword = FALSE;
 
+		//スペースのみのとき空として扱う
 		if(std::regex_match(regwordtext, std::wregex(L"^\\s+$")))
 		{
 			regwordtext.clear();
@@ -779,7 +780,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 				_Update();
 				_UpdateUIElement();
 
-				if(_pInputModeWindow)
+				if(_pInputModeWindow != NULL)
 				{
 					_pInputModeWindow->_Show(FALSE);
 				}
@@ -874,7 +875,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 			_Update();
 			_UpdateUIElement();
 
-			if(_pInputModeWindow)
+			if(_pInputModeWindow != NULL)
 			{
 				_pInputModeWindow->_Show(FALSE);
 			}
@@ -908,11 +909,10 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 		}
 		break;
 
-	// surrogate pair
-
 	case SKK_BACK:
 		if(comptext.empty() && regwordtextpos > 0 && regwordtext.size() > 0)
 		{
+			// surrogate pair
 			if(regwordtext.size() >= 2 && regwordtextpos >= 2 &&
 				IS_SURROGATE_PAIR(regwordtext[regwordtextpos - 2], regwordtext[regwordtextpos - 1]))
 			{
@@ -932,6 +932,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 	case SKK_DELETE:
 		if(comptext.empty() && regwordtextpos < regwordtext.size())
 		{
+			// surrogate pair
 			if(regwordtext.size() >= regwordtextpos + 2 &&
 				IS_SURROGATE_PAIR(regwordtext[regwordtextpos + 0], regwordtext[regwordtextpos + 1]))
 			{
@@ -949,6 +950,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 	case SKK_LEFT:
 		if(comptext.empty() && regwordtextpos > 0 && regwordtext.size() > 0)
 		{
+			// surrogate pair
 			if(regwordtext.size() >= 2 && regwordtextpos >= 2 &&
 				IS_SURROGATE_PAIR(regwordtext[regwordtextpos - 2], regwordtext[regwordtextpos - 1]))
 			{
@@ -973,6 +975,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 	case SKK_RIGHT:
 		if(comptext.empty() && regwordtextpos < regwordtext.size())
 		{
+			// surrogate pair
 			if(regwordtext.size() >= regwordtextpos + 2 &&
 				IS_SURROGATE_PAIR(regwordtext[regwordtextpos + 0], regwordtext[regwordtextpos + 1]))
 			{
@@ -1024,7 +1027,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 	default:
 		_HandleKey(0, NULL, (WPARAM)uVKey, SKK_NULL);
 
-		if(_pInputModeWindow)
+		if(_pInputModeWindow != NULL)
 		{
 			_pInputModeWindow->_Redraw();
 		}
@@ -1054,7 +1057,7 @@ void CCandidateWindow::_Update()
 			InvalidateRect(_hwnd, NULL, FALSE);
 			UpdateWindow(_hwnd);
 
-			if(_pInputModeWindow)
+			if(_pInputModeWindow != NULL)
 			{
 				_pInputModeWindow->_Redraw();
 			}
@@ -1186,7 +1189,7 @@ void CCandidateWindow::_CreateNext(BOOL reg)
 				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 		}
 
-		if(_pInputModeWindow)
+		if(_pInputModeWindow != NULL)
 		{
 			_pInputModeWindow->_Show(FALSE);
 		}

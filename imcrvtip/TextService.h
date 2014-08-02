@@ -127,6 +127,8 @@ public:
 	// LanguageBar
 	void _UpdateLanguageBar(BOOL showinputmode = TRUE);
 	void _GetIcon(HICON *phIcon);
+	void _StartInputModeWindow(BOOL term);
+	void _EndInputModeWindow();
 
 	// DisplayAttribureProvider
 	void _ClearCompositionDisplayAttributes(TfEditCookie ec, ITfContext *pContext);
@@ -337,7 +339,7 @@ public:
 	DWORD _dwActiveFlags;	//ITfThreadMgrEx::GetActiveFlags()
 	BOOL _ImmersiveMode;	//Immersive Mode
 	BOOL _UILessMode;		//UILess Mode
-	BOOL _ShowInputModeWindow;	//InputModeWindow
+	BOOL _ShowInputMode;	//InputModeWindow
 
 	//状態
 	int inputmode;			//入力モード (無し/ひらがな/カタカナ/半角ｶﾀｶﾅ/全英/アスキー)
@@ -371,7 +373,6 @@ public:
 	BOOL cx_showromancomp;		//入力途中のキーシーケンスを表示する
 
 	BOOL cx_begincvokuri;		//送り仮名が決定したとき変換を開始する
-	BOOL cx_keepinputnor;		//ローマ字が無いとき最後の入力を残す
 	BOOL cx_delcvposcncl;		//取消のとき変換位置を削除する
 	BOOL cx_delokuricncl;		//取消のとき送り仮名を削除する
 	BOOL cx_backincenter;		//後退に確定を含める

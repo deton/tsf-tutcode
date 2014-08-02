@@ -260,7 +260,6 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 		//文字処理
 		if(_HandleChar(ec, pContext, wParam, ch, chO) == E_ABORT)
 		{
-			//待機処理、「ん」の処理等
 			switch(inputmode)
 			{
 			case im_hiragana:
@@ -268,6 +267,7 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 			case im_katakana_ank:
 				if(!abbrevmode && !romanN.empty())
 				{
+					//「ん」または待機中の文字を送り出し
 					roman = romanN;
 					if(_ConvN(WCHAR_MAX))
 					{
@@ -279,54 +279,32 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 						{
 							_Update(ec, pContext);
 						}
-						if(sf == SKK_DIRECT && inputkey && !showentry &&
-							((okuriidx == 0) || ((okuriidx != 0) && (okuriidx + 1 != cursoridx))))
-						{
-							kana.insert(cursoridx, 1, ch);
-							cursoridx++;
-							_Update(ec, pContext);
-						}
-						else
-						{
-							_HandleChar(ec, pContext, wParam, ch, chO);
-						}
 					}
 					else
 					{
-						if(cx_keepinputnor)
+						//不一致のシーケンスはそのまま確定
+						//(短い単語を大文字入力等)
+						_CommitRoman(ec, pContext);
+					}
+					//最後の入力で再処理
+					if(_HandleChar(ec, pContext, wParam, ch, chO) == E_ABORT)
+					{
+						if(!inputkey)
 						{
-							//不一致のシーケンスはそのまま確定
-							//(短い単語を大文字入力等)
-							_CommitRoman(ec, pContext);
-							//今回入力された文字を処理
-							//return _HandleChar(ec, pContext, composition, wParam, ch, chO);
-							return _HandleKey(ec, pContext, wParam, SKK_NULL);
-							/* "S "と打つと、Sの後に" "でなく変な文字が入るので
-							WCHAR nch = _GetCh((BYTE)wParam);
-							BYTE nsf = _GetSf((BYTE)wParam, nch);
-							return _HandleKey(ec, pContext, wParam, nsf);
-							*/
-						}
-						else
-						{
-							roman.clear();
-							_Update(ec, pContext);
+							_HandleCharReturn(ec, pContext);
 						}
 					}
 				}
 				else
 				{
-					if(cx_keepinputnor)
+					//今回入力された文字単独で不一致の場合そのまま確定
+					kana.insert(cursoridx, 1, ch);
+					cursoridx++;
+					if(!inputkey)
 					{
-						//今回入力された文字単独で不一致の場合そのまま確定
-						kana.insert(cursoridx, 1, ch);
-						cursoridx++;
-						if(!inputkey)
-						{
-							_HandleCharReturn(ec, pContext);
-						}
-						_Update(ec, pContext);
+						_HandleCharReturn(ec, pContext);
 					}
+					_Update(ec, pContext);
 				}
 				break;
 			default:
@@ -571,7 +549,7 @@ void CTextService::_GetActiveFlags()
 		_UILessMode = TRUE;
 	}
 
-	_ShowInputModeWindow = !_UILessMode && cx_showmodeinl &&
+	_ShowInputMode = !_UILessMode && cx_showmodeinl &&
 		(!cx_showmodeimm || (cx_showmodeimm && _ImmersiveMode));
 }
 

@@ -13,13 +13,6 @@ STDAPI CTextService::OnCompositionTerminated(TfEditCookie ecWrite, ITfCompositio
 		_pCandidateList = NULL;
 	}
 
-	if(_pInputModeWindow != NULL)
-	{
-		_pInputModeWindow->_Destroy();
-		delete _pInputModeWindow;
-		_pInputModeWindow = NULL;
-	}
-
 	if(pComposition != NULL)
 	{
 		ITfRange *pRangeComposition;
@@ -37,6 +30,18 @@ STDAPI CTextService::OnCompositionTerminated(TfEditCookie ecWrite, ITfCompositio
 	}
 
 	_ResetStatus();
+
+	if(_pInputModeWindow != NULL)
+	{
+		if(_pInputModeWindow->_term)
+		{
+			_EndInputModeWindow();
+		}
+		else
+		{
+			_StartInputModeWindow(TRUE);
+		}
+	}
 
 	return S_OK;
 }
@@ -231,12 +236,7 @@ void CTextService::_ClearComposition()
 		_pCandidateList = NULL;
 	}
 
-	if(_pInputModeWindow != NULL)
-	{
-		_pInputModeWindow->_Destroy();
-		delete _pInputModeWindow;
-		_pInputModeWindow = NULL;
-	}
+	_EndInputModeWindow();
 
 	if(_pComposition != NULL)
 	{

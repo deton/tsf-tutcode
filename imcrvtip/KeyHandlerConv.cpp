@@ -47,12 +47,11 @@ WCHAR CTextService::_GetCh(BYTE vk, BYTE vkoff)
 BYTE CTextService::_GetSf(BYTE vk, WCHAR ch)
 {
 	BYTE k = SKK_NULL;
-	WORD vkm = (_GetModifiers() << 8) | vk;
+	SHORT vk_shift = GetKeyState(VK_SHIFT) & 0x8000;
+	SHORT vk_ctrl = GetKeyState(VK_CONTROL) & 0x8000;
 
 	if(vk < VKEYMAPNUM)
 	{
-		SHORT vk_shift = GetKeyState(VK_SHIFT) & 0x8000;
-		SHORT vk_ctrl = GetKeyState(VK_CONTROL) & 0x8000;
 		switch(inputmode)
 		{
 		case im_ascii:
@@ -107,6 +106,33 @@ BYTE CTextService::_GetSf(BYTE vk, WCHAR ch)
 		default:
 			break;
 		}
+	}
+
+	//カタカナ/ｶﾀｶﾅモードかつ確定入力モードのとき「ひらがな」を有効にする
+	switch(inputmode)
+	{
+	case im_katakana:
+	case im_katakana_ank:
+		if(!inputkey)
+		{
+			if(vk < VKEYMAPNUM)
+			{
+				if((vkeymap.keylatin[vk] == SKK_JMODE) ||
+					(vk_shift && (vkeymap_shift.keylatin[vk] == SKK_JMODE)) ||
+					(vk_ctrl && (vkeymap_ctrl.keylatin[vk] == SKK_JMODE)))
+				{
+					k = SKK_KANA;
+				}
+			}
+			if(k != SKK_KANA && ch < CKEYMAPNUM)
+			{
+				if(ckeymap.keylatin[ch] == SKK_JMODE)
+				{
+					k = SKK_KANA;
+				}
+			}
+		}
+		break;
 	}
 
 	switch(ch)
@@ -514,12 +540,9 @@ void CTextService::_ConvRoman()
 
 	if(!r)
 	{
-		if(cx_keepinputnor)
-		{
-			//不一致のシーケンスはそのまま確定(短い単語を大文字入力等)
-			kana.insert(cursoridx, roman);
-			cursoridx += roman.size();
-		}
+		//不一致のシーケンスはそのまま確定(短い単語を大文字入力等)
+		kana.insert(cursoridx, roman);
+		cursoridx += roman.size();
 		roman.clear();
 	}
 }
@@ -528,9 +551,6 @@ BOOL CTextService::_ConvN(WCHAR ch)
 {
 	ROMAN_KANA_CONV rkc;
 	HRESULT ret;
-	WCHAR chN;
-	WCHAR chO;
-	std::wstring roman_conv;
 	size_t i;
 
 	if(roman.empty())
@@ -548,7 +568,7 @@ BOOL CTextService::_ConvN(WCHAR ch)
 		{
 			if(okuriidx != 0 && okuriidx + 1 == cursoridx)
 			{
-				chN = L'\0';
+				WCHAR chN = L'\0';
 				switch(inputmode)
 				{
 				case im_hiragana:
@@ -564,7 +584,7 @@ BOOL CTextService::_ConvN(WCHAR ch)
 					break;
 				}
 
-				chO = L'\0';
+				WCHAR chO = L'\0';
 				for(i = 0; i < CONV_POINT_NUM; i++)
 				{
 					if(conv_point[i][0] == L'\0' &&
@@ -590,35 +610,32 @@ BOOL CTextService::_ConvN(WCHAR ch)
 				}
 			}
 
+			std::wstring kana_ins;
 			switch(inputmode)
 			{
 			case im_hiragana:
-				kana.insert(cursoridx, rkc.hiragana);
-				if(okuriidx != 0 && cursoridx <= okuriidx)
-				{
-					okuriidx += wcslen(rkc.hiragana);
-				}
-				cursoridx += wcslen(rkc.hiragana);
+				kana_ins = rkc.hiragana;
 				break;
 			case im_katakana:
-				kana.insert(cursoridx, rkc.katakana);
-				if(okuriidx != 0 && cursoridx <= okuriidx)
-				{
-					okuriidx += wcslen(rkc.katakana);
-				}
-				cursoridx += wcslen(rkc.katakana);
+				kana_ins = rkc.katakana;
 				break;
 			case im_katakana_ank:
-				kana.insert(cursoridx, rkc.katakana_ank);
-				if(okuriidx != 0 && cursoridx <= okuriidx)
-				{
-					okuriidx += wcslen(rkc.katakana_ank);
-				}
-				cursoridx += wcslen(rkc.katakana_ank);
+				kana_ins = rkc.katakana_ank;
 				break;
 			default:
 				break;
 			}
+
+			if(!kana_ins.empty())
+			{
+				kana.insert(cursoridx, kana_ins);
+				if(okuriidx != 0 && cursoridx <= okuriidx)
+				{
+					okuriidx += kana_ins.size();
+				}
+				cursoridx += kana_ins.size();
+			}
+
 			roman.clear();
 			return TRUE;
 		}
@@ -630,7 +647,7 @@ BOOL CTextService::_ConvN(WCHAR ch)
 	// ( <"n*", ""> -> <"", "ん"> ) SKK_CONV_POINTのみ
 	if(ch != L'\0' && ch != WCHAR_MAX)
 	{
-		roman_conv = roman;
+		std::wstring roman_conv = roman;
 		roman_conv.push_back(ch);
 		wcsncpy_s(rkc.roman, roman_conv.c_str(), _TRUNCATE);
 		ret = _ConvRomanKana(&rkc);
@@ -639,35 +656,32 @@ BOOL CTextService::_ConvN(WCHAR ch)
 		case S_OK:		//一致
 			if(rkc.soku)	//「n* soku==1」
 			{
+				std::wstring kana_ins;
 				switch(inputmode)
 				{
 				case im_hiragana:
-					kana.insert(cursoridx, rkc.hiragana);
-					if(okuriidx != 0 && cursoridx <= okuriidx)
-					{
-						okuriidx += wcslen(rkc.hiragana);
-					}
-					cursoridx += wcslen(rkc.hiragana);
+					kana_ins = rkc.hiragana;
 					break;
 				case im_katakana:
-					kana.insert(cursoridx, rkc.katakana);
-					if(okuriidx != 0 && cursoridx <= okuriidx)
-					{
-						okuriidx += wcslen(rkc.katakana);
-					}
-					cursoridx += wcslen(rkc.katakana);
+					kana_ins = rkc.katakana;
 					break;
 				case im_katakana_ank:
-					kana.insert(cursoridx, rkc.katakana_ank);
-					if(okuriidx != 0 && cursoridx <= okuriidx)
-					{
-						okuriidx += wcslen(rkc.katakana_ank);
-					}
-					cursoridx += wcslen(rkc.katakana_ank);
+					kana_ins = rkc.katakana_ank;
 					break;
 				default:
 					break;
 				}
+
+				if(!kana_ins.empty())
+				{
+					kana.insert(cursoridx, kana_ins);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += kana_ins.size();
+					}
+					cursoridx += kana_ins.size();
+				}
+
 				roman.clear();
 				return TRUE;	//「nk」etc.
 			}
@@ -704,12 +718,11 @@ BOOL CTextService::_ConvNN()
 {
 	ROMAN_KANA_CONV rkc;
 	HRESULT ret;
-	WCHAR chN;
 
 	// ( <"nn", ""> -> <"", "ん"> )
 	if(roman.size() == 1)
 	{
-		chN = roman[0];
+		WCHAR chN = roman[0];
 		rkc.roman[0] = chN;
 		rkc.roman[1] = chN;
 		rkc.roman[2] = L'\0';
@@ -722,35 +735,32 @@ BOOL CTextService::_ConvNN()
 				wcscmp(rkc.katakana, L"ン") == 0 &&
 				wcscmp(rkc.katakana_ank, L"ﾝ") == 0)	//「nn soku==0」
 			{
+				std::wstring kana_ins;
 				switch(inputmode)
 				{
 				case im_hiragana:
-					kana.insert(cursoridx, rkc.hiragana);
-					if(okuriidx != 0 && cursoridx <= okuriidx)
-					{
-						okuriidx += wcslen(rkc.hiragana);
-					}
-					cursoridx += wcslen(rkc.hiragana);
+					kana_ins = rkc.hiragana;
 					break;
 				case im_katakana:
-					kana.insert(cursoridx, rkc.katakana);
-					if(okuriidx != 0 && cursoridx <= okuriidx)
-					{
-						okuriidx += wcslen(rkc.katakana);
-					}
-					cursoridx += wcslen(rkc.katakana);
+					kana_ins = rkc.katakana;
 					break;
 				case im_katakana_ank:
-					kana.insert(cursoridx, rkc.katakana_ank);
-					if(okuriidx != 0 && cursoridx <= okuriidx)
-					{
-						okuriidx += wcslen(rkc.katakana_ank);
-					}
-					cursoridx += wcslen(rkc.katakana_ank);
+					kana_ins = rkc.katakana_ank;
 					break;
 				default:
 					break;
 				}
+
+				if(!kana_ins.empty())
+				{
+					kana.insert(cursoridx, kana_ins);
+					if(okuriidx != 0 && cursoridx <= okuriidx)
+					{
+						okuriidx += kana_ins.size();
+					}
+					cursoridx += kana_ins.size();
+				}
+
 				roman.clear();
 				return TRUE;	//「nn」
 			}
