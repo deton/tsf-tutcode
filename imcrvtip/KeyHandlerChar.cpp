@@ -181,6 +181,12 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 				{
 					_Update(ec, pContext);
 				}
+				else if(!inputkey)
+				{
+					//OnEndEdit()とOnCompositionTerminated()から
+					//_ResetStatus()が呼ばれてroman.clear()されるのを回避する
+					_TerminateComposition(ec, pContext);
+				}
 				break;
 
 			case E_ABORT:	//不一致
