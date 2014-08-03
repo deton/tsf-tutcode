@@ -468,12 +468,24 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, BOOL showc
 
 void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 {
+	if(_pCandidateWindow != NULL && !_preEnd)
+	{
+		_pCandidateWindow->_GetPrecedingText(text);
+		return;
+	}
+
 	text->clear();
 	text->append(regwordtext.substr(0, regwordtextpos));
 }
 
 void CCandidateWindow::_DeletePrecedingText(int delete_count)
 {
+	if(_pCandidateWindow != NULL && !_preEnd)
+	{
+		_pCandidateWindow->_DeletePrecedingText(delete_count);
+		return;
+	}
+
 	if(regwordtextpos - delete_count >= 0 && regwordtext.size() - delete_count >= 0)
 	{
 		regwordtext.erase(regwordtextpos - delete_count, delete_count);
