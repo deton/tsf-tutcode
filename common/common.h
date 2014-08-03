@@ -17,9 +17,6 @@
 #define RC_VERSION			"0.3.1"
 #define RC_VERSION_D		0,3,1,0
 
-#define DICBUFSIZE			0x2000
-#define PIPEBUFSIZE			0x2000
-
 #define MAX_KRNLOBJNAME		256
 #define CONV_POINT_NUM		256
 #define KEYRELEN			256
@@ -30,6 +27,11 @@
 #define MAX_SKKSERVER_PORT	(5+1)
 
 #define MAX_WIDTH_DEFAULT	800
+
+#define PIPEBUFSIZE			0x2000	//named pipe, 16KB with wchar_t
+#define DICBUFSIZE			0x1000	//entry, 8KB with wchar_t
+#define READBUFSIZE			0x800	//read skk dictionary, 4KB with wchar_t/char
+#define RECVBUFSIZE			0x800	//receive from skk server, 2KB with char
 
 //request
 #define REQ_SEARCH			L'1'	//辞書検索
@@ -74,7 +76,7 @@ extern LPCWSTR fnskkdic;	//取込SKK辞書
 extern LPCWSTR fnskkidx;	//取込SKK辞書インデックス
 extern LPCWSTR fninitlua;	//init.lua
 
-#define DISPLAY_COLOR_NUM 8
+#define DISPLAY_COLOR_NUM	8
 #define DISPLAYATTRIBUTE_INFO_NUM	7
 
 extern const TF_DISPLAYATTRIBUTE c_daDisplayAttributeInputMark;
