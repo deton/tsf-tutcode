@@ -289,6 +289,8 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 					//最後の入力で再処理
 					if(_HandleChar(ec, pContext, wParam, ch, chO) == E_ABORT)
 					{
+						kana.insert(cursoridx, 1, ch);
+						cursoridx++;
 						if(!inputkey)
 						{
 							_HandleCharReturn(ec, pContext);
@@ -551,4 +553,21 @@ void CTextService::_GetActiveFlags()
 
 	_ShowInputMode = !_UILessMode && cx_showmodeinl &&
 		(!cx_showmodeimm || (cx_showmodeimm && _ImmersiveMode));
+}
+
+//入力途中のシーケンスを確定する
+HRESULT CTextService::_CommitRoman(TfEditCookie ec, ITfContext *pContext)
+{
+	kana.insert(cursoridx, roman);
+	cursoridx += roman.size();
+	roman.clear();
+	if(!inputkey)
+	{
+		_HandleCharReturn(ec, pContext);
+	}
+	else
+	{
+		_Update(ec, pContext);
+	}
+	return S_OK;
 }

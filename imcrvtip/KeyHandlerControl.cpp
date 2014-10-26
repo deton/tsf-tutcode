@@ -788,20 +788,3 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 
 	return E_PENDING;
 }
-
-//入力途中のシーケンスを確定する
-HRESULT CTextService::_CommitRoman(TfEditCookie ec, ITfContext *pContext)
-{
-	kana.insert(cursoridx, roman);
-	cursoridx += roman.size();
-	roman.clear();
-	if(!inputkey)
-	{
-		_HandleCharReturn(ec, pContext);
-	}
-	else
-	{
-		_Update(ec, pContext);
-	}
-	return S_OK;
-}
