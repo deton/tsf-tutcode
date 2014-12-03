@@ -104,4 +104,13 @@ BOOL GetLogonSid(LPWSTR *ppszLogonSid);
 #define REVERSE_ITERATION(reverse_iterator, container) \
 	for(auto (reverse_iterator) = (container).rbegin(); (reverse_iterator) != (container).rend(); )
 
+template<class T> void SafeRelease(T **ppT)
+{
+	if(*ppT != NULL)
+	{
+		(*ppT)->Release();
+		*ppT = NULL;
+	}
+}
+
 #endif //COMMON_H
