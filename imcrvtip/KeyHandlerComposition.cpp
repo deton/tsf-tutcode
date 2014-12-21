@@ -2,7 +2,6 @@
 #include "imcrvtip.h"
 #include "TextService.h"
 #include "CandidateList.h"
-#include "InputModeWindow.h"
 
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed, BOOL back)
 {
@@ -135,7 +134,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			{
 				_SetText(ec, pContext, comptext, cchCursor, cchOkuri, FALSE);
 				//辞書登録表示開始
-				return _ShowCandidateList(ec, pContext, TRUE);
+				return _ShowCandidateList(ec, pContext, TRUE, FALSE);
 			}
 		}
 	}
@@ -179,7 +178,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				{
 					comptext.append(kana.substr(0, okuriidx));
 					cchOkuri = (LONG)comptext.size();
-					if(!fixed && showmodemark)
+					if(!fixed && showmodemark && !complement)
 					{
 						comptext.append(markOkuri);
 					}
@@ -202,6 +201,11 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 						}
 						else
 						{
+							if(complement && okuriidx != 0)
+							{
+								comptext.insert(okuriidx + 1, L"[");
+								comptext.append(L"]");
+							}
 							comptext.insert(cursoridx + 1, markCursor);
 						}
 					}
@@ -320,7 +324,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			//候補一覧表示開始
 			showcandlist = TRUE;
 			candidx = 0;
-			return _ShowCandidateList(ec, pContext, FALSE);
+			return _ShowCandidateList(ec, pContext, FALSE, FALSE);
 		}
 	}
 
@@ -378,7 +382,8 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 			if(cchCursor == 0)
 			{
 				cchRes = (LONG)cursoridx - (LONG)kana.size();
-				if(!cx_showmodemark && okuriidx != 0 && cursoridx <= okuriidx && cursoridx < kana.size())
+				if((complement && okuriidx != 0) ||
+					(!cx_showmodemark && okuriidx != 0 && cursoridx <= okuriidx && cursoridx < kana.size()))
 				{
 					cchRes += 1;
 				}
@@ -546,7 +551,7 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 	return S_OK;
 }
 
-HRESULT CTextService::_ShowCandidateList(TfEditCookie ec, ITfContext *pContext, BOOL reg)
+HRESULT CTextService::_ShowCandidateList(TfEditCookie ec, ITfContext *pContext, BOOL reg, BOOL comp)
 {
 	HRESULT hr = E_FAIL;
 
@@ -563,7 +568,7 @@ HRESULT CTextService::_ShowCandidateList(TfEditCookie ec, ITfContext *pContext, 
 			ITfRange *pRange;
 			if(_pComposition->GetRange(&pRange) == S_OK)
 			{
-				hr = _pCandidateList->_StartCandidateList(_ClientId, pDocumentMgr, pContext, ec, pRange, reg);
+				hr = _pCandidateList->_StartCandidateList(_ClientId, pDocumentMgr, pContext, ec, pRange, reg, comp);
 				SafeRelease(&pRange);
 			}
 			SafeRelease(&pDocumentMgr);
@@ -574,4 +579,21 @@ HRESULT CTextService::_ShowCandidateList(TfEditCookie ec, ITfContext *pContext, 
 	}
 
 	return hr;
+}
+
+void CTextService::_EndCandidateList()
+{
+	if(_pCandidateList != NULL)
+	{
+		_pCandidateList->_EndCandidateList();
+	}
+	SafeRelease(&_pCandidateList);
+}
+
+void CTextService::_EndCompletionList(TfEditCookie ec, ITfContext *pContext)
+{
+	if(pContext != NULL && !showcandlist)
+	{
+		_EndCandidateList();
+	}
 }

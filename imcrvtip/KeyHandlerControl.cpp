@@ -1,8 +1,6 @@
 ﻿
 #include "imcrvtip.h"
 #include "TextService.h"
-#include "LanguageBar.h"
-#include "convtype.h"
 #include "KeySender.h"
 
 HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR ch)
@@ -17,6 +15,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		switch(inputmode)
 		{
 		case im_hiragana:
@@ -30,8 +29,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					okuriidx = 0;
 				}
 				//ひらがな/カタカナに変換
-				_ConvKanaToKana(kana, (inputmode == im_hiragana ? im_katakana : im_hiragana),
-					kana, inputmode);
+				_ConvKanaToKana(kana, inputmode, kana, (inputmode == im_hiragana ? im_katakana : im_hiragana));
 				_HandleCharReturn(ec, pContext);
 			}
 			else
@@ -91,6 +89,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			return S_OK;
 			break;
 		}
+
 		switch(inputmode)
 		{
 		case im_hiragana:
@@ -104,7 +103,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					okuriidx = 0;
 				}
 				//半角ｶﾀｶﾅに変換
-				_ConvKanaToKana(kana, im_katakana_ank, kana, inputmode);
+				_ConvKanaToKana(kana, inputmode, kana, im_katakana_ank);
 				_HandleCharReturn(ec, pContext);
 			}
 			else
@@ -149,6 +148,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		switch(inputmode)
 		{
 		case im_hiragana:
@@ -202,6 +202,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		switch(inputmode)
 		{
 		case im_hiragana:
@@ -227,6 +228,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		if(showentry || (inputkey && kana.empty() && roman.empty()))
 		{
 			if(showentry)
@@ -241,6 +243,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			_Update(ec, pContext);
 			return S_OK;
 		}
+
 		switch(inputmode)
 		{
 		case im_hiragana:
@@ -256,7 +259,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				{
 					//辞書検索開始(接頭辞)
 					showentry = TRUE;
-					_StartConv();
+					_StartConv(ec, pContext);
 				}
 			}
 			_Update(ec, pContext);
@@ -289,12 +292,13 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					okuriidx = 0;
 				}
 			}
+
 			if(!kana.empty())
 			{
 				//候補表示開始
 				cursoridx = kana.size();
 				showentry = TRUE;
-				_StartConv();
+				_StartConv(ec, pContext);
 			}
 			_Update(ec, pContext);
 			return S_OK;
@@ -305,7 +309,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if(showentry)
 		{
 			_PrevConv();
-			_Update(ec, pContext);
+
+			if(!showentry && (cx_dynamiccomp || cx_dyncompmulti))
+			{
+				_DynamicComp(ec, pContext);
+			}
+			else
+			{
+				_Update(ec, pContext);
+			}
 			return S_OK;
 		}
 		break;
@@ -340,7 +352,36 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			_ConvRoman();
 			_NextComp();
-			_Update(ec, pContext);
+
+			if(complement && cx_compuserdic)
+			{
+				if(candidx == 0)
+				{
+					_UserDicComp();
+				}
+
+				okuriidx = kana.size();
+				if(candidx < candidates.size() && !candidates[candidx].first.second.empty())
+				{
+					kana += markSP + candidates[candidx].first.second;
+				}
+				kana.insert(okuriidx, 1, CHAR_SKK_OKURI);
+				
+				_Update(ec, pContext);
+
+				kana.erase(okuriidx);
+				okuriidx = 0;
+			}
+			else
+			{
+				_Update(ec, pContext);
+			}
+
+			if(cx_dyncompmulti && complement && candidx == 0 && pContext != NULL)
+			{
+				showcandlist = FALSE;
+				_ShowCandidateList(ec, pContext, FALSE, TRUE);
+			}
 			return S_OK;
 		}
 		break;
@@ -349,7 +390,29 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if(inputkey && !showentry)
 		{
 			_PrevComp();
-			_Update(ec, pContext);
+
+			if(complement && cx_compuserdic)
+			{
+				okuriidx = kana.size();
+				if(candidx < candidates.size() && !candidates[candidx].first.second.empty())
+				{
+					kana += markSP + candidates[candidx].first.second;
+				}
+				kana.insert(okuriidx, 1, CHAR_SKK_OKURI);
+
+				_Update(ec, pContext);
+
+				kana.erase(okuriidx);
+				okuriidx = 0;
+			}
+			else if(!complement && (cx_dynamiccomp || cx_dyncompmulti))
+			{
+				_DynamicComp(ec, pContext, TRUE);
+			}
+			else
+			{
+				_Update(ec, pContext);
+			}
 			return S_OK;
 		}
 		break;
@@ -359,11 +422,13 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		if(showentry)
 		{
 			candidx = 0;
 			showentry = FALSE;
 		}
+
 		_ConvRoman();
 		if(!kana.empty() &&
 			kana.find_first_of(CHAR_SKK_HINT) == std::wstring::npos)
@@ -414,13 +479,22 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				okuriidx = 0;
 				cursoridx = kana.size();
 			}
+
 			if(cx_delcvposcncl && okuriidx != 0)
 			{
 				kana.erase(okuriidx, 1);
 				okuriidx = 0;
 				cursoridx--;
 			}
-			_Update(ec, pContext);
+
+			if(cx_dynamiccomp || cx_dyncompmulti)
+			{
+				_DynamicComp(ec, pContext);
+			}
+			else
+			{
+				_Update(ec, pContext);
+			}
 		}
 		else
 		{
@@ -499,6 +573,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					}
 				}
 			}
+
 			if(okuriidx != 0 && okuriidx + 1 == cursoridx)
 			{
 				kana.erase(cursoridx - 1, 1);
@@ -506,13 +581,21 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				okuriidx = 0;
 			}
 		}
+
 		if(!inputkey && roman.empty() && kana.empty())
 		{
 			_HandleCharReturn(ec, pContext);
 		}
 		else if(!skipupdate)
 		{
-			_Update(ec, pContext);
+			if(cx_dynamiccomp || cx_dyncompmulti)
+			{
+				_DynamicComp(ec, pContext);
+			}
+			else
+			{
+				_Update(ec, pContext);
+			}
 		}
 		return S_OK;
 		break;
@@ -522,11 +605,13 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		if(okuriidx != 0 && okuriidx == cursoridx)
 		{
 			kana.erase(cursoridx, 1);
 			okuriidx = 0;
 		}
+
 		// surrogate pair
 		if(kana.size() - cursoridx >= 2 &&
 			IS_SURROGATE_PAIR(kana[cursoridx], kana[cursoridx + 1]))
@@ -553,7 +638,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				}
 			}
 		}
-		_Update(ec, pContext);
+
+		if(cx_dynamiccomp || cx_dyncompmulti)
+		{
+			_DynamicComp(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 		return S_OK;
 		break;
 
@@ -566,6 +659,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		if(!roman.empty())
 		{
 			_ConvRoman();
@@ -588,7 +682,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				cursoridx--;
 			}
 		}
-		_Update(ec, pContext);
+
+		if(cx_dynamiccomp || cx_dyncompmulti)
+		{
+			_DynamicComp(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 		return S_OK;
 		break;
 
@@ -597,6 +699,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		if(!roman.empty())
 		{
 			_ConvRoman();
@@ -606,7 +709,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			cursoridx = 0;
 		}
-		_Update(ec, pContext);
+
+		if(cx_dynamiccomp || cx_dyncompmulti)
+		{
+			_DynamicComp(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 		return S_OK;
 		break;
 
@@ -615,6 +726,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		if(!roman.empty())
 		{
 			_ConvRoman();
@@ -632,12 +744,21 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			{
 				cursoridx++;
 			}
+
 			if(okuriidx != 0 && okuriidx + 1 == cursoridx)
 			{
 				cursoridx++;
 			}
 		}
-		_Update(ec, pContext);
+
+		if(cx_dynamiccomp || cx_dyncompmulti)
+		{
+			_DynamicComp(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 		return S_OK;
 		break;
 
@@ -646,6 +767,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			break;
 		}
+
 		if(!roman.empty())
 		{
 			_ConvRoman();
@@ -655,7 +777,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			cursoridx = kana.size();
 		}
-		_Update(ec, pContext);
+
+		if(cx_dynamiccomp || cx_dyncompmulti)
+		{
+			_DynamicComp(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
 		return S_OK;
 		break;
 
@@ -683,7 +813,14 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 							okuriidx += s.size();
 						}
 						cursoridx += s.size();
-						_Update(ec, pContext);
+						if(cx_dynamiccomp || cx_dyncompmulti)
+						{
+							_DynamicComp(ec, pContext);
+						}
+						else
+						{
+							_Update(ec, pContext);
+						}
 						GlobalUnlock(hCB);
 					}
 				}
@@ -745,6 +882,7 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 	{
 		return E_PENDING;
 	}
+
 	switch(inputmode)
 	{
 	case im_hiragana:
@@ -753,6 +891,7 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 		{
 			_HandleCharShift(ec, pContext);
 		}
+
 		if(!inputkey)
 		{
 			if(_ConvShift(ch))
@@ -777,6 +916,7 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 				_Update(ec, pContext);
 			}
 		}
+
 		if(ch == L'\0')
 		{
 			return S_OK;

@@ -2,7 +2,6 @@
 #include "imcrvtip.h"
 #include "TextService.h"
 #include "CandidateList.h"
-#include "LanguageBar.h"
 #include "mozc/win32/base/deleter.h"
 #include "mozc/win32/base/keyboard.h"
 

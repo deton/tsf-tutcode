@@ -9,7 +9,7 @@
 class CCandidateWindow : public ITfCandidateListUIElementBehavior
 {
 public:
-	CCandidateWindow(CTextService *pTextService);
+	CCandidateWindow(CTextService *pTextService, CCandidateList *pCandidateList);
 	~CCandidateWindow();
 
 	// IUnknown
@@ -38,7 +38,7 @@ public:
 	STDMETHODIMP Finalize();
 	STDMETHODIMP Abort();
 
-	BOOL _Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, BOOL reg);
+	BOOL _Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, BOOL reg, BOOL comp);
 	static LRESULT CALLBACK _WindowPreProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void _Destroy();
@@ -59,10 +59,14 @@ private:
 	void _UpdateUIElement();
 	void _NextPage();
 	void _PrevPage();
+	void _NextComp();
+	void _PrevComp();
 	void _OnKeyDownRegword(UINT uVKey);
 	void _Update();
 	void _EndCandidateList(BYTE sf);
-	HRESULT _HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, BYTE bSf);
+	void _InvokeSfHandler(BYTE sf);
+	void _InvokeKeyHandler(UINT uVKey);
+	void _HandleKey(WPARAM wParam, BYTE bSf);
 	void _GetChSf(UINT uVKey, WCHAR &ch, BYTE &sf, BYTE vkoff = 0);
 	void _BackUpStatus();
 	void _ClearStatus();
@@ -93,6 +97,7 @@ private:
 	std::vector< std::wstring > _CandStr;
 
 	LONG _cRef;
+
 	CTextService *_pTextService;
 	CCandidateList *_pCandidateList;
 	CCandidateWindow *_pCandidateWindow;		//子
@@ -109,6 +114,7 @@ private:
 	std::wstring disptext;		//表示文字列
 	HFONT hFont;				//フォント
 
+	//Direct2D/DirectWrite
 	ID2D1Factory *_pD2DFactory;
 	ID2D1DCRenderTarget *_pD2DDCRT;
 	ID2D1SolidColorBrush *_pD2DBrush[DISPLAY_COLOR_NUM];
@@ -117,6 +123,11 @@ private:
 	IDWriteTextFormat *_pDWTF;
 
 	BOOL _reg;		//初期表示から辞書登録
+	BOOL _comp;		//複数動的補完
+
+	CANDIDATES candidates;		//描画用候補
+	size_t candidx;				//描画用候補インデックス
+	std::wstring searchkey;		//描画用見出し語
 
 	//辞書登録
 	BOOL regword;				//モード

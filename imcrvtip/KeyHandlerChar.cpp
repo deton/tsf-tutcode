@@ -33,7 +33,15 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 		{
 			kana.insert(cursoridx, 1, ch);
 			cursoridx++;
-			_Update(ec, pContext);
+
+			if(cx_dynamiccomp || cx_dyncompmulti)
+			{
+				_DynamicComp(ec, pContext);
+			}
+			else
+			{
+				_Update(ec, pContext);
+			}
 		}
 		else
 		{
@@ -152,13 +160,24 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 						{
 							cursoridx = kana.size();
 							showentry = TRUE;
-							_StartConv();
+							_StartConv(ec, pContext);
+							_Update(ec, pContext);
+							break;
 						}
-						else if(rkc.soku)
+
+						if(rkc.soku)
 						{
 							roman.push_back(ch);
 						}
-						_Update(ec, pContext);
+
+						if(cx_dynamiccomp || cx_dyncompmulti)
+						{
+							_DynamicComp(ec, pContext);
+						}
+						else
+						{
+							_Update(ec, pContext);
+						}
 					}
 					else
 					{
@@ -279,6 +298,8 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 
 HRESULT CTextService::_HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back)
 {
+	_EndCompletionList(ec, pContext);
+
 	//terminate composition
 	cursoridx = kana.size();
 	_Update(ec, pContext, TRUE, back);
@@ -292,6 +313,8 @@ HRESULT CTextService::_HandleCharShift(TfEditCookie ec, ITfContext *pContext)
 {
 	if(showentry || (!inputkey && !kana.empty() && roman.empty()))
 	{
+		_EndCompletionList(ec, pContext);
+
 		//leave composition
 		cursoridx = kana.size();
 		_Update(ec, pContext, TRUE);
@@ -546,7 +569,7 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	int cnt = size - st;
 	if(cnt > 0)
 	{
-		_ConvKanaToKana(kata, im_katakana, text.substr(st), im_hiragana);
+		_ConvKanaToKana(text.substr(st), im_hiragana, kata, im_katakana);
 		//カーソル直前の文字列を置換
 		prevkata = kata;
 		_ReplacePrecedingText(ec, pContext, cnt, kata, postconvctx);
@@ -614,7 +637,7 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 	}
 	//縮めることでひらがなになる文字列
 	std::wstring hira;
-	_ConvKanaToKana(hira, im_hiragana, prevkata.substr(0, count), im_katakana);
+	_ConvKanaToKana(prevkata.substr(0, count), im_katakana, hira, im_hiragana);
 	if(kataLen > 0)
 	{
 		//カタカナのままにする文字列
@@ -993,7 +1016,7 @@ void CTextService::_StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, con
 	//交ぜ書き変換候補表示開始
 	showentry = TRUE;
 	inputkey = TRUE;
-	_StartConv();
+	_StartConv(ec, pContext);
 	_Update(ec, pContext);
 	//TODO:cancel時は前置型読み入力モードでなく後置型開始前の状態に
 }
