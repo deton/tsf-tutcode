@@ -1,6 +1,7 @@
 ﻿
 #include "imcrvtip.h"
 #include "TextService.h"
+#include "CandidateList.h"
 #include "KeySender.h"
 
 HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR ch)
@@ -379,8 +380,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 			if(cx_dyncompmulti && complement && candidx == 0 && pContext != NULL)
 			{
-				showcandlist = FALSE;
-				_ShowCandidateList(ec, pContext, FALSE, TRUE);
+				if(_pCandidateList == NULL)
+				{
+					showcandlist = FALSE;
+					_ShowCandidateList(ec, pContext, FALSE, TRUE);
+				}
+				else
+				{
+					_pCandidateList->_UpdateComp();
+				}
 			}
 			return S_OK;
 		}

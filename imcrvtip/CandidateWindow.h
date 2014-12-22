@@ -53,6 +53,7 @@ public:
 	void _DeletePrecedingText(int delete_count);
 	void _PreEnd();
 	void _End();
+	void _UpdateComp();
 
 private:
 	void _InitList();

@@ -2,20 +2,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define TEXTSERVICE_NAME	L"tsf-tutcode"
-#define TEXTSERVICE_VER		L"0.3.1"
-
-#ifndef _DEBUG
-#define TEXTSERVICE_DESC	TEXTSERVICE_NAME
-#else
-#define TEXTSERVICE_DESC	TEXTSERVICE_NAME L"_DEBUG"
-#endif
-
-//for resource
-#define RC_AUTHOR			"KIHARA Hideto"
-#define RC_PRODUCT			"tsf-tutcode"
-#define RC_VERSION			"0.3.1"
-#define RC_VERSION_D		0,3,1,0
+#include "version.h"
 
 #define MAX_KRNLOBJNAME		256
 #define CONV_POINT_NUM		256
@@ -45,6 +32,10 @@
 #define REQ_USER_DEL_1		L'D'	//ユーザー辞書削除(送りなし、補完あり)
 #define REQ_USER_SAVE		L'S'	//ユーザー辞書保存
 #define REQ_BUSHU			L'b'	//部首合成変換
+#ifdef _DEBUG
+#define REQ_DEBUGOUT_ON		L'['
+#define REQ_DEBUGOUT_OFF	L']'
+#endif
 //reply
 #define REP_OK				L'T'	//hit
 #define REP_FALSE			L'F'	//nothing

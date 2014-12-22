@@ -40,6 +40,7 @@ public:
 	void _GetPrecedingText(std::wstring *text);
 	void _DeletePrecedingText(int delete_count);
 	void _Move(LPRECT lpr);
+	void _UpdateComp();
 
 private:
 	LONG _cRef;
@@ -61,6 +62,8 @@ private:
 
 	HWND _hwndParent;
 	CCandidateWindow *_pCandidateWindow;
+
+	BOOL _comp;
 };
 
 #endif //CANDIDATELIST_H
