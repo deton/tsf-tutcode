@@ -72,5 +72,8 @@
     <Text Include="..\README.TXT">
       <Filter>Installer Files</Filter>
     </Text>
+    <None Include="kanatable-tutcode.txt" />
+    <None Include="kanatable-tcode.txt" />
+    <None Include="maze.dic" />
   </ItemGroup>
 </Project>

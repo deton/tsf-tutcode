@@ -172,7 +172,7 @@ exit:
 	return ret;
 }
 
-void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const std::wstring &candidate, std::wstring &conv)
+void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &okuri, std::wstring &conv)
 {
 	DWORD bytesWrite, bytesRead;
 
@@ -182,8 +182,8 @@ void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const st
 
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 
-	_snwprintf_s(pipebuf, _TRUNCATE, L"%c\n%s\t%s\n",
-		command, key.c_str(), candidate.c_str());
+	_snwprintf_s(pipebuf, _TRUNCATE, L"%c\n%s\t%s\t%s\n",
+		command, key.c_str(), candidate.c_str(), okuri.c_str());
 
 	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
 	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, NULL) == FALSE)
@@ -201,7 +201,7 @@ void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const st
 
 	if(pipebuf[0] != REP_OK)
 	{
-		conv = candidate;
+		conv.clear();
 		goto exit;
 	}
 
