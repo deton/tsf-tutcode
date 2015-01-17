@@ -1,6 +1,7 @@
 ﻿#include "common.h"
 #include "KeySender.h"
 #include "mozc/win32/base/keyboard.h"
+#include <memory>
 
 static bool isextendedkey(UINT vk)
 {
