@@ -1013,18 +1013,44 @@ BOOL CTextService::_SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *s
 			switch(dstmode)
 			{
 			case im_hiragana:
-				dst.append(rkc.hiragana);
+				//src==dstの場合はスキップ。src,dstが違う定義がないか探すため。
+				//src==dstの定義は_ConvKanaToKana()でsrcが使われることでカバー
+				if(wcscmp(rkc.hiragana, src) == 0)
+				{
+					exist = FALSE;
+				}
+				else
+				{
+					dst.append(rkc.hiragana);
+				}
 				break;
 			case im_katakana:
-				dst.append(rkc.katakana);
+				if(wcscmp(rkc.katakana, src) == 0)
+				{
+					exist = FALSE;
+				}
+				else
+				{
+					dst.append(rkc.katakana);
+				}
 				break;
 			case im_katakana_ank:
-				dst.append(rkc.katakana_ank);
+				if(wcscmp(rkc.katakana_ank, src) == 0)
+				{
+					exist = FALSE;
+				}
+				else
+				{
+					dst.append(rkc.katakana_ank);
+				}
 				break;
 			default:
 				break;
 			}
-			break;
+			if(exist)
+			{
+				break;
+			}
 		}
 		else if(!v_itr->nodes.empty())
 		{
