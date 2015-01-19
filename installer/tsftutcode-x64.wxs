@@ -21,7 +21,7 @@
                             <File Id="luaexe_x86" Name="lua.exe" Source="..\Win32\Release\lua.exe" />
                         </Component>
                         <Component Guid="*" Id="LUADLL_X86">
-                            <File Id="luadll_x86" Name="lua52.dll" Source="..\Win32\Release\lua52.dll" />
+                            <File Id="luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
                         </Component>
                         <Component Guid="*" Id="INITLUA_X86">
                             <File Id="initlua_x86" Name="init.lua" Source="config-lua\init.lua" />
@@ -45,7 +45,7 @@
                             <File Id="luaexe_x64" Name="lua.exe" Source="..\x64\Release\lua.exe" />
                         </Component>
                         <Component Guid="*" Id="LUADLL_X64" Win64="yes">
-                            <File Id="luadll_x64" Name="lua52.dll" Source="..\x64\Release\lua52.dll" />
+                            <File Id="luadll_x64" Name="lua53.dll" Source="..\x64\Release\lua53.dll" />
                         </Component>
                         <Component Guid="*" Id="INITLUA_X64" Win64="yes">
                             <File Id="initlua_x64" Name="init.lua" Source="config-lua\init.lua" />
