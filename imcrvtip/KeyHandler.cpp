@@ -548,11 +548,6 @@ void CTextService::_ResetStatus()
 
 void CTextService::_GetActiveFlags()
 {
-	if(_pThreadMgr == NULL)
-	{
-		return;
-	}
-
 	_dwActiveFlags = 0;
 	_ImmersiveMode = FALSE;
 	_UILessMode = FALSE;
