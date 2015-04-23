@@ -738,13 +738,15 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 	if(cnt > 0)
 	{
 		//入力シーケンスを漢字に変換
-		ROMAN_KANA_CONV rkc;
+		WCHAR seq[ROMAN_NUM];
 		std::wstring kanji;
 		int i = 0;
-		ZeroMemory(&rkc, sizeof(rkc));
 		for(; st < size; st++)
 		{
-			rkc.roman[i] = text[st];
+			seq[i] = text[st];
+			seq[i+1] = L'\0';
+			ROMAN_KANA_CONV rkc; //_ConvRomanKana()で変更されるので呼出毎に生成
+			wcscpy_s(rkc.roman, seq);
 			HRESULT ret = _ConvRomanKana(&rkc);
 			switch(ret)
 			{
@@ -752,16 +754,14 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 				//TODO: 後置型部首合成変換等のfunc対応
 				kanji.append(rkc.hiragana);
 				i = 0;
-				ZeroMemory(&rkc, sizeof(rkc));
 				break;
-			case E_PENDING:	//途中まで一致
+			case E_PENDING:	//途中まで一致。(rkcは変更されている)
 				++i;
 				break;
 			case E_ABORT:	//一致する可能性なし
 			default:
-				kanji.append(rkc.roman);
+				kanji.append(seq); // rkc.romanは消去されている
 				i = 0;
-				ZeroMemory(&rkc, sizeof(rkc));
 				break;
 			}
 		}
