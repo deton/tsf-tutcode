@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <?define version="0.3.1" ?>
     <Product Id="*" Name="tsf-tutcode" Language="1033" Version="$(var.version)" Manufacturer="KIHARA Hideto" UpgradeCode="8EC1F2D0-BE94-43E6-9C74-6CA6ADA9737E">
-        <Package Id="*" Compressed="yes" Description="tsf-tutcode" Comments="version $(var.version)" Platform="x64" InstallerVersion="200" InstallScope="perMachine" InstallPrivileges="elevated" />
+        <Package Id="*" Compressed="yes" Description="tsf-tutcode" Comments="ver. $(var.version)" Platform="x64" InstallerVersion="200" InstallScope="perMachine" InstallPrivileges="elevated" />
         <Media Id="1" Cabinet="tsftutcode.cab" CompressionLevel="high" EmbedCab="yes" />
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="SystemFolder" Name="SystemFolder">

@@ -55,8 +55,8 @@ typedef struct {
 	BYTE digest[16];
 } MD5_DIGEST;
 
-extern LPCWSTR RccsUNICODE;
-extern LPCWSTR WccsUNICODE;
+extern LPCWSTR RccsUTF16;
+extern LPCWSTR WccsUTF16;
 extern LPCWSTR RccsUTF8;
 extern LPCWSTR WccsUTF8;
 extern LPCWSTR RB;

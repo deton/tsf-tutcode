@@ -194,13 +194,18 @@
 
   設定ダイアログのリストに交ぜ書き変換辞書を追加し、取込ボタンを押して下さい。
   取込済SKK辞書に変換されて、使用可能となります。
-  SKK辞書ファイルの文字コードは、EUC-JIS-2004、UTF-16(LE, BOMあり)、
-  UTF-8(BOMあり)に対応しています。
+  SKK辞書ファイルの文字コードは、EUC-JIS-2004、UTF-8 (BOMなし/あり)、
+  UTF-16 (LE, BOMあり)に対応しています。
 
-  漢直Win等のkwmaze.dicを取込むには、文字コードをBOM付きUTF-8等に変換した後、
+  漢直Win等のkwmaze.dicを取込むには、文字コードをUTF-8等に変換した後、
   以下の2行をファイルの先頭に挿入しておいてください。
 ;; okuri-ari entries.
 ;; okuri-nasi entries.
+
+  SKK辞書のURLを追加した場合は、取込処理のときにディレクトリ %TMP%\tsf-tutcode
+  または %TEMP%\tsf-tutcode にダウンロードされてから取り込まれます。
+  SKK辞書のダウンロード機能では FTP, HTTP, HTTPS が使用可能です。
+  プロキシはOSに設定されたものが使用されます。
 
 
 ・SKK辞書サーバー
@@ -591,7 +596,7 @@
 ・ソースに関して
 
   ・CorvusSKKをベースに、以下の変更を加えています。
-    http://code.google.com/p/corvus-skk/
+    https://nathancorvussolis.github.io/
     ・追加
       ・後置型部首合成変換
       ・後置型交ぜ書き変換
@@ -607,7 +612,7 @@
         一部アプリで後置型変換が正しく動作しない現象を回避するため。
         CorvusSKKと同じ動作をする「入力途中のキーシーケンスを表示する」設定追加
   ・Surrounding Text関係は、Mozcから一部ソースを取り込んでいます。
-    http://code.google.com/p/mozc/
+    https://github.com/google/mozc
   ・部首合成変換は、漢直Winから一部ソースと部首合成変換辞書を取り込んでいます。
     https://github.com/kanchoku/kw
     交ぜ書き変換辞書maze.dicは、漢直Winのkwmaze.dicの漢字コードを変換して、
