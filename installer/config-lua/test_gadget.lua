@@ -7,6 +7,14 @@ require("init")
 
 
 el_test_gadget_table = {
+{"見出し語",	"(substring skk-henkan-key 0)"},
+{"見出し語",	"(concat skk-henkan-key)"},
+
+{"1a2b3c4d5",	"(car skk-num-list)"},
+{"1a2b3c4d5",	"(car (cdr skk-num-list))"},
+{"1a2b3c4d5",	"(car (cdr (cdr skk-num-list)))"},
+{"1a2b3c4d5",	"(car (cdr (cdr (cdr skk-num-list))))"},
+{"1a2b3c4d5",	"(car (cdr (cdr (cdr (cdr skk-num-list)))))"},
 
 {"!",		"(concat \"&excl\\073\")"},
 {"perl",	"(concat \"#!\\057usr\\057local\\057bin\\057perl\")"},
@@ -14,6 +22,7 @@ el_test_gadget_table = {
 {"bar",		"(make-string (- fill-column 1) ?-)"},
 {"line",	"(make-string (- (window-width) 5) ?-)"},
 {"line",	"(make-string (- (window-width) 5) (string-to-char comment-start))"},
+{"size",	"(concat \"w:\" (number-to-string (window-width)) \" h:\" (number-to-string (window-height)))"},
 {"now",		"(current-time-string)"},
 {"now",		"(substring (current-time-string) 11 16)"},
 {"now",		"(substring (current-time-string) 11 19)"},
@@ -26,6 +35,13 @@ el_test_gadget_table = {
 {"1mile",	"(skk-gadget-units-conversion \"mile\" (string-to-number (car skk-num-list)) \"yard\")"},
 {"1yard",	"(skk-gadget-units-conversion \"yard\" (string-to-number (car skk-num-list)) \"cm\")"},
 {"1yard",	"(skk-gadget-units-conversion \"yard\" (string-to-number (car skk-num-list)) \"feet\")"},
+{"1すん",	"(skk-gadget-units-conversion \"寸\" (string-to-number (car skk-num-list)) \"mm\")"},
+{"1しゃく",	"(skk-gadget-units-conversion \"尺\" (string-to-number (car skk-num-list)) \"cm\")"},
+{"1しゃく",	"(skk-gadget-units-conversion \"勺\" (string-to-number (car skk-num-list)) \"mL\")"},
+{"1ごう",	"(skk-gadget-units-conversion \"合\" (string-to-number (car skk-num-list)) \"mL\")"},
+{"1しょう",	"(skk-gadget-units-conversion \"升\" (string-to-number (car skk-num-list)) \"L\")"},
+{"1と",	"(skk-gadget-units-conversion \"斗\" (string-to-number (car skk-num-list)) \"L\")"},
+{"1つぼ",	"(skk-gadget-units-conversion \"坪\" (string-to-number (car skk-num-list)) \"㎡\")"},
 
 {"おみくじ",	"(skk-omikuji)"},
 
@@ -40,7 +56,6 @@ el_test_gadget_table = {
 {"四則演算",	"(concat \"(+ 9 (* (\\057 24 (- 15 (% 99 10))) 3))\")"},
 
 }
---{"#x#",		"(skk-times)"},
 
 
 
