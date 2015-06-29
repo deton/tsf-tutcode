@@ -109,7 +109,7 @@ HRESULT KeySender::OtherIme()
 {
 	vector<INPUT> inputs;
 
-	if(IsVersion62AndOver()) // Win+Space (Windows 8)
+	if(IsWindowsVersion62OrLater()) // Win+Space (Windows 8)
 	{
 		_QueueKeyForModifier(&inputs, VK_LWIN, FALSE);
 		_QueueKey(&inputs, VK_SPACE);

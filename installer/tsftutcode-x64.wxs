@@ -56,7 +56,7 @@
         </Directory>
         <Component Id="RegistryRun" Guid="*" Win64="yes" Directory="TARGETDIR">
             <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
-                <RegistryValue Type="string" Name="imtutmgr" Value="$(env.windir)\System32\IME\IMTSFTUTCODE\imtutmgr.exe" Action="write" />
+                <RegistryValue Type="string" Name="imtutmgr" Value="&quot;$(env.windir)\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" Action="write" />
             </RegistryKey>
         </Component>
         <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
@@ -74,22 +74,19 @@
             <ComponentRef Id="INITLUA_X64" />
             <ComponentRef Id="RegistryRun" />
         </Feature>
-        <UI />
-        <WixVariable Id="WixUILicenseRtf" Value="ms-pl.rtf" />
-        <Icon Id="tsftutcode.ico" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
-        <Property Id="ARPPRODUCTICON" Value="tsftutcode.ico" />
-        <Property Id="WIX_MINIMAL" Value="tsf-tutcode" />
         <UIRef Id="WixUI_Minimal" />
-        <Upgrade Id="8EC1F2D0-BE94-43E6-9C74-6CA6ADA9737E">
-            <UpgradeVersion Property="PREVIOUSFOUND" OnlyDetect="no" Maximum="$(var.version)" Minimum="0.0.0" IncludeMaximum="no" IncludeMinimum="yes" />
-            <UpgradeVersion Property="SELFFOUND" OnlyDetect="yes" Maximum="$(var.version)" Minimum="$(var.version)" IncludeMaximum="yes" IncludeMinimum="yes" />
-            <UpgradeVersion Property="NEWERFOUND" OnlyDetect="yes" Minimum="$(var.version)" IncludeMinimum="no" />
-        </Upgrade>
-        <CustomAction Id="PreventDowngrading" Error="A newer version already installed." />
+        <WixVariable Id="WixUILicenseRtf" Value="ms-pl.rtf" />
+        <Property Id="ARPPRODUCTICON" Value="tsftutcode.ico" />
+        <Icon Id="tsftutcode.ico" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+
         <InstallExecuteSequence>
-            <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWERFOUND</Custom>
-            <RemoveExistingProducts After="InstallInitialize" />
             <ScheduleReboot After="InstallFinalize" />
         </InstallExecuteSequence>
+
+        <Condition Message="This application does not support this version of Windows.">
+            <![CDATA[VersionNT64 >= 600]]>
+        </Condition>
     </Product>
 </Wix>
