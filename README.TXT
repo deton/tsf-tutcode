@@ -207,7 +207,7 @@
 
   SKK辞書のURLを追加した場合は、取込処理のときにディレクトリ %TMP%\tsf-tutcode
   または %TEMP%\tsf-tutcode にダウンロードされてから取り込まれます。
-  SKK辞書のダウンロード機能では FTP, HTTP, HTTPS が使用可能です。
+  SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。
   プロキシはOSに設定されたものが使用されます。
 
 
