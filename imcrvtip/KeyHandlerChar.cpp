@@ -189,8 +189,11 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 						}
 						else
 						{
-							cursoridx = kana.size();
-							_Update(ec, pContext, TRUE);
+							if(pContext != NULL)
+							{
+								cursoridx = kana.size();
+								_Update(ec, pContext, TRUE);
+							}
 							_HandleCharReturn(ec, pContext);
 						}
 					}
@@ -263,8 +266,11 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 		{
 		case S_OK:		//一致
 			kana.assign(ajc.jlatin);
-			cursoridx = kana.size();
-			_Update(ec, pContext, TRUE);
+			if(pContext != NULL)
+			{
+				cursoridx = kana.size();
+				_Update(ec, pContext, TRUE);
+			}
 			_HandleCharReturn(ec, pContext);
 			break;
 		case E_PENDING:	//途中まで一致
@@ -281,8 +287,11 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 		ajc.ascii[0] = ch;
 		ajc.ascii[1] = L'\0';
 		kana.assign(ajc.ascii);
-		cursoridx = kana.size();
-		_Update(ec, pContext, TRUE);
+		if(pContext != NULL)
+		{
+			cursoridx = kana.size();
+			_Update(ec, pContext, TRUE);
+		}
 		_HandleCharReturn(ec, pContext);
 		break;
 
