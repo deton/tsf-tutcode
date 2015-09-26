@@ -203,7 +203,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 						{
 							if(complement && okuriidx != 0)
 							{
-								comptext.insert(okuriidx + 1, L"[");
+								comptext.insert(okuriidx + 1, L" [");
 								comptext.append(L"]");
 							}
 							comptext.insert(cursoridx + 1, markCursor);

@@ -299,7 +299,14 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 						}
 						else
 						{
-							_Update(ec, pContext);
+							if(cx_dynamiccomp || cx_dyncompmulti)
+							{
+								_DynamicComp(ec, pContext);
+							}
+							else
+							{
+								_Update(ec, pContext);
+							}
 						}
 					}
 					else
@@ -346,8 +353,6 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 	BOOL fOpen = _IsKeyboardOpen();
 	if(fOpen)
 	{
-		_StartManager();
-
 		_ResetStatus();
 
 		_LoadDisplayAttr();
@@ -372,6 +377,7 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 		{
 		case im_disable:
 			inputmode = im_hiragana;
+			_StartManager();
 			break;
 		default:
 			_KeyboardInputConversionChanged();
