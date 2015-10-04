@@ -742,7 +742,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-* Visual Studio Community 2013 (MFCありでインストール。Mozcで使用されているATLのため)
+* Visual Studio Community 2013 Update 5
 * WiX Toolset v3.10
 
 ### 履歴
