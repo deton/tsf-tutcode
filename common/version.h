@@ -3,13 +3,14 @@
 #define VERSION_H
 
 #define TEXTSERVICE_NAME	L"tsf-tutcode"
-#define TEXTSERVICE_VER		L"0.3.1"
 
 #ifndef _DEBUG
 #define TEXTSERVICE_DESC	TEXTSERVICE_NAME
 #else
 #define TEXTSERVICE_DESC	TEXTSERVICE_NAME L"_DEBUG"
 #endif
+
+#define TEXTSERVICE_VER		L"0.3.1"
 
 //for resource
 #define RC_AUTHOR			"KIHARA Hideto"

@@ -294,17 +294,19 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 	if(IsEqualGUID(rguid, c_guidPreservedKeyOnOff))
 	{
 		BOOL fOpen = _IsKeyboardOpen();
-		if(!fOpen)
-		{
-			inputmode = im_disable;
-		}
-		else
+
+		if(fOpen)
 		{
 			//入力途中のシーケンスはそのまま確定
 			_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
 			_ClearComposition();
 			postbuf.clear();
 		}
+		else
+		{
+			inputmode = im_disable;
+		}
+
 		_SetKeyboardOpen(fOpen ? FALSE : TRUE);
 		*pfEaten = TRUE;
 	}

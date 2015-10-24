@@ -56,7 +56,7 @@
         </Directory>
         <Component Id="RegistryRun" Guid="*" Win64="yes" Directory="TARGETDIR">
             <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
-                <RegistryValue Type="string" Name="imtutmgr" Value="&quot;$(env.windir)\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" Action="write" />
+                <RegistryValue Type="string" Name="imtutmgr" Value="&quot;$(env.SystemRoot)\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" Action="write" />
             </RegistryKey>
         </Component>
         <Feature Id="DefaultFeature" Title="Main Feature" Level="1">

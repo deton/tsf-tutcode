@@ -50,14 +50,14 @@ void SaveKeyMap(HWND hDlg, int nIDDlgItem, LPCWSTR lpKeyName)
 static void LoadConfigPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
 {
 	APPDATAXMLLIST list;
-	int i = 0;
-	HRESULT hr;
 
 	ZeroMemory(preservedkey, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
-	hr = ReadList(pathconfigxml, SectionPreservedKey, list);
+
+	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
 
 	if(hr == S_OK && list.size() != 0)
 	{
+		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
 			if(i >= MAX_PRESERVEDKEY)
@@ -105,11 +105,10 @@ void LoadConfigPreservedKey()
 
 static void LoadPreservedKeySub(HWND hWndListView, const TF_PRESERVEDKEY preservedkey[])
 {
-	int i;
 	LVITEMW item;
 	WCHAR num[8];
 
-	for(i = 0; i < MAX_PRESERVEDKEY; i++)
+	for(int i = 0; i < MAX_PRESERVEDKEY; i++)
 	{
 		if(preservedkey[i].uVKey == 0 &&
 			preservedkey[i].uModifiers == 0)
@@ -151,14 +150,14 @@ void LoadPreservedKey(HWND hwnd)
 
 static void SavePreservedKeySub(HWND hWndListView, LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
 {
-	int i, count;
-	WCHAR key[8];
-	APPDATAXMLATTR attr;
-	APPDATAXMLROW row;
 	APPDATAXMLLIST list;
+	APPDATAXMLROW row;
+	APPDATAXMLATTR attr;
+	WCHAR key[8];
 
-	count = ListView_GetItemCount(hWndListView);
-	for(i = 0; i < count && i < MAX_PRESERVEDKEY; i++)
+	int count = ListView_GetItemCount(hWndListView);
+
+	for(int i = 0; i < count && i < MAX_PRESERVEDKEY; i++)
 	{
 		ListView_GetItemText(hWndListView, i, 0, key, _countof(key));
 		preservedkey[i].uVKey = wcstoul(key, NULL, 0);
@@ -187,7 +186,7 @@ static void SavePreservedKeySub(HWND hWndListView, LPCWSTR SectionPreservedKey, 
 
 	WriterStartSection(pXmlWriter, SectionPreservedKey);	//Start of SectionPreservedKey
 
-	for(i = 0; i < MAX_PRESERVEDKEY; i++)
+	for(int i = 0; i < MAX_PRESERVEDKEY; i++)
 	{
 		if(preservedkey[i].uVKey == 0 &&
 			preservedkey[i].uModifiers == 0)
@@ -223,14 +222,14 @@ void SavePreservedKey(HWND hwnd)
 void LoadConfigConvPoint()
 {
 	APPDATAXMLLIST list;
-	int i = 0;
-	HRESULT hr;
 
 	ZeroMemory(conv_point, sizeof(conv_point));
-	hr = ReadList(pathconfigxml, SectionConvPoint, list);
+
+	HRESULT hr = ReadList(pathconfigxml, SectionConvPoint, list);
 
 	if(hr == S_OK && list.size() != 0)
 	{
+		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
 			if(i >= CONV_POINT_NUM)
@@ -261,15 +260,13 @@ void LoadConfigConvPoint()
 
 void LoadConvPoint(HWND hwnd)
 {
-	HWND hWndListView;
-	int i;
 	LVITEMW item;
 
 	LoadConfigConvPoint();
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_CONVPOINT);
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_CONVPOINT);
 
-	for(i = 0; i < CONV_POINT_NUM; i++)
+	for(int i = 0; i < CONV_POINT_NUM; i++)
 	{
 		if(conv_point[i][0][0] == L'\0' &&
 			conv_point[i][1][0] == L'\0' &&
@@ -296,16 +293,15 @@ void LoadConvPoint(HWND hwnd)
 
 void SaveConvPoint(HWND hwnd)
 {
-	int i, count;
-	HWND hWndListView;
-	WCHAR key[2];
-	APPDATAXMLATTR attr;
-	APPDATAXMLROW row;
 	APPDATAXMLLIST list;
+	APPDATAXMLROW row;
+	APPDATAXMLATTR attr;
+	WCHAR key[2];
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_CONVPOINT);
-	count = ListView_GetItemCount(hWndListView);
-	for(i = 0; i < count && i < CONV_POINT_NUM; i++)
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_CONVPOINT);
+	int count = ListView_GetItemCount(hWndListView);
+
+	for(int i = 0; i < count && i < CONV_POINT_NUM; i++)
 	{
 		ListView_GetItemText(hWndListView, i, 0, key, _countof(key));
 		wcsncpy_s(conv_point[i][0], key, _TRUNCATE);
@@ -323,7 +319,7 @@ void SaveConvPoint(HWND hwnd)
 
 	WriterStartSection(pXmlWriter, SectionConvPoint);	//Start of SectionConvPoint
 
-	for(i = 0; i < CONV_POINT_NUM; i++)
+	for(int i = 0; i < CONV_POINT_NUM; i++)
 	{
 		if(conv_point[i][0][0] == L'\0' &&
 			conv_point[i][1][0] == L'\0' &&
@@ -357,17 +353,15 @@ void LoadConfigKana()
 {
 	APPDATAXMLLIST list;
 	ROMAN_KANA_CONV rkc;
-	int i = 0;
-	WCHAR *pszb;
-	size_t blen = 0;
-	HRESULT hr;
 
 	roman_kana_conv.clear();
 	roman_kana_conv.shrink_to_fit();
-	hr = ReadList(pathconfigxml, SectionKana, list);
+
+	HRESULT hr = ReadList(pathconfigxml, SectionKana, list);
 
 	if(hr == S_OK && list.size() != 0)
 	{
+		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
 			if(i >= ROMAN_KANA_TBL_MAX)
@@ -379,7 +373,8 @@ void LoadConfigKana()
 
 			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
-				pszb = NULL;
+				WCHAR *pszb = NULL;
+				size_t blen = 0;
 
 				if(r_itr->first == AttributeRoman)
 				{
@@ -420,7 +415,7 @@ void LoadConfigKana()
 	}
 	else if(hr != S_OK)
 	{
-		for(i = 0; i < ROMAN_KANA_TBL_DEF_NUM; i++)
+		for(int i = 0; i < ROMAN_KANA_TBL_DEF_NUM; i++)
 		{
 			if(roman_kana_conv_default[i].roman[0] == L'\0')
 			{
@@ -433,17 +428,15 @@ void LoadConfigKana()
 
 void LoadKana(HWND hwnd)
 {
-	HWND hWndListView;
-	int i, count;
 	LVITEMW item;
 	WCHAR soku[2];
 
 	LoadConfigKana();
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
-	count = (int)roman_kana_conv.size();
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
+	int count = (int)roman_kana_conv.size();
 
-	for(i = 0; i < count; i++)
+	for(int i = 0; i < count; i++)
 	{
 		item.mask = LVIF_TEXT;
 		item.pszText = roman_kana_conv[i].roman;
@@ -462,8 +455,8 @@ void LoadKana(HWND hwnd)
 		item.iItem = i;
 		item.iSubItem = 3;
 		ListView_SetItem(hWndListView, &item);
-		soku[1] = L'\0';
 		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0) + (roman_kana_conv[i].func ? 4 : 0);
+		soku[1] = L'\0';
 		item.pszText = soku;
 		item.iItem = i;
 		item.iSubItem = 4;
@@ -473,20 +466,19 @@ void LoadKana(HWND hwnd)
 
 void SaveKana(HWND hwnd)
 {
-	int i, count;
-	HWND hWndListView;
+	APPDATAXMLLIST list;
+	APPDATAXMLROW row;
+	APPDATAXMLATTR attr;
 	ROMAN_KANA_CONV rkc;
 	WCHAR soku[2];
-	APPDATAXMLATTR attr;
-	APPDATAXMLROW row;
-	APPDATAXMLLIST list;
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
-	count = ListView_GetItemCount(hWndListView);
 	roman_kana_conv.clear();
 	roman_kana_conv.shrink_to_fit();
 
-	for(i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
+	int count = ListView_GetItemCount(hWndListView);
+
+	for(int i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
 	{
 		ListView_GetItemText(hWndListView, i, 0, rkc.roman, _countof(rkc.roman));
 		ListView_GetItemText(hWndListView, i, 1, rkc.hiragana, _countof(rkc.hiragana));
@@ -502,7 +494,7 @@ void SaveKana(HWND hwnd)
 
 	WriterStartSection(pXmlWriter, SectionKana);	//Start of SectionKana
 
-	for(i = 0; i < count; i++)
+	for(int i = 0; i < count; i++)
 	{
 		attr.first = AttributeRoman;
 		attr.second = roman_kana_conv[i].roman;
@@ -521,8 +513,8 @@ void SaveKana(HWND hwnd)
 		row.push_back(attr);
 
 		attr.first = AttributeSpOp;
-		soku[1] = L'\0';
 		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0) + (roman_kana_conv[i].func ? 4 : 0);
+		soku[1] = L'\0';
 		attr.second = soku;
 		row.push_back(attr);
 
@@ -538,16 +530,14 @@ void SaveKana(HWND hwnd)
 void LoadConfigJLatin()
 {
 	APPDATAXMLLIST list;
-	int i = 0;
-	WCHAR *pszb;
-	size_t blen = 0;
-	HRESULT hr;
 
 	ZeroMemory(ascii_jlatin_conv, sizeof(ascii_jlatin_conv));
-	hr = ReadList(pathconfigxml, SectionJLatin, list);
+
+	HRESULT hr = ReadList(pathconfigxml, SectionJLatin, list);
 
 	if(hr == S_OK && list.size() != 0)
 	{
+		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
 			if(i >= ASCII_JLATIN_TBL_NUM)
@@ -557,7 +547,8 @@ void LoadConfigJLatin()
 
 			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
-				pszb = NULL;
+				WCHAR *pszb = NULL;
+				size_t blen = 0;
 
 				if(r_itr->first == AttributeLatin)
 				{
@@ -588,15 +579,13 @@ void LoadConfigJLatin()
 
 void LoadJLatin(HWND hwnd)
 {
-	HWND hWndListView;
-	int i;
 	LVITEMW item;
 
 	LoadConfigJLatin();
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_JLATTBL);
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_JLATTBL);
 
-	for(i = 0; i < ASCII_JLATIN_TBL_NUM; i++)
+	for(int i = 0; i < ASCII_JLATIN_TBL_NUM; i++)
 	{
 		if(ascii_jlatin_conv[i].ascii[0] == L'\0' &&
 			ascii_jlatin_conv[i].jlatin[0] == L'\0')
@@ -618,16 +607,15 @@ void LoadJLatin(HWND hwnd)
 
 void SaveJLatin(HWND hwnd)
 {
-	int i, count;
-	HWND hWndListView;
-	ASCII_JLATIN_CONV ajc;
-	APPDATAXMLATTR attr;
-	APPDATAXMLROW row;
 	APPDATAXMLLIST list;
+	APPDATAXMLROW row;
+	APPDATAXMLATTR attr;
+	ASCII_JLATIN_CONV ajc;
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_JLATTBL);
-	count = ListView_GetItemCount(hWndListView);
-	for(i = 0; i < count && i < ASCII_JLATIN_TBL_NUM; i++)
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_JLATTBL);
+	int count = ListView_GetItemCount(hWndListView);
+
+	for(int i = 0; i < count && i < ASCII_JLATIN_TBL_NUM; i++)
 	{
 		ListView_GetItemText(hWndListView, i, 0, ajc.ascii, _countof(ajc.ascii));
 		ListView_GetItemText(hWndListView, i, 1, ajc.jlatin, _countof(ajc.jlatin));
@@ -641,7 +629,7 @@ void SaveJLatin(HWND hwnd)
 
 	WriterStartSection(pXmlWriter, SectionJLatin);	//Start of SectionJLatin
 
-	for(i = 0; ; i++)
+	for(int i = 0; i < ASCII_JLATIN_TBL_NUM; i++)
 	{
 		if(ascii_jlatin_conv[i].ascii[0] == L'\0' &&
 			ascii_jlatin_conv[i].jlatin[0] == L'\0')
@@ -673,8 +661,7 @@ void LoadConfigKanaTxt(LPCWSTR path)
 	const wchar_t seps[] = L"\t\n\0";
 	size_t sidx, eidx;
 	ROMAN_KANA_CONV rkc;
-	wchar_t soku[2];
-	int i;
+	WCHAR soku[2];
 
 	roman_kana_conv.clear();
 	roman_kana_conv.shrink_to_fit();
@@ -699,7 +686,7 @@ void LoadConfigKanaTxt(LPCWSTR path)
 		sidx = 0;
 		eidx = wcscspn(&b[sidx], seps);
 
-		for(i = 0; i <= 4; i++)
+		for(int i = 0; i <= 4; i++)
 		{
 			if(sidx + eidx >= _countof(b))
 			{
@@ -757,18 +744,16 @@ void LoadConfigKanaTxt(LPCWSTR path)
 
 void LoadKanaTxt(HWND hwnd, LPCWSTR path)
 {
-	HWND hWndListView;
-	int i, count;
 	LVITEMW item;
 	WCHAR soku[2];
 
 	LoadConfigKanaTxt(path);
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
 	ListView_DeleteAllItems(hWndListView);
-	count = (int)roman_kana_conv.size();
+	int count = (int)roman_kana_conv.size();
 
-	for(i = 0; i < count; i++)
+	for(int i = 0; i < count; i++)
 	{
 		item.mask = LVIF_TEXT;
 		item.pszText = roman_kana_conv[i].roman;
@@ -787,8 +772,8 @@ void LoadKanaTxt(HWND hwnd, LPCWSTR path)
 		item.iItem = i;
 		item.iSubItem = 3;
 		ListView_SetItem(hWndListView, &item);
-		soku[1] = L'\0';
 		soku[0] = L'0' + (roman_kana_conv[i].soku ? 1 : 0) + (roman_kana_conv[i].wait ? 2 : 0) + (roman_kana_conv[i].func ? 4 : 0);
+		soku[1] = L'\0';
 		item.pszText = soku;
 		item.iItem = i;
 		item.iSubItem = 4;
@@ -798,8 +783,6 @@ void LoadKanaTxt(HWND hwnd, LPCWSTR path)
 
 void SaveKanaTxt(HWND hwnd, LPCWSTR path)
 {
-	int i, count;
-	HWND hWndListView;
 	ROMAN_KANA_CONV rkc;
 	WCHAR soku[2];
 	FILE *fp;
@@ -807,10 +790,10 @@ void SaveKanaTxt(HWND hwnd, LPCWSTR path)
 	roman_kana_conv.clear();
 	roman_kana_conv.shrink_to_fit();
 
-	hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
-	count = ListView_GetItemCount(hWndListView);
+	HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_KANATBL);
+	int count = ListView_GetItemCount(hWndListView);
 
-	for(i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
+	for(int i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
 	{
 		ListView_GetItemText(hWndListView, i, 0, rkc.roman, _countof(rkc.roman));
 		ListView_GetItemText(hWndListView, i, 1, rkc.hiragana, _countof(rkc.hiragana));
@@ -829,7 +812,7 @@ void SaveKanaTxt(HWND hwnd, LPCWSTR path)
 	{
 		count = (int)roman_kana_conv.size();
 
-		for(i = 0; i < count; i++)
+		for(int i = 0; i < count; i++)
 		{
 			if(roman_kana_conv[i].roman[0] == L'\0' &&
 					roman_kana_conv[i].hiragana[0] == L'\0' &&

@@ -31,6 +31,7 @@
 #define REQ_USER_DEL_0		L'C'	//ユーザー辞書削除(送りあり、補完なし)
 #define REQ_USER_DEL_1		L'D'	//ユーザー辞書削除(送りなし、補完あり)
 #define REQ_USER_SAVE		L'S'	//ユーザー辞書保存
+#define REQ_EXEC_CNF		L'P'	//設定ダイアログ起動
 #define REQ_BUSHU			L'b'	//部首合成変換
 #ifdef _DEBUG
 #define REQ_DEBUGOUT_ON		L'['
@@ -40,16 +41,16 @@
 #define REP_OK				L'T'	//hit
 #define REP_FALSE			L'F'	//nothing
 
-#define CORVUSMGREXE		L"imtutmgr.exe"
-#define CORVUSCNFEXE		L"imtutcnf.exe"
+#define IMCRVMGREXE			L"imtutmgr.exe"
+#define IMCRVCNFEXE			L"imtutcnf.exe"
 #ifndef _DEBUG
-#define CORVUSKRNLOBJ		L"tsf-tutcode-"
+#define IMCRVKRNLOBJ		L"tsf-tutcode-"
 #else
-#define CORVUSKRNLOBJ		L"tsf-tutcode-debug-"
+#define IMCRVKRNLOBJ		L"tsf-tutcode-debug-"
 #endif
-#define CORVUSMGRMUTEX		CORVUSKRNLOBJ L"mgr-"
-#define CORVUSCNFMUTEX		CORVUSKRNLOBJ L"cnf-"
-#define CORVUSMGRPIPE		L"\\\\.\\pipe\\" CORVUSKRNLOBJ
+#define IMCRVMGRMUTEX		IMCRVKRNLOBJ L"mgr-"
+#define IMCRVCNFMUTEX		IMCRVKRNLOBJ L"cnf-"
+#define IMCRVMGRPIPE		L"\\\\.\\pipe\\" IMCRVKRNLOBJ
 
 typedef struct {
 	BYTE digest[16];
@@ -66,6 +67,7 @@ extern LPCWSTR WB;
 
 extern LPCWSTR fnconfigxml;	//設定
 extern LPCWSTR fnuserdic;	//ユーザー辞書
+extern LPCWSTR fnuserbak;	//ユーザー辞書バックアッププレフィックス
 extern LPCWSTR fnskkdic;	//取込SKK辞書
 extern LPCWSTR fnskkidx;	//取込SKK辞書インデックス
 extern LPCWSTR fninitlua;	//init.lua
@@ -90,6 +92,8 @@ BOOL GetSidMD5Digest(LPWSTR *ppszDigest);
 BOOL GetMD5(MD5_DIGEST *digest, CONST BYTE *data, DWORD datalen);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
 BOOL GetLogonSid(LPWSTR *ppszLogonSid);
+
+BOOL StartProcess(HMODULE hCurrentModule, LPCWSTR lpFileName);
 
 #define FORWARD_ITERATION_I(iterator, container) \
 	for(auto (iterator) = (container).begin(); (iterator) != (container).end(); ++(iterator))

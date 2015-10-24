@@ -6,7 +6,6 @@
 
 HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR ch)
 {
-	size_t i;
 	BOOL skipupdate = FALSE;
 
 	switch(sf)
@@ -78,7 +77,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			roman = kana;
 			kana.clear();
 			cursoridx = 0;
-			for(i = 0; i < roman.size(); i++)
+			for(size_t i = 0; i < roman.size(); i++)
 			{
 				ajc.ascii[0] = roman[i];
 				if(_ConvAsciiJLatin(&ajc) == S_OK)
