@@ -374,7 +374,7 @@ IME OFFにして大文字入力直後にIME ONにしようとした時に、意�
 
 各機能に対してキーを正規表現で設定してください。
 
-Visual C++ 2010 の TR1 正規表現で、文法は ECMAScript を使用しています。
+Visual C++ 2013 の 正規表現で、文法は ECMAScript を使用しています。
 
 正規表現の詳細はこちらを参照ください。 https://msdn.microsoft.com/en-us/library/bb982727(v=vs.120).aspx
 
@@ -395,11 +395,7 @@ Visual C++ 2010 の TR1 正規表現で、文法は ECMAScript を使用して�
 
 | 機能 | キー | 備考 |
 |---|---|---|
-| ON  | Alt+`                  | 0xC0 + Alt |
-| 〃  | 漢字                   | 0x19 |
-| 〃  | (Alt+半角/全角  Alt+`) | 0x19 |
-| 〃  | 半角/全角(Ctrl+`)      | 0xF3, 0xF4 |
-| OFF | Alt+`                  | 0xC0 + Alt |
+| ON / OFF | Alt+`                  | 0xC0 + Alt |
 | 〃  | 漢字                   | 0x19 |
 | 〃  | (Alt+半角/全角  Alt+`) | 0x19 |
 | 〃  | 半角/全角(Ctrl+`)      | 0xF3, 0xF4 |

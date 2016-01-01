@@ -3,7 +3,7 @@
 
 tsf-tutcode
 
-Copyright (C) 2013,2014 KIHARA, Hideto
+Copyright (C) 2013-2016 KIHARA, Hideto
 
 Microsoft Public License (MS-PL)
 
