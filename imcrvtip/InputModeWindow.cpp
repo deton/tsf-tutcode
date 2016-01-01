@@ -226,7 +226,6 @@ HRESULT CInputModeWindow::_UnadviseTextLayoutSink()
 
 BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext, BOOL bCandidateWindow, HWND hWnd)
 {
-	WNDCLASSEXW wc;
 	HDC hdc;
 	RECT r;
 	POINT pt = {0, 0};
@@ -268,41 +267,14 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		}
 	}
 
-	wc.cbSize = sizeof(wc);
-	wc.style = CS_IME | CS_VREDRAW | CS_HREDRAW | CS_DROPSHADOW;
-	wc.lpfnWndProc = DefWindowProcW;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = sizeof(LONG_PTR);
-	wc.hInstance = g_hInst;
-	wc.hIcon = NULL;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = InputModeWindowClass;
-	wc.hIconSm = NULL;
-	RegisterClassExW(&wc);
-
 	_hwnd = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE,
 		InputModeWindowClass, L"", WS_POPUP,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-		_hwndParent, NULL, g_hInst, NULL);
+		_hwndParent, NULL, g_hInst, this);
 
 	if(_hwnd == NULL)
 	{
 		return FALSE;
-	}
-
-	WndProcDef = (WNDPROC)GetWindowLongPtrW(_hwnd, GWLP_WNDPROC);
-	if(WndProcDef != 0)
-	{
-		SetWindowLongPtrW(_hwnd, GWLP_USERDATA, (LONG_PTR)this);
-		SetWindowLongPtrW(_hwnd, GWLP_WNDPROC, (LONG_PTR)_WindowPreProc);
-		SetWindowPos(_hwnd, NULL, 0, 0, 0, 0,
-			SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-		if(!_bCandidateWindow)
-		{
-			SetTimer(_hwnd, INPUTMODE_TIMER_ID, INPUTMODE_TIMEOUT_MSEC, NULL);
-		}
 	}
 
 	hdc = GetDC(NULL);
@@ -323,15 +295,55 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	return TRUE;
 }
 
+BOOL CInputModeWindow::_InitClass()
+{
+	WNDCLASSEXW wcex;
+
+	ZeroMemory(&wcex, sizeof(wcex));
+	wcex.cbSize = sizeof(wcex);
+	wcex.style = CS_VREDRAW | CS_HREDRAW | CS_DROPSHADOW;
+	wcex.lpfnWndProc = CInputModeWindow::_WindowPreProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = g_hInst;
+	wcex.hIcon = NULL;
+	wcex.hCursor = LoadCursorW(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = NULL;
+	wcex.lpszClassName = InputModeWindowClass;
+	wcex.hIconSm = NULL;
+
+	ATOM atom = RegisterClassExW(&wcex);
+
+	return (atom != 0);
+}
+
+void CInputModeWindow::_UninitClass()
+{
+	UnregisterClassW(InputModeWindowClass, g_hInst);
+}
+
 LRESULT CALLBACK CInputModeWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	LRESULT ret = 0;
-	CInputModeWindow *pWindowProc = (CInputModeWindow*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
-	if(pWindowProc != NULL)
+	CInputModeWindow *pInputModeWindow = NULL;
+
+	switch(uMsg)
 	{
-		ret = pWindowProc->_WindowProc(hWnd, uMsg, wParam, lParam);
+	case WM_NCCREATE:
+		pInputModeWindow = (CInputModeWindow *)((LPCREATESTRUCTW)lParam)->lpCreateParams;
+		SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)pInputModeWindow);
+		break;
+	default:
+		pInputModeWindow = (CInputModeWindow *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		break;
 	}
-	return ret;
+
+	if(pInputModeWindow != NULL)
+	{
+		return pInputModeWindow->_WindowProc(hWnd, uMsg, wParam, lParam);
+	}
+
+	return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 
 LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -348,6 +360,12 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 
 	switch(uMsg)
 	{
+	case WM_CREATE:
+		if(!_bCandidateWindow)
+		{
+			SetTimer(hWnd, INPUTMODE_TIMER_ID, INPUTMODE_TIMEOUT_MSEC, NULL);
+		}
+		break;
 	case WM_TIMER:
 		if(wParam == INPUTMODE_TIMER_ID)
 		{
@@ -398,8 +416,9 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 	case WM_MOUSEACTIVATE:
 		return MA_NOACTIVATE;
 	default:
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+		return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 	}
+
 	return 0;
 }
 
@@ -503,6 +522,7 @@ void CTextService::_StartInputModeWindow()
 {
 	switch(inputmode)
 	{
+	case im_default:
 	case im_hiragana:
 	case im_katakana:
 	case im_katakana_ank:
@@ -522,22 +542,24 @@ void CTextService::_StartInputModeWindow()
 
 					if(_pInputModeWindow->_Create(this, pContext, FALSE, NULL))
 					{
+						HRESULT hr = E_FAIL;
 						HRESULT hrSession = E_FAIL;
 
 						try
 						{
 							CInputModeWindowEditSession *pEditSession = new CInputModeWindowEditSession(this, pContext, _pInputModeWindow);
-							// Asynchronous
-							pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNC | TF_ES_READWRITE, &hrSession);
+							// Asynchronous, read-only
+							hr = pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNC | TF_ES_READ, &hrSession);
 							SafeRelease(&pEditSession);
+
+							// It is possible that asynchronous requests are treated as synchronous requests.
+							if(hr != S_OK || (hrSession != TF_S_ASYNC && hrSession != S_OK))
+							{
+								_EndInputModeWindow();
+							}
 						}
 						catch(...)
 						{
-						}
-
-						if(hrSession != TF_S_ASYNC)
-						{
-							_EndInputModeWindow();
 						}
 					}
 				}
@@ -547,6 +569,7 @@ void CTextService::_StartInputModeWindow()
 
 				SafeRelease(&pContext);
 			}
+
 			SafeRelease(&pDocumentMgr);
 		}
 		break;

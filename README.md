@@ -61,6 +61,15 @@ tsf-tutcode-X.Y.Z.zip を展開し、32bit版 Windows では tsftutcode-X.Y.Z-x8
 アップデートの後はOSを再起動しておくと安全です。
 
 
+### CorvusSKK のアンインストール
+
+コントロールパネルの「プログラムと機能」からアンインストールしてください。
+
+または、インストールに使用した msi ファイルを再度実行し「Remove」を選択してください。
+
+アンインストールの後はOSを再起動しておくと安全です。
+
+
 ### 初期設定
 
 任意のユーザーアカウントで初めて使用するときは、設定ダイアログでOKボタンを押して初期設定を保存してください。
@@ -230,6 +239,8 @@ UTF-16 (LE, BOMあり) のSKKユーザー辞書フォーマットで書き込ま
 
 ### SKK辞書
 
+![](installer/md_image/01_dictionary.png)
+
 SKK辞書の詳細はこちらを参照ください。 http://openlab.jp/skk/wiki/wiki.cgi?page=FrontPage
 
 SKK辞書ファイルの文字コードは、EUC-JIS-2004、UTF-8 (BOMなし/あり)、UTF-16 (LE, BOMあり) に対応しています。
@@ -265,6 +276,8 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### 動作
 
+![](installer/md_image/02_behavior.png)
+
 | 機能 | 備考 |
 |---|---|
 | 初期入力モード                       | プログラム起動時の入力モードを指定します。 |
@@ -284,6 +297,8 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ###表示
 
+![](installer/md_image/03_display.png)
+
 | 機能 | 備考 |
 |---|---|
 | 候補一覧のフォント                        | 候補一覧に表示するフォントの種類、スタイル、サイズを指定します。 |
@@ -294,13 +309,17 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 | 候補一覧が表示無しのとき候補数を表示する  | (<現在の候補の番号>/<候補数>) の形式を追加して表示します。 |
 | 候補一覧を縦に表示する                    | 候補一覧で候補を縦に並べて表示します。 |
 | 注釈を表示する                            | <候補><セミコロン><注釈> の形式で注釈を表示します。<br>「候補一覧」の指定で候補一覧に限定されます。 |
-| 入力モードを表示する                      | キャレットまたは辞書登録ウィンドウ付近に入力モードを表示します。<br>タイミングは、IME ON、入力モード変更、「\*無効\*」キー押下のときです。<br>「没入型」の指定でストアアプリやEdgeなどに限定されます。 |
+| 入力モードを表示する                      | キャレットまたは辞書登録ウィンドウ付近に入力モードを表示します。<br>タイミングは、IME ON/OFF 変更、入力モード変更、IME ON/OFF キー押下、「\*無効\*」キー押下のときです。<br>「没入型」の指定でストアアプリやEdgeなどに限定されます。 |
 | ▽▼\*マークを表示する                    | 大切なものは目に見えないようです。 |
 | ローマ字を表示する                        | 仮名文字のローマ字プレフィックスを表示します。 |
 | 入力途中のキーシーケンスを表示する        | 有効にすると、一部アプリで後置型変換動作に問題が生じます。 |
 
 
 ### 表示属性
+
+![](installer/md_image/04_display_attribute_1.png)
+
+![](installer/md_image/05_display_attribute_2.png)
 
 入力中文字列の表示属性を設定します。
 
@@ -312,6 +331,8 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 
 ### 候補一覧選択キー
+
+![](installer/md_image/06_select_key.png)
 
 候補一覧での確定は、デフォルトで 1〜7 と ASDFJKL と asdfjkl を使用します。
 
@@ -328,9 +349,9 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### キー設定（ON/OFF）
 
-IMEをONにするキーとOFFにするキーをそれぞれ指定します。
+![](installer/md_image/07_on_off_key.png)
 
-トグルするキーを指定したい場合は、ONとOFFの両方に同じ設定をして下さい。
+IME ON/OFF のキーをそれぞれ指定します。
 
 仮想キーコード、Alt、Control、Shift の組合せを設定してください。
 
@@ -346,6 +367,10 @@ IME ONにCtrlとの組合せを使う場合は、Windows側の設定で、キー
 IME OFFにして大文字入力直後にIME ONにしようとした時に、意図せずにCtrl+Shiftを押してしまうことがあるので。
 
 ### キー設定（文字）、キー設定（仮想キー）
+
+![](installer/md_image/08_key1_character.png)
+
+![](installer/md_image/09_key2_virtual_key.png)
 
 各機能に対してキーを正規表現で設定してください。
 
@@ -453,6 +478,8 @@ Visual C++ 2010 の TR1 正規表現で、文法は ECMAScript を使用して�
 
 ### ローマ字・仮名変換表
 
+![](installer/md_image/11_kana.png)
+
 ローマ字、平仮名、片仮名、所謂半角片仮名、促音/撥音(ん)、待機の組み合せを指定します。
 
 「促／ん」がONのとき、仮名が決定したあとに最後の入力文字が入力状態となります。
@@ -534,6 +561,8 @@ Visual C++ 2010 の TR1 正規表現で、文法は ECMAScript を使用して�
 
 ### ASCII・全英変換表
 
+![](installer/md_image/12_full_width_latin.png)
+
 ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 
@@ -555,7 +584,7 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.3.1です。
+現在使用しているLuaのバージョンは5.3.2です。
 
 詳細はこちらを参照ください。http://www.lua.org/manual/5.3/manual.html
 
@@ -568,7 +597,7 @@ Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsA
 辞書管理プロセスの起動時にスクリプトファイル (init.lua) が下記の優先順位でロードされます。
 
 1. %AppData%\tsf-tutcode\init.lua
-2. 辞書管理プロセスと同じディレクトリのinit.lua
+2. 辞書管理プロセスと同じディレクトリのinit.lua (インストーラーによりインストール済み)
   * 通常、%SystemRoot%\System32\IME\IMTSFTUTCODE\init.lua
   * または、%SystemRoot%\SysWOW64\IME\IMTSFTUTCODE\init.lua
 
@@ -577,7 +606,11 @@ Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsA
 
 ### プログラム実行変換もどき
 
+![](installer/md_image/21_convert_program.png)
+
 Emacs Lispのプログラム実行変換に対応していますが、あくまで「もどき」なのでご了承ください。
+
+SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要です。 http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.lisp
 
 以下のシンボルに大体対応しています。
 
@@ -613,7 +646,7 @@ Emacs Lispのプログラム実行変換に対応していますが、あくま�
 | skk-default-current-date |  |
 | skk-relative-date |  |
 | skk-ignore-dic-word | デフォルト無効 |
-| skk-omikuji | 独自実装<br>おみくじを引くことができます |
+| skk-omikuji | 独自実装。おみくじを引くことができます。<br>『(skk-omikuji)』 |
 | fill-column | 70で固定 |
 | comment-start | "/\*" |
 | comment-end | "\*/" |
@@ -623,9 +656,11 @@ Emacs Lispのプログラム実行変換に対応していますが、あくま�
 
 ### 数値変換
 
+![](installer/md_image/22_convert_number.png)
+
 タイプ0〜3,5,8,9に対応しています。
 
-タイプ3と5での数値は0〜10^68-1の整数に対応しています。
+タイプ3と5での数値は0〜10^72-1の整数に対応しています。
 
 独自実装としてタイプ6(ローマ数字)が、1〜3999の整数に対応しています。
 
@@ -645,20 +680,27 @@ Emacs Lispのプログラム実行変換に対応していますが、あくま�
 
 ### Unicodeコードポイント変換
 
+![](installer/md_image/23_convert_unicode_codepoint.png)
+
 「U+XXXXXX」( コードポイント XXXXXX : 0000-FFFF または 10000-10FFFF ) または「uxxxxxx」( コードポイント xxxxxx : 0000-ffff または 10000-10ffff ) のフォーマットで変換してください。
 
 * 例１）「▽U+30A2」→「▼ア」
 * 例２）「▽u30a2」→「▼ア」
 
 
-### JIS X 0213面区点番号変換
+### JIS X 0213面区点番号、JIS X 0208区点番号変換
 
-「X-YY-ZZ」( 面 X : 1-2、 区 YY : 01-94、点 ZZ: 01-94 ) のフォーマットで変換してください。Unicodeコードポイントが注釈として付加されます。
+![](installer/md_image/24_convert_unicode_jisx0213.png)
 
-* 例）「▽1-05-02」→「▼ア;U+30A2」
+JIS X 0213では「X-YY-ZZ」( 面 X : 1-2、 区 YY : 01-94、点 ZZ: 01-94 )、JIS X 0208では「YY-ZZ」( 区 YY : 01-94、点 ZZ: 01-94 ) のフォーマットで変換してください。Unicodeコードポイントが注釈として付加されます。
+
+* 例１）「▽1-05-02」→「▼ア;U+30A2」
+* 例２）「▽05-02」→「▼ア;U+30A2」
 
 
 ### 文字コード表記変換
+
+![](installer/md_image/25_convert_character_display.png)
 
 「?X」( X : 任意の1文字以上の文字列 ) のフォーマットで変換してください。
 
@@ -672,6 +714,8 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 
 
 ### 注釈の登録
+
+![](installer/md_image/26_register_annotation.png)
 
 辞書登録のとき、登録する候補の入力と同時に行います。
 

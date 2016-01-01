@@ -228,7 +228,7 @@ public:
 	void _StartManager();
 	void _StartConfigure();
 
-	// FnConfigure
+	// FnConfig
 	void _CreateConfigPath();
 	void _ReadBoolValue(LPCWSTR section, LPCWSTR key, BOOL &value, BOOL defval);
 	void _LoadBehavior();
@@ -236,9 +236,8 @@ public:
 	void _LoadSelKey();
 	void _SetPreservedKeyONOFF(int onoff, const APPDATAXMLLIST &list);
 	void _LoadPreservedKey();
-	void _LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[]);
-	void _LoadCKeyMap(LPCWSTR section);
-	void _LoadVKeyMap(LPCWSTR section);
+	void _LoadCKeyMap();
+	void _LoadVKeyMap();
 	void _LoadConvPoint();
 	void _LoadKana();
 	BOOL _AddKanaTree(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int depth);

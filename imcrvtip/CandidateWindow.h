@@ -39,6 +39,8 @@ public:
 	STDMETHODIMP Abort();
 
 	BOOL _Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, BOOL reg, BOOL comp);
+	static BOOL _InitClass();
+	static void _UninitClass();
 	static LRESULT CALLBACK _WindowPreProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void _Destroy();
@@ -56,6 +58,8 @@ public:
 	void _UpdateComp();
 
 private:
+	LONG _cRef;
+
 	void _InitList();
 	void _UpdateUIElement();
 	void _NextPage();
@@ -97,8 +101,6 @@ private:
 	std::vector< UINT > _PageIndex;
 	std::vector< std::wstring > _CandStr;
 
-	LONG _cRef;
-
 	CTextService *_pTextService;
 	CCandidateList *_pCandidateList;
 	CCandidateWindow *_pCandidateWindow;		//子
@@ -111,7 +113,6 @@ private:
 	UINT _depth;		//深さ
 
 	//候補一覧、辞書登録のウィンドウ
-	WNDPROC WndProcDef;
 	std::wstring disptext;		//表示文字列
 	HFONT hFont;				//フォント
 

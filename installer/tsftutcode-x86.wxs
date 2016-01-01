@@ -1,62 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <?define version="0.3.1" ?>
-    <Product Id="*" Name="tsf-tutcode" Language="1033" Version="$(var.version)" Manufacturer="KIHARA Hideto" UpgradeCode="31DA56FD-D180-4C9B-8F1E-AA935A0119B4">
-        <Package Id="*" Compressed="yes" Description="tsf-tutcode" Comments="ver. $(var.version)" Platform="x86" InstallerVersion="200" InstallScope="perMachine" InstallPrivileges="elevated" />
-        <Media Id="1" Cabinet="tsftutcode.cab" CompressionLevel="high" EmbedCab="yes" />
-        <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="SystemFolder" Name="SystemFolder">
-                <Directory Id="ime_x86" Name="IME">
-                    <Directory Id="tsftutcode_x86" Name="IMTSFTUTCODE">
-                        <Component Guid="*" Id="CNF_X86">
-                            <File Id="cnf_x86" Name="imtutcnf.exe" Source="..\Win32\Release\imtutcnf.exe" />
-                        </Component>
-                        <Component Guid="*" Id="MGR_X86">
-                            <File Id="mgr_x86" Name="imtutmgr.exe" Source="..\Win32\Release\imtutmgr.exe" />
-                        </Component>
-                        <Component Guid="*" Id="TIP_X86">
-                            <File Id="tip_x86" Name="imtuttip.dll" Source="..\Win32\Release\imtuttip.dll" SelfRegCost="1" />
-                        </Component>
-                        <Component Guid="*" Id="LUAEXE_X86">
-                            <File Id="luaexe_x86" Name="lua.exe" Source="..\Win32\Release\lua.exe" />
-                        </Component>
-                        <Component Guid="*" Id="LUADLL_X86">
-                            <File Id="luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
-                        </Component>
-                        <Component Guid="*" Id="INITLUA_X86">
-                            <File Id="initlua_x86" Name="init.lua" Source="config-lua\init.lua" />
-                        </Component>
-                    </Directory>
-                </Directory>
-            </Directory>
+
+  <?include tsftutcode-version.wxi ?>
+
+  <Product Id="*" Name="tsf-tutcode" Version="$(var.version)" Manufacturer="KIHARA Hideto"
+    Language="1033" UpgradeCode="31DA56FD-D180-4C9B-8F1E-AA935A0119B4">
+
+    <Package Id="*" Compressed="yes" Description="tsf-tutcode" Comments="ver. $(var.version)"
+      Platform="x86" InstallerVersion="200" InstallScope="perMachine" InstallPrivileges="elevated" />
+
+    <Media Id="1" Cabinet="tsftutcode.cab" CompressionLevel="high" EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="SystemFolder" Name="SystemFolder">
+        <Directory Id="IME_X86" Name="IME">
+          <Directory Id="IMTSFTUTCODE_X86" Name="IMTSFTUTCODE" />
         </Directory>
-        <Component Id="RegistryRun" Guid="*" Directory="TARGETDIR">
-            <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
-                <RegistryValue Type="string" Name="imtutmgr" Value="&quot;$(env.SystemRoot)\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" Action="write" />
-            </RegistryKey>
-        </Component>
-        <Feature Id="DefaultFeature" Title="Main Feature" Level="1">
-            <ComponentRef Id="CNF_X86" />
-            <ComponentRef Id="MGR_X86" />
-            <ComponentRef Id="TIP_X86" />
-            <ComponentRef Id="LUAEXE_X86" />
-            <ComponentRef Id="LUADLL_X86" />
-            <ComponentRef Id="INITLUA_X86" />
-            <ComponentRef Id="RegistryRun" />
-        </Feature>
-        <UIRef Id="WixUI_Minimal" />
-        <WixVariable Id="WixUILicenseRtf" Value="ms-pl.rtf" />
-        <Property Id="ARPPRODUCTICON" Value="tsftutcode.ico" />
-        <Icon Id="tsftutcode.ico" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
+      </Directory>
+    </Directory>
 
-        <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <DirectoryRef Id="IMTSFTUTCODE_X86">
+      <Component Guid="*" Id="CNF_X86">
+        <File Id="F_imtutcnf_x86" Name="imtutcnf.exe" Source="..\Win32\Release\imtutcnf.exe" />
+      </Component>
+      <Component Guid="*" Id="MGR_X86">
+        <File Id="F_imtutmgr_x86" Name="imtutmgr.exe" Source="..\Win32\Release\imtutmgr.exe" />
+      </Component>
+      <Component Guid="*" Id="TIP_X86">
+        <File Id="F_imtuttip_x86" Name="imtuttip.dll" Source="..\Win32\Release\imtuttip.dll" SelfRegCost="1" />
+      </Component>
+      <Component Guid="*" Id="LUAEXE_X86">
+        <File Id="F_luaexe_x86" Name="lua.exe" Source="..\Win32\Release\lua.exe" />
+      </Component>
+      <Component Guid="*" Id="LUADLL_X86">
+        <File Id="F_luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
+      </Component>
+      <Component Guid="*" Id="INITLUA_X86">
+        <File Id="F_initlua_x86" Name="init.lua" Source="config-lua\init.lua" />
+      </Component>
+    </DirectoryRef>
 
-        <InstallExecuteSequence>
-            <ScheduleReboot After="InstallFinalize" />
-        </InstallExecuteSequence>
+    <Component Id="RegistryRun" Guid="*" Directory="TARGETDIR">
+      <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
+        <RegistryValue Action="write" Type="string" Name="imtutmgr"
+          Value="&quot;[%SystemRoot]\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" />
+      </RegistryKey>
+    </Component>
 
-        <Condition Message="This application does not support this version of Windows.">
-            <![CDATA[VersionNT64 >= 600]]>
-        </Condition>
-    </Product>
+    <Feature Id="Default" Title="Main" Level="1">
+      <ComponentRef Id="CNF_X86" />
+      <ComponentRef Id="MGR_X86" />
+      <ComponentRef Id="TIP_X86" />
+      <ComponentRef Id="LUAEXE_X86" />
+      <ComponentRef Id="LUADLL_X86" />
+      <ComponentRef Id="INITLUA_X86" />
+      <ComponentRef Id="RegistryRun" />
+    </Feature>
+
+    <DirectoryRef Id="TARGETDIR">
+      <Merge Id="CRT_X86" DiskId="1" Language="0"
+        SourceFile="$(env.CommonProgramFiles)\Merge Modules\Microsoft_VC120_CRT_x86.msm" />
+    </DirectoryRef>
+    <Feature Id="CRT" Title="VCRuntime" AllowAdvertise="no" Display="hidden" Level="1">
+      <MergeRef Id="CRT_X86" />
+    </Feature>
+
+    <UIRef Id="WixUI_Minimal" />
+    <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+    <Property Id="ARPPRODUCTICON" Value="tsftutcode.ico" />
+    <Icon Id="tsftutcode.ico" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+
+    <InstallExecuteSequence>
+      <ScheduleReboot After="InstallFinalize" />
+    </InstallExecuteSequence>
+
+    <Condition Message="This installer is used for 32-bit Windows. Use 64-bit installer.">
+      <![CDATA[NOT VersionNT64]]>
+    </Condition>
+    <Condition Message="This application does not support this version of Windows.">
+      <![CDATA[VersionNT >= 600]]>
+    </Condition>
+
+  </Product>
 </Wix>

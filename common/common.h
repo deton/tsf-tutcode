@@ -53,10 +53,6 @@
 #define IMCRVCNFMUTEX		IMCRVKRNLOBJ L"cnf-"
 #define IMCRVMGRPIPE		L"\\\\.\\pipe\\" IMCRVKRNLOBJ
 
-typedef struct {
-	BYTE digest[16];
-} MD5_DIGEST;
-
 #define BOM L'\uFEFF'
 
 extern LPCWSTR RccsUTF16;
@@ -89,10 +85,8 @@ BOOL IsWindowsVersion62OrLater();
 BOOL IsWindowsVersion63OrLater();
 BOOL IsWindowsVersion100OrLater();
 
-BOOL GetSidMD5Digest(LPWSTR *ppszDigest);
-BOOL GetMD5(MD5_DIGEST *digest, CONST BYTE *data, DWORD datalen);
+BOOL GetUserUUID(LPWSTR *ppszUUID);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
-BOOL GetLogonSid(LPWSTR *ppszLogonSid);
 
 BOOL StartProcess(HMODULE hCurrentModule, LPCWSTR lpFileName);
 

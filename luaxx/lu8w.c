@@ -72,26 +72,40 @@ DWORD u8GetModuleFileName(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
 DWORD u8FormatMessage(DWORD dwFlags, LPCVOID lpSource, DWORD dwMessageId, DWORD dwLanguageId,
 	LPSTR lpBuffer, DWORD nSize, va_list *Arguments)
 {
-	wchar_t *wbuf;
+	DWORD len = 0;
+	wchar_t *wbuf = NULL;
 	char *b;
 
-	if(nSize == 0) return 0;
-	lpBuffer[0] = '\0';
+	if((lpBuffer == NULL) ||
+		((dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) == 0 && nSize == 0) ||
+		((dwFlags & FORMAT_MESSAGE_IGNORE_INSERTS) == 0) ||
+		((dwFlags & FORMAT_MESSAGE_FROM_STRING) != 0)) {
+		return 0;
+	}
 
-	wbuf = (wchar_t *)calloc(nSize, sizeof(wchar_t));
-	if(wbuf){
-		FormatMessageW(dwFlags, lpSource, dwMessageId, dwLanguageId, wbuf, nSize, NULL);
+	FormatMessageW(dwFlags | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+		lpSource, dwMessageId, dwLanguageId, (LPWSTR)&wbuf, 0, NULL);
+	if(wbuf) {
 		b = u8wstos(wbuf);
 		if(b) {
+			if((dwFlags & FORMAT_MESSAGE_ALLOCATE_BUFFER) != 0) {
+				nSize = (DWORD)max(strlen(b) + 1, nSize);
+				*((LPSTR *)lpBuffer) = (LPSTR)LocalAlloc(LPTR, nSize);
+				lpBuffer = *((LPSTR *)lpBuffer);
+				if(lpBuffer == NULL) {
+					nSize = 0;
+				}
+			}
 			if(strlen(b) < nSize) {
 				strcpy(lpBuffer, b);
+				len = (DWORD)strlen(b);
 			}
 			free(b);
 		}
-		free(wbuf);
+		LocalFree(wbuf);
 	}
 
-	return (DWORD)strlen(lpBuffer);
+	return len;
 }
 
 HMODULE u8LoadLibraryEx(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags)
@@ -187,6 +201,8 @@ int u8fprintf(FILE *file, const char *format, ...)
 
 	vsnprintf(buf, buflen, format, argptr);
 
+	va_end(argptr);
+
 	if(file == stdout || file == stderr) {
 		wbuf = u8stows(buf);
 		if(wbuf) {
@@ -224,6 +240,8 @@ int u8printf(const char *format, ...)
 	}
 
 	vsnprintf(buf, buflen, format, argptr);
+
+	va_end(argptr);
 
 	wbuf = u8stows(buf);
 	if(wbuf) {

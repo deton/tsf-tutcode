@@ -79,7 +79,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 
 	if(_IsComposing() || !cx_showromancomp && !roman.empty())
 	{
-		if(inputmode != im_ascii && !_pInputModeWindow)
+		if(inputmode != im_ascii)
 		{
 			return TRUE;
 		}
@@ -159,14 +159,14 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 	}
 
 	//処理しないCtrlキー
-	if(vk_ctrl)
+	if(vk_ctrl != 0)
 	{
 		postbuf.clear();
 		return FALSE;
 	}
 
-	//ASCIIモード、かなキーロック
-	if(inputmode == im_ascii && !vk_kana)
+	//ASCIIモード、かなキーロックOFF
+	if(inputmode == im_ascii && vk_kana == 0)
 	{
 		return FALSE;
 	}
@@ -230,7 +230,7 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 
 	_EndInputModeWindow();
 
-	if(!_IsComposing())
+	if(!_IsKeyboardDisabled() && _IsKeyboardOpen() && !_IsComposing())
 	{
 		WCHAR ch = _GetCh((BYTE)wParam);
 		if(_IsKeyVoid(ch, (BYTE)wParam))
@@ -320,6 +320,10 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 			_ClearComposition();
 			postbuf.clear();
 		}
+		else
+		{
+			_UpdateLanguageBar();
+		}
 		inputmode = im_disable;
 		_SetKeyboardOpen(TRUE);
 		*pfEaten = TRUE;
@@ -331,6 +335,10 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 			_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
 			_ClearComposition();
 			postbuf.clear();
+		}
+		else
+		{
+			_UpdateLanguageBar();
 		}
 		_SetKeyboardOpen(FALSE);
 		*pfEaten = TRUE;

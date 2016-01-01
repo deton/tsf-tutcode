@@ -81,15 +81,15 @@ void CTextService::_CreateConfigPath()
 	ZeroMemory(mgrmutexname, sizeof(mgrmutexname));
 	ZeroMemory(cnfmutexname, sizeof(cnfmutexname));
 
-	LPWSTR pszDigest = NULL;
+	LPWSTR pszUserUUID = NULL;
 
-	if(GetSidMD5Digest(&pszDigest))
+	if(GetUserUUID(&pszUserUUID))
 	{
-		_snwprintf_s(mgrpipename, _TRUNCATE, L"%s%s", IMCRVMGRPIPE, pszDigest);
-		_snwprintf_s(mgrmutexname, _TRUNCATE, L"%s%s", IMCRVMGRMUTEX, pszDigest);
-		_snwprintf_s(cnfmutexname, _TRUNCATE, L"%s%s", IMCRVCNFMUTEX, pszDigest);
+		_snwprintf_s(mgrpipename, _TRUNCATE, L"%s%s", IMCRVMGRPIPE, pszUserUUID);
+		_snwprintf_s(mgrmutexname, _TRUNCATE, L"%s%s", IMCRVMGRMUTEX, pszUserUUID);
+		_snwprintf_s(cnfmutexname, _TRUNCATE, L"%s%s", IMCRVCNFMUTEX, pszUserUUID);
 
-		LocalFree(pszDigest);
+		LocalFree(pszUserUUID);
 	}
 }
 
@@ -305,7 +305,7 @@ void CTextService::_LoadPreservedKey()
 	}
 }
 
-void CTextService::_LoadCKeyMap(LPCWSTR section)
+void CTextService::_LoadCKeyMap()
 {
 	WCHAR key[2];
 	WCHAR keyre[KEYRELEN];
@@ -322,7 +322,7 @@ void CTextService::_LoadCKeyMap(LPCWSTR section)
 		{
 			break;
 		}
-		ReadValue(pathconfigxml, section, configkeymap[i].keyname, strxmlval);
+		ReadValue(pathconfigxml, SectionKeyMap, configkeymap[i].keyname, strxmlval);
 		wcsncpy_s(keyre, strxmlval.c_str(), _TRUNCATE);
 		if(keyre[0] == L'\0')
 		{
@@ -427,7 +427,7 @@ void CTextService::_LoadCKeyMap(LPCWSTR section)
 	}
 }
 
-void CTextService::_LoadVKeyMap(LPCWSTR section)
+void CTextService::_LoadVKeyMap()
 {
 	WCHAR key[3];
 	WCHAR keyre[KEYRELEN];
@@ -447,7 +447,7 @@ void CTextService::_LoadVKeyMap(LPCWSTR section)
 		{
 			break;
 		}
-		ReadValue(pathconfigxml, section, configkeymap[i].keyname, strxmlval);
+		ReadValue(pathconfigxml, SectionVKeyMap, configkeymap[i].keyname, strxmlval);
 		wcsncpy_s(keyre, strxmlval.c_str(), _TRUNCATE);
 		if(keyre[0] == L'\0')
 		{
@@ -767,7 +767,7 @@ BOOL CTextService::_AddKanaTree(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int 
 {
 	BOOL added = FALSE;
 
-	if((_countof(rkc.roman) <= depth) || (rkc.roman[depth] == L'\0'))
+	if((_countof(rkc.roman) <= (depth + 1)) || (rkc.roman[depth] == L'\0'))
 	{
 		return FALSE;
 	}
@@ -809,7 +809,7 @@ void CTextService::_AddKanaTreeItem(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, 
 
 	ZeroMemory(&rkn, sizeof(rkn));
 
-	if((_countof(rkc.roman) <= depth) || (rkc.roman[depth] == L'\0'))
+	if((_countof(rkc.roman) <= (depth + 1)) || (rkc.roman[depth] == L'\0'))
 	{
 		return;
 	}
