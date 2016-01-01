@@ -3,12 +3,8 @@ platform:
   - x64
 
 install:
-  - if "%Platform%" == "x86" (
-      build.bat
-    ) else (
-      build.bat
-      build.bat x64
-    )
+  - build.bat
+    if "%Platform%"=="x64" (build.bat x64)
 
 build: off
 test: off
