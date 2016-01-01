@@ -4,7 +4,7 @@ platform:
 
 install:
   - build.bat
-  - if "%Platform%"=="x64" (build.bat x64)
+  - if "%Platform%"=="x64" build.bat x64
 
 build: off
 test: off
