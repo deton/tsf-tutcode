@@ -62,6 +62,8 @@ static const struct {
 	{ValueColorNO, RGB(0x00,0x00,0x00)}
 };
 
+LPCWSTR sectionpreservedkeyonoff[PRESERVEDKEY_NUM] = {SectionPreservedKeyON, SectionPreservedKeyOFF};
+
 void CTextService::_CreateConfigPath()
 {
 	PWSTR appdatafolder = NULL;
@@ -230,67 +232,16 @@ void CTextService::_LoadSelKey()
 	}
 }
 
-static bool operator ==(const TF_PRESERVEDKEY &a, const TF_PRESERVEDKEY &b)
+void CTextService::_SetPreservedKeyONOFF(int onoff, const APPDATAXMLLIST &list)
 {
-	return a.uVKey == b.uVKey && a.uModifiers == b.uModifiers;
-}
-
-void CTextService::_LoadPreservedKey()
-{
-	TF_PRESERVEDKEY on[MAX_PRESERVEDKEY];
-	TF_PRESERVEDKEY off[MAX_PRESERVEDKEY];
-	_LoadPreservedKeySub(SectionPreservedKeyOn, on);
-	_LoadPreservedKeySub(SectionPreservedKeyOff, off);
-
-	ZeroMemory(preservedkeyon, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
-	ZeroMemory(preservedkeyoff, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
-	ZeroMemory(preservedkeyonoff, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
-	//OnとOff両方に同じ定義がある場合は、トグルとして扱う
-	int i, j;
-	int idxonoff = 0;
-	int idxon = 0;
-	for(i=0; i<MAX_PRESERVEDKEY; i++)
+	if(onoff != 0 && onoff != 1)
 	{
-		if(on[i].uVKey == 0 && on[i].uModifiers == 0)
-		{
-			break;
-		}
-		if(std::find(off, off + MAX_PRESERVEDKEY, on[i]) < off + MAX_PRESERVEDKEY)
-		{
-			preservedkeyonoff[idxonoff] = on[i];
-			idxonoff++;
-		}
-		else
-		{
-			preservedkeyon[idxon] = on[i];
-			idxon++;
-		}
+		return;
 	}
-	//Onに無くOffだけにある定義
-	int idxoff = 0;
-	for(j=0; j<MAX_PRESERVEDKEY; j++)
-	{
-		if(off[j].uVKey == 0 && off[j].uModifiers == 0)
-		{
-			break;
-		}
-		if(std::find(on, on + MAX_PRESERVEDKEY, off[j]) == on + MAX_PRESERVEDKEY)
-		{
-			preservedkeyoff[idxoff] = off[j];
-			idxoff++;
-		}
-	}
-}
 
-void CTextService::_LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
-{
-	APPDATAXMLLIST list;
+	ZeroMemory(preservedkey[onoff], sizeof(preservedkey[onoff]));
 
-	ZeroMemory(preservedkey, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
-
-	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
-
-	if(hr == S_OK && list.size() != 0)
+	if(list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -304,15 +255,15 @@ void CTextService::_LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVE
 			{
 				if(r_itr->first == AttributeVKey)
 				{
-					preservedkey[i].uVKey = wcstoul(r_itr->second.c_str(), NULL, 0);
+					preservedkey[onoff][i].uVKey = wcstoul(r_itr->second.c_str(), NULL, 0);
 				}
 				else if(r_itr->first == AttributeMKey)
 				{
-					preservedkey[i].uModifiers =
+					preservedkey[onoff][i].uModifiers =
 						wcstoul(r_itr->second.c_str(), NULL, 0) & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT);
-					if((preservedkey[i].uModifiers & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT)) == 0)
+					if((preservedkey[onoff][i].uModifiers & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT)) == 0)
 					{
-						preservedkey[i].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
+						preservedkey[onoff][i].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
 					}
 				}
 			}
@@ -324,7 +275,32 @@ void CTextService::_LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVE
 	{
 		for(int i = 0; i < _countof(configpreservedkey); i++)
 		{
-			preservedkey[i] = configpreservedkey[i];
+			preservedkey[onoff][i] = configpreservedkey[i];
+		}
+	}
+}
+
+void CTextService::_LoadPreservedKey()
+{
+	APPDATAXMLLIST list;
+
+	//for compatibility
+	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
+
+	if(hr == S_OK && list.size() != 0)
+	{
+		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
+		{
+			_SetPreservedKeyONOFF(k, list);
+		}
+	}
+	else
+	{
+		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
+		{
+			list.clear();
+			hr = ReadList(pathconfigxml, sectionpreservedkeyonoff[k], list);
+			_SetPreservedKeyONOFF(k, list);
 		}
 	}
 }

@@ -23,7 +23,7 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 		wc.hInstance = g_hInst;
 		wc.hIcon = NULL;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wc.lpszMenuName = NULL;
 		wc.lpszClassName = CandidateWindowClass;
 		wc.hIconSm = NULL;
@@ -166,7 +166,7 @@ void CCandidateWindow::_Destroy()
 
 void CCandidateWindow::_Move(LPCRECT lpr)
 {
-	if(_hwnd != NULL)
+	if(_hwnd != NULL && lpr != NULL)
 	{
 		_rect = *lpr;
 
@@ -326,7 +326,7 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 
 	_GetChSf(uVKey, ch, sf);
 
-	//複数動的補完
+	//複数補完/複数動的補完
 	if(_comp)
 	{
 		switch(sf)

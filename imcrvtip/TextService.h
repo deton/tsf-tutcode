@@ -5,6 +5,7 @@
 #include "imcrvtip.h"
 #include "convtype.h"
 #include "parseskkdic.h"
+#include "configxml.h"
 #include "mozc/win32/base/deleter.h"
 
 class CLangBarItemButton;
@@ -123,8 +124,6 @@ public:
 	// LanguageBar
 	void _UpdateLanguageBar(BOOL showinputmode = TRUE);
 	void _GetIcon(HICON *phIcon);
-	void _StartInputModeWindow(BOOL term);
-	void _EndInputModeWindow();
 
 	// DisplayAttribureProvider
 	void _ClearCompositionDisplayAttributes(TfEditCookie ec, ITfContext *pContext);
@@ -235,6 +234,7 @@ public:
 	void _LoadBehavior();
 	void _LoadDisplayAttr();
 	void _LoadSelKey();
+	void _SetPreservedKeyONOFF(int onoff, const APPDATAXMLLIST &list);
 	void _LoadPreservedKey();
 	void _LoadPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[]);
 	void _LoadCKeyMap(LPCWSTR section);
@@ -244,6 +244,10 @@ public:
 	BOOL _AddKanaTree(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int depth);
 	void _AddKanaTreeItem(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int depth);
 	void _LoadJLatin();
+
+	// InputModeWindow
+	void _StartInputModeWindow();
+	void _EndInputModeWindow();
 
 private:
 	LONG _cRef;
@@ -262,8 +266,8 @@ private:
 	BOOL _InitKeyEventSink();
 	void _UninitKeyEventSink();
 
-	BOOL _InitPreservedKey();
-	void _UninitPreservedKey();
+	BOOL _InitPreservedKey(int onoff);
+	void _UninitPreservedKey(int onoff);
 
 	BOOL _InitLanguageBar();
 	void _UninitLanguageBar();
@@ -417,9 +421,7 @@ public:
 	WCHAR selkey[MAX_SELKEY_C][2][2];
 
 	//preserved key
-	TF_PRESERVEDKEY preservedkeyon[MAX_PRESERVEDKEY];
-	TF_PRESERVEDKEY preservedkeyoff[MAX_PRESERVEDKEY];
-	TF_PRESERVEDKEY preservedkeyonoff[MAX_PRESERVEDKEY];
+	TF_PRESERVEDKEY preservedkey[PRESERVEDKEY_NUM][MAX_PRESERVEDKEY];
 
 	//表示属性   別のインスタンスからGetDisplayAttributeInfo()が呼ばれるのでstaticで
 	static BOOL display_attribute_series[DISPLAYATTRIBUTE_INFO_NUM];

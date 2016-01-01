@@ -5,9 +5,8 @@
 #include "mozc/win32/base/deleter.h"
 #include "mozc/win32/base/keyboard.h"
 
-static LPCWSTR c_PreservedKeyOnOffDesc = L"OnOff";
-static LPCWSTR c_PreservedKeyOnDesc = L"On";
-static LPCWSTR c_PreservedKeyOffDesc = L"Off";
+static LPCWSTR c_PreservedKeyDesc[PRESERVEDKEY_NUM] = {L"ON", L"OFF"};
+static const GUID c_guidPreservedKeyOnOff[PRESERVEDKEY_NUM] = {c_guidPreservedKeyOn, c_guidPreservedKeyOff};
 
 int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam, bool isKeyDown, bool isTest)
 {
@@ -216,6 +215,11 @@ STDAPI CTextService::OnSetFocus(BOOL fForeground)
 
 STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
+	if(pfEaten == NULL)
+	{
+		return E_INVALIDARG;
+	}
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, TRUE);
 	if(eaten == -1)
 	{
@@ -224,21 +228,15 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 	}
 	*pfEaten = (eaten == TRUE);
 
-	if(_pCandidateList == NULL || !_pCandidateList->_IsShowCandidateWindow())
-	{
-		if(_pInputModeWindow != NULL)
-		{
-			_ClearComposition();
-		}
+	_EndInputModeWindow();
 
-		if(inputmode == im_ascii)
+	if(!_IsComposing())
+	{
+		WCHAR ch = _GetCh((BYTE)wParam);
+		if(_IsKeyVoid(ch, (BYTE)wParam))
 		{
-			WCHAR ch = _GetCh((BYTE)wParam);
-			if(_IsKeyVoid(ch, (BYTE)wParam))
-			{
-				_GetActiveFlags();
-				_UpdateLanguageBar();
-			}
+			_GetActiveFlags();
+			_UpdateLanguageBar();
 		}
 	}
 
@@ -247,6 +245,11 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 
 STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
+	if(pfEaten == NULL)
+	{
+		return E_INVALIDARG;
+	}
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, FALSE);
 	if(eaten == -1)
 	{
@@ -265,6 +268,11 @@ STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BO
 
 STDAPI CTextService::OnTestKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
+	if(pfEaten == NULL)
+	{
+		return E_INVALIDARG;
+	}
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, TRUE);
 	if(eaten == -1)
 	{
@@ -278,6 +286,11 @@ STDAPI CTextService::OnTestKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, 
 
 STDAPI CTextService::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL *pfEaten)
 {
+	if(pfEaten == NULL)
+	{
+		return E_INVALIDARG;
+	}
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, FALSE);
 	if(eaten == -1)
 	{
@@ -291,30 +304,18 @@ STDAPI CTextService::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL
 
 STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEaten)
 {
-	if(IsEqualGUID(rguid, c_guidPreservedKeyOnOff))
+	if(pic == NULL || pfEaten == NULL)
 	{
-		BOOL fOpen = _IsKeyboardOpen();
+		return E_INVALIDARG;
+	}
 
+	BOOL fOpen = _IsKeyboardOpen();
+
+	if(IsEqualGUID(rguid, c_guidPreservedKeyOn))
+	{
 		if(fOpen)
 		{
 			//入力途中のシーケンスはそのまま確定
-			_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
-			_ClearComposition();
-			postbuf.clear();
-		}
-		else
-		{
-			inputmode = im_disable;
-		}
-
-		_SetKeyboardOpen(fOpen ? FALSE : TRUE);
-		*pfEaten = TRUE;
-	}
-	else if(IsEqualGUID(rguid, c_guidPreservedKeyOn))
-	{
-		BOOL fOpen = _IsKeyboardOpen();
-		if(fOpen)
-		{
 			_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
 			_ClearComposition();
 			postbuf.clear();
@@ -325,7 +326,6 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 	}
 	else if(IsEqualGUID(rguid, c_guidPreservedKeyOff))
 	{
-		BOOL fOpen = _IsKeyboardOpen();
 		if(fOpen)
 		{
 			_InvokeKeyHandler(pic, 0, 0, SKK_ENTER);
@@ -351,6 +351,7 @@ BOOL CTextService::_InitKeyEventSink()
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pKeystrokeMgr)) == S_OK)
 	{
 		hr = pKeystrokeMgr->AdviseKeyEventSink(_ClientId, (ITfKeyEventSink *)this, TRUE);
+
 		SafeRelease(&pKeystrokeMgr);
 	}
 
@@ -363,62 +364,71 @@ void CTextService::_UninitKeyEventSink()
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pKeystrokeMgr)) == S_OK)
 	{
 		pKeystrokeMgr->UnadviseKeyEventSink(_ClientId);
+
 		SafeRelease(&pKeystrokeMgr);
 	}
 }
 
-#define _PRESERVE_KEY(preservedkey, c_guidPreservedKey, c_PreservedKeyDesc) \
-do \
-{ \
-	for(int i = 0; i < MAX_PRESERVEDKEY; i++) \
-	{ \
-		if(preservedkey[i].uVKey == 0 && preservedkey[i].uModifiers == 0) \
-		{ \
-			break; \
-		} \
-		hr = pKeystrokeMgr->PreserveKey(_ClientId, c_guidPreservedKey, \
-			&preservedkey[i], c_PreservedKeyDesc, (ULONG)wcslen(c_PreservedKeyDesc)); \
-	} \
-} while(0)
-
-BOOL CTextService::_InitPreservedKey()
+BOOL CTextService::_InitPreservedKey(int onoff)
 {
-	HRESULT hr = E_FAIL;
+	BOOL fRet = TRUE;
+	HRESULT hr;
+
+	if(onoff != 0 && onoff != 1)
+	{
+		return FALSE;
+	}
 
 	ITfKeystrokeMgr *pKeystrokeMgr;
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pKeystrokeMgr)) == S_OK)
 	{
-		_PRESERVE_KEY(preservedkeyon, c_guidPreservedKeyOn, c_PreservedKeyOnDesc);
-		_PRESERVE_KEY(preservedkeyoff, c_guidPreservedKeyOff, c_PreservedKeyOffDesc);
-		_PRESERVE_KEY(preservedkeyonoff, c_guidPreservedKeyOnOff, c_PreservedKeyOnOffDesc);
+		for(int i = 0; i < MAX_PRESERVEDKEY; i++)
+		{
+			if(preservedkey[onoff][i].uVKey == 0 && preservedkey[onoff][i].uModifiers == 0)
+			{
+				break;
+			}
+
+			hr = pKeystrokeMgr->PreserveKey(_ClientId, c_guidPreservedKeyOnOff[onoff],
+				&preservedkey[onoff][i], c_PreservedKeyDesc[onoff], (ULONG)wcslen(c_PreservedKeyDesc[onoff]));
+
+			if(hr != S_OK)
+			{
+				fRet = FALSE;
+			}
+		}
 
 		SafeRelease(&pKeystrokeMgr);
 	}
+	else
+	{
+		fRet = FALSE;
+	}
 
-	return (hr == S_OK);
+	return fRet;
 }
 
-#define _UNPRESERVE_KEY(preservedkey, c_guidPreservedKey) \
-do \
-{ \
-	for(int i = 0; i < MAX_PRESERVEDKEY; i++) \
-	{ \
-		if(preservedkey[i].uVKey == 0 && preservedkey[i].uModifiers == 0) \
-		{ \
-			break; \
-		} \
-		pKeystrokeMgr->UnpreserveKey(c_guidPreservedKey, &preservedkey[i]); \
-	} \
-} while(0)
-
-void CTextService::_UninitPreservedKey()
+void CTextService::_UninitPreservedKey(int onoff)
 {
+	HRESULT hr;
+
+	if(onoff != 0 && onoff != 1)
+	{
+		return;
+	}
+
 	ITfKeystrokeMgr *pKeystrokeMgr;
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pKeystrokeMgr)) == S_OK)
 	{
-		_UNPRESERVE_KEY(preservedkeyon, c_guidPreservedKeyOn);
-		_UNPRESERVE_KEY(preservedkeyoff, c_guidPreservedKeyOff);
-		_UNPRESERVE_KEY(preservedkeyonoff, c_guidPreservedKeyOnOff);
+		for(int i = 0; i < MAX_PRESERVEDKEY; i++)
+		{
+			if(preservedkey[onoff][i].uVKey == 0 && preservedkey[onoff][i].uModifiers == 0)
+			{
+				break;
+			}
+
+			hr = pKeystrokeMgr->UnpreserveKey(c_guidPreservedKeyOnOff[onoff], &preservedkey[onoff][i]);
+		}
 
 		SafeRelease(&pKeystrokeMgr);
 	}

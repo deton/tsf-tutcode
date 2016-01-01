@@ -9,8 +9,14 @@
 WCHAR conv_point[CONV_POINT_NUM][3][2];
 std::vector<ROMAN_KANA_CONV> roman_kana_conv;
 ASCII_JLATIN_CONV ascii_jlatin_conv[ASCII_JLATIN_TBL_NUM];
-TF_PRESERVEDKEY preservedkeyon[MAX_PRESERVEDKEY];
-TF_PRESERVEDKEY preservedkeyoff[MAX_PRESERVEDKEY];
+TF_PRESERVEDKEY preservedkey[PRESERVEDKEY_NUM][MAX_PRESERVEDKEY];
+static const struct {
+	int id;
+	LPCWSTR section;
+} preservedkeySectionInfo[PRESERVEDKEY_NUM] = {
+	{IDC_LIST_PRSRVKEY_ON, SectionPreservedKeyON},
+	{IDC_LIST_PRSRVKEY_OFF, SectionPreservedKeyOFF},
+};
 
 void LoadCheckButton(HWND hDlg, int nIDDlgItem, LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault)
 {
@@ -47,15 +53,16 @@ void SaveKeyMap(HWND hDlg, int nIDDlgItem, LPCWSTR lpKeyName)
 	WriterKey(pXmlWriter, lpKeyName, keyre);
 }
 
-static void LoadConfigPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
+void SetConfigPreservedKeyONOFF(int onoff, const APPDATAXMLLIST &list)
 {
-	APPDATAXMLLIST list;
+	if(onoff != 0 && onoff != 1)
+	{
+		return;
+	}
 
-	ZeroMemory(preservedkey, sizeof(TF_PRESERVEDKEY) * MAX_PRESERVEDKEY);
+	ZeroMemory(preservedkey[onoff], sizeof(preservedkey[onoff]));
 
-	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
-
-	if(hr == S_OK && list.size() != 0)
+	if(list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -69,14 +76,14 @@ static void LoadConfigPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDK
 			{
 				if(r_itr->first == AttributeVKey)
 				{
-					preservedkey[i].uVKey = wcstoul(r_itr->second.c_str(), NULL, 0);
+					preservedkey[onoff][i].uVKey = wcstoul(r_itr->second.c_str(), NULL, 0);
 				}
 				else if(r_itr->first == AttributeMKey)
 				{
-					preservedkey[i].uModifiers = wcstoul(r_itr->second.c_str(), NULL, 0);
-					if(preservedkey[i].uModifiers == 0)
+					preservedkey[onoff][i].uModifiers = wcstoul(r_itr->second.c_str(), NULL, 0);
+					if(preservedkey[onoff][i].uModifiers == 0)
 					{
-						preservedkey[i].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
+						preservedkey[onoff][i].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
 					}
 				}
 			}
@@ -86,137 +93,155 @@ static void LoadConfigPreservedKeySub(LPCWSTR SectionPreservedKey, TF_PRESERVEDK
 	}
 	else
 	{
-		preservedkey[0].uVKey = VK_OEM_3/*0xC0*/;
-		preservedkey[0].uModifiers = TF_MOD_ALT;
-		preservedkey[1].uVKey = VK_KANJI/*0x19*/;
-		preservedkey[1].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
-		preservedkey[2].uVKey = VK_OEM_AUTO/*0xF3*/;
-		preservedkey[2].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
-		preservedkey[3].uVKey = VK_OEM_ENLW/*0xF4*/;
-		preservedkey[3].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
+		preservedkey[onoff][0].uVKey = VK_OEM_3/*0xC0*/;
+		preservedkey[onoff][0].uModifiers = TF_MOD_ALT;
+		preservedkey[onoff][1].uVKey = VK_KANJI/*0x19*/;
+		preservedkey[onoff][1].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
+		preservedkey[onoff][2].uVKey = VK_OEM_AUTO/*0xF3*/;
+		preservedkey[onoff][2].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
+		preservedkey[onoff][3].uVKey = VK_OEM_ENLW/*0xF4*/;
+		preservedkey[onoff][3].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
 	}
 }
 
 void LoadConfigPreservedKey()
 {
-	LoadConfigPreservedKeySub(SectionPreservedKeyOn, preservedkeyon);
-	LoadConfigPreservedKeySub(SectionPreservedKeyOff, preservedkeyoff);
-}
+	APPDATAXMLLIST list;
 
-static void LoadPreservedKeySub(HWND hWndListView, const TF_PRESERVEDKEY preservedkey[])
-{
-	LVITEMW item;
-	WCHAR num[8];
+	//for compatibility
+	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
 
-	for(int i = 0; i < MAX_PRESERVEDKEY; i++)
+	if(hr == S_OK && list.size() != 0)
 	{
-		if(preservedkey[i].uVKey == 0 &&
-			preservedkey[i].uModifiers == 0)
+		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
 		{
-			break;
+			SetConfigPreservedKeyONOFF(k, list);
 		}
-
-		item.mask = LVIF_TEXT;
-		_snwprintf_s(num, _TRUNCATE, L"0x%02X", preservedkey[i].uVKey);
-		item.pszText = num;
-		item.iItem = i;
-		item.iSubItem = 0;
-		ListView_InsertItem(hWndListView, &item);
-		_snwprintf_s(num, _TRUNCATE, L"%d", preservedkey[i].uModifiers & TF_MOD_ALT ? 1 : 0);
-		item.pszText = num;
-		item.iItem = i;
-		item.iSubItem = 1;
-		ListView_SetItem(hWndListView, &item);
-		_snwprintf_s(num, _TRUNCATE, L"%d", preservedkey[i].uModifiers & TF_MOD_CONTROL ? 1 : 0);
-		item.pszText = num;
-		item.iItem = i;
-		item.iSubItem = 2;
-		ListView_SetItem(hWndListView, &item);
-		_snwprintf_s(num, _TRUNCATE, L"%d", preservedkey[i].uModifiers & TF_MOD_SHIFT ? 1 : 0);
-		item.pszText = num;
-		item.iItem = i;
-		item.iSubItem = 3;
-		ListView_SetItem(hWndListView, &item);
+	}
+	else
+	{
+		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
+		{
+			list.clear();
+			hr = ReadList(pathconfigxml, preservedkeySectionInfo[k].section, list);
+			SetConfigPreservedKeyONOFF(k, list);
+		}
 	}
 }
 
 void LoadPreservedKey(HWND hwnd)
 {
+	LVITEMW item;
+	WCHAR num[8];
+
 	LoadConfigPreservedKey();
 
-	LoadPreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEY), preservedkeyon);
-	LoadPreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEYOFF), preservedkeyoff);
+	for(int k = 0; k < PRESERVEDKEY_NUM; k++)
+	{
+		HWND hWndListView = GetDlgItem(hwnd, preservedkeySectionInfo[k].id);
+
+		for(int i = 0; i < MAX_PRESERVEDKEY; i++)
+		{
+			if(preservedkey[k][i].uVKey == 0 &&
+				preservedkey[k][i].uModifiers == 0)
+			{
+				break;
+			}
+
+			item.mask = LVIF_TEXT;
+			_snwprintf_s(num, _TRUNCATE, L"0x%02X", preservedkey[k][i].uVKey);
+			item.pszText = num;
+			item.iItem = i;
+			item.iSubItem = 0;
+			ListView_InsertItem(hWndListView, &item);
+			_snwprintf_s(num, _TRUNCATE, L"%d", preservedkey[k][i].uModifiers & TF_MOD_ALT ? 1 : 0);
+			item.pszText = num;
+			item.iItem = i;
+			item.iSubItem = 1;
+			ListView_SetItem(hWndListView, &item);
+			_snwprintf_s(num, _TRUNCATE, L"%d", preservedkey[k][i].uModifiers & TF_MOD_CONTROL ? 1 : 0);
+			item.pszText = num;
+			item.iItem = i;
+			item.iSubItem = 2;
+			ListView_SetItem(hWndListView, &item);
+			_snwprintf_s(num, _TRUNCATE, L"%d", preservedkey[k][i].uModifiers & TF_MOD_SHIFT ? 1 : 0);
+			item.pszText = num;
+			item.iItem = i;
+			item.iSubItem = 3;
+			ListView_SetItem(hWndListView, &item);
+		}
+	}
 }
 
-static void SavePreservedKeySub(HWND hWndListView, LPCWSTR SectionPreservedKey, TF_PRESERVEDKEY preservedkey[])
+void SavePreservedKey(HWND hwnd)
 {
 	APPDATAXMLLIST list;
 	APPDATAXMLROW row;
 	APPDATAXMLATTR attr;
 	WCHAR key[8];
 
-	int count = ListView_GetItemCount(hWndListView);
-
-	for(int i = 0; i < count && i < MAX_PRESERVEDKEY; i++)
+	for(int k = 0; k < PRESERVEDKEY_NUM; k++)
 	{
-		ListView_GetItemText(hWndListView, i, 0, key, _countof(key));
-		preservedkey[i].uVKey = wcstoul(key, NULL, 0);
-		preservedkey[i].uModifiers = 0;
-		ListView_GetItemText(hWndListView, i, 1, key, _countof(key));
-		if(key[0] == L'1')
+		list.clear();
+
+		HWND hWndListView = GetDlgItem(hwnd, preservedkeySectionInfo[k].id);
+		int count = ListView_GetItemCount(hWndListView);
+
+		for(int i = 0; i < count && i < MAX_PRESERVEDKEY; i++)
 		{
-			preservedkey[i].uModifiers |= TF_MOD_ALT;
+			ListView_GetItemText(hWndListView, i, 0, key, _countof(key));
+			preservedkey[k][i].uVKey = wcstoul(key, NULL, 0);
+			preservedkey[k][i].uModifiers = 0;
+			ListView_GetItemText(hWndListView, i, 1, key, _countof(key));
+			if(key[0] == L'1')
+			{
+				preservedkey[k][i].uModifiers |= TF_MOD_ALT;
+			}
+			ListView_GetItemText(hWndListView, i, 2, key, _countof(key));
+			if(key[0] == L'1')
+			{
+				preservedkey[k][i].uModifiers |= TF_MOD_CONTROL;
+			}
+			ListView_GetItemText(hWndListView, i, 3, key, _countof(key));
+			if(key[0] == L'1')
+			{
+				preservedkey[k][i].uModifiers |= TF_MOD_SHIFT;
+			}
 		}
-		ListView_GetItemText(hWndListView, i, 2, key, _countof(key));
-		if(key[0] == L'1')
+		if(count < MAX_PRESERVEDKEY)
 		{
-			preservedkey[i].uModifiers |= TF_MOD_CONTROL;
+			preservedkey[k][count].uVKey = 0;
+			preservedkey[k][count].uModifiers = 0;
 		}
-		ListView_GetItemText(hWndListView, i, 3, key, _countof(key));
-		if(key[0] == L'1')
+
+		WriterStartSection(pXmlWriter, preservedkeySectionInfo[k].section);	//Start of SectionPreservedKey(ON|OFF)
+
+		for(int i = 0; i < MAX_PRESERVEDKEY; i++)
 		{
-			preservedkey[i].uModifiers |= TF_MOD_SHIFT;
+			if(preservedkey[k][i].uVKey == 0 &&
+				preservedkey[k][i].uModifiers == 0)
+			{
+				break;
+			}
+
+			attr.first = AttributeVKey;
+			_snwprintf_s(key, _TRUNCATE, L"0x%02X", preservedkey[k][i].uVKey);
+			attr.second = key;
+			row.push_back(attr);
+
+			attr.first = AttributeMKey;
+			_snwprintf_s(key, _TRUNCATE, L"%X", preservedkey[k][i].uModifiers);
+			attr.second = key;
+			row.push_back(attr);
+
+			list.push_back(row);
+			row.clear();
 		}
+
+		WriterList(pXmlWriter, list);
+
+		WriterEndSection(pXmlWriter);	//End of SectionPreservedKey(ON|OFF)
 	}
-	if(count < MAX_PRESERVEDKEY)
-	{
-		preservedkey[count].uVKey = 0;
-		preservedkey[count].uModifiers = 0;
-	}
-
-	WriterStartSection(pXmlWriter, SectionPreservedKey);	//Start of SectionPreservedKey
-
-	for(int i = 0; i < MAX_PRESERVEDKEY; i++)
-	{
-		if(preservedkey[i].uVKey == 0 &&
-			preservedkey[i].uModifiers == 0)
-		{
-			break;
-		}
-
-		attr.first = AttributeVKey;
-		_snwprintf_s(key, _TRUNCATE, L"0x%02X", preservedkey[i].uVKey);
-		attr.second = key;
-		row.push_back(attr);
-
-		attr.first = AttributeMKey;
-		_snwprintf_s(key, _TRUNCATE, L"%X", preservedkey[i].uModifiers);
-		attr.second = key;
-		row.push_back(attr);
-
-		list.push_back(row);
-		row.clear();
-	}
-
-	WriterList(pXmlWriter, list);
-
-	WriterEndSection(pXmlWriter);	//End of SectionPreservedKey
-}
-
-void SavePreservedKey(HWND hwnd)
-{
-	SavePreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEY), SectionPreservedKeyOn, preservedkeyon);
-	SavePreservedKeySub(GetDlgItem(hwnd, IDC_LIST_PRSRVKEYOFF), SectionPreservedKeyOff, preservedkeyoff);
 }
 
 void LoadConfigConvPoint()
