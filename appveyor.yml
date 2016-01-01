@@ -1,0 +1,15 @@
+platform:
+  - x86
+  - x64
+
+install:
+  - if "%Platform%" == "x86" (
+      build.bat
+    ) else (
+      build.bat
+      build.bat x64
+    )
+
+build: off
+test: off
+deploy: off
