@@ -7,7 +7,7 @@
     Language="1033" UpgradeCode="8EC1F2D0-BE94-43E6-9C74-6CA6ADA9737E">
 
     <Package Id="*" Compressed="yes" Description="tsf-tutcode" Comments="ver. $(var.version)"
-      Platform="x64" InstallerVersion="200" InstallScope="perMachine" InstallPrivileges="elevated" />
+      Platform="x64" InstallerVersion="405" InstallScope="perMachine" InstallPrivileges="elevated" />
 
     <Media Id="1" Cabinet="tsftutcode.cab" CompressionLevel="high" EmbedCab="yes" />
 
