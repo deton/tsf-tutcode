@@ -61,7 +61,7 @@ purpose and non-infringement.
 
 CorvusSKK
 
-Copyright (C) 2011-2015 SASAKI Nobuyuki
+Copyright (C) 2011-2016 SASAKI Nobuyuki
 
 Microsoft Public License (MS-PL)
 

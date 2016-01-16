@@ -40,8 +40,8 @@
       <Component Guid="*" Id="LUADLL_X86">
         <File Id="F_luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
       </Component>
-      <Component Guid="*" Id="LUAINIT_X86">
-        <File Id="F_luainit_x86" Name="init.lua" Source="config-lua\init.lua" />
+      <Component Guid="*" Id="INITLUA_X86">
+        <File Id="F_initlua_x86" Name="init.lua" Source="config-lua\init.lua" />
       </Component>
     </DirectoryRef>
 
@@ -79,7 +79,7 @@
       <ComponentRef Id="TIP_X86" />
       <ComponentRef Id="LUAEXE_X86" />
       <ComponentRef Id="LUADLL_X86" />
-      <ComponentRef Id="LUAINIT_X86" />
+      <ComponentRef Id="INITLUA_X86" />
       <ComponentRef Id="CNF_X64" />
       <ComponentRef Id="MGR_X64" />
       <ComponentRef Id="TIP_X64" />

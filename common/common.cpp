@@ -45,8 +45,8 @@ const TF_DISPLAYATTRIBUTE c_daDisplayAttributeInputText =
 
 const TF_DISPLAYATTRIBUTE c_daDisplayAttributeInputOkuri =
 {
-	{TF_CT_COLORREF, RGB(0x00, 0x80, 0xFF)},	// TF_DA_COLOR crText;
-	{TF_CT_COLORREF, RGB(0xFF, 0xFF, 0xFF)},	// TF_DA_COLOR crBk;
+	{TF_CT_NONE, RGB(0x00, 0x00, 0x00)},	// TF_DA_COLOR crText;
+	{TF_CT_NONE, RGB(0xFF, 0xFF, 0xFF)},	// TF_DA_COLOR crBk;
 	TF_LS_DASH,					// TF_DA_LINESTYLE lsStyle;
 	FALSE,						// BOOL fBoldLine;
 	{TF_CT_NONE, 0},			// TF_DA_COLOR crLine;
@@ -65,8 +65,8 @@ const TF_DISPLAYATTRIBUTE c_daDisplayAttributeConvMark =
 
 const TF_DISPLAYATTRIBUTE c_daDisplayAttributeConvText =
 {
-	{TF_CT_COLORREF, RGB(0xFF, 0xFF, 0xFF)},	// TF_DA_COLOR crText;
-	{TF_CT_COLORREF, RGB(0x00, 0x80, 0xFF)},	// TF_DA_COLOR crBk;
+	{TF_CT_NONE, RGB(0x00, 0x00, 0x00)},	// TF_DA_COLOR crText;
+	{TF_CT_NONE, RGB(0xFF, 0xFF, 0xFF)},	// TF_DA_COLOR crBk;
 	TF_LS_NONE,					// TF_DA_LINESTYLE lsStyle;
 	FALSE,						// BOOL fBoldLine;
 	{TF_CT_NONE, 0},			// TF_DA_COLOR crLine;
@@ -247,24 +247,30 @@ BOOL GetLogonSessionData(PSECURITY_LOGON_SESSION_DATA *ppLogonSessionData)
 	BOOL bRet = FALSE;
 	HANDLE hToken = INVALID_HANDLE_VALUE;
 	DWORD dwLength = 0;
-	PTOKEN_STATISTICS pTokenStatistics = NULL;
 
 	if(OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
 	{
-		GetTokenInformation(hToken, TokenStatistics, NULL, 0, &dwLength);
-		pTokenStatistics = (PTOKEN_STATISTICS)LocalAlloc(LPTR, dwLength);
-
-		if(pTokenStatistics != NULL)
+		TOKEN_ELEVATION_TYPE tokenElevationType;
+		if(GetTokenInformation(hToken, TokenElevationType, &tokenElevationType, sizeof(tokenElevationType), &dwLength))
 		{
-			if(GetTokenInformation(hToken, TokenStatistics, pTokenStatistics, dwLength, &dwLength))
+			if(tokenElevationType == TokenElevationTypeFull)
 			{
-				if(LsaGetLogonSessionData(&pTokenStatistics->AuthenticationId, ppLogonSessionData) == STATUS_SUCCESS)
+				TOKEN_LINKED_TOKEN tokenLinkedToken;
+				if(GetTokenInformation(hToken, TokenLinkedToken, &tokenLinkedToken, sizeof(tokenLinkedToken), &dwLength))
 				{
-					bRet = TRUE;
+					CloseHandle(hToken);
+					hToken = tokenLinkedToken.LinkedToken;
 				}
 			}
+		}
 
-			LocalFree(pTokenStatistics);
+		TOKEN_STATISTICS tokenStatistics;
+		if(GetTokenInformation(hToken, TokenStatistics, &tokenStatistics, sizeof(tokenStatistics), &dwLength))
+		{
+			if(LsaGetLogonSessionData(&tokenStatistics.AuthenticationId, ppLogonSessionData) == STATUS_SUCCESS)
+			{
+				bRet = TRUE;
+			}
 		}
 
 		CloseHandle(hToken);
@@ -290,9 +296,9 @@ BOOL GetUserUUID(LPWSTR *ppszUUID)
 	{
 		DWORD ldata[] = {
 			pLogonSessionData->LogonId.LowPart,
-			pLogonSessionData->LogonId.HighPart,
+			(DWORD)pLogonSessionData->LogonId.HighPart,
 			pLogonSessionData->LogonTime.LowPart,
-			pLogonSessionData->LogonTime.HighPart
+			(DWORD)pLogonSessionData->LogonTime.HighPart,
 		};
 		DWORD dwLogonInfoLen = sizeof(ldata) + GetLengthSid(pLogonSessionData->Sid);
 
