@@ -194,40 +194,61 @@ void ParseSKKDicOkuriBlock(const std::wstring &s, SKKDICOKURIBLOCKS &o)
 
 std::wstring ParseConcat(const std::wstring &s)
 {
-	std::wstring ret, numstr, tmpstr, fmt;
+	std::wstring ret, fmt, numstr, numtmpstr;
 	std::wregex re;
 	std::wsmatch res;
 	wchar_t u;
-
+	LPCWSTR bsrep = L"\uf05c";
 	ret = s;
 
-	tmpstr = s;
-	re.assign(L"^\\(concat \".+?\"\\)$");
-	if(std::regex_search(tmpstr, re))
+	re.assign(L"^\\(\\s*concat\\s+\".+\"\\s*\\)$");
+	if(std::regex_search(ret, re))
 	{
-		ret.clear();
-		fmt = L"$1";
-
-		re.assign(L"\\(concat \"(.+)\"\\)");
-		tmpstr = std::regex_replace(tmpstr, re, fmt);
-
-		re.assign(L"\\\\([\\\"\\\\])");
-		tmpstr = std::regex_replace(tmpstr, re, fmt);
-
+		re.assign(L"^\\(\\s*concat\\s+\"(.+)\"\\s*\\)$");
+		fmt.assign(L"$1");
+		ret = std::regex_replace(ret, re, fmt);
+		re.assign(L"\"\\s+\"");
+		fmt.assign(L"");
+		ret = std::regex_replace(ret, re, fmt);
+		//バックスラッシュ
+		re.assign(L"\\\\\\\\");
+		fmt.assign(bsrep);
+		ret = std::regex_replace(ret, re, fmt);
+		//二重引用符
+		re.assign(L"\\\\\\\"");
+		fmt.assign(L"\\\"");
+		ret = std::regex_replace(ret, re, fmt);
+		//空白文字
+		re.assign(L"\\\\s");
+		fmt.assign(L"\x20");
+		ret = std::regex_replace(ret, re, fmt);
+		//制御文字など
+		re.assign(L"\\\\[abtnvfred ]");
+		fmt.assign(L"");
+		ret = std::regex_replace(ret, re, fmt);
+		//8進数表記の文字
 		re.assign(L"\\\\[0-3][0-7]{2}");
-		while(std::regex_search(tmpstr, res, re))
+		while(std::regex_search(ret, res, re))
 		{
-			ret += res.prefix();
-			numstr = res.str();
-			numstr[0] = L'0';
-			u = (wchar_t)wcstoul(numstr.c_str(), NULL, 0);
+			numstr += res.prefix();
+			numtmpstr = res.str();
+			numtmpstr[0] = L'0';
+			u = (wchar_t)wcstoul(numtmpstr.c_str(), NULL, 0);
 			if(u >= L'\x20' && u <= L'\x7E')
 			{
-				ret.append(1, u);
+				numstr.append(1, u);
 			}
-			tmpstr = res.suffix();
+			ret = res.suffix();
 		}
-		ret += tmpstr;
+		ret = numstr + ret;
+		//意味なしエスケープ
+		re.assign(L"\\\\");
+		fmt.assign(L"");
+		ret = std::regex_replace(ret, re, fmt);
+		//バックスラッシュ
+		re.assign(bsrep);
+		fmt.assign(L"\\");
+		ret = std::regex_replace(ret, re, fmt);
 	}
 
 	return ret;

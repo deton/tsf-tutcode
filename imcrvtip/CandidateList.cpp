@@ -383,6 +383,18 @@ void CCandidateList::_InvokeSfHandler(BYTE sf)
 
 void CCandidateList::_EndCandidateList()
 {
+	_UnadviseTextLayoutSink();
+
+	_UnadviseContextKeyEventSink();
+
+	if(_pDocumentMgr != NULL)
+	{
+		_pDocumentMgr->Pop(0);
+	}
+
+	SafeRelease(&_pContextCandidateWindow);
+	SafeRelease(&_pDocumentMgr);
+
 	if(_pCandidateWindow != NULL)
 	{
 		_pCandidateWindow->_EndUIElement();
@@ -391,18 +403,7 @@ void CCandidateList::_EndCandidateList()
 	SafeRelease(&_pCandidateWindow);
 
 	SafeRelease(&_pRangeComposition);
-
-	_UnadviseContextKeyEventSink();
-	SafeRelease(&_pContextCandidateWindow);
-
-	_UnadviseTextLayoutSink();
 	SafeRelease(&_pContextDocument);
-
-	if(_pDocumentMgr != NULL)
-	{
-		_pDocumentMgr->Pop(0);
-	}
-	SafeRelease(&_pDocumentMgr);
 }
 
 BOOL CCandidateList::_IsShowCandidateWindow()

@@ -266,6 +266,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			_PrevConv();
 
+			if(showcandlist && (candidx < cx_untilcandlist - 1))
+			{
+				showcandlist = FALSE;
+				if(pContext != NULL)
+				{
+					_EndCandidateList();
+				}
+			}
+
 			if(!showentry && (cx_dynamiccomp || cx_dyncompmulti))
 			{
 				_DynamicComp(ec, pContext);
@@ -486,6 +495,14 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 	case SKK_ENTER:
 		_ConvRoman();
+		if(showcandlist)
+		{
+			//_Update function needs showcandlist flag.
+			if(pContext != NULL)
+			{
+				_EndCandidateList();
+			}
+		}
 		_HandleCharReturn(ec, pContext, (_GetSf(0, ch) == SKK_BACK ? TRUE : FALSE));
 		return S_OK;
 		break;
@@ -510,6 +527,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				cursoridx--;
 			}
 
+			if(showcandlist)
+			{
+				showcandlist = FALSE;
+				if(pContext != NULL)
+				{
+					_EndCandidateList();
+				}
+			}
+
 			if(cx_dynamiccomp || cx_dyncompmulti)
 			{
 				_DynamicComp(ec, pContext);
@@ -520,6 +546,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				{
 					_EndCompletionList(ec, pContext);
 				}
+
 				_Update(ec, pContext);
 			}
 		}

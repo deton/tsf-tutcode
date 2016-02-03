@@ -383,7 +383,7 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 			{
 				if(_pCandidateWindowParent == NULL)
 				{
-					_EndCandidateList(SKK_CANCEL);
+					_InvokeSfHandler(SKK_CANCEL);
 				}
 				else
 				{
@@ -433,7 +433,7 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 							if(_pCandidateWindowParent == NULL)
 							{
 								_pTextService->candidx = index;
-								_EndCandidateList(SKK_ENTER);
+								_InvokeSfHandler(SKK_ENTER);
 							}
 							else
 							{
@@ -731,7 +731,7 @@ void CCandidateWindow::_PrevPage()
 				{
 					if(_pCandidateWindowParent == NULL)
 					{
-						_EndCandidateList(SKK_CANCEL);
+						_InvokeSfHandler(SKK_CANCEL);
 					}
 					else
 					{
@@ -749,7 +749,7 @@ void CCandidateWindow::_PrevPage()
 					if(_pCandidateWindowParent == NULL)
 					{
 						_pTextService->candidx = _pTextService->cx_untilcandlist - 1;
-						_EndCandidateList(SKK_PREV_CAND);
+						_InvokeSfHandler(SKK_PREV_CAND);
 					}
 					else
 					{
@@ -939,11 +939,11 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 				{
 					if(_pTextService->candidates.empty())
 					{
-						_EndCandidateList(SKK_CANCEL);
+						_InvokeSfHandler(SKK_CANCEL);
 					}
 					else
 					{
-						_EndCandidateList(SKK_PREV_CAND);
+						_InvokeSfHandler(SKK_PREV_CAND);
 					}
 				}
 				else
@@ -1021,7 +1021,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 
 			if(_pCandidateWindowParent == NULL)
 			{
-				_EndCandidateList(SKK_ENTER);
+				_InvokeSfHandler(SKK_ENTER);
 			}
 			else
 			{
@@ -1061,11 +1061,11 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 			{
 				if(_pTextService->candidates.empty())
 				{
-					_EndCandidateList(SKK_CANCEL);
+					_InvokeSfHandler(SKK_CANCEL);
 				}
 				else
 				{
-					_EndCandidateList(SKK_PREV_CAND);
+					_InvokeSfHandler(SKK_PREV_CAND);
 				}
 			}
 			else
@@ -1228,26 +1228,6 @@ void CCandidateWindow::_Update()
 			_CalcWindowRect();
 
 			_Redraw();
-		}
-	}
-}
-
-void CCandidateWindow::_EndCandidateList(BYTE sf)
-{
-	_InvokeSfHandler(sf);
-
-	if(_pTextService != NULL)
-	{
-		_pTextService->showcandlist = FALSE;
-	}
-
-	//直後に複数動的補完を表示する場合使い回しする
-	//_InvokeSfHandler() ---> _UpdateComp() -> _comp = TRUE
-	if(!_comp)
-	{
-		if(_pCandidateList != NULL)
-		{
-			_pCandidateList->_EndCandidateList();
 		}
 	}
 }

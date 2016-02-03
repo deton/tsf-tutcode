@@ -1,5 +1,5 @@
 ﻿--[[
-	 CorvusSKK Lua拡張スクリプト
+	 CorvusSKK ver.2.2.3   Lua拡張スクリプト
 
 
 	 Cから呼ばれるLuaの関数
@@ -821,13 +821,22 @@ for i, v in ipairs(skk_gadget_func_table_org) do
 	skk_gadget_func_table[v[1]] = v[2]
 end
 
--- 文字列パース   8進数表記の文字、二重引用符、バックスラッシュ
+-- 文字列パース
 local function parse_string(s)
 	local ret = ""
+	local bsrep = "\u{f05c}"
 
 	s = string.gsub(s, "^\"(.*)\"$", "%1")
-	s = string.gsub(s, "\\\\", "\\")
+
+	-- バックスラッシュ
+	s = string.gsub(s, "\\\\", bsrep);
+	-- 二重引用符
 	s = string.gsub(s, "\\\"", "\"")
+	-- 空白文字
+	s = string.gsub(s, "\\s", "\x20")
+	-- 制御文字など
+	s = string.gsub(s, "\\[abtnvfred ]", "")
+	-- 8進数表記の文字
 	s = string.gsub(s, "\\[0-3][0-7][0-7]",
 		function(n)
 			local c =
@@ -839,6 +848,10 @@ local function parse_string(s)
 			end
 			return ""
 		end)
+	-- 意味なしエスケープ
+	s = string.gsub(s, "\\", "")
+	-- バックスラッシュ
+	s = string.gsub(s, bsrep, "\\");
 
 	ret = s
 
@@ -853,6 +866,9 @@ function convert_s_to_table(s)
 	local c = ""
 	local b = ""
 	local r = ""
+	local bsrep = "\u{f05c}"
+
+	s = string.gsub(s, "\\", bsrep);
 
 	for i = 1, string.len(s) do
 		c = string.sub(s, i, i)
@@ -877,7 +893,6 @@ function convert_s_to_table(s)
 						ret = ret .. ","
 					end
 
-					e = string.gsub(e, "\\", "\\\\")
 					e = string.gsub(e, "\"", "\\\"")
 					ret = ret .. "\"" .. e .. "\""
 					e = ""
@@ -893,6 +908,8 @@ function convert_s_to_table(s)
 			e = e .. c
 		end
 	end
+
+	ret = string.gsub(ret, bsrep, "\\\\");
 
 	return ret
 end
@@ -939,7 +956,7 @@ local function skk_ignore_dic_word(candidates)
 
 	for ca in string.gmatch(candidates, "([^/]+)") do
 		local c = string.gsub(ca, ";.+", "")
-		local word = string.gsub(c, "%s*%(%s*skk%-ignore%-dic%-word%s+\"(.+)\"%s*%)%s*", "%1")
+		local word = string.gsub(c, "^%(%s*skk%-ignore%-dic%-word%s+\"(.+)\"%s*%)$", "%1")
 		if (word ~= c) then
 			ignore_word_table[word] = true
 		else
