@@ -6,12 +6,7 @@
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed, BOOL back)
 {
 	std::wstring comptext;
-	HRESULT ret = _Update(ec, pContext, comptext, fixed, back);
-	if(fixed && pContext != NULL)
-	{
-		_AddToPostBuf(comptext);
-	}
-	return ret;
+	return _Update(ec, pContext, comptext, fixed, back);
 }
 
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext, BOOL fixed, BOOL back)

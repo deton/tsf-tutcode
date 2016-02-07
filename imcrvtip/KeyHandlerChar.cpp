@@ -309,11 +309,16 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 
 HRESULT CTextService::_HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back)
 {
+	std::wstring fixedtext;
 	_EndCompletionList(ec, pContext);
 
 	//terminate composition
 	cursoridx = kana.size();
-	_Update(ec, pContext, TRUE, back);
+	_Update(ec, pContext, fixedtext, TRUE, back);
+	if(pContext != NULL)
+	{
+		_AddToPostBuf(fixedtext);
+	}
 	_TerminateComposition(ec, pContext);
 	_ResetStatus();
 
