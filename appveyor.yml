@@ -3,8 +3,7 @@ platform:
 #  - x86
 
 install:
-  - ps: (new-object net.webclient).DownloadFile('https://github.com/jgm/pandoc/releases/download/1.16.0.2/pandoc-1.16.0.2-windows.msi', 'pandoc.msi')
-  - ps: msiexec /i pandoc.msi /quiet /qn /norestart /log install.log
+  - cinst pandoc
   - installer\_solution_build.cmd
   - installer\_build.cmd
 
