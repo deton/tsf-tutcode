@@ -13,59 +13,50 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 モード無しで後置型変換を基本とするInputMethodにすることを目指しています。
 
-## ライセンス
-
-Microsoft Public License (MS-PL)
-
-詳細は LICENSE.TXT を見てください。
-
-
 ## インストール
+
 
 ### 対応OS
 
-* Windows Vista (32-bit / 64-bit) SP2
+* Windows Vista (32-bit / 64-bit)
+
+    + SP2
+    + [KB971644](https://support.microsoft.com/ja-jp/kb/971644) または [KB971512](https://support.microsoft.com/ja-jp/kb/971512)
+
 * Windows 7     (32-bit / 64-bit)
+
+    + SP1
+
 * Windows 8     (32-bit / 64-bit)
+
 * Windows 8.1   (32-bit / 64-bit)
+
 * Windows 10    (32-bit / 64-bit)
 
 
-### DirectX 9 以上をサポートしたGPU (推奨)
+### インストール
 
-表示オプションでDirect2Dを使用するには、DirectX 9 以上をサポートしたGPUが必要です。
-
-サポートしていない場合は自動的にGDIで描画されます。(多分)
-
-
-### Vista 用更新プログラムのインストール
-
-Windows Vista SP2 では、以下のプラットフォーム更新プログラムのいずれかを予めインストールしてください。
-
-Windows 7 以降ではインストールは不要です。
-
-* KB971644 (Windows Update から)
-* KB971512
-
-    (x64) https://www.microsoft.com/ja-JP/download/details.aspx?id=4390
-
-    (x86) https://www.microsoft.com/ja-JP/download/details.aspx?id=3274
-
-
-### tsf-tutcode のインストール
-
-tsf-tutcode-X.Y.Z.zip を展開し、32bit版 Windows では tsftutcode-X.Y.Z-x86.msi、64bit版 Windows では tsftutcode-X.Y.Z-x64.msi を実行してください。 (X, Y, Z はバージョン番号)
-
-32bit版 Windows では %SystemRoot%\System32\IME\IMTSFTUTCODE、64bit版 Windows では %SystemRoot%\System32\IME\IMTSFTUTCODE および %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE にインストールされます。
+tsftutcode-X.Y.Z.exe を実行してください。 (X, Y, Z はバージョン番号)
 
 アップデートの後はOSを再起動しておくと安全です。
 
+インストール先
 
-### CorvusSKK のアンインストール
+* 32bit版 Windows
+
+    + %SystemRoot%\System32\IME\IMTSFTUTCODE
+
+* 64bit版 Windows
+
+    + %SystemRoot%\System32\IME\IMTSFTUTCODE
+    + %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE
+
+
+### アンインストール
 
 コントロールパネルの「プログラムと機能」からアンインストールしてください。
 
-または、インストールに使用した msi ファイルを再度実行し「Remove」を選択してください。
+または、インストールに使用した exe ファイルを再度実行し「Uninstall」を選択してください。
 
 アンインストールの後はOSを再起動しておくと安全です。
 
@@ -87,18 +78,18 @@ tsf-tutcode-X.Y.Z.zip を展開し、32bit版 Windows では tsftutcode-X.Y.Z-x8
 
 Windows ストアアプリ、Microsoft Edge 等で使用するには、設定ファイル (config.xml) にアクセス許可を付加させる必要があります。
 
-Windows 8 以降で動作する設定ダイアログでOKボタンを押して保存を行うとアクセス許可の付加が自動的に行われます。
+Windows 8 以降で動作する設定ダイアログでOKボタンを押して保存を行うとアクセス許可の付加が自動的におこなわれます。
 
 また、Windows 8 以前から Windows 8 以降へ Windows をアップグレードしたときは、tsf-tutcode を一旦アンインストールした上でインストールし直してください。
 
-インストール時に、Windows ストアアプリ、Microsoft Edge 等で使用可能となるようにIMEの登録が行われます。
+インストール時に、Windows ストアアプリ、Microsoft Edge 等で使用可能となるようにIMEの登録がおこなわれます。
 
 
 ### Adobe Reader X, XI, Acrobat Reader DC
 
 Adobe Reader X 以降で使用するには、設定ファイル (config.xml) にアクセス許可を付加させる必要があります。
 
-設定ダイアログでOKボタンを押して保存を行うとアクセス許可の付加が自動的に行われます。
+設定ダイアログでOKボタンを押して保存を行うとアクセス許可の付加が自動的におこなわれます。
 
 
 ## 後置型変換
@@ -239,7 +230,7 @@ UTF-16 (LE, BOMあり) のSKKユーザー辞書フォーマットで書き込ま
 
 ### SKK辞書
 
-![](installer/md_image/01_dictionary.png)
+![](installer/resource-md/01_dictionary.png)
 
 SKK辞書の詳細はこちらを参照ください。 http://openlab.jp/skk/wiki/wiki.cgi?page=FrontPage
 
@@ -276,7 +267,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### 動作
 
-![](installer/md_image/02_behavior.png)
+![](installer/resource-md/02_behavior.png)
 
 | 機能 | 備考 |
 |---|---|
@@ -297,7 +288,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ###表示
 
-![](installer/md_image/03_display.png)
+![](installer/resource-md/03_display.png)
 
 | 機能 | 備考 |
 |---|---|
@@ -317,9 +308,9 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### 表示属性
 
-![](installer/md_image/04_display_attribute_1.png)
+![](installer/resource-md/04_display_attribute_1.png)
 
-![](installer/md_image/05_display_attribute_2.png)
+![](installer/resource-md/05_display_attribute_2.png)
 
 入力中文字列の表示属性を設定します。
 
@@ -332,7 +323,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### 候補一覧選択キー
 
-![](installer/md_image/06_select_key.png)
+![](installer/resource-md/06_select_key.png)
 
 候補一覧での確定は、デフォルトで 1〜7 と ASDFJKL と asdfjkl を使用します。
 
@@ -349,7 +340,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### キー設定（ON/OFF）
 
-![](installer/md_image/07_on_off_key.png)
+![](installer/resource-md/07_on_off_key.png)
 
 IME ON/OFF のキーをそれぞれ指定します。
 
@@ -368,9 +359,9 @@ IME OFFにして大文字入力直後にIME ONにしようとした時に、意�
 
 ### キー設定（文字）、キー設定（仮想キー）
 
-![](installer/md_image/08_key1_character.png)
+![](installer/resource-md/08_key1_character.png)
 
-![](installer/md_image/09_key2_virtual_key.png)
+![](installer/resource-md/09_key2_virtual_key.png)
 
 各機能に対してキーを正規表現で設定してください。
 
@@ -395,10 +386,10 @@ Visual C++ 2013 の 正規表現で、文法は ECMAScript を使用していま
 
 | 機能 | キー | 備考 |
 |---|---|---|
-| ON / OFF | Alt+`                  | 0xC0 + Alt |
-| 〃  | 漢字                   | 0x19 |
-| 〃  | (Alt+半角/全角  Alt+`) | 0x19 |
-| 〃  | 半角/全角(Ctrl+`)      | 0xF3, 0xF4 |
+| ON / OFF  | Alt+\`                  | 0xC0 + Alt |
+| 〃        | 漢字                    | 0x19 |
+| 〃        | (Alt+半角/全角  Alt+\`) | 0x19 |
+| 〃        | 半角/全角(Ctrl+\`)      | 0xF3, 0xF4 |
 
 キー設定（文字）
 
@@ -474,7 +465,7 @@ Visual C++ 2013 の 正規表現で、文法は ECMAScript を使用していま
 
 ### ローマ字・仮名変換表
 
-![](installer/md_image/11_kana.png)
+![](installer/resource-md/11_kana.png)
 
 ローマ字、平仮名、片仮名、所謂半角片仮名、促音/撥音(ん)、待機の組み合せを指定します。
 
@@ -541,13 +532,13 @@ Visual C++ 2013 の 正規表現で、文法は ECMAScript を使用していま
 * 文字コード：UTF-16(LE,BOMあり) または UTF-8
 * 改行：CR+LF または LF
 * フォーマット：<ローマ字><\t><ひらがな><\t><カタカナ><\t><カタカナ(半角)><\t><[促/ん]|[待機]|[機能]><\r><\n>
-  * <ローマ字>、<ひらがな>、<カタカナ>、<カタカナ(半角)>は、それぞれUTF-16換算で最大14バイトです。
-  * [促/ん]は、ONのとき1、OFFのとき0です。
-  * [待機]は、ONのとき2、OFFのとき0です。
-  * [機能]は、ONのとき4、OFFのとき0です。
-  * <[促/ん]|[待機]|[機能]>は、[機能]がONのときは[促/ん]と[待機]は無視されます。[促/ん]と[待機]の両方がONのとき3となりますが、[待機]のほうが優先されます。 (0のときは無しでも可)
-  * 空行やタブのみの行は読み飛ばされます。
-  * <\t>、<\r>、<\n>は、それぞれタブ、改行コードに読み替えてください。
+    +  <ローマ字>、<ひらがな>、<カタカナ>、<カタカナ(半角)>は、それぞれUTF-16換算で最大14バイトです。
+    +  [促/ん]は、ONのとき1、OFFのとき0です。
+    +  [待機]は、ONのとき2、OFFのとき0です。
+    +  [機能]は、ONのとき4、OFFのとき0です。
+    +  <[促/ん]|[待機]|[機能]>は、[機能]がONのときは[促/ん]と[待機]は無視されます。[促/ん]と[待機]の両方がONのとき3となりますが、[待機]のほうが優先されます。 (0のときは無しでも可)
+    +  空行やタブのみの行は読み飛ばされます。
+    +  <\t>、<\r>、<\n>は、それぞれタブ、改行コードに読み替えてください。
 * 例１）a<\t>あ<\t>ア<\t>ｱ<\r><\n>
 * 例２）nn<\t>ん<\t>ン<\t>ﾝ<\t>0<\r><\n>
 * 例３）np<\t>ん<\t>ン<\t>ﾝ<\t>1<\r><\n>
@@ -557,7 +548,7 @@ Visual C++ 2013 の 正規表現で、文法は ECMAScript を使用していま
 
 ### ASCII・全英変換表
 
-![](installer/md_image/12_full_width_latin.png)
+![](installer/resource-md/12_full_width_latin.png)
 
 ASCII、全英文字の組み合せを指定します。最大で128行です。
 
@@ -602,7 +593,7 @@ Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsA
 
 ### プログラム実行変換もどき
 
-![](installer/md_image/21_convert_program.png)
+![](installer/resource-md/21_convert_program.png)
 
 Emacs Lispのプログラム実行変換に対応していますが、あくまで「もどき」なのでご了承ください。
 
@@ -652,7 +643,7 @@ SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要�
 
 ### 数値変換
 
-![](installer/md_image/22_convert_number.png)
+![](installer/resource-md/22_convert_number.png)
 
 タイプ0〜3,5,8,9に対応しています。
 
@@ -676,7 +667,7 @@ SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要�
 
 ### Unicodeコードポイント変換
 
-![](installer/md_image/23_convert_unicode_codepoint.png)
+![](installer/resource-md/23_convert_unicode_codepoint.png)
 
 「U+XXXXXX」( コードポイント XXXXXX : 0000-FFFF または 10000-10FFFF ) または「uxxxxxx」( コードポイント xxxxxx : 0000-ffff または 10000-10ffff ) のフォーマットで変換してください。
 
@@ -686,7 +677,7 @@ SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要�
 
 ### JIS X 0213面区点番号、JIS X 0208区点番号変換
 
-![](installer/md_image/24_convert_unicode_jisx0213.png)
+![](installer/resource-md/24_convert_unicode_jisx0213.png)
 
 JIS X 0213では「X-YY-ZZ」( 面 X : 1-2、 区 YY : 01-94、点 ZZ: 01-94 )、JIS X 0208では「YY-ZZ」( 区 YY : 01-94、点 ZZ: 01-94 ) のフォーマットで変換してください。Unicodeコードポイントが注釈として付加されます。
 
@@ -696,7 +687,7 @@ JIS X 0213では「X-YY-ZZ」( 面 X : 1-2、 区 YY : 01-94、点 ZZ: 01-94 )�
 
 ### 文字コード表記変換
 
-![](installer/md_image/25_convert_character_display.png)
+![](installer/resource-md/25_convert_character_display.png)
 
 「?X」( X : 任意の1文字以上の文字列 ) のフォーマットで変換してください。
 
@@ -711,7 +702,7 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 
 ### 注釈の登録
 
-![](installer/md_image/26_register_annotation.png)
+![](installer/resource-md/26_register_annotation.png)
 
 辞書登録のとき、登録する候補の入力と同時に行います。
 
@@ -720,13 +711,13 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 注釈にセミコロンを含めることは出来ません。
 
 * 例１）登録する見出し語「しょへい#ねん」、登録する候補「初平#3年」、登録する注釈「後漢」の場合
-  * 「初平#3年;後漢」と入力する。
+    +  「初平#3年;後漢」と入力する。
 
 * 例２）登録する見出し語「なき」、登録する候補「(;_;)」、登録する注釈「顔文字」の場合
-  * 「(;_;);顔文字」と入力する。
+    +  「(;_;);顔文字」と入力する。
 
 * 例３）登録する見出し語「せみころん」、登録する候補「;」、登録する注釈「セミコロン」の場合
-  * 「;;セミコロン」と入力する。
+    +  「;;セミコロン」と入力する。
 
 
 ### Windows 8, 8.1, 10 のタッチキーボード
@@ -734,13 +725,13 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 タッチパネルを搭載したマシンでハードウェアキーボードに準拠したレイアウトを使用するには、以下の操作を行ってください。
 
 * Windows 8 の場合
-  * 「PC設定」の画面 → 「全般」を選択 → 「タッチキーボード」の項目 → 「ハードウェアキーボードに準拠したレイアウトを使えるようにする」をオン
+    +  「PC設定」の画面 → 「全般」を選択 → 「タッチキーボード」の項目 → 「ハードウェアキーボードに準拠したレイアウトを使えるようにする」をオン
 
 * Windows 8.1 の場合
-  * 「PC設定」の画面 → 「PCとデバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
+    +  「PC設定」の画面 → 「PCとデバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
 
 * Windows 10 の場合
-  * 「デバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
+    +  「デバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
 
 タッチパネルを搭載していないマシンでハードウェアキーボードに準拠したレイアウトを使用するには、レジストリに以下の値を設定してください。
 
@@ -797,23 +788,23 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-* Visual Studio Community 2013 Update 5
-* WiX Toolset v3.10
+Visual Studio Community 2013 Update 5
 
-### ビルドとインストーラ作成を行う方法
-Visual Studioのコマンドプロンプト(スタートメニュー中にあります)を実行し下記のコマンドを実行します。
+WiX Toolset v3.10.2
 
-#### x86の場合
-```
-build.bat
-```
+pandoc 1.16.0.2
 
-#### x64の場合
-x64版インストーラにはx86版実行ファイルも同梱されるので、x86版を先にビルドしておいてください。
+### ビルド手順
 
-```
-build.bat x64
-```
+ビルド
+
+    > installer\_solution_build.cmd
+    > installer\_build.cmd
+
+クリア
+
+    > installer\_solution_clean.cmd
+    > installer\_clean.cmd
 
 ### 履歴
 
@@ -854,3 +845,16 @@ build.bat x64
 
 #### v0.0.3 (2013-08-29)
 * 最初のリリース(自分で使う際に最低限の機能が使えるレベル)
+
+---
+
+Copyright (C) 2013-2016 KIHARA, Hideto
+https://github.com/deton/tsf-tutcode
+
+以下CorvusSKKのCopyright:
+
+Copyright (C) 2011-2016 SASAKI Nobuyuki
+
+nathancorvussolis@gmail.com
+
+https://nathancorvussolis.github.io/

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+  xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
+  xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <?include installer-version.wxi ?>
+
+  <Bundle Name="tsf-tutcode" Version="$(var.version)" Manufacturer="KIHARA Hideto"
+	Copyright="© 2016 KIHARA Hideto" AboutUrl="https://github.com/deton/tsf-tutcode"
+    UpgradeCode="6EFC7861-51C4-4BCF-88E6-67687FABFAE5" Condition="VersionNT &gt;= v6.0">
+
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLargeLicense">
+      <bal:WixStandardBootstrapperApplication ThemeFile="theme-bundle\RtfSidebarTheme.xml"
+        LicenseFile="license.rtf" ShowVersion="yes" SuppressOptionsUI="yes" />
+      <Payload Name="logoside.png" SourceFile="theme-bundle\logoside.png" />
+    </BootstrapperApplicationRef>
+
+    <Chain>
+      <!-- x64 modules -->
+      <MsiPackage Id="X64" DisplayName="x64 modules" ForcePerMachine="yes" Compressed="yes"
+        SourceFile="build\x64.msi" InstallCondition="VersionNT64" />
+      <!-- x86 modules -->
+      <MsiPackage Id="X86" DisplayName="x86 modules" ForcePerMachine="yes" Compressed="yes"
+        SourceFile="build\x86.msi" After="X64" />
+    </Chain>
+
+  </Bundle>
+
+</Wix>

@@ -3,12 +3,12 @@ platform:
 #  - x86
 
 install:
-  - build.bat
-  - if "%Platform%"=="x64" build.bat x64
+  - installer\_solution_build.cmd
+  - installer\_build.cmd
 
 build: off
 test: off
 deploy: off
 
 artifacts:
-  - path: installer\build\*.msi
+  - path: installer\build\*.exe
