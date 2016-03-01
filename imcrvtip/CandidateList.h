@@ -39,7 +39,7 @@ public:
 	void _SetText(const std::wstring &text, BOOL fixed, BOOL showcandlist, BOOL showreg);
 	void _GetPrecedingText(std::wstring *text);
 	void _DeletePrecedingText(int delete_count);
-	void _Move(LPRECT lpr);
+	void _Move(LPRECT lpr, TfEditCookie ec = TF_INVALID_EDIT_COOKIE, ITfContext *pContext = NULL);
 	void _UpdateComp();
 
 private:

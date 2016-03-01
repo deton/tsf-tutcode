@@ -196,7 +196,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 						}
 						else
 						{
-							if(complement && okuriidx != 0)
+							if(complement && okuriidx != 0 && (okuriidx + 1 != kana.size()))
 							{
 								comptext.insert(okuriidx + 1, L" [");
 								comptext.append(L"]");
