@@ -4,6 +4,11 @@
 #include "utf8.h"
 #include "imcrvmgr.h"
 
+//エントリの行頭位置
+typedef std::vector<long> POS;
+POS skkdicpos_a; //送りありエントリ
+POS skkdicpos_n; //送りなしエントリ
+
 void SearchDictionary(const std::wstring &searchkey, const std::wstring &okuri, SKKDICCANDIDATES &sc)
 {
     std::wstring candidate;
@@ -31,7 +36,7 @@ void SearchDictionary(const std::wstring &searchkey, const std::wstring &okuri, 
 		candidate += SearchUserDic(searchkey, okuri);
 
 		//SKK辞書
-		candidate += SearchSKKDic(searchkey);
+		candidate += SearchSKKDic(searchkey, okuri);
 
 		//SKK辞書サーバー
 		candidate += SearchSKKServer(searchkey);
@@ -82,64 +87,82 @@ void SearchDictionary(const std::wstring &searchkey, const std::wstring &okuri, 
 	}
 }
 
-std::wstring SearchSKKDic(const std::wstring &searchkey)
+std::wstring SearchSKKDic(const std::wstring &searchkey, const std::wstring &okuri)
 {
-	FILE *fpdic, *fpidx;
-	std::wstring key, candidate, wsbuf;
-	WCHAR wbuf[DICBUFSIZE];
+	FILE *fp;
+	std::wstring candidate, wsbuf, kbuf, cbuf;
+	WCHAR wbuf[READBUFSIZE];
+	PWCHAR pwb;
 	long pos, left, mid, right;
-	int cmpkey;
-	size_t pidx;
+	size_t cidx;
 
-	_wfopen_s(&fpidx, pathskkidx, RB);
-	if(fpidx == NULL)
+	_wfopen_s(&fp, pathskkdic, RB);
+	if(fp == NULL)
 	{
 		return candidate;
 	}
-	_wfopen_s(&fpdic, pathskkdic, RB);
-	if(fpdic == NULL)
-	{
-		fclose(fpidx);
-		return candidate;
-	}
-
-	key = searchkey + L"\x20";
 
 	left = 0;
-	right = (_filelength(_fileno(fpidx)) / sizeof(pos)) - 1;
+	if(okuri.empty())
+	{
+		right = (long)skkdicpos_n.size() - 1;
+	}
+	else
+	{
+		right = (long)skkdicpos_a.size() - 1;
+	}
 
 	while(left <= right)
 	{
-		mid = (left + right) / 2;
-
-		pos = 0;
-		fseek(fpidx, mid * sizeof(pos), SEEK_SET);
-		fread(&pos, sizeof(pos), 1, fpidx);
-
-		memset(wbuf, 0, sizeof(wbuf));
-		wsbuf.clear();
-		fseek(fpdic, pos, SEEK_SET);
-		if(fgetws(wbuf, _countof(wbuf), fpdic) != NULL)
+		mid = left + (right - left) / 2;
+		if(okuri.empty())
 		{
-			wsbuf = wbuf;
+			pos = skkdicpos_n[mid];
+		}
+		else
+		{
+			pos = skkdicpos_a[mid];
+		}
+		fseek(fp, pos, SEEK_SET);
+
+		wsbuf.clear();
+		kbuf.clear();
+		cbuf.clear();
+
+		while((pwb = fgetws(wbuf, _countof(wbuf), fp)) != NULL)
+		{
+			wsbuf += wbuf;
+
+			if(!wsbuf.empty() && wsbuf.back() == L'\n')
+			{
+				break;
+			}
 		}
 
-		cmpkey = wcsncmp(key.c_str(), wsbuf.c_str(), key.size());
+		if(pwb == NULL)
+		{
+			break;
+		}
+
+		if((cidx = wsbuf.find_last_of(L'/')) != std::wstring::npos)
+		{
+			wsbuf.erase(cidx + 1);
+			wsbuf.push_back(L'\n');
+		}
+
+		if((cidx = wsbuf.find_first_of(L'\x20')) != std::wstring::npos)
+		{
+			kbuf = wsbuf.substr(0, cidx);
+			if((cidx = wsbuf.find_first_of(L'/', cidx)) != std::wstring::npos)
+			{
+				cbuf = wsbuf.substr(cidx);
+			}
+		}
+
+		int cmpkey = searchkey.compare(kbuf);
 		if(cmpkey == 0)
 		{
-			if((pidx = wsbuf.find_last_of(L'/')) != std::string::npos)
-			{
-				wsbuf.erase(pidx);
-				wsbuf.append(L"/\n");
-			}
-
-			if((pidx = wsbuf.find_first_of(L'\x20')) != std::string::npos)
-			{
-				if((pidx = wsbuf.find_first_of(L'/', pidx)) != std::string::npos)
-				{
-					candidate = wsbuf.substr(pidx);
-				}
-			}
+			candidate = cbuf;
 			break;
 		}
 		else if(cmpkey > 0)
@@ -152,10 +175,82 @@ std::wstring SearchSKKDic(const std::wstring &searchkey)
 		}
 	}
 
-	fclose(fpdic);
-	fclose(fpidx);
+	fclose(fp);
 
 	return candidate;
+}
+
+void MakeSKKDicPos()
+{
+	FILE *fp;
+	WCHAR wbuf[READBUFSIZE];
+	PWCHAR pwb, pwn;
+	long pos;
+	int okuri = -1;
+
+	skkdicpos_a.clear();
+	skkdicpos_a.shrink_to_fit();
+	skkdicpos_n.clear();
+	skkdicpos_n.shrink_to_fit();
+
+	_wfopen_s(&fp, pathskkdic, RB);
+	if(fp == NULL)
+	{
+		return;
+	}
+
+	fseek(fp, 2, SEEK_SET); //skip BOM
+	pos = ftell(fp);
+
+	while(true)
+	{
+		while((pwb = fgetws(wbuf, _countof(wbuf), fp)) != NULL)
+		{
+			if((pwn = wcschr(wbuf, L'\n')) != NULL)
+			{
+				if((pwn != wbuf) && (*(pwn - 1) == L'\r'))
+				{
+					*(pwn - 1) = L'\n';
+					*pwn = L'\0';
+				}
+				break;
+			}
+		}
+
+		if(pwb == NULL)
+		{
+			break;
+		}
+
+		if(wcscmp(EntriesAri, wbuf) == 0)
+		{
+			okuri = 1;
+		}
+		else if(wcscmp(EntriesNasi, wbuf) == 0)
+		{
+			okuri = 0;
+		}
+		else
+		{
+			switch(okuri)
+			{
+			case 1:
+				skkdicpos_a.push_back(pos);
+				break;
+			case 0:
+				skkdicpos_n.push_back(pos);
+				break;
+			default:
+				break;
+			}
+		}
+
+		pos = ftell(fp);
+	}
+
+	fclose(fp);
+
+	std::reverse(skkdicpos_a.begin(), skkdicpos_a.end());
 }
 
 std::wstring ConvertKey(const std::wstring &searchkey, const std::wstring &okuri)
@@ -229,8 +324,15 @@ std::wstring ConvertCandidate(const std::wstring &searchkey, const std::wstring 
 
 int lua_search_skk_dictionary(lua_State *lua)
 {
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
-	std::wstring candidate = SearchSKKDic(searchkey);
+	std::wstring candidate;
+
+	if(lua_isstring(lua, 1) && lua_isstring(lua, 2))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
+		std::wstring okurikey = U8TOWC(lua_tostring(lua, 2));
+
+		candidate = SearchSKKDic(searchkey, okurikey);
+	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
 
@@ -239,9 +341,15 @@ int lua_search_skk_dictionary(lua_State *lua)
 
 int lua_search_user_dictionary(lua_State *lua)
 {
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
-	std::wstring okurikey = U8TOWC(lua_tostring(lua, 2));
-	std::wstring candidate = SearchUserDic(searchkey, okurikey);
+	std::wstring candidate;
+
+	if(lua_isstring(lua, 1) && lua_isstring(lua, 2))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
+		std::wstring okurikey = U8TOWC(lua_tostring(lua, 2));
+
+		candidate = SearchUserDic(searchkey, okurikey);
+	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
 
@@ -250,8 +358,14 @@ int lua_search_user_dictionary(lua_State *lua)
 
 int lua_search_skk_server(lua_State *lua)
 {
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
-	std::wstring candidate = SearchSKKServer(searchkey);
+	std::wstring candidate;
+
+	if(lua_isstring(lua, 1))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
+
+		candidate = SearchSKKServer(searchkey);
+	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
 
@@ -271,8 +385,14 @@ int lua_search_skk_server_info(lua_State *lua)
 
 int lua_search_unicode(lua_State *lua)
 {
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
-	std::wstring candidate = SearchUnicode(searchkey);
+	std::wstring candidate;
+
+	if(lua_isstring(lua, 1))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
+
+		candidate = SearchUnicode(searchkey);
+	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
 
@@ -281,8 +401,14 @@ int lua_search_unicode(lua_State *lua)
 
 int lua_search_jisx0213(lua_State *lua)
 {
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
-	std::wstring candidate = SearchJISX0213(searchkey);
+	std::wstring candidate;
+
+	if(lua_isstring(lua, 1))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
+
+		candidate = SearchJISX0213(searchkey);
+	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
 
@@ -291,8 +417,14 @@ int lua_search_jisx0213(lua_State *lua)
 
 int lua_search_jisx0208(lua_State *lua)
 {
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
-	std::wstring candidate = SearchJISX0208(searchkey);
+	std::wstring candidate;
+
+	if(lua_isstring(lua, 1))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
+
+		candidate = SearchJISX0208(searchkey);
+	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
 
@@ -301,8 +433,14 @@ int lua_search_jisx0208(lua_State *lua)
 
 int lua_search_character_code(lua_State *lua)
 {
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
-	std::wstring candidate = SearchCharacterCode(searchkey);
+	std::wstring candidate;
+
+	if(lua_isstring(lua, 1))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
+
+		candidate = SearchCharacterCode(searchkey);
+	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
 
@@ -313,17 +451,21 @@ int lua_complement(lua_State *lua)
 {
 	std::wstring candidate;
 	SKKDICCANDIDATES sc;
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
 
-	SearchComplement(searchkey, sc);
+	if(lua_isstring(lua, 1))
+	{
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
 
-	FORWARD_ITERATION_I(sc_itr, sc)
-	{
-		candidate += L"/" + MakeConcat(sc_itr->first);
-	}
-	if(!candidate.empty())
-	{
-		candidate += L"/\n";
+		SearchComplement(searchkey, sc);
+
+		FORWARD_ITERATION_I(sc_itr, sc)
+		{
+			candidate += L"/" + MakeConcat(sc_itr->first);
+		}
+		if(!candidate.empty())
+		{
+			candidate += L"/\n";
+		}
 	}
 
 	lua_pushstring(lua, WCTOU8(candidate));
@@ -333,26 +475,35 @@ int lua_complement(lua_State *lua)
 
 int lua_add(lua_State *lua)
 {
-	int okuriari = lua_toboolean(lua, 1);
-	WCHAR command = (okuriari ? REQ_USER_ADD_0 : REQ_USER_ADD_1);
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 2));
-	std::wstring candidate = U8TOWC(lua_tostring(lua, 3));
-	std::wstring annotation = U8TOWC(lua_tostring(lua, 4));
-	std::wstring okuri = U8TOWC(lua_tostring(lua, 5));
+	if(lua_isboolean(lua, 1) &&
+		lua_isstring(lua, 2) && lua_isstring(lua, 3) &&
+		lua_isstring(lua, 4) && lua_isstring(lua, 5))
+	{
+		int okuriari = lua_toboolean(lua, 1);
+		WCHAR command = (okuriari ? REQ_USER_ADD_0 : REQ_USER_ADD_1);
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 2));
+		std::wstring candidate = U8TOWC(lua_tostring(lua, 3));
+		std::wstring annotation = U8TOWC(lua_tostring(lua, 4));
+		std::wstring okuri = U8TOWC(lua_tostring(lua, 5));
 
-	AddUserDic(command, searchkey, candidate, annotation, okuri);
+		AddUserDic(command, searchkey, candidate, annotation, okuri);
+	}
 
 	return 0;
 }
 
 int lua_delete(lua_State *lua)
 {
-	int okuriari = lua_toboolean(lua, 1);
-	WCHAR command = (okuriari ? REQ_USER_DEL_0 : REQ_USER_DEL_1);
-	std::wstring searchkey = U8TOWC(lua_tostring(lua, 2));
-	std::wstring candidate = U8TOWC(lua_tostring(lua, 3));
+	if(lua_isboolean(lua, 1) &&
+		lua_isstring(lua, 2) && lua_isstring(lua, 3))
+	{
+		int okuriari = lua_toboolean(lua, 1);
+		WCHAR command = (okuriari ? REQ_USER_DEL_0 : REQ_USER_DEL_1);
+		std::wstring searchkey = U8TOWC(lua_tostring(lua, 2));
+		std::wstring candidate = U8TOWC(lua_tostring(lua, 3));
 
-	DelUserDic(command, searchkey, candidate);
+		DelUserDic(command, searchkey, candidate);
+	}
 
 	return 0;
 }

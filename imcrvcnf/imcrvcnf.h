@@ -38,7 +38,8 @@ void SaveKanaTxt(HWND hwnd, LPCWSTR path);
 
 // dialog procedures
 INT_PTR CALLBACK DlgProcDictionary(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK DlgProcBehavior(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProcBehavior1(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK DlgProcBehavior2(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK DlgProcDisplay(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK DlgProcDisplayAttrInput(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK DlgProcDisplayAttrConv(HWND, UINT, WPARAM, LPARAM);
@@ -62,6 +63,5 @@ extern WCHAR cnfmutexname[MAX_KRNLOBJNAME];	//ミューテックス
 // ファイルパス
 extern WCHAR pathconfigxml[MAX_PATH];	//設定
 extern WCHAR pathskkdic[MAX_PATH];	//取込SKK辞書
-extern WCHAR pathskkidx[MAX_PATH];	//取込SKK辞書インデックス
 
 #endif //IMCRVCNF_H
