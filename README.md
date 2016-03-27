@@ -33,10 +33,19 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 * Windows 10    (32-bit / 64-bit)
 
+### ダウンロード
+
+#### リリース版
+
+https://github.com/deton/tsf-tutcode/releases/latest から tsf-tutcode-X.Y.Z.zip をダウンロードし解凍してください。(X, Y, Z はバージョン番号)
+
+#### 開発版
+
+https://ci.appveyor.com/project/deton/tsf-tutcode/build/artifacts からtsf-tutcode-X.Y.Z.exe をダウンロードしてください。
 
 ### インストール
 
-tsftutcode-X.Y.Z.exe を実行してください。 (X, Y, Z はバージョン番号)
+tsftutcode-X.Y.Z.msi を実行してください。 (X, Y, Z はバージョン番号, 開発版ではmsiではなくexe)
 
 アップデートの後はOSを再起動しておくと安全です。
 
