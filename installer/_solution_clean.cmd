@@ -3,7 +3,7 @@ setlocal
 
 pushd "%~dp0"
 
-call "%VS120COMNTOOLS%VsDevCmd.bat"
+call "%VS140COMNTOOLS%VsDevCmd.bat"
 
 msbuild "..\tsf-tutcode.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Release,Platform=Win32
 msbuild "..\tsf-tutcode.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Release,Platform=x64
