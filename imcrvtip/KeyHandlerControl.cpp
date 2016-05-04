@@ -305,7 +305,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			if(showcandlist && (candidx < cx_untilcandlist - 1))
 			{
 				showcandlist = FALSE;
-				if(pContext != NULL)
+				if(pContext != nullptr)
 				{
 					_EndCandidateList();
 				}
@@ -362,15 +362,13 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 			if(complement && cx_compuserdic)
 			{
-				if(candidx == 0)
-				{
-					_UserDicComp();
-				}
-
 				okuriidx = kana.size();
 				if(candidx < candidates.size() && !candidates[candidx].first.second.empty())
 				{
-					kana += markSP + candidates[candidx].first.second;
+					if(!cx_stacompmulti && !cx_dyncompmulti)
+					{
+						kana += markSP + candidates[candidx].first.second;
+					}
 				}
 				kana.insert(okuriidx, 1, CHAR_SKK_OKURI);
 
@@ -393,11 +391,11 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				_Update(ec, pContext);
 			}
 
-			if(complement && candidx == 0 && pContext != NULL)
+			if(complement && candidx == 0 && pContext != nullptr)
 			{
 				if(cx_dyncompmulti)
 				{
-					if(_pCandidateList == NULL)
+					if(_pCandidateList == nullptr)
 					{
 						showcandlist = FALSE;
 						_ShowCandidateList(ec, pContext, FALSE, TRUE);
@@ -427,7 +425,10 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				okuriidx = kana.size();
 				if(candidx < candidates.size() && !candidates[candidx].first.second.empty())
 				{
-					kana += markSP + candidates[candidx].first.second;
+					if(!cx_stacompmulti && !cx_dyncompmulti)
+					{
+						kana += markSP + candidates[candidx].first.second;
+					}
 				}
 				kana.insert(okuriidx, 1, CHAR_SKK_OKURI);
 
@@ -518,7 +519,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if(showcandlist)
 		{
 			//_Update function needs showcandlist flag.
-			if(pContext != NULL)
+			if(pContext != nullptr)
 			{
 				_EndCandidateList();
 			}
@@ -556,7 +557,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			if(showcandlist)
 			{
 				showcandlist = FALSE;
-				if(pContext != NULL)
+				if(pContext != nullptr)
 				{
 					_EndCandidateList();
 				}
@@ -923,13 +924,13 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 		if(IsClipboardFormatAvailable(CF_UNICODETEXT))
 		{
-			if(OpenClipboard(NULL))
+			if(OpenClipboard(nullptr))
 			{
 				HANDLE hCB = GetClipboardData(CF_UNICODETEXT);
-				if(hCB != NULL)
+				if(hCB != nullptr)
 				{
 					PWCHAR pwCB = (PWCHAR)GlobalLock(hCB);
-					if(pwCB != NULL)
+					if(pwCB != nullptr)
 					{
 						std::wstring scb = std::regex_replace(std::wstring(pwCB),
 							std::wregex(L"[\\x00-\\x19]"), std::wstring(L""));

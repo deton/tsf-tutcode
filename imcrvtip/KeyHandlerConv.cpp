@@ -180,7 +180,7 @@ HRESULT CTextService::_SearchRomanKanaNode(const ROMAN_KANA_NODE &tree, ROMAN_KA
 {
 	HRESULT ret = E_ABORT;	//一致なし
 
-	if((pconv == NULL) ||
+	if((pconv == nullptr) ||
 		(_countof(pconv->roman) <= (depth + 1)) || (pconv->roman[depth] == L'\0'))
 	{
 		return ret;
@@ -222,7 +222,7 @@ HRESULT CTextService::_ConvAsciiJLatin(ASCII_JLATIN_CONV *pconv)
 {
 	HRESULT ret = E_ABORT;	//一致なし
 
-	if(pconv == NULL)
+	if(pconv == nullptr)
 	{
 		return ret;
 	}
@@ -536,8 +536,25 @@ void CTextService::_NextComp()
 		candidates.clear();
 		candidates.shrink_to_fit();
 
+		//候補の表示数は「候補一覧表示に要する変換回数」-1 個まで
+		WCHAR c = L'0';
+		if(cx_untilcandlist >= 1 && cx_untilcandlist <= 9)
+		{
+			c += cx_untilcandlist - 1;
+		}
+		searchkeyorg.push_back(c);
+
 		//補完
 		_SearchDic(REQ_COMPLEMENT);
+
+		//補完済み見出し語の候補を除去
+		if(!cx_compuserdic)
+		{
+			FORWARD_ITERATION_I(candidates_itr, candidates)
+			{
+				candidates_itr->first.second.clear();
+			}
+		}
 
 		if(!candidates.empty())
 		{
@@ -607,17 +624,9 @@ void CTextService::_DynamicComp(TfEditCookie ec, ITfContext *pContext, BOOL sel)
 	std::wstring kana_bak = kana;
 	size_t cursoridx_bak = cursoridx;
 
-#ifdef _DEBUG
-	_CommandDic(REQ_DEBUGOUT_OFF);
-#endif
-
 	//補完
 	complement = FALSE;
 	_NextComp();
-
-#ifdef _DEBUG
-	_CommandDic(REQ_DEBUGOUT_ON);
-#endif
 
 	cursoridx = cursoridx_bak;
 
@@ -625,8 +634,6 @@ void CTextService::_DynamicComp(TfEditCookie ec, ITfContext *pContext, BOOL sel)
 	{
 		if(cx_compuserdic)
 		{
-			//ユーザー辞書検索
-			_UserDicComp(MAX_SELKEY_C);
 			if(!candidates.empty())
 			{
 				kana += markSP + candidates[0].first.second;
@@ -652,7 +659,7 @@ void CTextService::_DynamicComp(TfEditCookie ec, ITfContext *pContext, BOOL sel)
 			_Update(ec, pContext);
 		}
 
-		if(pContext != NULL)
+		if(pContext != nullptr)
 		{
 			if(cx_dyncompmulti)
 			{
@@ -661,7 +668,7 @@ void CTextService::_DynamicComp(TfEditCookie ec, ITfContext *pContext, BOOL sel)
 					candidx = (size_t)-1;
 				}
 
-				if(_pCandidateList != NULL && _pCandidateList->_IsShowCandidateWindow())
+				if(_pCandidateList != nullptr && _pCandidateList->_IsShowCandidateWindow())
 				{
 					_pCandidateList->_UpdateComp();
 				}
@@ -684,60 +691,6 @@ void CTextService::_DynamicComp(TfEditCookie ec, ITfContext *pContext, BOOL sel)
 		_EndCompletionList(ec, pContext);
 		_Update(ec, pContext);
 	}
-}
-
-void CTextService::_UserDicComp(size_t max)
-{
-	std::wstring kana_bak = kana;
-	std::wstring searchkey_bak = searchkey;
-	CANDIDATES candidates_bak = candidates;
-	size_t candidx_bak = candidx;
-	size_t count = 0;
-
-#ifdef _DEBUG
-	_CommandDic(REQ_DEBUGOUT_OFF);
-#endif
-
-	FORWARD_ITERATION_I(candidates_bak_itr, candidates_bak)
-	{
-		if(max < ++count)
-		{
-			break;
-		}
-
-		//ユーザー辞書検索
-		kana = candidates_bak_itr->first.first;
-		_StartSubConv(REQ_SEARCHUSER);
-
-		if(!candidates.empty() && cx_untilcandlist > 1)
-		{
-			candidates_bak_itr->first.second = L"/";
-			size_t i = 1;
-			FORWARD_ITERATION_I(candidates_itr, candidates)
-			{
-				//「候補一覧表示に要する変換回数」-1 個まで
-				if(cx_untilcandlist < ++i)
-				{
-					break;
-				}
-				candidates_bak_itr->first.second += candidates_itr->first.first + L"/";
-			}
-
-			if(cx_untilcandlist - 1 < candidates.size())
-			{
-				candidates_bak_itr->first.second += L"…";
-			}
-		}
-	}
-
-#ifdef _DEBUG
-	_CommandDic(REQ_DEBUGOUT_ON);
-#endif
-
-	kana = kana_bak;
-	searchkey = searchkey_bak;
-	candidates = candidates_bak;
-	candidx = candidx_bak;
 }
 
 void CTextService::_ConvRoman()
@@ -973,7 +926,7 @@ BOOL CTextService::_ConvN()
 void CTextService::_ConvKanaToKana(const std::wstring &src, int srcmode, std::wstring &dst, int dstmode)
 {
 	BOOL exist;
-	WCHAR *convkana = NULL;
+	WCHAR *convkana = nullptr;
 	WCHAR srckana[3];
 	std::wstring dsttmp;
 
@@ -1114,7 +1067,7 @@ void CTextService::_ConvKanaToRoman(std::wstring &dst, const std::wstring &src, 
 {
 	size_t i;
 	BOOL exist;
-	WCHAR *convkana = NULL;
+	WCHAR *convkana = nullptr;
 	WCHAR srckana[3];
 	std::wstring dsttmp;
 

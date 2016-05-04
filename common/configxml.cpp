@@ -192,9 +192,9 @@ HRESULT CreateStreamReader(LPCWSTR path, IXmlReader **ppReader, IStream **ppFile
 {
 	HRESULT hr = S_FALSE;
 
-	if(ppReader != NULL && ppFileStream != NULL)
+	if(ppReader != nullptr && ppFileStream != nullptr)
 	{
-		hr = CreateXmlReader(IID_PPV_ARGS(ppReader), NULL);
+		hr = CreateXmlReader(IID_PPV_ARGS(ppReader), nullptr);
 		EXIT_NOT_S_OK(hr);
 
 		hr = SHCreateStreamOnFileW(path, STGM_READ, ppFileStream);
@@ -217,8 +217,8 @@ void CloseStreamReader(IXmlReader *pReader, IStream *pFileStream)
 HRESULT ReadList(LPCWSTR path, LPCWSTR section, APPDATAXMLLIST &list)
 {
 	HRESULT hr;
-	IXmlReader *pReader = NULL;
-	IStream *pFileStream = NULL;
+	IXmlReader *pReader = nullptr;
+	IStream *pFileStream = nullptr;
 	XmlNodeType nodeType;
 	LPCWSTR pwszLocalName;
 	LPCWSTR pwszAttributeName;
@@ -236,7 +236,7 @@ HRESULT ReadList(LPCWSTR path, LPCWSTR section, APPDATAXMLLIST &list)
 		switch(nodeType)
 		{
 		case XmlNodeType_Element:
-			hr = pReader->GetLocalName(&pwszLocalName, NULL);
+			hr = pReader->GetLocalName(&pwszLocalName, nullptr);
 			EXIT_NOT_S_OK(hr);
 
 			switch(sequence)
@@ -272,9 +272,9 @@ HRESULT ReadList(LPCWSTR path, LPCWSTR section, APPDATAXMLLIST &list)
 
 			for(hr = pReader->MoveToFirstAttribute(); hr == S_OK; hr = pReader->MoveToNextAttribute())
 			{
-				hr = pReader->GetLocalName(&pwszAttributeName, NULL);
+				hr = pReader->GetLocalName(&pwszAttributeName, nullptr);
 				EXIT_NOT_S_OK(hr);
-				hr = pReader->GetValue(&pwszAttributeValue, NULL);
+				hr = pReader->GetValue(&pwszAttributeValue, nullptr);
 				EXIT_NOT_S_OK(hr);
 
 				switch(sequence)
@@ -314,7 +314,7 @@ HRESULT ReadList(LPCWSTR path, LPCWSTR section, APPDATAXMLLIST &list)
 			break;
 
 		case XmlNodeType_EndElement:
-			hr = pReader->GetLocalName(&pwszLocalName, NULL);
+			hr = pReader->GetLocalName(&pwszLocalName, nullptr);
 			EXIT_NOT_S_OK(hr);
 
 			switch(sequence)
@@ -367,8 +367,8 @@ exit:
 
 HRESULT ReadValue(LPCWSTR path, LPCWSTR section, LPCWSTR key, std::wstring &strxmlval, LPCWSTR defval)
 {
-	IXmlReader *pReader = NULL;
-	IStream *pFileStream = NULL;
+	IXmlReader *pReader = nullptr;
+	IStream *pFileStream = nullptr;
 	HRESULT hr;
 	XmlNodeType nodeType;
 	LPCWSTR pwszLocalName;
@@ -386,7 +386,7 @@ HRESULT ReadValue(LPCWSTR path, LPCWSTR section, LPCWSTR key, std::wstring &strx
 		switch(nodeType)
 		{
 		case XmlNodeType_Element:
-			hr = pReader->GetLocalName(&pwszLocalName, NULL);
+			hr = pReader->GetLocalName(&pwszLocalName, nullptr);
 			EXIT_NOT_S_OK(hr);
 
 			switch(sequence)
@@ -415,9 +415,9 @@ HRESULT ReadValue(LPCWSTR path, LPCWSTR section, LPCWSTR key, std::wstring &strx
 
 			for(hr = pReader->MoveToFirstAttribute(); hr == S_OK; hr = pReader->MoveToNextAttribute())
 			{
-				hr = pReader->GetLocalName(&pwszAttributeName, NULL);
+				hr = pReader->GetLocalName(&pwszAttributeName, nullptr);
 				EXIT_NOT_S_OK(hr);
-				hr = pReader->GetValue(&pwszAttributeValue, NULL);
+				hr = pReader->GetValue(&pwszAttributeValue, nullptr);
 				EXIT_NOT_S_OK(hr);
 
 				switch(sequence)
@@ -448,7 +448,7 @@ HRESULT ReadValue(LPCWSTR path, LPCWSTR section, LPCWSTR key, std::wstring &strx
 			break;
 
 		case XmlNodeType_EndElement:
-			hr = pReader->GetLocalName(&pwszLocalName, NULL);
+			hr = pReader->GetLocalName(&pwszLocalName, nullptr);
 			EXIT_NOT_S_OK(hr);
 
 			switch(sequence)
@@ -493,9 +493,9 @@ HRESULT CreateStreamWriter(LPCWSTR path, IXmlWriter **ppWriter, IStream **ppFile
 {
 	HRESULT hr = S_FALSE;
 
-	if(ppWriter != NULL && ppFileStream != NULL)
+	if(ppWriter != nullptr && ppFileStream != nullptr)
 	{
-		hr = CreateXmlWriter(IID_PPV_ARGS(ppWriter), NULL);
+		hr = CreateXmlWriter(IID_PPV_ARGS(ppWriter), nullptr);
 		EXIT_NOT_S_OK(hr);
 
 		hr = SHCreateStreamOnFileW(path, STGM_WRITE | STGM_CREATE, ppFileStream);
@@ -518,7 +518,7 @@ HRESULT WriterInit(LPCWSTR path, IXmlWriter **ppWriter, IStream **pFileStream, B
 {
 	HRESULT hr = S_FALSE;
 
-	if(ppWriter != NULL && pFileStream != NULL)
+	if(ppWriter != nullptr && pFileStream != nullptr)
 	{
 		hr = CreateStreamWriter(path, ppWriter, pFileStream);
 		EXIT_NOT_S_OK(hr);
@@ -538,7 +538,7 @@ HRESULT WriterFinal(IXmlWriter **ppWriter, IStream **ppFileStream)
 {
 	HRESULT hr = S_FALSE;
 
-	if(ppWriter != NULL && *ppWriter != NULL)
+	if(ppWriter != nullptr && *ppWriter != nullptr)
 	{
 		hr = (*ppWriter)->WriteEndDocument();
 		EXIT_NOT_S_OK(hr);
@@ -547,7 +547,7 @@ HRESULT WriterFinal(IXmlWriter **ppWriter, IStream **ppFileStream)
 	}
 
 NOT_S_OK:
-	if(ppWriter != NULL && ppFileStream != NULL)
+	if(ppWriter != nullptr && ppFileStream != nullptr)
 	{
 		CloseStreamWriter(*ppWriter, *ppFileStream);
 	}
@@ -558,7 +558,7 @@ HRESULT WriterNewLine(IXmlWriter *pWriter)
 {
 	HRESULT hr = S_FALSE;
 
-	if(pWriter != NULL)
+	if(pWriter != nullptr)
 	{
 		hr = pWriter->WriteRaw(L"\r\n");
 	}
@@ -570,9 +570,9 @@ HRESULT WriterStartElement(IXmlWriter *pWriter, LPCWSTR element)
 {
 	HRESULT hr = S_FALSE;
 
-	if(pWriter != NULL)
+	if(pWriter != nullptr)
 	{
-		hr = pWriter->WriteStartElement(NULL, element, NULL);
+		hr = pWriter->WriteStartElement(nullptr, element, nullptr);
 	}
 
 	return hr;
@@ -582,7 +582,7 @@ HRESULT WriterEndElement(IXmlWriter *pWriter)
 {
 	HRESULT hr = S_FALSE;
 
-	if(pWriter != NULL)
+	if(pWriter != nullptr)
 	{
 		hr = pWriter->WriteEndElement();
 	}
@@ -594,9 +594,9 @@ HRESULT WriterAttribute(IXmlWriter *pWriter, LPCWSTR name, LPCWSTR value)
 {
 	HRESULT hr = S_FALSE;
 
-	if(pWriter != NULL)
+	if(pWriter != nullptr)
 	{
-		hr = pWriter->WriteAttributeString(NULL, name, NULL, value);
+		hr = pWriter->WriteAttributeString(nullptr, name, nullptr, value);
 	}
 
 	return hr;
@@ -624,7 +624,7 @@ HRESULT WriterKey(IXmlWriter *pWriter, LPCWSTR key, LPCWSTR value)
 {
 	HRESULT hr = S_FALSE;
 
-	if(pWriter != NULL)
+	if(pWriter != nullptr)
 	{
 		hr = WriterStartElement(pWriter, TagKey);
 		EXIT_NOT_S_OK(hr);

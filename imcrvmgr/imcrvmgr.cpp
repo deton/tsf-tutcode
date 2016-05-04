@@ -32,14 +32,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	CreateConfigPath();
 
-	if(ConvertStringSecurityDescriptorToSecurityDescriptorW(krnlobjsddl, SDDL_REVISION_1, &psd, NULL))
+	if(ConvertStringSecurityDescriptorToSecurityDescriptorW(krnlobjsddl, SDDL_REVISION_1, &psd, nullptr))
 	{
 		sa.nLength = sizeof(sa);
 		sa.lpSecurityDescriptor = psd;
 		sa.bInheritHandle = FALSE;
 
 		hMutex = CreateMutexW(&sa, FALSE, mgrmutexname);
-		if(hMutex == NULL || GetLastError() == ERROR_ALREADY_EXISTS)
+		if(hMutex == nullptr || GetLastError() == ERROR_ALREADY_EXISTS)
 		{
 			LocalFree(psd);
 			return 0;
@@ -75,17 +75,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = hInst;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wc.lpszClassName = DictionaryManagerClass;
 	RegisterClassExW(&wc);
 
 #ifdef _DEBUG
 	hWnd = CreateWindowW(DictionaryManagerClass, TextServiceDesc,
-		WS_OVERLAPPEDWINDOW, 0, 0, 600, 800, NULL, NULL, hInst, NULL);
+		WS_OVERLAPPEDWINDOW, 0, 0, 600, 800, nullptr, nullptr, hInst, nullptr);
 #else
 	hWnd = CreateWindowW(DictionaryManagerClass, TextServiceDesc,
-		WS_POPUP, 0, 0, 0, 0, NULL, NULL, hInst, NULL);
+		WS_POPUP, 0, 0, 0, 0, nullptr, nullptr, hInst, nullptr);
 #endif
 
 	if(!hWnd)
@@ -102,9 +102,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 #endif
 	UpdateWindow(hWnd);
 
-	while(GetMessageW(&msg, NULL, 0, 0))
+	while(GetMessageW(&msg, nullptr, 0, 0))
 	{
-		if(!TranslateAcceleratorW(msg.hwnd, NULL, &msg))
+		if(!TranslateAcceleratorW(msg.hwnd, nullptr, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessageW(&msg);
@@ -132,7 +132,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd, &r);
 		hwndEdit = CreateWindowW(L"EDIT", L"",
 			WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_READONLY,
-			0, 0, r.right, r.bottom, hWnd, NULL, hInst, NULL);
+			0, 0, r.right, r.bottom, hWnd, nullptr, hInst, nullptr);
 		hDC = GetDC(hwndEdit);
 		hFont = CreateFontW(-MulDiv(10, GetDeviceCaps(hDC, LOGPIXELSY), 72), 0, 0, 0,
 			FW_NORMAL, FALSE, FALSE, FALSE, SHIFTJIS_CHARSET,
@@ -148,7 +148,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		bSrvThreadExit = FALSE;
 		hThreadSrv = SrvStart();
-		if(hThreadSrv == NULL)
+		if(hThreadSrv == nullptr)
 		{
 			DestroyWindow(hWnd);
 		}
@@ -177,7 +177,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 		bSrvThreadExit = TRUE;
 		hPipe = CreateFileW(mgrpipename, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
-			NULL, OPEN_EXISTING, SECURITY_SQOS_PRESENT | SECURITY_EFFECTIVE_ONLY | SECURITY_IDENTIFICATION, NULL);
+			nullptr, OPEN_EXISTING, SECURITY_SQOS_PRESENT | SECURITY_EFFECTIVE_ONLY | SECURITY_IDENTIFICATION, nullptr);
 		if(hPipe != INVALID_HANDLE_VALUE)
 		{
 			CloseHandle(hPipe);
@@ -215,13 +215,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //  request "1\n<key>\t<key(original)>\t<okuri>\n"
 //  reply   "T\n<candidate(display)>\t<candidate(register)>\t<annotation(display)>\t<annotation(register)>\n...\n":hit
 //          "F\n":nothing
-//search candidate (user dictionary only)
-//  request "2\n<key>\t<key(original)>\t<okuri>\n"
-//  reply   "T\n<candidate(display)>\t<candidate(register)>\t<annotation(display)>\t<annotation(register)>\n...\n":hit
-//          "F\n":nothing
 //search key for complement
-//  request "4\n<key>\t\t\n"
-//  reply   "T\n<key>\t\t\t\n...\n":hit
+//  request "4\n<key prefix>\t<candidate max>\t\n"
+//  reply   "T\n<key>\t\t<candidates>\t\n...\n":hit
 //          "F\n":nothing
 //convert key
 //  request "5\n<key>\t\t<okuri>\n"
@@ -266,7 +262,6 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	switch(command)
 	{
 	case REQ_SEARCH:
-	case REQ_SEARCHUSER:
 		re.assign(L"(.*)\t(.*)\t(.*)\n");
 		fmt.assign(L"$1");
 		key = std::regex_replace(argument, re, fmt);
@@ -275,21 +270,7 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		fmt.assign(L"$3");
 		okuri = std::regex_replace(argument, re, fmt);
 
-		switch(command)
-		{
-		case REQ_SEARCH:
-			SearchDictionary(key, okuri, sc);
-			break;
-		case REQ_SEARCHUSER:
-			candidate = SearchUserDic(key, okuri);
-			re.assign(L"[\\x00-\\x19]");
-			fmt.assign(L"");
-			candidate = std::regex_replace(candidate, re, fmt);
-			ParseSKKDicCandiate(candidate, sc);
-			break;
-		default:
-			break;
-		}
+		SearchDictionary(key, okuri, sc);
 
 		if(!sc.empty())
 		{
@@ -337,10 +318,12 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		re.assign(L"(.*)\t(.*)\t(.*)\n");
 		fmt.assign(L"$1");
 		key = std::regex_replace(argument, re, fmt);
+		fmt.assign(L"$2");
+		keyorg = std::regex_replace(argument, re, fmt);
 
-		if(lua != NULL)
+		if(lua != nullptr)
 		{
-			lua_getglobal(lua,"lua_skk_complement");
+			lua_getglobal(lua, u8"lua_skk_complement");
 			lua_pushstring(lua, WCTOU8(key));
 			if(lua_pcall(lua, 1, 1, 0) == LUA_OK)
 			{
@@ -361,13 +344,15 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 			SearchComplement(key, sc);
 		}
 
+		SearchComplementSearchCandidate(sc, _wtoi(keyorg.c_str()));
+
 		if(!sc.empty())
 		{
 			result = REP_OK;
 			result += L"\n";
 			FORWARD_ITERATION_I(sc_itr, sc)
 			{
-				result += sc_itr->first + L"\t\t\t\n";
+				result += sc_itr->first + L"\t\t" + sc_itr->second + L"\t\n";
 			}
 		}
 		else
@@ -424,9 +409,9 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		fmt.assign(L"$4");
 		okuri = std::regex_replace(argument, re, fmt);
 
-		if(lua != NULL)
+		if(lua != nullptr)
 		{
-			lua_getglobal(lua, "lua_skk_add");
+			lua_getglobal(lua, u8"lua_skk_add");
 			lua_pushboolean(lua, (command == REQ_USER_ADD_0 ? 1 : 0));
 			lua_pushstring(lua, WCTOU8(key));
 			lua_pushstring(lua, WCTOU8(candidate));
@@ -451,9 +436,9 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		fmt.assign(L"$2");
 		candidate = std::regex_replace(argument, re, fmt);
 
-		if(lua != NULL)
+		if(lua != nullptr)
 		{
-			lua_getglobal(lua, "lua_skk_delete");
+			lua_getglobal(lua, u8"lua_skk_delete");
 			lua_pushboolean(lua, (command == REQ_USER_DEL_0 ? 1 : 0));
 			lua_pushstring(lua, WCTOU8(key));
 			lua_pushstring(lua, WCTOU8(candidate));
@@ -469,9 +454,9 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		break;
 
 	case REQ_USER_SAVE:
-		if(lua != NULL)
+		if(lua != nullptr)
 		{
-			lua_getglobal(lua, "lua_skk_save");
+			lua_getglobal(lua, u8"lua_skk_save");
 			lua_pcall(lua, 0, 0, 0);
 		}
 		else
@@ -489,14 +474,6 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		result = REP_OK;
 		result += L"\n";
 		break;
-
-#ifdef _DEBUG
-	case REQ_DEBUGOUT_ON:
-	case REQ_DEBUGOUT_OFF:
-		result = REP_OK;
-		result += L"\n";
-		break;
-#endif
 
 	default:
 		result = REP_FALSE;
@@ -517,12 +494,11 @@ unsigned int __stdcall SrvThread(void *p)
 	std::wstring dedit, tedit;
 	std::wregex re;
 	std::wstring fmt;
-	static BOOL debugout = TRUE;
 #endif
 
 	while(true)
 	{
-		if(ConnectNamedPipe(hPipe, NULL) == FALSE)
+		if(ConnectNamedPipe(hPipe, nullptr) == FALSE)
 		{
 			DisconnectNamedPipe(hPipe);
 			break;
@@ -547,7 +523,7 @@ unsigned int __stdcall SrvThread(void *p)
 		ZeroMemory(pipebuf, sizeof(pipebuf));
 
 		bytesRead = 0;
-		bRet = ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, NULL);
+		bRet = ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr);
 		if(bRet == FALSE || bytesRead == 0)
 		{
 			DisconnectNamedPipe(hPipe);
@@ -557,56 +533,38 @@ unsigned int __stdcall SrvThread(void *p)
 		command = pipebuf[0];
 
 #ifdef _DEBUG
-		switch(command)
-		{
-		case REQ_DEBUGOUT_ON:
-			debugout = TRUE;
-			break;
-		default:
-			break;
-		}
+		tedit.assign(pipebuf);
+		re.assign(L"\n");
+		fmt.assign(L"↲\r\n");
+		tedit = std::regex_replace(tedit, re, fmt);
+		re.assign(L"\t");
+		fmt.assign(L"»\u00A0");
+		tedit = std::regex_replace(tedit, re, fmt);
 
-		if(debugout)
-		{
-			tedit.assign(pipebuf);
-			re.assign(L"\n");
-			fmt.assign(L"\r\n");
-			tedit = std::regex_replace(tedit, re, fmt);
-			re.assign(L"\t");
-			fmt.assign(L"»");
-			tedit = std::regex_replace(tedit, re, fmt);
-
-			dedit.append(tedit);
-			SetWindowTextW(hwndEdit, dedit.c_str());
-		}
+		dedit.append(tedit);
+		SetWindowTextW(hwndEdit, dedit.c_str());
 #endif
 
 		SrvProc(command, &pipebuf[2], wspipebuf);
 		wcsncpy_s(pipebuf, wspipebuf.c_str(), _TRUNCATE);
 
 #ifdef _DEBUG
-		if(debugout)
-		{
-			tedit.assign(pipebuf);
-			re.assign(L"\n");
-			fmt.assign(L"\r\n");
-			tedit = std::regex_replace(tedit, re, fmt);
-			re.assign(L"\t");
-			fmt.assign(L"»");
-			tedit = std::regex_replace(tedit, re, fmt);
+		tedit.assign(pipebuf);
+		re.assign(L"\n");
+		fmt.assign(L"↲\r\n");
+		tedit = std::regex_replace(tedit, re, fmt);
+		re.assign(L"\t");
+		fmt.assign(L"»\u00A0");
+		tedit = std::regex_replace(tedit, re, fmt);
 
-			dedit.append(tedit);
-			SetWindowTextW(hwndEdit, dedit.c_str());
-			SendMessageW(hwndEdit, WM_VSCROLL, SB_BOTTOM, 0);
-		}
+		dedit.append(tedit);
+		SetWindowTextW(hwndEdit, dedit.c_str());
+		SendMessageW(hwndEdit, WM_VSCROLL, SB_BOTTOM, 0);
 
 		switch(command)
 		{
 		case REQ_USER_SAVE:
 			dedit.clear();
-			break;
-		case REQ_DEBUGOUT_OFF:
-			debugout = FALSE;
 			break;
 		default:
 			break;
@@ -614,7 +572,7 @@ unsigned int __stdcall SrvThread(void *p)
 #endif
 
 		bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
-		bRet = WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, NULL);
+		bRet = WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr);
 		if(bRet)
 		{
 			FlushFileBuffers(hPipe);
@@ -633,9 +591,9 @@ HANDLE SrvStart()
 	PSECURITY_DESCRIPTOR psd;
 	SECURITY_ATTRIBUTES sa;
 	HANDLE hPipe = INVALID_HANDLE_VALUE;
-	HANDLE hThread = NULL;
+	HANDLE hThread = nullptr;
 
-	if(ConvertStringSecurityDescriptorToSecurityDescriptorW(krnlobjsddl, SDDL_REVISION_1, &psd, NULL))
+	if(ConvertStringSecurityDescriptorToSecurityDescriptorW(krnlobjsddl, SDDL_REVISION_1, &psd, nullptr))
 	{
 		sa.nLength = sizeof(sa);
 		sa.lpSecurityDescriptor = psd;
@@ -650,10 +608,10 @@ HANDLE SrvStart()
 
 	if(hPipe != INVALID_HANDLE_VALUE)
 	{
-		hThread = (HANDLE)_beginthreadex(NULL, 0, SrvThread, hPipe, 0, NULL);
+		hThread = (HANDLE)_beginthreadex(nullptr, 0, SrvThread, hPipe, 0, nullptr);
 	}
 
-	if(hThread == NULL)
+	if(hThread == nullptr)
 	{
 		CloseHandle(hPipe);
 	}

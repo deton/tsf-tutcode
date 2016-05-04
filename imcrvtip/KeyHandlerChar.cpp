@@ -194,7 +194,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 						}
 						else
 						{
-							if(pContext != NULL)
+							if(pContext != nullptr)
 							{
 								cursoridx = kana.size();
 								_Update(ec, pContext, TRUE);
@@ -271,7 +271,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 		{
 		case S_OK:		//一致
 			kana.assign(ajc.jlatin);
-			if(pContext != NULL)
+			if(pContext != nullptr)
 			{
 				cursoridx = kana.size();
 				_Update(ec, pContext, TRUE);
@@ -292,7 +292,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 		ajc.ascii[0] = ch;
 		ajc.ascii[1] = L'\0';
 		kana.assign(ajc.ascii);
-		if(pContext != NULL)
+		if(pContext != nullptr)
 		{
 			cursoridx = kana.size();
 			_Update(ec, pContext, TRUE);
@@ -315,7 +315,7 @@ HRESULT CTextService::_HandleCharReturn(TfEditCookie ec, ITfContext *pContext, B
 	//terminate composition
 	cursoridx = kana.size();
 	_Update(ec, pContext, fixedtext, TRUE, back);
-	if(pContext != NULL)
+	if(pContext != nullptr)
 	{
 		_AddToPostBuf(fixedtext);
 	}
@@ -336,7 +336,7 @@ HRESULT CTextService::_HandleCharShift(TfEditCookie ec, ITfContext *pContext)
 		cursoridx = kana.size();
 		_Update(ec, pContext, TRUE);
 
-		if(pContext != NULL)
+		if(pContext != nullptr)
 		{
 			ITfRange *pRange;
 			if(_IsComposing() && _pComposition->GetRange(&pRange) == S_OK)
@@ -475,7 +475,7 @@ CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITf
 	{
 		return PCC_COMPOSITION; //前置型交ぜ書き入力の読み入力中
 	}
-	else if (pContext == NULL)
+	else if (pContext == nullptr)
 	{
 		return PCC_REGWORD; //辞書登録用編集中
 	}
@@ -931,7 +931,7 @@ CTextService::AcquiredFrom CTextService::_AcquirePrecedingText(ITfContext *pCont
 	// 辞書登録用エントリ編集中は、編集中文字列を対象にする
 	else if(postconvctx == PCC_REGWORD)
 	{
-		if(_pCandidateList != NULL)
+		if(_pCandidateList != nullptr)
 		{
 			_pCandidateList->_GetPrecedingText(text);
 		}
@@ -990,7 +990,7 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 	}
 	else if(postconvctx == PCC_REGWORD)
 	{
-		if(_pCandidateList != NULL)
+		if(_pCandidateList != nullptr)
 		{
 			_pCandidateList->_DeletePrecedingText(delete_count);
 			if(startMaze)

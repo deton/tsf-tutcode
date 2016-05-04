@@ -22,7 +22,6 @@
 
 //request
 #define REQ_SEARCH			L'1'	//辞書検索
-#define REQ_SEARCHUSER		L'2'	//辞書検索(ユーザー辞書のみ)
 #define REQ_COMPLEMENT		L'4'	//補完
 #define REQ_CONVERTKEY		L'5'	//見出し語変換
 #define REQ_CONVERTCND		L'6'	//候補変換
@@ -33,10 +32,6 @@
 #define REQ_USER_SAVE		L'S'	//ユーザー辞書保存
 #define REQ_EXEC_CNF		L'P'	//設定ダイアログ起動
 #define REQ_BUSHU			L'b'	//部首合成変換
-#ifdef _DEBUG
-#define REQ_DEBUGOUT_ON		L'['
-#define REQ_DEBUGOUT_OFF	L']'
-#endif
 //reply
 #define REP_OK				L'T'	//hit
 #define REP_FALSE			L'F'	//nothing
@@ -99,10 +94,10 @@ BOOL StartProcess(HMODULE hCurrentModule, LPCWSTR lpFileName);
 
 template<class T> void SafeRelease(T **ppT)
 {
-	if(*ppT != NULL)
+	if(*ppT != nullptr)
 	{
 		(*ppT)->Release();
-		*ppT = NULL;
+		*ppT = nullptr;
 	}
 }
 
