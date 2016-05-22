@@ -200,6 +200,7 @@
     <ClCompile Include="SearchSKKServer.cpp" />
     <ClCompile Include="SearchUserDictionary.cpp" />
     <ClCompile Include="imcrvmgr.cpp" />
+    <ClCompile Include="Server.cpp" />
     <ClCompile Include="kw\bushuent.cpp" />
     <ClCompile Include="kw\bushu_dic.cpp" />
     <ClCompile Include="stdafx.cpp">

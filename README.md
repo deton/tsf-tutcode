@@ -62,6 +62,10 @@ tsftutcode-X.Y.Z.msi を実行してください。 (X, Y, Z はバージョン�
     + %SystemRoot%\System32\IME\IMTSFTUTCODE
     + %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE
 
+* 共通
+
+    + %SystemRoot%\IME\IMTSFTUTCODE
+
 
 ### アンインストール
 
@@ -70,19 +74,6 @@ tsftutcode-X.Y.Z.msi を実行してください。 (X, Y, Z はバージョン�
 または、インストールに使用した exe ファイルを再度実行し「Uninstall」を選択してください。
 
 アンインストールの後はOSを再起動しておくと安全です。
-
-
-### 初期設定
-
-任意のユーザーアカウントで初めて使用するときは、設定ダイアログでOKボタンを押して初期設定を保存してください。
-
-設定ダイアログの「仮名」タブの「…」ボタンから、ローマ字・仮名変換表としてkanatable-tutcode.txtやkanatable-tcode.txtを読み込ませてください。
-
-設定ダイアログの「辞書」タブの「追加」ボタンから、maze.dicを選択し、「取込」ボタンを押してください。
-
-設定ダイアログで保存した後は、IME OFF → ON で新しい設定が反映されます。
-
-続いて、設定ダイアログのSKK辞書のリストに交ぜ書き変換辞書ファイルのパスまたはURLを追加して取込ボタンを押してください。詳しくは後述の「SKK辞書」の項を参照してください。
 
 
 ### Windows ストアアプリ、Microsoft Edge
@@ -201,6 +192,22 @@ IME ON/OFF のキーのみ、IME ON → OFF のときにも反映されます。
 各種設定の config.xml ファイルは、UTF-8 の XML フォーマットのテキストファイルとなっており、テキストエディタで編集可能です。変更した後は、IME OFF → ON で新しい設定が反映されます。
 
 取込済SKK辞書の skkdict.txt ファイルは、UTF-16 (LE, BOMあり) のSKK辞書フォーマットとなっています。
+
+SKK辞書サーバーを使用するなどでローカルのSKK辞書を使用したくないときは、設定ダイアログのSKK辞書のリストが空またはチェック無しの状態で取込処理をおこなってください。空の取込済SKK辞書が生成されます。
+
+下記のディレクトリの優先順位で各ファイルが読み込まれます。
+
+1. %AppData%\tsf-tutcode
+2. %SystemRoot%\IME\IMTSFTUTCODE (インストーラーによりインストール済み)
+
+> **開発者向け**
+>
+> デバッグビルドでは、ディレクトリ %AppData%\tsf-tutcode_DEBUG の各ファイルに保存されます。
+>
+> デバッグビルドでは、下記のディレクトリの優先順位で各ファイルが読み込まれます。
+>
+> 1. %AppData%\tsf-tutcode_DEBUG
+> 2. 実行ファイルと同じディレクトリ (ビルドするとディレクトリ installer\config-share から上書きコピーされます)
 
 
 ### ユーザー辞書
@@ -595,16 +602,23 @@ Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsA
 
 スクリプトファイルの文字コードはUTF-8のみに対応しています。
 
-辞書管理プロセスのカレントディレクトリは、%AppData%\tsf-tutcode になっています。
-
-辞書管理プロセスの起動時にスクリプトファイル (init.lua) が下記の優先順位でロードされます。
-
-1. %AppData%\tsf-tutcode\init.lua
-2. 辞書管理プロセスと同じディレクトリのinit.lua (インストーラーによりインストール済み)
-  * 通常、%SystemRoot%\System32\IME\IMTSFTUTCODE\init.lua
-  * または、%SystemRoot%\SysWOW64\IME\IMTSFTUTCODE\init.lua
+辞書管理プロセスのカレントディレクトリは %AppData%\tsf-tutcode になっています。
 
 コンソールプログラムのlua.exeが %SystemRoot%\System32\IME\IMTSFTUTCODE と %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE にあるので、カスタマイズする際のデバッグ用に使ってください。
+
+辞書管理プロセスの起動時にスクリプトファイル (init.lua) が下記の優先順位で読み込まれます。
+
+1. %AppData%\tsf-tutcode\init.lua
+2. %SystemRoot%\IME\IMTSFTUTCODE\init.lua (インストーラーによりインストール済み)
+
+> **開発者向け**
+>
+> デバッグビルドでは、辞書管理プロセスのカレントディレクトリは %AppData%\tsf-tutcode_DEBUG になっています。
+>
+> デバッグビルドでは、下記の優先順位でスクリプトファイルが読み込まれます。
+>
+> 1. %AppData%\tsf-tutcode_DEBUG\init.lua
+> 2. 実行ファイルと同じディレクトリのinit.lua (ビルドするとディレクトリ installer\config-lua から上書きコピーされます)
 
 
 ### プログラム実行変換もどき

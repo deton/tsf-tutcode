@@ -356,6 +356,8 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 
 		_UninitFont();
 
+		_CreateConfigPath();
+
 		_LoadDisplayAttr();
 		_LoadBehavior();
 		_LoadSelKey();
@@ -400,6 +402,8 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 		_ClearComposition();
 
 		_UninitFont();
+
+		_CreateConfigPath();
 
 		_UninitPreservedKey(1);	//OFF
 		_UninitPreservedKey(0);	//ON

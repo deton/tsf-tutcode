@@ -20,6 +20,11 @@
           <Directory Id="IMTSFTUTCODE_X86" Name="IMTSFTUTCODE" />
         </Directory>
       </Directory>
+      <Directory Id="WindowsFolder" Name="Windows">
+        <Directory Id="IME_WIN" Name="IME">
+          <Directory Id="IMTSFTUTCODE_WIN" Name="IMTSFTUTCODE" />
+        </Directory>
+      </Directory>
       <Directory Id="ProgramMenuFolder">
         <Directory Id="IMTSFTUTCODE_MENU" Name="tsf-tutcode" />
       </Directory>
@@ -41,15 +46,31 @@
       <Component Guid="*" Id="LUADLL_X86">
         <File Id="F_luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
       </Component>
-      <Component Guid="*" Id="INITLUA_X86">
-        <File Id="F_initlua_x86" Name="init.lua" Source="config-lua\init.lua" />
+    </DirectoryRef>
+
+    <DirectoryRef Id="IMTSFTUTCODE_WIN">
+      <Component Guid="*" Id="CONFIG_XML">
+        <File Id="F_config_xml" Name="config.xml" Source="build\config.xml" />
+      </Component>
+      <Component Guid="*" Id="INIT_LUA">
+        <File Id="F_init_lua" Name="init.lua" Source="build\init.lua" />
+      </Component>
+      <Component Guid="*" Id="SKKDICT_TXT">
+        <File Id="F_skkdict_txt" Name="skkdict.txt" Source="build\skkdict.txt" />
       </Component>
       <Component Guid="*" Id="README_HTML">
         <File Id="F_readme_html" Name="README.html" Source="build\README.html" KeyPath="yes">
           <Shortcut Id="S_readme_html" Name="README.html" Directory="IMTSFTUTCODE_MENU"
-            WorkingDirectory="IMTSFTUTCODE_X86" Show="normal" Advertise="yes" />
+            WorkingDirectory="IMTSFTUTCODE_WIN" Show="normal" Advertise="yes" />
         </File>
         <RemoveFolder Id="RF_readme_html" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
+      </Component>
+      <Component Guid="*" Id="LICENSE_TXT">
+        <File Id="F_license_txt" Name="LICENSE.txt" Source="build\LICENSE.txt" KeyPath="yes">
+          <Shortcut Id="S_license_txt" Name="LICENSE.txt" Directory="IMTSFTUTCODE_MENU"
+            WorkingDirectory="IMTSFTUTCODE_WIN" Show="normal" Advertise="yes" />
+        </File>
+        <RemoveFolder Id="RF_license_txt" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
     </DirectoryRef>
 
@@ -67,7 +88,10 @@
       <ComponentRef Id="TIP_X86" />
       <ComponentRef Id="LUAEXE_X86" />
       <ComponentRef Id="LUADLL_X86" />
-      <ComponentRef Id="INITLUA_X86" />
+      <ComponentRef Id="CONFIG_XML" />
+      <ComponentRef Id="INIT_LUA" />
+      <ComponentRef Id="SKKDICT_TXT" />
+      <ComponentRef Id="LICENSE_TXT" />
       <ComponentRef Id="README_HTML" />
       <ComponentRef Id="REG_X86" />
     </Feature>
@@ -85,6 +109,11 @@
       <MergeRef Id="AMP_X86" />
       <MergeRef Id="OMP_X86" />
     </Feature>
+
+    <UIRef Id="WixUI_Minimal" />
+    <WixVariable Id="WixUILicenseRtf" Value="theme-bundle\license.rtf" />
+    <Property Id="ARPPRODUCTICON" Value="kanchoku.ico" />
+    <Icon Id="IMTSFTUTCODE_ICO" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
 

@@ -19,12 +19,18 @@
     <Filter Include="ucrt">
       <UniqueIdentifier>{bbd2c006-6c4f-4948-aa29-b73b905e7b58}</UniqueIdentifier>
     </Filter>
+    <Filter Include="config-share">
+      <UniqueIdentifier>{29dc0f73-b251-4b3a-8423-decd81086516}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="_build.cmd">
       <Filter>Installer Files</Filter>
     </None>
     <None Include="_build_bundle.cmd">
+      <Filter>Installer Files</Filter>
+    </None>
+    <None Include="_build_sub.cmd">
       <Filter>Installer Files</Filter>
     </None>
     <None Include="_build_x64.cmd">
@@ -34,6 +40,9 @@
       <Filter>Installer Files</Filter>
     </None>
     <None Include="_clean.cmd">
+      <Filter>Installer Files</Filter>
+    </None>
+    <None Include="_clean_sub.cmd">
       <Filter>Installer Files</Filter>
     </None>
     <None Include="_clean_x64.cmd">
@@ -58,9 +67,6 @@
       <Filter>Installer Files</Filter>
     </None>
     <None Include="_version.cmd">
-      <Filter>Installer Files</Filter>
-    </None>
-    <None Include="license.rtf">
       <Filter>Installer Files</Filter>
     </None>
     <None Include="config-lua\init.lua">
@@ -121,16 +127,26 @@
     <None Include="ucrt\Windows8-RT-KB3118401-x86.msu">
       <Filter>ucrt</Filter>
     </None>
-    <None Include="_make_readme.cmd">
-      <Filter>Installer Files</Filter>
+    <None Include="theme-bundle\license.rtf">
+      <Filter>theme-bundle</Filter>
     </None>
-    <Text Include="kanatable-tutcode.txt" />
-    <Text Include="kanatable-tcode.txt" />
-    <None Include="maze.dic" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="config-sample\kanatable-tutcode.txt">
+      <Filter>config-sample</Filter>
+    </Text>
+    <Text Include="config-sample\kanatable-tcode.txt">
+      <Filter>config-sample</Filter>
+    </Text>
     <Text Include="..\LICENSE.TXT" />
+    <Text Include="config-share\mazedict.txt">
+      <Filter>config-share</Filter>
+    </Text>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="config-share\config.xml">
+      <Filter>config-share</Filter>
+    </Xml>
     <Xml Include="theme-bundle\RtfSidebarTheme.xml">
       <Filter>theme-bundle</Filter>
     </Xml>
