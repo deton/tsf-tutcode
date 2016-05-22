@@ -800,7 +800,7 @@ tsf-tutcodeは未実装機能が多いため。
 		- デフォルトで入力途中のキーシーケンスを表示しないように変更(tc2同様)。一部アプリで後置型変換が正しく動作しない現象を回避するため。CorvusSKKと同じ動作をする「入力途中のキーシーケンスを表示する」設定追加
 * Surrounding Text関係は、[Mozc](https://github.com/google/mozc)から一部ソースを取り込んでいます。
 * 部首合成変換は、[漢直Win](https://github.com/kanchoku/kw)から一部ソースと部首合成変換辞書を取り込んでいます。
-  交ぜ書き変換辞書maze.dicは、漢直Winのkwmaze.dicの漢字コードを変換して、取込みできるように;; okuri-ari entries.等を追加したものです。
+  交ぜ書き変換辞書mazedict.txtは、漢直Winのkwmaze.dicの漢字コードを変換して、取込みできるように;; okuri-ari entries.等を追加して取込んだものです。
 
 ### 制限事項、既知の問題
 
