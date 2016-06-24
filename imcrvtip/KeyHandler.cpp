@@ -348,7 +348,7 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 	return S_OK;
 }
 
-void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
+void CTextService::_KeyboardOpenCloseChanged()
 {
 	if(_IsKeyboardOpen())
 	{
@@ -405,6 +405,9 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 
 		_CreateConfigPath();
 
+		_LoadDisplayAttr();
+		_LoadBehavior();
+
 		_UninitPreservedKey(1);	//OFF
 		_UninitPreservedKey(0);	//ON
 		_LoadPreservedKey();
@@ -415,9 +418,11 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 
 		_ClearComposition();
 		postbuf.clear();
+
+		_GetActiveFlags();
 	}
 
-	_UpdateLanguageBar(showinputmode);
+	_UpdateLanguageBar();
 }
 
 void CTextService::_KeyboardInputConversionChanged()
@@ -570,11 +575,15 @@ void CTextService::_GetActiveFlags()
 	_dwActiveFlags = 0;
 	_ImmersiveMode = FALSE;
 	_UILessMode = FALSE;
+	_ShowInputMode = FALSE;
 
 	ITfThreadMgrEx *pThreadMgrEx;
 	if(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pThreadMgrEx)) == S_OK)
 	{
-		pThreadMgrEx->GetActiveFlags(&_dwActiveFlags);
+		if(pThreadMgrEx->GetActiveFlags(&_dwActiveFlags) != S_OK)
+		{
+			_dwActiveFlags = 0;
+		}
 		SafeRelease(&pThreadMgrEx);
 	}
 
@@ -588,8 +597,7 @@ void CTextService::_GetActiveFlags()
 		_UILessMode = TRUE;
 	}
 
-	_ShowInputMode = !_UILessMode && cx_showmodeinl &&
-		(!cx_showmodeimm || (cx_showmodeimm && _ImmersiveMode));
+	_ShowInputMode = cx_showmodeinl && !_UILessMode;
 }
 
 //入力途中のシーケンスを確定する

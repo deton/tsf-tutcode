@@ -563,7 +563,7 @@ void CTextService::_UninitLanguageBar()
 	SafeRelease(&_pLangBarItemI);
 }
 
-void CTextService::_UpdateLanguageBar(BOOL showinputmode)
+void CTextService::_UpdateLanguageBar()
 {
 	if(_pLangBarItem != nullptr)
 	{
@@ -575,8 +575,21 @@ void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 		_pLangBarItemI->_Update();
 	}
 
-	if(_ShowInputMode && showinputmode &&
-		(_pCandidateList == nullptr || !_pCandidateList->_IsShowCandidateWindow()))
+	BOOL bEditContext = FALSE;
+	ITfDocumentMgr *pDocumentMgr;
+	if((_pThreadMgr->GetFocus(&pDocumentMgr) == S_OK) && (pDocumentMgr != nullptr))
+	{
+		ITfContext *pContext;
+		if((pDocumentMgr->GetTop(&pContext) == S_OK) && (pContext != nullptr))
+		{
+			bEditContext = TRUE;
+			_GetActiveFlags();
+			SafeRelease(&pContext);
+		}
+		SafeRelease(&pDocumentMgr);
+	}
+
+	if(_ShowInputMode && bEditContext && !_IsComposing())
 	{
 		_StartInputModeWindow();
 	}

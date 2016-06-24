@@ -122,7 +122,7 @@ public:
 	void _ClearComposition();
 
 	// LanguageBar
-	void _UpdateLanguageBar(BOOL showinputmode = TRUE);
+	void _UpdateLanguageBar();
 	void _GetIcon(HICON *phIcon);
 
 	// DisplayAttribureProvider
@@ -132,7 +132,7 @@ public:
 	// KeyHandler
 	HRESULT _InvokeKeyHandler(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BYTE bSf);
 	HRESULT _HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, BYTE bSf);
-	void _KeyboardOpenCloseChanged(BOOL showinputmode = TRUE);
+	void _KeyboardOpenCloseChanged();
 	void _KeyboardInputConversionChanged();
 	BOOL _KeyboardSetDefaultMode();
 	BOOL _IsKeyVoid(WCHAR ch, BYTE vk);
@@ -355,7 +355,7 @@ public:
 	BOOL _ShowInputMode;	//InputModeWindow
 
 	//状態
-	int inputmode;			//入力モード (無し/ひらがな/カタカナ/半角ｶﾀｶﾅ/全英/アスキー)
+	INT inputmode;			//入力モード (無し/ひらがな/カタカナ/半角ｶﾀｶﾅ/全英/アスキー)
 	BOOL inputkey;			//見出し入力▽モード
 	BOOL abbrevmode;		//abbrevモード
 	BOOL showentry;			//候補表示▼モード
@@ -366,21 +366,21 @@ public:
 
 	//動作設定
 	WCHAR cx_fontname[LF_FACESIZE];	//候補一覧のフォント設定(フォント名)
-	int cx_fontpoint;				//候補一覧のフォント設定(サイズ)
-	int cx_fontweight;				//候補一覧のフォント設定(太さ)
+	INT cx_fontpoint;				//候補一覧のフォント設定(サイズ)
+	INT cx_fontweight;				//候補一覧のフォント設定(太さ)
 	BOOL cx_fontitalic;				//候補一覧のフォント設定(イタリック)
 
 	LONG cx_maxwidth;			//候補一覧の最大幅
 	COLORREF cx_colors[DISPLAY_COLOR_NUM];		//候補一覧の色
 	BOOL cx_drawapi;			//候補一覧の描画API(FALSE:GDI/TRUE:Direct2D)
 	BOOL cx_colorfont;			//候補一覧の描画API 彩色(Direct2Dのときカラーフォントにする)
-	UINT cx_untilcandlist;		//候補一覧表示に要する変換回数(0:表示なし/1:1回目)
+	UINT cx_untilcandlist;		//候補一覧表示に要する変換回数(0:表示なし/1:1回目...)
 	BOOL cx_verticalcand;		//候補一覧を縦に表示する
 	BOOL cx_dispcandnum;		//候補一覧表示なしのとき候補数を表示する
 	BOOL cx_annotation;			//注釈を表示する
 	BOOL cx_annotatlst;			//注釈を表示する(FALSE:全て/TRUE:候補一覧のみ)
 	BOOL cx_showmodeinl;		//入力モードを表示する
-	BOOL cx_showmodeimm;		//入力モードを表示する(FALSE:全て/TRUE:没入型のみ)
+	UINT cx_showmodesec;		//入力モードの表示秒数
 	BOOL cx_showmodemark;		//▽▼*マークを表示する
 	BOOL cx_showroman;			//ローマ字を表示する
 	BOOL cx_showromancomp;		//入力途中のキーシーケンスを表示する

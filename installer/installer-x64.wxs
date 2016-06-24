@@ -69,7 +69,7 @@
 
     <UIRef Id="WixUI_Minimal" />
     <WixVariable Id="WixUILicenseRtf" Value="theme-bundle\license.rtf" />
-    <Property Id="ARPPRODUCTICON" Value="kanchoku.ico" />
+    <Property Id="ARPPRODUCTICON" Value="IMTSFTUTCODE_ICO" />
     <Icon Id="IMTSFTUTCODE_ICO" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />

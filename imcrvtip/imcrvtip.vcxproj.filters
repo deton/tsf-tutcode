@@ -182,9 +182,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icon\kanchoku.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="Icon\xAscii.ico">
       <Filter>Resource Files</Filter>
     </Image>
@@ -219,6 +216,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Icon\zKatakana1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icon\kanchoku.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Icon\imdebug.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

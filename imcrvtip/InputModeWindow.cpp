@@ -4,7 +4,6 @@
 #include "InputModeWindow.h"
 
 #define INPUTMODE_TIMER_ID		0x54ab516b
-#define INPUTMODE_TIMEOUT_MSEC	3000
 
 class CInputModeWindowGetTextExtEditSession : public CEditSessionBase
 {
@@ -27,6 +26,14 @@ public:
 	// ITfEditSession
 	STDMETHODIMP DoEditSession(TfEditCookie ec)
 	{
+		RECT rs = {-1, -1, -1, -1};
+		if(_pContextView->GetScreenExt(&rs) == S_OK &&
+			(rs.left == 0 && rs.top == 0 && rs.right == 0 && rs.bottom == 0))
+		{
+			_pInputModeWindow->_Show(FALSE);
+			return FALSE;
+		}
+
 		TF_SELECTION tfSelection;
 		ULONG cFetched = 0;
 		if(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched) != S_OK)
@@ -257,6 +264,14 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		ITfContextView *pContextView;
 		if(_pContext->GetActiveView(&pContextView) == S_OK)
 		{
+			RECT rs = {-1, -1, -1, -1};
+			if(pContextView->GetScreenExt(&rs) == S_OK &&
+				(rs.left == 0 && rs.top == 0 && rs.right == 0 && rs.bottom == 0))
+			{
+				SafeRelease(&pContextView);
+				return FALSE;
+			}
+
 			if(FAILED(pContextView->GetWnd(&_hwndParent)) || _hwndParent == nullptr)
 			{
 				_hwndParent = GetFocus();
@@ -362,7 +377,7 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 	case WM_CREATE:
 		if(!_bCandidateWindow)
 		{
-			SetTimer(hWnd, INPUTMODE_TIMER_ID, INPUTMODE_TIMEOUT_MSEC, nullptr);
+			SetTimer(hWnd, INPUTMODE_TIMER_ID, _pTextService->cx_showmodesec * 1000, nullptr);
 		}
 		break;
 	case WM_TIMER:
@@ -530,10 +545,10 @@ void CTextService::_StartInputModeWindow()
 		_EndInputModeWindow();
 
 		ITfDocumentMgr *pDocumentMgr;
-		if(_pThreadMgr->GetFocus(&pDocumentMgr) == S_OK && pDocumentMgr != nullptr)
+		if((_pThreadMgr->GetFocus(&pDocumentMgr) == S_OK) && (pDocumentMgr != nullptr))
 		{
 			ITfContext *pContext;
-			if(pDocumentMgr->GetTop(&pContext) == S_OK && pContext != nullptr)
+			if((pDocumentMgr->GetTop(&pContext) == S_OK) && (pContext != nullptr))
 			{
 				try
 				{

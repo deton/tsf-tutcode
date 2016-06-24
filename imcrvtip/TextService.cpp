@@ -199,7 +199,11 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 		goto exit;
 	}
 
-	_KeyboardOpenCloseChanged(FALSE);
+	_CreateConfigPath();
+
+	_LoadBehavior();
+
+	_KeyboardOpenCloseChanged();
 
 	return S_OK;
 

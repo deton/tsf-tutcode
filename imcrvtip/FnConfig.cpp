@@ -203,7 +203,7 @@ void CTextService::_LoadBehavior()
 	}
 
 	_ReadBoolValue(SectionDisplay, ValueDrawAPI, cx_drawapi, FALSE);
-	_ReadBoolValue(SectionDisplay, ValueColorFont, cx_colorfont, FALSE);
+	_ReadBoolValue(SectionDisplay, ValueColorFont, cx_colorfont, TRUE);
 
 	ReadValue(pathconfigxml, SectionDisplay, ValueUntilCandList, strxmlval);
 	cx_untilcandlist = _wtoi(strxmlval.c_str());
@@ -216,8 +216,15 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionDisplay, ValueVerticalCand, cx_verticalcand, FALSE);
 	_ReadBoolValue(SectionDisplay, ValueAnnotation, cx_annotation, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueAnnotatLst, cx_annotatlst, FALSE);
-	_ReadBoolValue(SectionDisplay, ValueShowModeInl, cx_showmodeinl, FALSE);
-	_ReadBoolValue(SectionDisplay, ValueShowModeImm, cx_showmodeimm, TRUE);
+
+	_ReadBoolValue(SectionDisplay, ValueShowModeInl, cx_showmodeinl, TRUE);
+	ReadValue(pathconfigxml, SectionDisplay, ValueShowModeSec, strxmlval);
+	cx_showmodesec = _wtoi(strxmlval.c_str());
+	if(cx_showmodesec > 60 || cx_showmodesec <= 0)
+	{
+		cx_showmodesec = 3;
+	}
+
 	_ReadBoolValue(SectionDisplay, ValueShowModeMark, cx_showmodemark, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueShowRoman, cx_showroman, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueShowRomanComp, cx_showromancomp, FALSE);
