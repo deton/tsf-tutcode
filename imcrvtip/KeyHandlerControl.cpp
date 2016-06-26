@@ -1062,3 +1062,141 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 
 	return E_PENDING;
 }
+
+void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch)
+{
+	PostConvContext postconvctx = _PrepareForFunc(ec, pContext);
+	//前置型交ぜ書き変換
+	if(wcsncmp(rkc.hiragana, L"maze", 4) == 0)
+	{
+		if(postconvctx != PCC_COMPOSITION)
+		{
+			_HandleConvPoint(ec, pContext, ch);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
+		return;
+	}
+	//後置型交ぜ書き変換
+	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
+	{
+		int offset = 4;
+		BOOL isKatuyo = FALSE;
+		if(rkc.hiragana[4] == L'K')
+		{
+			offset = 5;
+			isKatuyo = TRUE;
+		}
+		if(postconvctx != PCC_COMPOSITION)
+		{
+			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
+			//は未対応。候補表示等の制御が面倒なので。
+			int count = _wtoi(rkc.hiragana + offset);
+			if(count <= 0)
+			{
+				count = 1; //TODO:count=0の場合、なるべく長く読みとみなす
+			}
+			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
+		return;
+	}
+	//後置型カタカナ変換
+	else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
+	{
+		int offset = 4;
+		int isShrink = 0;
+		if(rkc.hiragana[4] == L'>')
+		{
+			offset = 5;
+			isShrink = 1;
+		}
+		int count = _wtoi(rkc.hiragana + offset);
+		if(isShrink)
+		{
+			_HandlePostKataShrink(ec, pContext, count, postconvctx);
+		}
+		else
+		{
+			_HandlePostKata(ec, pContext, count, postconvctx);
+		}
+		return;
+	}
+	//後置型部首合成変換
+	else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
+	{
+		_HandlePostBushu(ec, pContext, postconvctx);
+		return;
+	}
+	//後置型入力シーケンス→漢字変換
+	//("Seq2Kanji"だとKANA_NUM(8)を越えるので"StoK")
+	else if(wcsncmp(rkc.hiragana, L"StoK", 4) == 0)
+	{
+		int count = _wtoi(rkc.hiragana + 4);
+		_HandlePostSeq2Kanji(ec, pContext, count, postconvctx);
+		return;
+	}
+	//後置型漢字→入力シーケンス変換
+	else if(wcsncmp(rkc.hiragana, L"KtoS", 4) == 0)
+	{
+		int count = _wtoi(rkc.hiragana + 4);
+		_HandlePostKanji2Seq(ec, pContext, count, postconvctx);
+		return;
+	}
+	//打鍵ヘルプ
+	else if(wcsncmp(rkc.hiragana, L"Help", 4) == 0)
+	{
+		int count = _wtoi(rkc.hiragana + 4);
+		if(count <= 0)
+		{
+			count = 1;
+		}
+		_HandlePostHelp(ec, pContext, postconvctx, count);
+		return;
+	}
+	else
+	{
+		if(postconvctx != PCC_COMPOSITION)
+		{
+			kana.clear();
+			cursoridx = 0;
+		}
+	}
+	if(postconvctx == PCC_APP)
+	{
+		_HandleCharReturn(ec, pContext);
+	}
+	else
+	{
+		_Update(ec, pContext);
+	}
+}
+
+//入力シーケンスに割り当てられた「機能」の実行前に、composition表示等をクリア
+CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext)
+{
+	roman.clear();
+	if(inputkey && !kana.empty())
+	{
+		return PCC_COMPOSITION; //前置型交ぜ書き入力の読み入力中
+	}
+	else if (pContext == nullptr)
+	{
+		return PCC_REGWORD; //辞書登録用編集中
+	}
+	else
+	{
+		_ResetStatus();
+		if(cx_showromancomp)
+		{
+			//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
+			_HandleCharReturn(ec, pContext);
+		}
+		return PCC_APP;
+	}
+}

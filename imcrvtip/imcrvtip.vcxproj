@@ -243,6 +243,7 @@ ver &gt; nul</Command>
     <ClCompile Include="KeyHandlerControl.cpp" />
     <ClCompile Include="KeyHandlerConv.cpp" />
     <ClCompile Include="KeyHandlerDictionary.cpp" />
+    <ClCompile Include="KeyHandlerPostConv.cpp" />
     <ClCompile Include="KeySender.cpp" />
     <ClCompile Include="LanguageBar.cpp" />
     <ClCompile Include="mozc\win32\base\deleter.cc" />

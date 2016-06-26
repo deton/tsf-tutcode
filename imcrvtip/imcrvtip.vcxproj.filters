@@ -119,6 +119,9 @@
     <ClCompile Include="KeyHandlerDictionary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="KeyHandlerPostConv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="KeySender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

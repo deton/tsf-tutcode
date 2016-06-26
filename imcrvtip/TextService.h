@@ -140,42 +140,12 @@ public:
 	void _GetActiveFlags();
 	void _InitFont();
 	void _UninitFont();
+	HRESULT _CommitRoman(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerChar
 	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, WCHAR ch, WCHAR chO);
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharShift(TfEditCookie ec, ITfContext *pContext);
-
-	enum PostConvContext
-	{
-		PCC_COMPOSITION, //交ぜ書き変換の読み入力中 (全てtsf-tutcodeの管理下)
-		PCC_REGWORD, 	 //辞書登録用エントリ編集中 (全てtsf-tutcodeの管理下)
-		PCC_APP			 //通常時 (TSF等でアプリ等とのやりとりが必要)
-	};
-	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch);
-	PostConvContext _PrepareForFunc(TfEditCookie ec, ITfContext *pContext);
-	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo);
-	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
-	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
-	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
-	HRESULT _HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
-	HRESULT _HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
-	HRESULT _HandlePostHelp(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, int count);
-	BOOL isroman(WCHAR ch);
-	enum AcquiredFrom
-	{
-		AF_COMPOSITION,
-		AF_REGWORD,
-		AF_POSTBUF,
-		AF_PRECEDING,
-		AF_SELECTION,
-	};
-	AcquiredFrom _AcquirePrecedingText(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, BOOL useSelectedText = FALSE);
-	void _AddToPostBuf(const std::wstring &text);
-	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, PostConvContext postconvctx, BOOL startMaze = false);
-	void _StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, const std::wstring &yomi);
-	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL startMaze = false);
-	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 
 	// KeyHandlerCompostion
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed = FALSE, BOOL back = FALSE);
@@ -189,7 +159,14 @@ public:
 	// KeyHandlerControl
 	HRESULT _HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE sf, WCHAR ch);
 	HRESULT _HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR ch);
-	HRESULT _CommitRoman(TfEditCookie ec, ITfContext *pContext);
+	enum PostConvContext
+	{
+		PCC_COMPOSITION, //交ぜ書き変換の読み入力中 (全てtsf-tutcodeの管理下)
+		PCC_REGWORD, 	 //辞書登録用エントリ編集中 (全てtsf-tutcodeの管理下)
+		PCC_APP			 //通常時 (TSF等でアプリ等とのやりとりが必要)
+	};
+	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch);
+	PostConvContext _PrepareForFunc(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerConv
 	WCHAR _GetCh(BYTE vk, BYTE vkoff = 0);
@@ -213,6 +190,30 @@ public:
 	BOOL _SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *src, int srcmode, std::wstring &dst, int dstmode);
 	void _ConvKanaToRoman(std::wstring &dst, const std::wstring &src, int srcmode);
 	BOOL _SearchRomanByKana(const ROMAN_KANA_NODE &tree, int srcmode, const WCHAR *src, std::wstring &dst);
+
+	// KeyHandlerPostConv
+	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo);
+	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
+	HRESULT _HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
+	HRESULT _HandlePostHelp(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, int count);
+	BOOL isroman(WCHAR ch);
+	enum AcquiredFrom
+	{
+		AF_COMPOSITION,
+		AF_REGWORD,
+		AF_POSTBUF,
+		AF_PRECEDING,
+		AF_SELECTION,
+	};
+	AcquiredFrom _AcquirePrecedingText(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, BOOL useSelectedText = FALSE);
+	void _AddToPostBuf(const std::wstring &text);
+	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, PostConvContext postconvctx, BOOL startMaze = false);
+	void _StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, const std::wstring &yomi);
+	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL startMaze = false);
+	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 
 	// KeyHandlerDictionary
 	void _ConnectDic();
