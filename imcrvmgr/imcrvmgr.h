@@ -79,7 +79,8 @@ HANDLE SrvStart();
 #define BACKUP_GENS		3
 
 // ConvBushu
-WCHAR ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
+std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
+BOOL LoadBushuConvUserDic();
 
 extern CRITICAL_SECTION csUserDataSave;
 extern BOOL bUserDicChg;
@@ -108,6 +109,7 @@ extern WCHAR pathuserdic[MAX_PATH];		//ユーザー辞書
 extern WCHAR pathuserbak[MAX_PATH];		//ユーザー辞書バックアッププレフィックス
 extern WCHAR pathskkdic[MAX_PATH];		//取込SKK辞書
 extern WCHAR pathinitlua[MAX_PATH];		//init.lua
+extern WCHAR pathbushudic[MAX_PATH];	//部首合成変換ユーザー辞書
 
 extern WCHAR krnlobjsddl[MAX_KRNLOBJNAME];	//SDDL
 extern WCHAR mgrpipename[MAX_KRNLOBJNAME];	//名前付きパイプ

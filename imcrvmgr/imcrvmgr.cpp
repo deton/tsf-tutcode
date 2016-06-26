@@ -145,6 +145,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		bUserDicChg = FALSE;
 		LoadSKKUserDic();
 
+		LoadBushuConvUserDic();
+
 		bSrvThreadExit = FALSE;
 		hThreadSrv = SrvStart();
 		if(hThreadSrv == nullptr)

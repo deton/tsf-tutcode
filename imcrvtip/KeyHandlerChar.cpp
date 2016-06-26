@@ -491,6 +491,37 @@ CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITf
 	}
 }
 
+//サロゲートペアを考慮して、offset位置より前のcount文字を取得する。
+//XXX:結合文字の考慮
+//\return 新しいoffsetの値
+static size_t _GetCharsBack(const std::wstring &s, std::wstring *res, size_t offset, size_t count)
+{
+	res->clear();
+	if(offset <= 0)
+	{
+		return offset;
+	}
+	size_t st = offset;
+	size_t ed = offset;
+	while (count-- > 0)
+	{
+		if(s.size() >= 2 && st >= 2 && IS_SURROGATE_PAIR(s[st - 2], s[st - 1]))
+		{
+			st -= 2;
+		}
+		else if(s.size() >= 1)
+		{
+			st -= 1;
+		}
+		else
+		{
+			break;
+		}
+	}
+	res->append(s.substr(st, ed - st));
+	return st;
+}
+
 //後置型交ぜ書き変換
 HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo)
 {
@@ -677,20 +708,23 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, Po
 	_AcquirePrecedingText(pContext, postconvctx, &text);
 
 	size_t size = text.size();
-	if(size >= 2)
+	std::wstring bushu2;
+	size_t idx = _GetCharsBack(text, &bushu2, size, 1);
+	if(idx < size)
 	{
-		//TODO:サロゲートペアや結合文字等の考慮
-		WCHAR bushu1 = text[size - 2];
-		WCHAR bushu2 = text[size - 1];
-		//部首合成変換
-		WCHAR kanji = _SearchBushuDic(bushu1, bushu2);
-		if(kanji != 0)
+		std::wstring bushu1;
+		size_t j = _GetCharsBack(text, &bushu1, idx, 1);
+		if(j < idx)
 		{
-			//カーソル直前の文字列を置換
-			std::wstring kanjistr(1, kanji);
-			_ReplacePrecedingText(ec, pContext, 2, kanjistr, postconvctx);
-			_ShowAutoHelp(kanjistr, L"");
-			return S_OK;
+			std::wstring kanji;
+			_SearchBushuDic(bushu1, bushu2, &kanji);
+			if(!kanji.empty())
+			{
+				//カーソル直前の文字列を置換
+				_ReplacePrecedingText(ec, pContext, 2, kanji, postconvctx);
+				_ShowAutoHelp(kanji, L"");
+				return S_OK;
+			}
 		}
 	}
 	if(postconvctx == PCC_APP)

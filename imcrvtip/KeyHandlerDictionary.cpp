@@ -115,49 +115,36 @@ exit:
 	_DisconnectDic();
 }
 
-WCHAR CTextService::_SearchBushuDic(WCHAR bushu1, WCHAR bushu2)
+void CTextService::_SearchBushuDic(const std::wstring &bushu1, const std::wstring &bushu2, std::wstring *kanji)
 {
-	WCHAR wbuf[PIPEBUFSIZE];
-	DWORD bytesWrite, bytesRead;
-	WCHAR ret = 0;
-
+	kanji->clear();
 	_StartManager();
-
 	_ConnectDic();
-
-	ZeroMemory(wbuf, sizeof(wbuf));
-
-	//_snwprintf_s(wbuf, _TRUNCATE, L"%c\n%c\t%c\n", REQ_BUSHU, bushu1, bushu2);
-	wbuf[0] = REQ_BUSHU;
-	wbuf[1] = L'\n';
-	wbuf[2] = bushu1;
-	wbuf[3] = L'\t';
-	wbuf[4] = bushu2;
-	wbuf[5] = L'\n';
-	wbuf[6] = L'\0';
-
-	if(WriteFile(hPipe, wbuf, (DWORD)(wcslen(wbuf)*sizeof(WCHAR)), &bytesWrite, NULL) == FALSE)
+	ZeroMemory(pipebuf, sizeof(pipebuf));
+	_snwprintf_s(pipebuf, _TRUNCATE, L"%c\n%s\t%s\n", REQ_BUSHU,
+			bushu1.c_str(), bushu2.c_str());
+	DWORD bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
+	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
 
-	ZeroMemory(wbuf, sizeof(wbuf));
-
-	if(ReadFile(hPipe, wbuf, sizeof(wbuf), &bytesRead, NULL) == FALSE)
+	ZeroMemory(pipebuf, sizeof(pipebuf));
+	DWORD bytesRead = 0;
+	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;
 	}
-
-	if(wbuf[0] != REP_OK)
+	if(pipebuf[0] != REP_OK)
 	{
 		goto exit;
 	}
-
-	ret = wbuf[2];
+	pipebuf[wcslen(pipebuf) - 1] = L'\0';
+	kanji->assign(&pipebuf[2]);
 
 exit:
+	ZeroMemory(pipebuf, sizeof(pipebuf));
 	_DisconnectDic();
-	return ret;
 }
 
 void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &okuri, std::wstring &conv)

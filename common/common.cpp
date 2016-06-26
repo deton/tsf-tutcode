@@ -15,6 +15,7 @@ LPCWSTR fnuserdic = L"userdict.txt";	//ユーザー辞書
 LPCWSTR fnuserbak = L"userdict.bk";		//ユーザー辞書バックアッププレフィックス
 LPCWSTR fnskkdic = L"skkdict.txt";		//取込SKK辞書
 LPCWSTR fninitlua = L"init.lua";		//init.lua
+LPCWSTR fnbushudic = L"bushudict.txt";	//部首合成変換ユーザー辞書
 
 const TF_DISPLAYATTRIBUTE c_daDisplayAttributeInputMark =
 {

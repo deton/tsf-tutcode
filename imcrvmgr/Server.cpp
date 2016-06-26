@@ -91,20 +91,17 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		key = std::regex_replace(argument, re, fmt);
 		fmt.assign(L"$2");
 		keyorg = std::regex_replace(argument, re, fmt);
+		conv = ConvBushu(key, keyorg);
+		if(!conv.empty())
 		{
-			WCHAR r = ConvBushu(key, keyorg);
-			if(r != 0)
-			{
-				result = REP_OK;
-				result += L"\n";
-				result += r;
-				result += L"\n";
-			}
-			else
-			{
-				result = REP_FALSE;
-				result += L"\n";
-			}
+			result = REP_OK;
+			result += L"\n";
+			result += conv + L"\n";
+		}
+		else
+		{
+			result = REP_FALSE;
+			result += L"\n";
 		}
 		break;
 

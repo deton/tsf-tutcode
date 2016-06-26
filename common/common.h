@@ -61,6 +61,7 @@ extern LPCWSTR fnuserdic;	//ユーザー辞書
 extern LPCWSTR fnuserbak;	//ユーザー辞書バックアッププレフィックス
 extern LPCWSTR fnskkdic;	//取込SKK辞書
 extern LPCWSTR fninitlua;	//init.lua
+extern LPCWSTR fnbushudic;	//部首合成変換ユーザー辞書
 
 #define DISPLAY_COLOR_NUM	8
 #define DISPLAYATTRIBUTE_INFO_NUM	7
