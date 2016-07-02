@@ -82,7 +82,7 @@ static void AddBushuDicEntries(const std::wstring &s)
 		{
 			return;
 		}
-		if (nextch == L"*")
+		if (nextch[0] == L'*')
 		{
 			userbushudic[bushu2 + bushu1] = kanji; //部首が逆順でも合成可
 			idx = Get1Kanji(s, &nextch, idx);
@@ -91,7 +91,7 @@ static void AddBushuDicEntries(const std::wstring &s)
 				return;
 			}
 		}
-	} while (nextch == L" ");
+	} while (nextch[0] == L' ');
 }
 
 BOOL LoadBushuConvUserDic()

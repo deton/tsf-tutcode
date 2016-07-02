@@ -199,7 +199,7 @@ public:
 	HRESULT _HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostHelp(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, int count);
-	BOOL isroman(WCHAR ch);
+	BOOL isroman(std::wstring &ch);
 	enum AcquiredFrom
 	{
 		AF_COMPOSITION,
@@ -210,9 +210,9 @@ public:
 	};
 	AcquiredFrom _AcquirePrecedingText(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, BOOL useSelectedText = FALSE);
 	void _AddToPostBuf(const std::wstring &text);
-	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, PostConvContext postconvctx, BOOL startMaze = false);
+	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, const std::wstring &delstr, const std::wstring &replstr, PostConvContext postconvctx, BOOL startMaze = false);
 	void _StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, const std::wstring &yomi);
-	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, int delete_count, const std::wstring &replstr, BOOL startMaze = false);
+	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, size_t delete_count, const std::wstring &replstr, BOOL startMaze = false);
 	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 
 	// KeyHandlerDictionary

@@ -38,7 +38,7 @@ public:
 	void _Show(BOOL bShow);
 	void _SetText(const std::wstring &text, BOOL fixed, BOOL showcandlist, BOOL showreg);
 	void _GetPrecedingText(std::wstring *text);
-	void _DeletePrecedingText(int delete_count);
+	void _DeletePrecedingText(size_t delete_count);
 	void _Move(LPRECT lpr, TfEditCookie ec = TF_INVALID_EDIT_COOKIE, ITfContext *pContext = nullptr);
 	void _UpdateComp();
 

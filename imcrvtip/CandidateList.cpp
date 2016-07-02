@@ -506,7 +506,7 @@ void CCandidateList::_GetPrecedingText(std::wstring *text)
 	}
 }
 
-void CCandidateList::_DeletePrecedingText(int delete_count)
+void CCandidateList::_DeletePrecedingText(size_t delete_count)
 {
 	if(_pCandidateWindow != NULL)
 	{
