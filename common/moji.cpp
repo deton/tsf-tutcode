@@ -1,4 +1,5 @@
 ﻿
+#include "moji.h"
 #include "eucjis2004table.h"
 
 /*!
@@ -7,7 +8,7 @@
  * \param m2 文字2
  * \return TRUE: 結合文字の場合
  */
-BOOL _IsJISCombiningMoji(WCHAR m1, WCHAR m2)
+static BOOL _IsJISCombiningMoji(WCHAR m1, WCHAR m2)
 {
     for(int i = 0; i < CMBCHARNUM; i++)
     {
@@ -20,6 +21,31 @@ BOOL _IsJISCombiningMoji(WCHAR m1, WCHAR m2)
 }
 
 /*!
+ * BMP内の異体字セレクタかどうかを返す
+ * \param m 対象文字
+ * \return TRUE: BMP内の異体字セレクタの場合
+ */
+static BOOL _IsVariationSelector(WCHAR m)
+{
+	return m >= 0xFE00 && m <= 0xFE0F;
+}
+
+/*!
+ * IVSかどうかを返す
+ */
+static BOOL _IsIVS(WCHAR m1, WCHAR m2)
+{
+	if(!IS_SURROGATE_PAIR(m1, m2))
+	{
+		return FALSE;
+	}
+	//サロゲートペアをUnicode Code Pointに変換(copy from eucjis2004.cpp)
+	UCSCHAR ucp = 0x10000
+		+ ((((UCSCHAR)m1 & 0x3FF) << 10) | ((UCSCHAR)m2 & 0x3FF));
+	return ucp >= 0xE0100 && ucp <= 0xE01EF;
+}
+
+/*!
  * サロゲートペア等を考慮して、count数前方の文字にidxを進める
  *
  * sの末尾に到達してcount数に満たない文字しか進められない場合あり。
@@ -27,13 +53,16 @@ BOOL _IsJISCombiningMoji(WCHAR m1, WCHAR m2)
  * \param s 対象文字列
  * \param idx s内のインデックス
  * \param count 進める文字数
- * \param ucs4 結合文字は考慮しない。
- * UCS4の文字単位でのみ扱う。サロゲートペアのみ考慮。
+ * \param mb 何を1文字とみなすか。
+ * MOJIMB_JIS_COMBINING_CHAR: JISX0213に含まれる結合文字。
+ * MOJIMB_IVS: 異体字セレクタ。
+ * MOJIMB_FULL: 上の2つ両方とも1文字とみなす。
+ * MOJIMB_NONE: 上の2つ両方とも複数文字とみなす。
+ * サロゲートペアは常に1文字とみなす。
  * \return 新しいidxの値。
  * sの末尾のため進められなかった場合は指定されたidx値のまま
  */
-//TODO:異体字セレクタの考慮
-size_t _ForwardMoji(const std::wstring &s, size_t idx, size_t count, BOOL ucs4 = FALSE)
+size_t _ForwardMoji(const std::wstring &s, size_t idx, size_t count, UINT mb)
 {
 	while(count-- > 0)
 	{
@@ -42,9 +71,14 @@ size_t _ForwardMoji(const std::wstring &s, size_t idx, size_t count, BOOL ucs4 =
 			idx = s.size();
 			break;
 		}
-		if(idx + 1 < s.size()
+		if(mb&MOJIMB_IVS && idx + 2 < s.size() && _IsIVS(s[idx + 1], s[idx + 2]))
+		{
+			idx += 3;
+		}
+		else if(idx + 1 < s.size()
                 && (IS_SURROGATE_PAIR(s[idx], s[idx + 1])
-                    || !ucs4 && _IsJISCombiningMoji(s[idx], s[idx + 1])))
+                    || mb&MOJIMB_JIS_COMBINING_CHAR && _IsJISCombiningMoji(s[idx], s[idx + 1])
+                    || mb&MOJIMB_IVS && _IsVariationSelector(s[idx + 1])))
 		{
 			//CharNext()は結合文字対応らしいが、異体字セレクタのサロゲートペア
 			//の間に進んだりしていまいち
@@ -68,7 +102,6 @@ size_t _ForwardMoji(const std::wstring &s, size_t idx, size_t count, BOOL ucs4 =
  * \param count 戻す文字数
  * \return 新しいidxの値。sの先頭のため戻せなかった場合は指定されたidx値のまま
  */
-//TODO:異体字セレクタの考慮
 size_t _BackwardMoji(const std::wstring &s, size_t idx, size_t count)
 {
 	if(idx > s.size())
@@ -81,9 +114,14 @@ size_t _BackwardMoji(const std::wstring &s, size_t idx, size_t count)
 		{
 			break;
 		}
-		if(idx >= 2
+		if(idx >= 3 && _IsIVS(s[idx - 2], s[idx - 1]))
+		{
+			idx -= 3;
+		}
+		else if(idx >= 2
 				&& (IS_SURROGATE_PAIR(s[idx - 2], s[idx - 1])
-					|| _IsJISCombiningMoji(s[idx - 2], s[idx - 1])))
+					|| _IsJISCombiningMoji(s[idx - 2], s[idx - 1])
+					|| _IsVariationSelector(s[idx - 1])))
 		{
 			idx -= 2;
 		}
@@ -132,32 +170,15 @@ std::wstring _Get1Moji(const std::wstring &s, size_t idx)
 /*!
  * サロゲートペア等を1文字とみなして、文字数を返す
  * \param s 対象文字列
+ * \param mb 何を1文字とみなすか。_ForwardChar()のmb引数として渡す値。
  * \return 文字数
  */
-size_t _CountMoji(const std::wstring &s)
+size_t _CountMoji(const std::wstring &s, UINT mb)
 {
 	size_t count = 0;
 	size_t previdx = 0;
 	size_t idx;
-	while((idx = _ForwardMoji(s, previdx, 1)) > previdx)
-	{
-		count++;
-		previdx = idx;
-	}
-	return count;
-}
-
-/*!
- * サロゲートペアを1文字とみなして、UCS4での文字数を返す
- * \param s 対象文字列
- * \return 文字数
- */
-size_t _CountMojiInUcs4(const std::wstring &s)
-{
-	size_t count = 0;
-	size_t previdx = 0;
-	size_t idx;
-	while((idx = _ForwardMoji(s, previdx, 1, TRUE)) > previdx)
+	while((idx = _ForwardMoji(s, previdx, 1, mb)) > previdx)
 	{
 		count++;
 		previdx = idx;

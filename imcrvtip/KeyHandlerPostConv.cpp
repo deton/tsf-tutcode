@@ -518,9 +518,9 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 		return S_OK;
 	}
 
-	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, _CountMojiInUcs4(delstr)))
+	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, _CountMoji(delstr, MOJIMB_NONE)))
 	{
-		return _ReplacePrecedingTextIMM32(ec, pContext, _CountMojiInUcs4(delstr), replstr, startMaze);
+		return _ReplacePrecedingTextIMM32(ec, pContext, _CountMoji(delstr, MOJIMB_IVS), replstr, startMaze);
 	}
 	if(startMaze)
 	{
