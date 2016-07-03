@@ -1,6 +1,7 @@
 ﻿
 #include "imcrvmgr.h"
 #include "kw/bushu_dic.h"
+#include "moji.h"
 
 static BushuDic bushudic;
 static std::map< std::wstring, std::wstring > userbushudic;
@@ -28,26 +29,6 @@ std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2)
 	return ret;
 }
 
-//サロゲートペアを考慮してoffset位置の1文字を取得
-static size_t Get1Kanji(const std::wstring &s, std::wstring *kanji, size_t offset)
-{
-	kanji->clear();
-	if(s.size() - offset <= 0)
-	{
-		return 0;
-	}
-	if(s.size() - offset >= 2 && IS_SURROGATE_PAIR(s[offset], s[offset + 1]))
-	{
-		kanji->append(s.substr(offset, 2));
-		return offset + 2;
-	}
-	else
-	{
-		kanji->append(s.substr(offset, 1));
-		return offset + 1;
-	}
-}
-
 //部首合成変換ユーザー辞書の行を解析して辞書に追加する。
 //部首合成変換ユーザー辞書の各行の形式は、
 //<漢字><部首1><部首2>[*][ ][部首1][部首2][*][ ][部首1][部首2][*]...
@@ -55,7 +36,7 @@ static size_t Get1Kanji(const std::wstring &s, std::wstring *kanji, size_t offse
 static void AddBushuDicEntries(const std::wstring &s)
 {
 	std::wstring kanji;
-	size_t idx = Get1Kanji(s, &kanji, 0);
+	size_t idx = _Copy1Moji(s, 0, &kanji);
 	if(idx == 0)
 	{
 		return;
@@ -64,20 +45,20 @@ static void AddBushuDicEntries(const std::wstring &s)
 	std::wstring nextch;
 	do {
 		std::wstring bushu1;
-		idx = Get1Kanji(s, &bushu1, idx);
+		idx = _Copy1Moji(s, idx, &bushu1);
 		if(idx == 0)
 		{
 			return;
 		}
 		std::wstring bushu2;
-		idx = Get1Kanji(s, &bushu2, idx);
+		idx = _Copy1Moji(s, idx, &bushu2);
 		if(idx == 0)
 		{
 			return;
 		}
 		userbushudic[bushu1 + bushu2] = kanji;
 
-		idx = Get1Kanji(s, &nextch, idx);
+		idx = _Copy1Moji(s, idx, &nextch);
 		if (idx == 0)
 		{
 			return;
@@ -85,7 +66,7 @@ static void AddBushuDicEntries(const std::wstring &s)
 		if (nextch[0] == L'*')
 		{
 			userbushudic[bushu2 + bushu1] = kanji; //部首が逆順でも合成可
-			idx = Get1Kanji(s, &nextch, idx);
+			idx = _Copy1Moji(s, idx, &nextch);
 			if (idx == 0)
 			{
 				return;

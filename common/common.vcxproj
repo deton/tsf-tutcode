@@ -153,6 +153,7 @@
     <ClInclude Include="convtype.h" />
     <ClInclude Include="eucjis2004.h" />
     <ClInclude Include="eucjis2004table.h" />
+    <ClInclude Include="moji.h" />
     <ClInclude Include="parseskkdic.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="utf8.h" />
@@ -163,6 +164,7 @@
     <ClCompile Include="configxml.cpp" />
     <ClCompile Include="eucjis2004.cpp" />
     <ClCompile Include="eucjis2004table.cpp" />
+    <ClCompile Include="moji.cpp" />
     <ClCompile Include="parseskkdic.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

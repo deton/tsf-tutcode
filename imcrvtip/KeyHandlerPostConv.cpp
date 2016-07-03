@@ -4,78 +4,7 @@
 #include "CandidateList.h"
 #include "mozc/win32/tip/tip_surrounding_text.h"
 #include "mozc/win32/base/input_state.h"
-
-//サロゲートペアを考慮して、count数前方の文字にidxを進める
-//TODO:結合文字、異体字セレクタの考慮
-//\return 新しいidxの値
-static size_t _ForwardChars(const std::wstring &s, size_t idx, size_t count)
-{
-	while(count-- > 0)
-	{
-		if(idx >= s.size())
-		{
-			idx = s.size();
-			break;
-		}
-		if(idx + 1 < s.size() && IS_SURROGATE_PAIR(s[idx], s[idx + 1]))
-		{
-			idx += 2;
-		}
-		else
-		{
-			idx += 1;
-		}
-	}
-	return idx;
-}
-
-//サロゲートペアを考慮して、count数後方の文字にidxを戻す
-//TODO:結合文字、異体字セレクタの考慮
-//\return 新しいidxの値
-static size_t _BackwardChars(const std::wstring &s, size_t idx, size_t count)
-{
-	if(idx > s.size())
-	{
-		idx = s.size();
-	}
-	while(count-- > 0)
-	{
-		if(idx == 0)
-		{
-			break;
-		}
-		if(idx >= 2 && IS_SURROGATE_PAIR(s[idx - 2], s[idx - 1]))
-		{
-			idx -= 2;
-		}
-		else if(idx >= 1)
-		{
-			idx -= 1;
-		}
-	}
-	return idx;
-}
-
-//サロゲートペアを考慮してoffset位置の1文字を取得
-static std::wstring _GetChar(const std::wstring &s, size_t offset)
-{
-	size_t ed = _ForwardChars(s, offset, 1);
-	return s.substr(offset, ed - offset);
-}
-
-//サロゲートペアを1文字とみなして、文字数を返す
-static size_t _CountChars(const std::wstring &s)
-{
-	size_t count = 0;
-	size_t previdx = 0;
-	size_t idx;
-	while((idx = _ForwardChars(s, previdx, 1)) > previdx)
-	{
-		count++;
-		previdx = idx;
-	}
-	return count;
-}
+#include "moji.h"
 
 //後置型交ぜ書き変換
 HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo)
@@ -96,7 +25,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		}
 		return S_OK;
 	}
-	size_t st = _BackwardChars(text, size, count);
+	size_t st = _BackwardMoji(text, size, count);
 	std::wstring todel(text.substr(st));
 	std::wstring yomi(todel);
 	if(isKatuyo)
@@ -132,25 +61,25 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	size_t st;
 	if(count > 0)
 	{
-		st = _BackwardChars(text, size, count);
+		st = _BackwardMoji(text, size, count);
 	}
 	else //count==0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
 		size_t prevst = size;
-		while((st = _BackwardChars(text, prevst, 1)) < prevst)
+		while((st = _BackwardMoji(text, prevst, 1)) < prevst)
 		{
 			prevst = st;
 //TRUEの文字が続く間、後置型カタカナ変換対象とする(ひらがな、「ー」)
 #define TYOON(m) ((m[0]) == 0x30FC)
 #define IN_KATARANGE(m) (0x3041 <= (m[0]) && (m[0]) <= 0x309F || TYOON(m))
-			if(!IN_KATARANGE(_GetChar(text, st)))
+			if(!IN_KATARANGE(_Get1Moji(text, st)))
 			{
 				// 「キーとばりゅー」に対し1文字残してカタカナ変換で
 				// 「キーとバリュー」になるように「ー」は除く
-				while((st = _ForwardChars(text, prevst, 1)) > prevst)
+				while((st = _ForwardMoji(text, prevst, 1)) > prevst)
 				{
 					prevst = st;
-					if(!TYOON(_GetChar(text, st)))
+					if(!TYOON(_Get1Moji(text, st)))
 					{
 						break;
 					}
@@ -160,7 +89,7 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		}
 		if(count < 0) // 指定文字数を除いてカタカナに変換
 		{
-			st = _ForwardChars(text, st, -count);
+			st = _ForwardMoji(text, st, -count);
 		}
 	}
 	if(size > st)
@@ -226,7 +155,7 @@ HRESULT CTextService::_HandlePostKataShrink(TfEditCookie ec, ITfContext *pContex
 		return S_OK;
 	}
 	//countぶん縮める部分をひらがなにする
-	size_t st = _ForwardChars(prevkata, 0, count);
+	size_t st = _ForwardMoji(prevkata, 0, count);
 	//縮めることでひらがなになる文字列
 	std::wstring hira;
 	_ConvKanaToKana(prevkata.substr(0, st), im_katakana, hira, im_hiragana);
@@ -251,14 +180,14 @@ HRESULT CTextService::_HandlePostBushu(TfEditCookie ec, ITfContext *pContext, Po
 	_AcquirePrecedingText(pContext, postconvctx, &text);
 
 	size_t size = text.size();
-	size_t b2st = _BackwardChars(text, size, 1);
+	size_t b2st = _BackwardMoji(text, size, 1);
 	if(b2st < size)
 	{
-		std::wstring bushu2 = _GetChar(text, b2st);
-		size_t b1st = _BackwardChars(text, b2st, 1);
+		std::wstring bushu2 = _Get1Moji(text, b2st);
+		size_t b1st = _BackwardMoji(text, b2st, 1);
 		if(b1st < b2st)
 		{
-			std::wstring bushu1 = _GetChar(text, b1st);
+			std::wstring bushu1 = _Get1Moji(text, b1st);
 			std::wstring kanji;
 			_SearchBushuDic(bushu1, bushu2, &kanji);
 			if(!kanji.empty())
@@ -317,23 +246,23 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 	size_t st;
 	if(count > 0)
 	{
-		st = _BackwardChars(text, size, count);
+		st = _BackwardMoji(text, size, count);
 	}
 	else //count==0: 英字が続く間、負: そのまま残す文字数指定
 	{
 		size_t prevst = size;
-		while((st = _BackwardChars(text, prevst, 1)) < prevst)
+		while((st = _BackwardMoji(text, prevst, 1)) < prevst)
 		{
 			prevst = st;
-			if(!isroman(_GetChar(text, st)))
+			if(!isroman(_Get1Moji(text, st)))
 			{
-				st = _ForwardChars(text, st, 1);
+				st = _ForwardMoji(text, st, 1);
 				break;
 			}
 		}
 		if(count < 0) //指定文字数を除いて漢字に変換
 		{
-			st = _ForwardChars(text, st, -count);
+			st = _ForwardMoji(text, st, -count);
 		}
 	}
 	if(st < size)
@@ -346,7 +275,7 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 		size_t prevst = st;
 		do {
 			prevst = st;
-			std::wstring ch = _GetChar(text, st);
+			std::wstring ch = _Get1Moji(text, st);
 			seq[i] = ch[0];
 			seq[i+1] = L'\0';
 			ROMAN_KANA_CONV rkc; //_ConvRomanKana()で変更されるので呼出毎に生成
@@ -368,7 +297,7 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 				i = 0;
 				break;
 			}
-		} while((st = _ForwardChars(text, prevst, 1)) > prevst);
+		} while((st = _ForwardMoji(text, prevst, 1)) > prevst);
 		//カーソル直前の文字列を置換
 		_ReplacePrecedingText(ec, pContext, todel, kanji, postconvctx);
 	}
@@ -411,18 +340,18 @@ HRESULT CTextService::_HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext
 	size_t st;
 	if(count > 0)
 	{
-		st = _BackwardChars(text, size, count);
+		st = _BackwardMoji(text, size, count);
 	}
 	else //count==0: 改行やタブまで
 	{
 		size_t prevst = size;
-		while((st = _BackwardChars(text, prevst, 1)) < prevst)
+		while((st = _BackwardMoji(text, prevst, 1)) < prevst)
 		{
 			prevst = st;
-			std::wstring m = _GetChar(text, st);
+			std::wstring m = _Get1Moji(text, st);
 			if(m[0] == L'\n' || m[0] == L'\t')
 			{
-				st = _ForwardChars(text, st, 1);
+				st = _ForwardMoji(text, st, 1);
 				break;
 			}
 			//最後の' 'は無視。途中打鍵を確定するために入力したものの可能性
@@ -434,7 +363,7 @@ HRESULT CTextService::_HandlePostKanji2Seq(TfEditCookie ec, ITfContext *pContext
 		}
 		if(count < 0) //指定文字数を除いて入力シーケンスに変換
 		{
-			st = _ForwardChars(text, st, -count);
+			st = _ForwardMoji(text, st, -count);
 		}
 	}
 	if(st < size)
@@ -488,7 +417,7 @@ HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, Pos
 	{
 		if(from != AF_SELECTION && count > 0)
 		{
-			size_t st = _BackwardChars(text, size, count);
+			size_t st = _BackwardMoji(text, size, count);
 			if(st < size)
 			{
 				_ShowAutoHelp(text.substr(st), L"");
@@ -554,7 +483,7 @@ void CTextService::_AddToPostBuf(const std::wstring &text)
 #define MAX_POSTBUF 10
 	if(postbuf.size() > MAX_POSTBUF)
 	{
-		size_t st = _BackwardChars(postbuf, postbuf.size(), MAX_POSTBUF);
+		size_t st = _BackwardMoji(postbuf, postbuf.size(), MAX_POSTBUF);
 		postbuf.erase(0, st);
 	}
 }
@@ -589,9 +518,9 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 		return S_OK;
 	}
 
-	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, _CountChars(delstr)))
+	if(!mozc::win32::tsf::TipSurroundingText::DeletePrecedingText(this, pContext, _CountMoji(delstr)))
 	{
-		return _ReplacePrecedingTextIMM32(ec, pContext, _CountChars(delstr), replstr, startMaze);
+		return _ReplacePrecedingTextIMM32(ec, pContext, _CountMoji(delstr), replstr, startMaze);
 	}
 	if(startMaze)
 	{
