@@ -21,28 +21,12 @@ static BOOL _IsJISCombiningMoji(WCHAR m1, WCHAR m2)
 }
 
 /*!
- * BMP内の異体字セレクタかどうかを返す
- * \param m 対象文字
- * \return TRUE: BMP内の異体字セレクタの場合
- */
-static BOOL _IsVariationSelector(WCHAR m)
-{
-	return m >= 0xFE00 && m <= 0xFE0F;
-}
-
-/*!
  * IVSかどうかを返す
  */
 static BOOL _IsIVS(WCHAR m1, WCHAR m2)
 {
-	if(!IS_SURROGATE_PAIR(m1, m2))
-	{
-		return FALSE;
-	}
-	//サロゲートペアをUnicode Code Pointに変換(copy from eucjis2004.cpp)
-	UCSCHAR ucp = 0x10000
-		+ ((((UCSCHAR)m1 & 0x3FF) << 10) | ((UCSCHAR)m2 & 0x3FF));
-	return ucp >= 0xE0100 && ucp <= 0xE01EF;
+	// U+E0100 - U+E01EF -> 0xDB40 0xDD00 - 0xDB40 0xDDEF
+	return (m1 == 0xDB40 && m2 >= 0xDD00 && m2 <= 0xDDEF);
 }
 
 /*!
@@ -62,7 +46,7 @@ static BOOL _IsIVS(WCHAR m1, WCHAR m2)
  * \return 新しいidxの値。
  * sの末尾のため進められなかった場合は指定されたidx値のまま
  */
-size_t _ForwardMoji(const std::wstring &s, size_t idx, size_t count, UINT mb)
+size_t ForwardMoji(const std::wstring &s, size_t idx, size_t count, UINT mb)
 {
 	while(count-- > 0)
 	{
@@ -77,8 +61,7 @@ size_t _ForwardMoji(const std::wstring &s, size_t idx, size_t count, UINT mb)
 		}
 		else if(idx + 1 < s.size()
                 && (IS_SURROGATE_PAIR(s[idx], s[idx + 1])
-                    || mb&MOJIMB_JIS_COMBINING_CHAR && _IsJISCombiningMoji(s[idx], s[idx + 1])
-                    || mb&MOJIMB_IVS && _IsVariationSelector(s[idx + 1])))
+                    || mb&MOJIMB_JIS_COMBINING_CHAR && _IsJISCombiningMoji(s[idx], s[idx + 1])))
 		{
 			//CharNext()は結合文字対応らしいが、異体字セレクタのサロゲートペア
 			//の間に進んだりしていまいち
@@ -102,7 +85,7 @@ size_t _ForwardMoji(const std::wstring &s, size_t idx, size_t count, UINT mb)
  * \param count 戻す文字数
  * \return 新しいidxの値。sの先頭のため戻せなかった場合は指定されたidx値のまま
  */
-size_t _BackwardMoji(const std::wstring &s, size_t idx, size_t count)
+size_t BackwardMoji(const std::wstring &s, size_t idx, size_t count)
 {
 	if(idx > s.size())
 	{
@@ -120,8 +103,7 @@ size_t _BackwardMoji(const std::wstring &s, size_t idx, size_t count)
 		}
 		else if(idx >= 2
 				&& (IS_SURROGATE_PAIR(s[idx - 2], s[idx - 1])
-					|| _IsJISCombiningMoji(s[idx - 2], s[idx - 1])
-					|| _IsVariationSelector(s[idx - 1])))
+					|| _IsJISCombiningMoji(s[idx - 2], s[idx - 1])))
 		{
 			idx -= 2;
 		}
@@ -141,10 +123,10 @@ size_t _BackwardMoji(const std::wstring &s, size_t idx, size_t count)
  * \return 1文字コピー後のインデックス。
  * 0: sの末尾に到達してコピーできなかった場合
  */
-size_t _Copy1Moji(const std::wstring &s, size_t idx, std::wstring *target)
+size_t Copy1Moji(const std::wstring &s, size_t idx, std::wstring *target)
 {
 	target->clear();
-	size_t ed = _ForwardMoji(s, idx, 1);
+	size_t ed = ForwardMoji(s, idx, 1);
 	if(ed == idx)
 	{
 		return 0;
@@ -160,10 +142,10 @@ size_t _Copy1Moji(const std::wstring &s, size_t idx, std::wstring *target)
  * \param 取得した1文字(新規文字列)。
  * sの末尾のため取得できなかった場合は空文字列(empty)
  */
-std::wstring _Get1Moji(const std::wstring &s, size_t idx)
+std::wstring Get1Moji(const std::wstring &s, size_t idx)
 {
 	std::wstring m;
-	_Copy1Moji(s, idx, &m);
+	Copy1Moji(s, idx, &m);
 	return m;
 }
 
@@ -173,12 +155,12 @@ std::wstring _Get1Moji(const std::wstring &s, size_t idx)
  * \param mb 何を1文字とみなすか。_ForwardChar()のmb引数として渡す値。
  * \return 文字数
  */
-size_t _CountMoji(const std::wstring &s, UINT mb)
+size_t CountMoji(const std::wstring &s, UINT mb)
 {
 	size_t count = 0;
 	size_t previdx = 0;
 	size_t idx;
-	while((idx = _ForwardMoji(s, previdx, 1, mb)) > previdx)
+	while((idx = ForwardMoji(s, previdx, 1, mb)) > previdx)
 	{
 		count++;
 		previdx = idx;

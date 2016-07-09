@@ -36,7 +36,7 @@ std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2)
 static void AddBushuDicEntries(const std::wstring &s)
 {
 	std::wstring kanji;
-	size_t idx = _Copy1Moji(s, 0, &kanji);
+	size_t idx = Copy1Moji(s, 0, &kanji);
 	if(idx == 0)
 	{
 		return;
@@ -45,20 +45,20 @@ static void AddBushuDicEntries(const std::wstring &s)
 	std::wstring nextch;
 	do {
 		std::wstring bushu1;
-		idx = _Copy1Moji(s, idx, &bushu1);
+		idx = Copy1Moji(s, idx, &bushu1);
 		if(idx == 0)
 		{
 			return;
 		}
 		std::wstring bushu2;
-		idx = _Copy1Moji(s, idx, &bushu2);
+		idx = Copy1Moji(s, idx, &bushu2);
 		if(idx == 0)
 		{
 			return;
 		}
 		userbushudic[bushu1 + bushu2] = kanji;
 
-		idx = _Copy1Moji(s, idx, &nextch);
+		idx = Copy1Moji(s, idx, &nextch);
 		if (idx == 0)
 		{
 			return;
@@ -66,7 +66,7 @@ static void AddBushuDicEntries(const std::wstring &s)
 		if (nextch[0] == L'*')
 		{
 			userbushudic[bushu2 + bushu1] = kanji; //部首が逆順でも合成可
-			idx = _Copy1Moji(s, idx, &nextch);
+			idx = Copy1Moji(s, idx, &nextch);
 			if (idx == 0)
 			{
 				return;
