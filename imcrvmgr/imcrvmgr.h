@@ -53,10 +53,9 @@ void SearchComplement(const std::wstring &searchkey, SKKDICCANDIDATES &sc);
 void SearchComplementSearchCandidate(SKKDICCANDIDATES &sc, int max);
 void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring &candidate, const std::wstring &annotation, const std::wstring &okuri);
 void DelUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring &candidate);
-BOOL LoadSKKUserDic();
-void SaveSKKUserDic(void *p);
-void StartSaveSKKUserDic(BOOL bThread);
-void BackUpSKKUserDic();
+BOOL LoadUserDic();
+void StartSaveUserDic(BOOL bThread);
+void BackUpUserDic();
 
 // SearchSKKServer
 std::wstring SearchSKKServer(const std::wstring &searchkey);
@@ -82,11 +81,11 @@ HANDLE SrvStart();
 std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
 BOOL LoadBushuConvUserDic();
 
-extern CRITICAL_SECTION csUserDataSave;
+extern CRITICAL_SECTION csSaveUserDic;
 extern BOOL bUserDicChg;
 extern FILETIME ftConfig, ftSKKDic;
 #ifdef _DEBUG
-extern HWND hwndEdit;
+extern HWND hWndEdit;
 extern HFONT hFont;
 #endif
 extern HINSTANCE hInst;
@@ -123,5 +122,6 @@ extern DWORD encoding;	//エンコーディング
 extern DWORD timeout;	//タイムアウト
 
 extern BOOL precedeokuri;	//送り仮名が一致した候補を優先する
+extern BOOL compincback;	//前方一致と後方一致で補完する
 
 #endif //IMCRVMGR_H
