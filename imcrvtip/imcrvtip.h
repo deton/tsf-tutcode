@@ -132,6 +132,7 @@ extern LPCWSTR markRegR;
 extern LPCWSTR markRegKeyEnd;
 extern LPCWSTR markSP;
 extern LPCWSTR markNBSP;
+extern LPCWSTR markHM;
 extern LPCWSTR markMidashi;
 extern LPCWSTR markHenkan;
 extern LPCWSTR markOkuri;
