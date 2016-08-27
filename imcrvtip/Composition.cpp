@@ -21,6 +21,7 @@ STDAPI CTextService::OnCompositionTerminated(TfEditCookie ecWrite, ITfCompositio
 	SafeRelease(&_pComposition);
 
 	_EndInputModeWindow();
+	//_EndVKeyboardWindow();
 
 	_ResetStatus();
 
@@ -218,6 +219,7 @@ void CTextService::_ClearComposition()
 	showcandlist = FALSE;
 
 	_EndInputModeWindow();
+	//_EndVKeyboardWindow();
 
 	if(_IsComposing())
 	{

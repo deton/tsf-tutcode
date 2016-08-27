@@ -141,6 +141,9 @@ extern LPCWSTR ValueShowModeSec;
 extern LPCWSTR ValueShowModeMark;
 extern LPCWSTR ValueShowRoman;
 extern LPCWSTR ValueShowRomanComp;
+extern LPCWSTR ValueShowVkbd;
+extern LPCWSTR ValueVkbdLayout;
+extern LPCWSTR ValueVkbdTop;
 
 //displayattr section
 

@@ -229,6 +229,7 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 	*pfEaten = (eaten == TRUE);
 
 	_EndInputModeWindow();
+	//_EndVKeyboardWindow();
 
 	if(!_IsKeyboardDisabled() && _IsKeyboardOpen() && !_IsComposing())
 	{

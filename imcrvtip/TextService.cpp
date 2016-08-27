@@ -3,7 +3,11 @@
 #include "TextService.h"
 #include "CandidateList.h"
 
-CTextService::CTextService()
+CTextService::CTextService():
+	cx_vkbdlayout(L"12345│67890\n"
+				   "qwert│yuiop\n"
+				   "asdfg│hjkl;\n"
+				   "zxcvb│nm,./")
 {
 	DllAddRef();
 
@@ -220,6 +224,7 @@ STDAPI CTextService::Deactivate()
 	_EndCandidateList();
 
 	_EndInputModeWindow();
+	_EndVKeyboardWindow();
 
 	_UninitFunctionProvider();
 

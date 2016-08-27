@@ -4,6 +4,7 @@
 #include "CandidateList.h"
 #include "CandidateWindow.h"
 #include "InputModeWindow.h"
+#include "VKeyboardWindow.h"
 
 BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, BOOL reg, BOOL comp)
 {
@@ -45,6 +46,22 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 		}
 	}
 
+	if(_hwnd != nullptr && _pTextService->cx_showvkbd)
+	{
+		try
+		{
+			_pTextService->_EndVKeyboardWindow();
+			_pVKeyboardWindow = new CVKeyboardWindow();
+			if(!_pVKeyboardWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
+			{
+				_pVKeyboardWindow->_Destroy();
+				SafeRelease(&_pVKeyboardWindow);
+			}
+		}
+		catch(...)
+		{
+		}
+	}
 	if(_hwnd != nullptr && _pTextService->_ShowInputMode)
 	{
 		try
@@ -170,6 +187,11 @@ void CCandidateWindow::_Destroy()
 		_pInputModeWindow->_Destroy();
 	}
 	SafeRelease(&_pInputModeWindow);
+	if(_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_Destroy();
+	}
+	SafeRelease(&_pVKeyboardWindow);
 
 	SafeRelease(&_pDWTF);
 	SafeRelease(&_pDWFactory);
@@ -268,6 +290,10 @@ void CCandidateWindow::_BeginUIElement()
 
 			if(_reg)
 			{
+				if(_pVKeyboardWindow != nullptr)
+				{
+					_pVKeyboardWindow->_Show(TRUE);
+				}
 				if(_pInputModeWindow != nullptr)
 				{
 					_pInputModeWindow->_Show(TRUE);
@@ -299,6 +325,10 @@ void CCandidateWindow::_EndUIElement()
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 
+		if(_pVKeyboardWindow != nullptr)
+		{
+			_pVKeyboardWindow->_Show(FALSE);
+		}
 		if(_pInputModeWindow != nullptr)
 		{
 			_pInputModeWindow->_Show(FALSE);
@@ -335,6 +365,10 @@ void CCandidateWindow::_Redraw()
 		InvalidateRect(_hwnd, nullptr, FALSE);
 		UpdateWindow(_hwnd);
 
+		if(_pVKeyboardWindow != nullptr)
+		{
+			_pVKeyboardWindow->_Redraw();
+		}
 		if(_pInputModeWindow != nullptr)
 		{
 			_pInputModeWindow->_Redraw();
@@ -428,6 +462,10 @@ void CCandidateWindow::_End()
 	{
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	}
+	if(_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_Show(TRUE);
 	}
 	if(_pInputModeWindow != nullptr)
 	{
@@ -576,6 +614,10 @@ void CCandidateWindow::_NextPage()
 				_BackUpStatus();
 				_ClearStatus();
 
+				if(_pVKeyboardWindow != nullptr)
+				{
+					_pVKeyboardWindow->_Show(TRUE);
+				}
 				if(_pInputModeWindow != nullptr)
 				{
 					_pInputModeWindow->_Show(TRUE);
@@ -887,6 +929,10 @@ void CCandidateWindow::_CreateNext(BOOL reg)
 				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 		}
 
+		if(_pVKeyboardWindow != nullptr)
+		{
+			_pVKeyboardWindow->_Show(FALSE);
+		}
 		if(_pInputModeWindow != nullptr)
 		{
 			_pInputModeWindow->_Show(FALSE);

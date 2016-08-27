@@ -231,11 +231,15 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 					{
 						_Update(ec, pContext);
 					}
-					else if(!inputkey)
+					else
 					{
-						//OnEndEdit()とOnCompositionTerminated()から
-						//_ResetStatus()が呼ばれてroman.clear()されるのを回避する
-						_TerminateComposition(ec, pContext);
+						_RedrawVKeyboardWindow();
+						if(!inputkey)
+						{
+							//OnEndEdit()とOnCompositionTerminated()から
+							//_ResetStatus()が呼ばれてroman.clear()されるのを回避する
+							_TerminateComposition(ec, pContext);
+						}
 					}
 				}
 				break;
@@ -313,6 +317,7 @@ HRESULT CTextService::_HandleCharReturn(TfEditCookie ec, ITfContext *pContext, B
 	//terminate composition
 	cursoridx = kana.size();
 	_Update(ec, pContext, fixedtext, TRUE, back);
+	_RedrawVKeyboardWindow();
 	if(pContext != nullptr)
 	{
 		_AddToPostBuf(fixedtext);

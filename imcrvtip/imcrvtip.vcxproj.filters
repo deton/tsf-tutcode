@@ -51,6 +51,9 @@
     <ClInclude Include="mozc\win32\tip\tip_surrounding_text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VKeyboardWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -171,6 +174,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mozc\win32\base\keyboard.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VKeyboardWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

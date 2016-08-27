@@ -19,6 +19,7 @@ CCandidateWindow::CCandidateWindow(CTextService *pTextService, CCandidateList *p
 	_pCandidateWindow = nullptr;
 	_pCandidateWindowParent = nullptr;
 	_pInputModeWindow = nullptr;
+	_pVKeyboardWindow = nullptr;
 
 	_hwnd = nullptr;
 	_hwndParent = nullptr;
@@ -206,6 +207,18 @@ STDAPI CCandidateWindow::Show(BOOL bShow)
 #ifndef _DEBUG
 	}
 #endif
+
+	if(_pVKeyboardWindow != nullptr && regword)
+	{
+#ifndef _DEBUG
+		if(_pCandidateWindow == nullptr)
+		{
+#endif
+			_pVKeyboardWindow->_Show(bShow);
+#ifndef _DEBUG
+		}
+#endif
+	}
 
 	if(_pInputModeWindow != nullptr && regword)
 	{

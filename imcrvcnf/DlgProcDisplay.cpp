@@ -4,6 +4,7 @@
 #include "resource.h"
 
 #define DISPLAY_FONTSIZE 10
+#define MAX_VKBDTOP 256 // (5*2(surrogate)+1(│)+5*2+2('\\','n')=23)*4
 
 static struct {
 	int id;
@@ -28,6 +29,7 @@ INT_PTR CALLBACK DlgProcDisplay(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 	PAINTSTRUCT ps;
 	WCHAR num[16];
 	WCHAR fontname[LF_FACESIZE];
+	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	INT fontpoint, fontweight, x, y, count;
 	BOOL fontitalic;
 	CHOOSEFONTW cf;
@@ -151,6 +153,18 @@ INT_PTR CALLBACK DlgProcDisplay(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, SectionDisplay, ValueShowModeMark, L"1");
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, SectionDisplay, ValueShowRoman, L"1");
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, SectionDisplay, ValueShowRomanComp, L"0");
+		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, SectionDisplay, ValueShowVkbd, L"0");
+
+		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval,
+			L"12345│67890\\n"
+			 "qwert│yuiop\\n"
+			 "asdfg│hjkl;\\n"
+			 "zxcvb│nm,./");
+		wcsncpy_s(vkbdlayout, strxmlval.c_str(), _TRUNCATE);
+		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout);
+		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval);
+		wcsncpy_s(vkbdtop, strxmlval.c_str(), _TRUNCATE);
+		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop);
 
 		return TRUE;
 
@@ -205,6 +219,8 @@ INT_PTR CALLBACK DlgProcDisplay(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 		case IDC_EDIT_MAXWIDTH:
 		case IDC_EDIT_SHOWMODESEC:
+		case IDC_EDIT_VKBDLAYOUT:
+		case IDC_EDIT_VKBDTOP:
 			switch(HIWORD(wParam))
 			{
 			case EN_CHANGE:
@@ -238,6 +254,7 @@ INT_PTR CALLBACK DlgProcDisplay(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 		case IDC_CHECKBOX_SHOWMODEMARK:
 		case IDC_CHECKBOX_SHOWROMAN:
 		case IDC_CHECKBOX_SHOWROMANCOMP:
+		case IDC_CHECKBOX_SHOWVKBD:
 			PropSheet_Changed(GetParent(hDlg), hDlg);
 			return TRUE;
 
@@ -358,7 +375,12 @@ INT_PTR CALLBACK DlgProcDisplay(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, ValueShowModeMark);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, ValueShowRoman);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, ValueShowRomanComp);
+			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
+
+			GetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout, _countof(vkbdlayout));
+			WriterKey(pXmlWriter, ValueVkbdLayout, vkbdlayout);
+			GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
+			WriterKey(pXmlWriter, ValueVkbdTop, vkbdtop);
 
 			WriterEndSection(pXmlWriter);	//End of SectionDisplay
 

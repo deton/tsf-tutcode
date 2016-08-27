@@ -85,6 +85,9 @@
 #define IDC_CHECKBOX_SHOWMODEMARK               2039
 #define IDC_CHECKBOX_SHOWROMAN                  2040
 #define IDC_CHECKBOX_SHOWROMANCOMP              2041
+#define IDC_CHECKBOX_SHOWVKBD                   2042
+#define IDC_EDIT_VKBDLAYOUT                     2043
+#define IDC_EDIT_VKBDTOP                        2044
 
 #define IDC_CHECKBOX_SERIES_MARK                2101
 #define IDC_CHECKBOX_SERIES_TEXT                2102

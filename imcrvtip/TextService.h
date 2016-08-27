@@ -11,6 +11,7 @@
 class CLangBarItemButton;
 class CCandidateList;
 class CInputModeWindow;
+class CVKeyboardWindow;
 
 class CTextService :
 	public ITfTextInputProcessorEx,
@@ -249,6 +250,13 @@ public:
 	void _StartInputModeWindow();
 	void _EndInputModeWindow();
 
+	// VKeyboardWindow
+	void _StartVKeyboardWindow();
+	void _EndVKeyboardWindow();
+	void _RedrawVKeyboardWindow();
+	std::wstring _MakeVkbTable();
+	BOOL _IsRomanKanaStatus();
+
 private:
 	LONG _cRef;
 
@@ -298,6 +306,7 @@ private:
 	CCandidateList *_pCandidateList;
 
 	CInputModeWindow *_pInputModeWindow;
+	CVKeyboardWindow *_pVKeyboardWindow;
 
 	TfGuidAtom _gaDisplayAttributeInputMark;
 	TfGuidAtom _gaDisplayAttributeInputText;
@@ -385,6 +394,9 @@ public:
 	BOOL cx_showmodemark;		//▽▼*マークを表示する
 	BOOL cx_showroman;			//ローマ字を表示する
 	BOOL cx_showromancomp;		//入力途中のキーシーケンスを表示する
+	BOOL cx_showvkbd;			//入力途中に仮想鍵盤を表示する
+	std::wstring cx_vkbdlayout;	//仮想鍵盤のレイアウト(dvorak等)
+	std::wstring cx_vkbdtop;	//初期状態の仮想鍵盤に表示する内容
 
 	BOOL cx_begincvokuri;		//送り仮名が決定したとき変換を開始する
 	BOOL cx_shiftnnokuri;		//送り仮名で撥音を送り出す

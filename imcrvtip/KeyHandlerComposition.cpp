@@ -6,7 +6,9 @@
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed, BOOL back)
 {
 	std::wstring comptext;
-	return _Update(ec, pContext, comptext, fixed, back);
+	HRESULT ret = _Update(ec, pContext, comptext, fixed, back);
+	_RedrawVKeyboardWindow();
+	return ret;
 }
 
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext, BOOL fixed, BOOL back)

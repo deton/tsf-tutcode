@@ -9,12 +9,12 @@
 #define TEXTSERVICE_DESC	TEXTSERVICE_NAME L"_DEBUG"
 #endif
 #define TEXTSERVICE_DIR		L"IMTSFTUTCODE"
-#define TEXTSERVICE_VER		L"0.4.0"
+#define TEXTSERVICE_VER		L"0.5.0"
 
 //for resource
 #define RC_AUTHOR			"KIHARA Hideto"
 #define RC_PRODUCT			"tsf-tutcode"
-#define RC_VERSION			"0.4.0"
-#define RC_VERSION_D		0,4,0,0
+#define RC_VERSION			"0.5.0"
+#define RC_VERSION_D		0,5,0,0
 
 #endif

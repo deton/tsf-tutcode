@@ -114,6 +114,9 @@ LPCWSTR ValueShowModeSec = L"showmodesec";
 LPCWSTR ValueShowModeMark = L"showmodemark";
 LPCWSTR ValueShowRoman = L"showroman";
 LPCWSTR ValueShowRomanComp = L"showromancomp";
+LPCWSTR ValueShowVkbd = L"showvkbd";
+LPCWSTR ValueVkbdLayout = L"vkbdlayout";
+LPCWSTR ValueVkbdTop = L"vkbdtop";
 
 //displayattr section
 

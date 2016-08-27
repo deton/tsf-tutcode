@@ -222,6 +222,7 @@ ver &gt; nul</Command>
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TextService.h" />
+    <ClInclude Include="VKeyboardWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CandidateKeyHandler.cpp" />
@@ -269,6 +270,7 @@ ver &gt; nul</Command>
     <ClCompile Include="TextService.cpp" />
     <ClCompile Include="ThreadFocusSink.cpp" />
     <ClCompile Include="ThreadMgrEventSink.cpp" />
+    <ClCompile Include="VKeyboardWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imcrvtip.def" />

@@ -776,6 +776,11 @@ void CCandidateWindow::_CalcWindowRect()
 
 	SetWindowPos(_hwnd, HWND_TOPMOST, x, y, cx, cy, SWP_NOACTIVATE);
 
+	if(_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_GetRect(&r);
+		_pVKeyboardWindow->_Move(x + cx - r.right, y + cy + 1);
+	}
 	if(_pInputModeWindow != nullptr)
 	{
 		_pInputModeWindow->_GetRect(&r);

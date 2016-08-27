@@ -3,6 +3,7 @@
 #include "TextService.h"
 #include "CandidateList.h"
 #include "InputModeWindow.h"
+#include "VKeyboardWindow.h"
 
 STDAPI CTextService::OnSetThreadFocus()
 {
@@ -14,6 +15,11 @@ STDAPI CTextService::OnSetThreadFocus()
 	if(_pInputModeWindow != nullptr)
 	{
 		_pInputModeWindow->_Show(TRUE);
+	}
+
+	if(_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_Show(TRUE);
 	}
 
 	return S_OK;
@@ -31,6 +37,11 @@ STDAPI CTextService::OnKillThreadFocus()
 	if(_pInputModeWindow != nullptr)
 	{
 		_pInputModeWindow->_Show(FALSE);
+	}
+
+	if(_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_Show(FALSE);
 	}
 
 	return S_OK;

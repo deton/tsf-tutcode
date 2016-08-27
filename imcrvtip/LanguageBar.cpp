@@ -583,6 +583,10 @@ void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 	{
 		_EndInputModeWindow();
 	}
+	if(cx_showvkbd)
+	{
+		_StartVKeyboardWindow();
+	}
 }
 
 void CTextService::_GetIcon(HICON *phIcon)
