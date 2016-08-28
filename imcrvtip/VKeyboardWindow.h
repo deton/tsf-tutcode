@@ -31,6 +31,7 @@ public:
 	void _Redraw();
 	void _GetRect(LPRECT lpRect);
 	void _CalcWindowRect(LPRECT lpRect);
+	BOOL _IsHide() { return _bHide; }
 
 private:
 	LONG _cRef;

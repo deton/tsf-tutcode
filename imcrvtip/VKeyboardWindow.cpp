@@ -29,6 +29,11 @@ public:
 	// ITfEditSession
 	STDMETHODIMP DoEditSession(TfEditCookie ec)
 	{
+		if(_pVKeyboardWindow->_IsHide())
+		{
+			return S_OK;
+		}
+
 		TF_SELECTION tfSelection;
 		ULONG cFetched = 0;
 		if(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched) != S_OK)
@@ -67,7 +72,7 @@ public:
 		GetMonitorInfoW(hMonitor, &mi);
 
 		RECT rw;
-		_pVKeyboardWindow->_CalcWindowRect(&rw);
+		_pVKeyboardWindow->_GetRect(&rw);
 		LONG height = rw.bottom - rw.top;
 		LONG width = rw.right - rw.left;
 
@@ -557,10 +562,15 @@ private:
 
 void CTextService::_StartVKeyboardWindow()
 {
-	_EndVKeyboardWindow();
-
 	if(!_IsRomanKanaStatus())
 	{
+		return;
+	}
+
+	if(_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_Show(TRUE);
+		_pVKeyboardWindow->_Redraw();
 		return;
 	}
 
@@ -605,6 +615,14 @@ void CTextService::_StartVKeyboardWindow()
 		}
 
 		SafeRelease(&pDocumentMgr);
+	}
+}
+
+void CTextService::_HideVKeyboardWindow()
+{
+	if(_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_Show(FALSE);
 	}
 }
 

@@ -50,7 +50,7 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 	{
 		try
 		{
-			_pTextService->_EndVKeyboardWindow();
+			_pTextService->_HideVKeyboardWindow();
 			_pVKeyboardWindow = new CVKeyboardWindow();
 			if(!_pVKeyboardWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
 			{

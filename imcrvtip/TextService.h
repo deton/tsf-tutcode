@@ -253,6 +253,7 @@ public:
 	// VKeyboardWindow
 	void _StartVKeyboardWindow();
 	void _EndVKeyboardWindow();
+	void _HideVKeyboardWindow();
 	void _RedrawVKeyboardWindow();
 	std::wstring _MakeVkbTable();
 	BOOL _IsRomanKanaStatus();
