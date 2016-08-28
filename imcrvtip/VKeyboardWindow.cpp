@@ -570,15 +570,15 @@ private:
 
 void CTextService::_StartVKeyboardWindow()
 {
-	if(!_IsRomanKanaStatus())
-	{
-		return;
-	}
-
 	if(_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(TRUE);
 		_pVKeyboardWindow->_Redraw();
+		return;
+	}
+
+	if(!_IsRomanKanaStatus())
+	{
 		return;
 	}
 
