@@ -108,7 +108,7 @@ private:
 	CVKeyboardWindow *_pVKeyboardWindow;
 };
 
-CVKeyboardWindow::CVKeyboardWindow()
+CVKeyboardWindow::CVKeyboardWindow(): _bHide(FALSE)
 {
 	DllAddRef();
 
@@ -443,9 +443,10 @@ void CVKeyboardWindow::_Move(int x, int y)
 
 void CVKeyboardWindow::_Show(BOOL bShow)
 {
+	_bHide = !bShow;
 	if(_hwnd != nullptr)
 	{
-		if(_vkb.empty())
+		if(bShow && _vkb.empty())
 		{
 			bShow = FALSE;
 		}
@@ -456,6 +457,10 @@ void CVKeyboardWindow::_Show(BOOL bShow)
 
 void CVKeyboardWindow::_Redraw()
 {
+	if(_bHide)
+	{
+		return;
+	}
 	if(_hwnd != nullptr)
 	{
 		_vkb = _pTextService->_MakeVkbTable();
@@ -693,25 +698,5 @@ std::wstring CTextService::_MakeVkbTable()
 			break;
 		}
 	}
-#if 0
-	auto GetKana = [this, &roman](WCHAR ch) {
-		std::wstring seq(roman);
-		seq.push_back(ch);
-		ROMAN_KANA_CONV rkc;
-		wcsncpy_s(rkc.roman, seq.c_str(), _TRUNCATE);
-		HRESULT ret = _ConvRomanKana(&rkc);
-		switch(ret)
-		{
-		case S_OK:	//一致
-			return rkc.hiragana[0]; //TODO:複数文字表示
-		case E_PENDING:	//途中まで一致
-			return L'□';
-		case E_ABORT:	//一致する可能性なし
-		default:
-			return L'　';
-		}
-	};
-	std::transform(keys.begin(), keys.end(), vkb.begin(), GetKana);
-#endif
 	return vkb;
 }

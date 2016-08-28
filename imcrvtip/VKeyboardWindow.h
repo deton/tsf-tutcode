@@ -48,6 +48,7 @@ private:
 
 	std::wstring _vkb;
 	LONG _fontHeight;
+	BOOL _bHide;
 };
 
 #endif //VKEYBOARDWINDOW_H
