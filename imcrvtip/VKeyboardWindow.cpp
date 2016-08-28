@@ -449,6 +449,14 @@ void CVKeyboardWindow::_Move(int x, int y)
 void CVKeyboardWindow::_Show(BOOL bShow)
 {
 	_bHide = !bShow;
+
+	//辞書登録時用の仮想鍵盤を表示しようとしてる場合、大元の仮想鍵盤は非表示に。
+	//再帰的な辞書登録をキャンセルした時の、2重の仮想鍵盤表示を回避するため
+	if(bShow && _pContext == nullptr)
+	{
+		_pTextService->_HideVKeyboardWindow();
+	}
+
 	if(_hwnd != nullptr)
 	{
 		if(bShow && _vkb.empty())
