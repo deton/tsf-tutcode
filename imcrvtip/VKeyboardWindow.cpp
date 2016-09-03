@@ -711,8 +711,20 @@ std::wstring CTextService::_MakeVkbTable()
 			}
 			else
 			{
+				std::wstring s;
+				switch(inputmode)
+				{
+				case im_katakana:
+				case im_katakana_ank: //XXX:半角幅だと列位置がずれるので
+					s = rkc.katakana;
+					break;
+				case im_hiragana:
+				default:
+					s = rkc.hiragana;
+					break;
+				}
 				//XXX:「じぇ」等、複数文字は未対応。ほとんどの場合は1文字なので
-				vkb.append(Get1Moji(rkc.hiragana, 0));
+				vkb.append(Get1Moji(s, 0));
 			}
 			break;
 		case E_PENDING:	//途中まで一致
