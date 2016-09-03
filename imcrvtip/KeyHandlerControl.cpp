@@ -1148,6 +1148,13 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		_HandlePostKanji2Seq(ec, pContext, count, postconvctx);
 		return;
 	}
+	//仮想鍵盤表示の切り替え
+	else if(wcsncmp(rkc.hiragana, L"Vkbd", 4) == 0)
+	{
+		int n = _wtoi(rkc.hiragana + 4);
+		_HandleVkbdToggle(ec, pContext, n);
+		return;
+	}
 	//打鍵ヘルプ
 	else if(wcsncmp(rkc.hiragana, L"Help", 4) == 0)
 	{
@@ -1198,5 +1205,35 @@ CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITf
 			_HandleCharReturn(ec, pContext);
 		}
 		return PCC_APP;
+	}
+}
+
+/**
+ * 仮想鍵盤の表示・非表示設定を(一時的に)切り替える
+ * @param n 0:トグル, 1:表示, -1:非表示
+ */
+void CTextService::_HandleVkbdToggle(TfEditCookie ec, ITfContext *pContext, int n)
+{
+	switch(n)
+	{
+	case 1:
+		cx_showvkbd = TRUE;
+		break;
+	case -1:
+		cx_showvkbd = FALSE;
+		break;
+	case 0:
+	default:
+		cx_showvkbd = !cx_showvkbd;
+		break;
+	}
+	if(cx_showvkbd)
+	{
+		//XXX: 辞書登録中に表示される仮想鍵盤の切り替えは未対応
+		_StartVKeyboardWindow();
+	}
+	else
+	{
+		_EndVKeyboardWindow();
 	}
 }

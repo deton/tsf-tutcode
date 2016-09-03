@@ -168,6 +168,7 @@ public:
 	};
 	void _HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch);
 	PostConvContext _PrepareForFunc(TfEditCookie ec, ITfContext *pContext);
+	void _HandleVkbdToggle(TfEditCookie ec, ITfContext *pContext, int n);
 
 	// KeyHandlerConv
 	WCHAR _GetCh(BYTE vk, BYTE vkoff = 0);
