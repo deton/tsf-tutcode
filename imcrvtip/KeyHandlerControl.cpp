@@ -1149,7 +1149,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		return;
 	}
 	//仮想鍵盤表示の切り替え
-	else if(wcsncmp(rkc.hiragana, L"Vkbd", 4) == 0)
+	else if(wcsncmp(rkc.hiragana, L"vkbd", 4) == 0)
 	{
 		int n = _wtoi(rkc.hiragana + 4);
 		_HandleVkbdToggle(ec, pContext, n);
