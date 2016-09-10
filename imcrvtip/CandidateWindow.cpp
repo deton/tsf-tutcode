@@ -6,7 +6,9 @@
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
 
-BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, BOOL reg, BOOL comp)
+#define NEXT_MERGIN_Y 4
+
+BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, int mode)
 {
 	_hwndParent = hwndParent;
 	_pCandidateWindowParent = pCandidateWindowParent;
@@ -78,25 +80,30 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 		}
 	}
 
-	_reg = reg;
-	_comp = comp;
+	_mode = mode;
 
 	candidates = _pTextService->candidates;
 	candidx = _pTextService->candidx;
+	candorgcnt =  _pTextService->candorgcnt;
 	searchkey = _pTextService->searchkey;
+	searchkeyorg = _pTextService->searchkeyorg;
 
-	if(reg)
+	if((mode == wm_register) || (mode == wm_delete))
 	{
-		//辞書登録開始
 		if(_hwnd == nullptr)
 		{
-			regwordul = TRUE;
+			_ulsingle = TRUE;
 		}
-		regword = TRUE;
-		regwordtext.clear();
-		regwordtextpos = 0;
-		comptext.clear();
-		regwordfixed = TRUE;
+	}
+
+	if(mode == wm_register)
+	{
+		//辞書登録開始
+		_regmode = TRUE;
+		_regtext.clear();
+		_regtextpos = 0;
+		_regcomp.clear();
+		_regfixed = TRUE;
 
 		_BackUpStatus();
 		_ClearStatus();
@@ -238,7 +245,7 @@ void CCandidateWindow::_Move(LPCRECT lpr, TfEditCookie ec, ITfContext *pContext)
 			rc.left = _rect.left;
 			rc.top += _rect.bottom;
 			rc.right = _rect.right;
-			rc.bottom += _rect.bottom;
+			rc.bottom += _rect.bottom + NEXT_MERGIN_Y;
 			_pCandidateWindow->_Move(&rc);
 #else
 			_pCandidateWindow->_Move(&_rect);
@@ -251,7 +258,7 @@ void CCandidateWindow::_BeginUIElement()
 {
 	BOOL bShow = TRUE;
 
-	if(!_reg)
+	if((_mode == wm_candidate) || (_mode == wm_complement))
 	{
 		_InitList();
 	}
@@ -288,7 +295,7 @@ void CCandidateWindow::_BeginUIElement()
 			SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 
-			if(_reg)
+			if(_mode == wm_register)
 			{
 				if(_pVKeyboardWindow != nullptr)
 				{
@@ -376,40 +383,38 @@ void CCandidateWindow::_Redraw()
 	}
 }
 
-void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, BOOL showcandlist, BOOL showreg)
+void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 {
 	//CTextService -> CCandidateList -> CCandidateWindow で入力文字列をもらう
 
 	if(_pCandidateWindow != nullptr && !_preEnd)
 	{
-		_pCandidateWindow->_SetText(text, fixed, showcandlist, showreg);
+		_pCandidateWindow->_SetText(text, fixed, mode);
 		return;
 	}
 
-	if(showreg)
+	if((mode == wm_candidate) || (mode == wm_register) || (mode == wm_delete))
 	{
-		_CreateNext(TRUE);
+		_CreateNext(mode);
 	}
 
-	if(showcandlist)
+	if((mode == wm_candidate) || (mode == wm_register) || (mode == wm_none))
 	{
-		_CreateNext(FALSE);
-	}
+		_regfixed = fixed;
 
-	regwordfixed = fixed;
-
-	if(fixed)
-	{
-		comptext.clear();
-		regwordtext.insert(regwordtextpos, text);
-		regwordtextpos += text.size();
-	}
-	else
-	{
-		comptext = text;
-		if(comptext.empty())
+		if(fixed)
 		{
-			regwordfixed = TRUE;
+			_regcomp.clear();
+			_regtext.insert(_regtextpos, text);
+			_regtextpos += text.size();
+		}
+		else
+		{
+			_regcomp = text;
+			if(_regcomp.empty())
+			{
+				_regfixed = TRUE;
+			}
 		}
 	}
 
@@ -425,7 +430,7 @@ void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 	}
 
 	text->clear();
-	text->append(regwordtext.substr(0, regwordtextpos));
+	text->append(_regtext.substr(0, _regtextpos));
 }
 
 void CCandidateWindow::_DeletePrecedingText(size_t delete_count)
@@ -436,15 +441,15 @@ void CCandidateWindow::_DeletePrecedingText(size_t delete_count)
 		return;
 	}
 
-	if(regwordtextpos >= delete_count && regwordtext.size() >= delete_count)
+	if(_regtextpos >= delete_count && _regtext.size() >= delete_count)
 	{
-		regwordtext.erase(regwordtextpos - delete_count, delete_count);
-		regwordtextpos -= delete_count;
+		_regtext.erase(_regtextpos - delete_count, delete_count);
+		_regtextpos -= delete_count;
 	}
 	else
 	{
-		regwordtextpos = 0;
-		regwordtext.clear();
+		_regtextpos = 0;
+		_regtext.clear();
 	}
 }
 
@@ -490,7 +495,7 @@ void CCandidateWindow::_End()
 
 void CCandidateWindow::_UpdateComp()
 {
-	_comp = TRUE;
+	_mode = wm_complement;
 	candidates = _pTextService->candidates;
 	candidx = _pTextService->candidx;
 	searchkey = _pTextService->searchkey;
@@ -504,7 +509,7 @@ void CCandidateWindow::_InitList()
 {
 	UINT i;
 
-	if(!_comp)
+	if(_mode == wm_candidate)
 	{
 		_uPageCandNum = MAX_SELKEY;
 	}
@@ -517,7 +522,7 @@ void CCandidateWindow::_InitList()
 		}
 	}
 
-	if(!_comp)
+	if(_mode == wm_candidate)
 	{
 		_uShowedCount = _pTextService->cx_untilcandlist - 1;
 	}
@@ -530,7 +535,7 @@ void CCandidateWindow::_InitList()
 	_CandStr.clear();
 	for(i = 0; i < _uCount; i++)
 	{
-		if(!_comp)
+		if(_mode == wm_candidate)
 		{
 			_CandStr.push_back(_pTextService->selkey[(i % _uPageCandNum)][0]);
 			_CandStr[i].append(markNo);
@@ -545,7 +550,7 @@ void CCandidateWindow::_InitList()
 		if(_pTextService->cx_annotation &&
 			!candidates[_uShowedCount + i].first.second.empty())
 		{
-			if(!_comp)
+			if(_mode == wm_candidate)
 			{
 				_CandStr[i].append(markAnnotation);
 			}
@@ -599,33 +604,26 @@ void CCandidateWindow::_NextPage()
 		{
 			if(_hwnd == nullptr)
 			{
-				regwordul = TRUE;
+				_ulsingle = TRUE;
 			}
 
-			if(!regword)
+			//辞書登録開始
+			_regmode = TRUE;
+			_regtext.clear();
+			_regtextpos = 0;
+			_regcomp.clear();
+			_regfixed = TRUE;
+
+			_BackUpStatus();
+			_ClearStatus();
+
+			if(_pVKeyboardWindow != nullptr)
 			{
-				//辞書登録開始
-				regword = TRUE;
-				regwordtext.clear();
-				regwordtextpos = 0;
-				comptext.clear();
-				regwordfixed = TRUE;
-
-				_BackUpStatus();
-				_ClearStatus();
-
-				if(_pVKeyboardWindow != nullptr)
-				{
-					_pVKeyboardWindow->_Show(TRUE);
-				}
-				if(_pInputModeWindow != nullptr)
-				{
-					_pInputModeWindow->_Show(TRUE);
-				}
+				_pVKeyboardWindow->_Show(TRUE);
 			}
-			else
+			if(_pInputModeWindow != nullptr)
 			{
-				_CreateNext(TRUE);
+				_pInputModeWindow->_Show(TRUE);
 			}
 
 			_Update();
@@ -658,7 +656,7 @@ void CCandidateWindow::_PrevPage()
 	{
 		if(_pCandidateList != nullptr)
 		{
-			if(!regword)
+			if(!_regmode)
 			{
 				if(_pTextService->cx_untilcandlist == 1)
 				{
@@ -668,7 +666,7 @@ void CCandidateWindow::_PrevPage()
 					}
 					else
 					{
-						if(_reg)
+						if(_mode == wm_register)
 						{
 							_RestoreStatusReg();
 						}
@@ -686,7 +684,7 @@ void CCandidateWindow::_PrevPage()
 					}
 					else
 					{
-						if(_reg)
+						if(_mode == wm_register)
 						{
 							_RestoreStatusReg();
 						}
@@ -801,12 +799,16 @@ void CCandidateWindow::_PrevComp()
 
 void CCandidateWindow::_Update()
 {
-	if(regwordul || regword)
+	if(_regmode)
 	{
 		disptext = _MakeRegWordString();
 	}
+	else if(_mode == wm_delete)
+	{
+		disptext = _MakeDelWordString();
+	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		_dwFlags = TF_CLUIE_COUNT | TF_CLUIE_SELECTION | TF_CLUIE_STRING |
 			TF_CLUIE_PAGEINDEX | TF_CLUIE_CURRENTPAGE;
@@ -902,12 +904,12 @@ void CCandidateWindow::_EndReq()
 	}
 }
 
-void CCandidateWindow::_CreateNext(BOOL reg)
+void CCandidateWindow::_CreateNext(int mode)
 {
 	try
 	{
 		_pCandidateWindow = new CCandidateWindow(_pTextService, _pCandidateList);
-		_pCandidateWindow->_Create(_hwndParent, this, _dwUIElementId, _depth + 1, reg, FALSE);
+		_pCandidateWindow->_Create(_hwndParent, this, _dwUIElementId, _depth + 1, mode);
 
 #ifdef _DEBUG
 		RECT rc;
@@ -915,7 +917,7 @@ void CCandidateWindow::_CreateNext(BOOL reg)
 		rc.left = _rect.left;
 		rc.top += _rect.bottom;
 		rc.right = _rect.right;
-		rc.bottom += _rect.bottom;
+		rc.bottom += _rect.bottom + NEXT_MERGIN_Y;
 		_pCandidateWindow->_Move(&rc);
 #else
 		_pCandidateWindow->_Move(&_rect);

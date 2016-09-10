@@ -152,7 +152,7 @@ public:
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed = FALSE, BOOL back = FALSE);
 	HRESULT _Update(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext, BOOL fixed = FALSE, BOOL back = FALSE);
 	HRESULT _SetText(TfEditCookie ec, ITfContext *pContext, const std::wstring &text, LONG cchCursor, LONG cchOkuri, BOOL fixed);
-	HRESULT _ShowCandidateList(TfEditCookie ec, ITfContext *pContext, BOOL reg, BOOL comp);
+	HRESULT _ShowCandidateList(TfEditCookie ec, ITfContext *pContext, int mode);
 	void _EndCandidateList();
 	void _EndCompletionList(TfEditCookie ec, ITfContext *pContext);
 	BOOL _GetVertical(TfEditCookie ec, ITfContext *pContext);

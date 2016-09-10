@@ -79,16 +79,16 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd)
 		height = tm.tmHeight;
 	}
 
-	if(regwordul || regword)
+	if(_regmode || (_mode == wm_delete))
 	{
 		r.left += MERGIN_X;
 		r.top += MERGIN_Y;
 		r.right -= MERGIN_X;
 		r.bottom -= MERGIN_Y;
 
-		_PaintRegWord(hmemdc, &r);
+		_PaintWord(hmemdc, &r);
 	}
-	else if(_CandCount.size() != 0)
+	else if(((_mode == wm_candidate) || (_mode == wm_complement)) && (_CandCount.size() != 0))
 	{
 		pt.x = MERGIN_X;
 		pt.y = MERGIN_Y;
@@ -126,7 +126,7 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd)
 					DT_CALCRECT | DT_NOCLIP | DT_NOPREFIX | DT_SINGLELINE | DT_WORDBREAK | DT_NOFULLWIDTHCHARBREAK);
 			}
 
-			if(_pTextService->cx_verticalcand || _comp)
+			if(_pTextService->cx_verticalcand || (_mode == wm_complement))
 			{
 				if(i != 0)
 				{
@@ -177,7 +177,7 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd)
 				DT_CALCRECT | DT_NOCLIP | DT_NOPREFIX | DT_SINGLELINE | DT_WORDBREAK | DT_NOFULLWIDTHCHARBREAK);
 		}
 
-		if(_pTextService->cx_verticalcand || _comp)
+		if(_pTextService->cx_verticalcand || (_mode == wm_complement))
 		{
 			pt.x = MERGIN_X;
 			pt.y += height;
@@ -243,32 +243,63 @@ std::wstring CCandidateWindow::_MakeRegWordString()
 	s.append(markNBSP);
 	for(i = 0; i < _depth + 1; i++)
 	{
-		s.append(markRegL);
+		s.append(markSqbL);
 	}
-	s.append(markReg);
+	s.append(L"登録");
 	for(i = 0; i < _depth + 1; i++)
 	{
-		s.append(markRegR);
+		s.append(markSqbR);
 	}
 	s.append(markNBSP);
 
-	s.append((searchkey_bak.empty() ? searchkeyorg_bak : searchkey_bak) + markRegKeyEnd);
+	s.append((searchkey_bak.empty() ? searchkeyorg_bak : searchkey_bak) + L"：");
 
-	s.append(regwordtext.substr(0, regwordtextpos));
+	s.append(_regtext.substr(0, _regtextpos));
 
-	s.append(comptext + markCursor);
+	s.append(_regcomp + markCursor);
 
-	s.append(regwordtext.substr(regwordtextpos) + markNBSP);
+	s.append(_regtext.substr(_regtextpos) + markNBSP);
 
 	return s;
 }
 
-void CCandidateWindow::_PaintRegWord(HDC hdc, LPRECT lpr)
+std::wstring CCandidateWindow::_MakeDelWordString()
+{
+	std::wstring s;
+
+	s.append(markNBSP);
+	s.append(markSqbL);
+	s.append(L"削除");
+	s.append(markSqbR);
+
+	s.append(markNBSP + ((candorgcnt <= candidx) ? searchkey : searchkeyorg) + markNBSP);
+	s.append(L"/" + candidates[candidx].second.first);
+	if(!candidates[candidx].second.second.empty())
+	{
+		s.append(markAnnotation + candidates[candidx].second.second);
+	}
+	s.append(L"/");
+
+	s.append(markNBSP);
+	s.append(L"？(Y/n)");
+	s.append(markNBSP);
+
+	return s;
+}
+
+void CCandidateWindow::_PaintWord(HDC hdc, LPRECT lpr)
 {
 	std::wstring s;
 	D2D1_RECT_F rd2d;
 
-	s = _MakeRegWordString();
+	if(_regmode)
+	{
+		s = _MakeRegWordString();
+	}
+	else if(_mode == wm_delete)
+	{
+		s = _MakeDelWordString();
+	}
 
 	if(_pD2DDCRT != nullptr && _pDWTF != nullptr)
 	{
@@ -294,7 +325,7 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 	std::wstring an = candidates[count + _uShowedCount + idx].first.second;
 
 	int color_cycle = cycle;
-	if(_comp && ca.compare(0, searchkey.size(), searchkey) != 0)
+	if((_mode == wm_complement) && (ca.compare(0, searchkey.size(), searchkey) != 0))
 	{
 		//補完かつ後方一致
 		color_cycle = colors_compback[cycle];
@@ -310,7 +341,7 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 		break;
 
 	case CL_COLOR_SE:
-		if(!_comp)
+		if(_mode == wm_candidate)
 		{
 			s.append(_pTextService->selkey[(idx % MAX_SELKEY_C)][0]);
 		}
@@ -321,14 +352,14 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 		break;
 
 	case CL_COLOR_CO:
-		if(!_comp)
+		if(_mode == wm_candidate)
 		{
 			s.append(markNo);
 		}
 		break;
 
 	case CL_COLOR_CA:
-		if(!_comp)
+		if(_mode == wm_candidate)
 		{
 			s.append(std::regex_replace(ca,
 				std::wregex(markSP), std::wstring(markNBSP)));
@@ -354,7 +385,7 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 		break;
 
 	case CL_COLOR_SC:
-		if(!_comp)
+		if(_mode == wm_candidate)
 		{
 			if(_pTextService->cx_annotation && !an.empty())
 			{
@@ -371,7 +402,7 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 		break;
 
 	case CL_COLOR_AN:
-		if(!_comp)
+		if(_mode == wm_candidate)
 		{
 			if(_pTextService->cx_annotation && !an.empty())
 			{
@@ -419,7 +450,7 @@ void CCandidateWindow::_PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT coun
 		s = _MakeCandidateString(page, count, idx, cycle);
 
 		int color_cycle = cycle;
-		if(_comp && ca.compare(0, searchkey.size(), searchkey) != 0)
+		if((_mode == wm_complement) && (ca.compare(0, searchkey.size(), searchkey) != 0))
 		{
 			//補完かつ後方一致
 			color_cycle = colors_compback[cycle];
@@ -441,7 +472,8 @@ void CCandidateWindow::_PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT coun
 
 			rd2d = D2D1::RectF((FLOAT)r.left, (FLOAT)r.top, (FLOAT)r.right, (FLOAT)r.bottom);
 
-			if(_comp && (count + _uShowedCount + idx == candidx) &&
+			if((_mode == wm_complement) &&
+				(count + _uShowedCount + idx == candidx) &&
 				(color_cycle == CL_COLOR_SE || color_cycle == CL_COLOR_CA))
 			{
 				_pD2DDCRT->FillRectangle(&rd2d, _pD2DBrush[CL_COLOR_SE]);
@@ -464,7 +496,8 @@ void CCandidateWindow::_PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT coun
 
 			r_ex.right = r.right;
 
-			if(_comp && (count + _uShowedCount + idx == candidx) &&
+			if((_mode == wm_complement) &&
+				(count + _uShowedCount + idx == candidx) &&
 				(color_cycle == CL_COLOR_SE || color_cycle == CL_COLOR_CA))
 			{
 				SetTextColor(hdc, _pTextService->cx_colors[CL_COLOR_BG]);
@@ -535,7 +568,7 @@ void CCandidateWindow::_CalcWindowRect()
 		r.right = 1;
 	}
 
-	if(regwordul || regword)
+	if(_regmode || (_mode == wm_delete))
 	{
 		if(_pDWFactory != nullptr)
 		{
@@ -553,7 +586,7 @@ void CCandidateWindow::_CalcWindowRect()
 		cx = r.right + MERGIN_X * 2;
 		cy = height + MERGIN_Y * 2;
 	}
-	else if(_CandCount.size() != 0)
+	else if(((_mode == wm_candidate) || (_mode == wm_complement)) && (_CandCount.size() != 0))
 	{
 		pt.x = 0;
 		pt.y = 0;
@@ -651,7 +684,7 @@ void CCandidateWindow::_CalcWindowRect()
 					DT_CALCRECT | DT_NOCLIP | DT_NOPREFIX | DT_SINGLELINE | DT_WORDBREAK | DT_NOFULLWIDTHCHARBREAK);
 			}
 
-			if(_pTextService->cx_verticalcand || _comp)
+			if(_pTextService->cx_verticalcand || (_mode == wm_complement))
 			{
 				if(i != 0)
 				{
@@ -696,7 +729,7 @@ void CCandidateWindow::_CalcWindowRect()
 				DT_CALCRECT | DT_NOCLIP | DT_NOPREFIX | DT_SINGLELINE | DT_WORDBREAK | DT_NOFULLWIDTHCHARBREAK);
 		}
 
-		if(_pTextService->cx_verticalcand || _comp)
+		if(_pTextService->cx_verticalcand || (_mode == wm_complement))
 		{
 			pt.x = 0;
 			pt.y += height;

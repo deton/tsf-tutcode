@@ -92,6 +92,7 @@ typedef struct ROMAN_KANA_NODE {
 
 #define ISROMAN_TBL_SIZE	128
 
+//候補一覧の色 cx_colors のインデックス
 #define CL_COLOR_BG		0	//背景
 #define CL_COLOR_FR		1	//枠
 #define CL_COLOR_SE		2	//選択
@@ -100,6 +101,15 @@ typedef struct ROMAN_KANA_NODE {
 #define CL_COLOR_SC		5	//;
 #define CL_COLOR_AN		6	//注釈
 #define CL_COLOR_NO		7	//番号
+
+//候補ウィンドウモード
+enum WindowMode {
+	wm_none = 0,	//なし
+	wm_candidate,	//候補一覧
+	wm_register,	//辞書登録
+	wm_complement,	//補完一覧
+	wm_delete		//候補削除
+};
 
 extern LPCWSTR TextServiceDesc;
 extern LPCWSTR LangbarItemDesc;
@@ -127,10 +137,8 @@ extern const GUID c_guidDisplayAttributeConvAnnot;
 extern LPCWSTR markNo;
 extern LPCWSTR markAnnotation;
 extern LPCWSTR markCursor;
-extern LPCWSTR markReg;
-extern LPCWSTR markRegL;
-extern LPCWSTR markRegR;
-extern LPCWSTR markRegKeyEnd;
+extern LPCWSTR markSqbL;
+extern LPCWSTR markSqbR;
 extern LPCWSTR markSP;
 extern LPCWSTR markNBSP;
 extern LPCWSTR markHM;

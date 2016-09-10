@@ -52,20 +52,20 @@ CCandidateWindow::CCandidateWindow(CTextService *pTextService, CCandidateList *p
 	_pDWFactory = nullptr;
 	_pDWTF = nullptr;
 
-	_reg = FALSE;
-	_comp = FALSE;
+	_mode = 0;
+	_ulsingle = FALSE;
+
+	_regmode = FALSE;
+	_regfixed = FALSE;
+	_regtext.clear();
+	_regtextpos = 0;
+	_regcomp.clear();
 
 	candidates.clear();
 	candidx = 0;
+	candorgcnt = 0;
 	searchkey.clear();
-
-	regword = FALSE;
-	regwordul = FALSE;
-	regwordfixed = FALSE;
-
-	regwordtext.clear();
-	regwordtextpos = 0;
-	comptext.clear();
+	searchkeyorg.clear();
 
 	_ClearStatusReg();
 }
@@ -208,7 +208,7 @@ STDAPI CCandidateWindow::Show(BOOL bShow)
 	}
 #endif
 
-	if(_pVKeyboardWindow != nullptr && regword)
+	if(_pVKeyboardWindow != nullptr && _regmode)
 	{
 #ifndef _DEBUG
 		if(_pCandidateWindow == nullptr)
@@ -220,7 +220,7 @@ STDAPI CCandidateWindow::Show(BOOL bShow)
 #endif
 	}
 
-	if(_pInputModeWindow != nullptr && regword)
+	if(_pInputModeWindow != nullptr && _regmode)
 	{
 #ifndef _DEBUG
 		if(_pCandidateWindow == nullptr)
@@ -293,7 +293,7 @@ STDAPI CCandidateWindow::GetCount(UINT *puCount)
 		return E_INVALIDARG;
 	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		*puCount = 1;
 	}
@@ -317,7 +317,7 @@ STDAPI CCandidateWindow::GetSelection(UINT *puIndex)
 		return E_INVALIDARG;
 	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		*puIndex = 0;
 	}
@@ -341,7 +341,7 @@ STDAPI CCandidateWindow::GetString(UINT uIndex, BSTR *pstr)
 		return E_INVALIDARG;
 	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		*pstr = SysAllocString(disptext.c_str());
 	}
@@ -375,7 +375,7 @@ STDAPI CCandidateWindow::GetPageIndex(UINT *pIndex, UINT uSize, UINT *puPageCnt)
 		return E_INVALIDARG;
 	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		if(uSize > 0)
 		{
@@ -423,7 +423,7 @@ STDAPI CCandidateWindow::SetPageIndex(UINT *pIndex, UINT uPageCnt)
 		return E_INVALIDARG;
 	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		if(uPageCnt > 0)
 		{
@@ -468,7 +468,7 @@ STDAPI CCandidateWindow::SetPageIndex(UINT *pIndex, UINT uPageCnt)
 					break;
 				}
 
-				if(!_comp)
+				if(_mode == wm_candidate)
 				{
 					_CandStr.push_back(_pTextService->selkey[(i % MAX_SELKEY_C)][0]);
 					_CandStr[k].append(markNo);
@@ -483,7 +483,7 @@ STDAPI CCandidateWindow::SetPageIndex(UINT *pIndex, UINT uPageCnt)
 				if(_pTextService->cx_annotation &&
 					!candidates[_uShowedCount + k].first.second.empty())
 				{
-					if(!_comp)
+					if(_mode == wm_candidate)
 					{
 						_CandStr[k].append(markAnnotation);
 					}
@@ -518,7 +518,7 @@ STDAPI CCandidateWindow::GetCurrentPage(UINT *puPage)
 		return E_INVALIDARG;
 	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		*puPage = 0;
 	}
@@ -565,7 +565,7 @@ STDAPI CCandidateWindow::SetSelection(UINT nIndex)
 		return E_INVALIDARG;
 	}
 
-	if(regwordul)
+	if(_ulsingle)
 	{
 		_Update();
 	}

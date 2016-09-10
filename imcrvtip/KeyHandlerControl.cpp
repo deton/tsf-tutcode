@@ -342,8 +342,17 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			else
 			{
 				purgedicmode = TRUE;
-				_Update(ec, pContext);
+				if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
+				{
+					_pCandidateList->_SetText(L"", FALSE, wm_delete);
+				}
+				else
+				{
+					showcandlist = FALSE;
+					_ShowCandidateList(ec, pContext, wm_delete);
+				}
 			}
+
 			return S_OK;
 		}
 		break;
@@ -398,7 +407,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					if(_pCandidateList == nullptr)
 					{
 						showcandlist = FALSE;
-						_ShowCandidateList(ec, pContext, FALSE, TRUE);
+						_ShowCandidateList(ec, pContext, wm_complement);
 					}
 					else
 					{
@@ -408,7 +417,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				else if(cx_stacompmulti)
 				{
 					showcandlist = FALSE;
-					_ShowCandidateList(ec, pContext, FALSE, TRUE);
+					_ShowCandidateList(ec, pContext, wm_complement);
 				}
 			}
 			return S_OK;

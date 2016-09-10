@@ -39,7 +39,7 @@ public:
 	STDMETHODIMP Finalize();
 	STDMETHODIMP Abort();
 
-	BOOL _Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, BOOL reg, BOOL comp);
+	BOOL _Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, int mode);
 	static BOOL _InitClass();
 	static void _UninitClass();
 	static LRESULT CALLBACK _WindowPreProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -50,7 +50,7 @@ public:
 	void _EndUIElement();
 	BOOL _CanShowUIElement();
 	void _Redraw();
-	void _SetText(const std::wstring &text, BOOL fixed, BOOL showcandlist, BOOL showreg);
+	void _SetText(const std::wstring &text, BOOL fixed, int mode);
 	void _GetPrecedingText(std::wstring *text);
 	void _DeletePrecedingText(size_t delete_count);
 	void _PreEnd();
@@ -76,7 +76,7 @@ private:
 	void _ClearStatusReg();
 	void _PreEndReq();
 	void _EndReq();
-	void _CreateNext(BOOL reg);
+	void _CreateNext(int mode);
 
 	//KeyHandler
 	void _OnKeyDownRegword(UINT uVKey);
@@ -88,7 +88,8 @@ private:
 	//Paint
 	void _WindowProcPaint(HWND hWnd);
 	std::wstring _MakeRegWordString();
-	void _PaintRegWord(HDC hdc, LPRECT lpr);
+	std::wstring _MakeDelWordString();
+	void _PaintWord(HDC hdc, LPRECT lpr);
 	std::wstring _MakeCandidateString(UINT page, UINT count, UINT idx, int cycle);
 	void _PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT count, UINT idx);
 	void _CalcWindowRect();
@@ -131,20 +132,21 @@ private:
 	IDWriteFactory *_pDWFactory;
 	IDWriteTextFormat *_pDWTF;
 
-	BOOL _reg;		//初期表示から辞書登録
-	BOOL _comp;		//複数補完/複数動的補完
+	int _mode;		//モード
+	BOOL _ulsingle;	//UILess 辞書登録/辞書削除
+
+	//辞書登録
+	BOOL _regmode;				//辞書登録モード
+	BOOL _regfixed;				//未確定文字列を確定
+	std::wstring _regtext;		//確定文字列
+	size_t _regtextpos;			//カーソルインデックス
+	std::wstring _regcomp;		//未確定文字列
 
 	CANDIDATES candidates;		//描画用候補
 	size_t candidx;				//描画用候補インデックス
+	size_t candorgcnt;			//オリジナル見出し語の候補数
 	std::wstring searchkey;		//描画用見出し語
-
-	//辞書登録
-	BOOL regword;				//モード
-	BOOL regwordul;				//UILess
-	BOOL regwordfixed;			//未確定文字列を確定
-	std::wstring regwordtext;	//確定文字列
-	size_t regwordtextpos;		//カーソルインデックス
-	std::wstring comptext;		//未確定文字列
+	std::wstring searchkeyorg;	//描画用オリジナル見出し語
 
 	//辞書登録前の状態バックアップ
 	int inputmode_bak;

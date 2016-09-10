@@ -512,7 +512,7 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 			}
 			else
 			{
-				_pCandidateList->_SetText(replstr, TRUE, FALSE, FALSE);
+				_pCandidateList->_SetText(replstr, TRUE, wm_none);
 			}
 		}
 		return S_OK;
