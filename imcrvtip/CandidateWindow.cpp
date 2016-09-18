@@ -837,6 +837,8 @@ void CCandidateWindow::_BackUpStatus()
 	candidates_bak = _pTextService->candidates;
 	candidx_bak = _pTextService->candidx;
 	candorgcnt_bak = _pTextService->candorgcnt;
+	postyomi_bak = _pTextService->postyomi;
+	postyomiidx_bak = _pTextService->postyomiidx;
 }
 
 void CCandidateWindow::_ClearStatus()
@@ -869,6 +871,8 @@ void CCandidateWindow::_RestoreStatusReg()
 	_pTextService->candidates = candidates_bak;
 	_pTextService->candidx = candidx_bak;
 	_pTextService->candorgcnt = candorgcnt_bak;
+	_pTextService->postyomi = postyomi_bak;
+	_pTextService->postyomiidx = postyomiidx_bak;
 	_pTextService->showcandlist = TRUE;
 	_pTextService->showentry = TRUE;
 	_pTextService->inputkey = TRUE;
@@ -886,6 +890,8 @@ void CCandidateWindow::_ClearStatusReg()
 	candidates_bak.clear();
 	candidx_bak = 0;
 	candorgcnt_bak = 0;
+	postyomi_bak.clear();
+	postyomiidx_bak = 0;
 }
 
 void CCandidateWindow::_PreEndReq()

@@ -9,9 +9,11 @@
 //後置型交ぜ書き変換
 HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo)
 {
+	postyomi.clear();
+	postyomiidx = 0;
 	//カーソル直前の文字列を取得
 	std::wstring text;
-	_AcquirePrecedingText(pContext, postconvctx, &text);
+	_AcquirePrecedingYomi(pContext, postconvctx, &text, count);
 	size_t size = text.size();
 	if(size == 0)
 	{
@@ -25,15 +27,76 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		}
 		return S_OK;
 	}
-	size_t st = BackwardMoji(text, size, count);
-	std::wstring todel(text.substr(st));
-	std::wstring yomi(todel);
+	std::wstring yomi(text);
 	if(isKatuyo)
 	{
 		//TODO:読みに含まれる語尾を―に置き換えて変換
 		yomi.append(L"―");
 	}
-	return _ReplacePrecedingText(ec, pContext, todel, yomi, postconvctx, TRUE);
+	if(count == 0) //文字数指定無しの場合
+	{
+		postyomi.assign(yomi); //読みを縮めながら検索するために使用
+	}
+	return _ReplacePrecedingText(ec, pContext, text, yomi, postconvctx, TRUE);
+}
+
+//後置型交ぜ書き変換用の読みをカーソル直接の文字列から取得する。
+void CTextService::_AcquirePrecedingYomi(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, size_t count)
+{
+	text->clear();
+	std::wstring s;
+	_AcquirePrecedingText(pContext, postconvctx, &s);
+	size_t size = s.size();
+	if(size == 0)
+	{
+		return;
+	}
+	if(count > 0) //countが指定されている時は"。"等も含める
+	{
+		size_t st = BackwardMoji(s, size, count);
+		text->assign(s.substr(st));
+		return;
+	}
+
+	//count=0の場合、なるべく長く「読み」とみなす。文字列末尾から見ていく。
+	//(a)"、"や"。"以前の文字は読みに含めない。
+	size_t stch = s.find_last_of(L"\n\t 、。，．・「」（）");
+	if(stch != std::wstring::npos)
+	{
+		stch = ForwardMoji(s, stch, 1);
+	}
+	else
+	{
+		stch = 0;
+	}
+
+	//(b)日本語文字とLatin文字の境目があれば、そこまでを取得する。
+//Basic Latin + Latin-1 Supplement (XXX:とりあえず)
+#define ISLATIN(m) ((m)[0] <= 0xFF)
+	bool bLastLatin = false;
+	size_t st = 0;
+	size_t prevst = size;
+	while((st = BackwardMoji(s, prevst, 1)) < prevst && st >= stch)
+	{
+		bool bLatin = ISLATIN(Get1Moji(s, st));
+		if(prevst == size) //末尾の文字?
+		{
+			bLastLatin = bLatin;
+		}
+		else if(bLatin != bLastLatin)
+		{
+			st = prevst;
+			break;
+		}
+		prevst = st;
+	}
+
+	//(a)と(b)で、先に止まったところまで
+	if(stch > st)
+	{
+		st = stch;
+	}
+	text->assign(s.substr(st));
 }
 
 //後置型カタカナ変換

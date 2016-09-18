@@ -159,6 +159,8 @@ private:
 	CANDIDATES candidates_bak;
 	size_t candidx_bak;
 	size_t candorgcnt_bak;
+	std::wstring postyomi_bak;
+	size_t postyomiidx_bak;
 };
 
 #endif //CANDIDATEWINDOW_H

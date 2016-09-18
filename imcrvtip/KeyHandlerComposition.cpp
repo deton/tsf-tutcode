@@ -2,6 +2,7 @@
 #include "imcrvtip.h"
 #include "TextService.h"
 #include "CandidateList.h"
+#include "moji.h"
 
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed, BOOL back)
 {
@@ -122,6 +123,19 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			}
 			else
 			{
+				//文字数指定無し後置型交ぜ書き変換。変換可能な候補無し
+				if(postyomiidx < postyomi.size())
+				{
+					//読みを縮めて交ぜ書き変換
+					size_t st = ForwardMoji(postyomi, postyomiidx, 1);
+					if(st > postyomiidx && st < postyomi.size())
+					{
+						postyomiidx = st;
+						std::wstring yomi(postyomi.substr(st));
+						_StartConvWithYomi(ec, pContext, yomi);
+						return S_OK;
+					}
+				}
 				_SetText(ec, pContext, comptext, cchCursor, cchOkuri, FALSE);
 				//辞書登録表示開始
 				return _ShowCandidateList(ec, pContext, wm_register);
@@ -329,7 +343,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	}
 }
 
-HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std::wstring &text, LONG cchCursor, LONG cchOkuri, BOOL fixed)
+HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std::wstring &comptext, LONG cchCursor, LONG cchOkuri, BOOL fixed)
 {
 	TF_SELECTION tfSelection;
 	ULONG cFetched = 0;
@@ -337,7 +351,7 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 
 	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
-		_pCandidateList->_SetText(text, fixed, wm_none);
+		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
 	}
 
@@ -346,6 +360,20 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 		if(!_StartComposition(pContext))
 		{
 			return S_FALSE;
+		}
+	}
+
+	std::wstring text(comptext);
+	//文字数指定無し後置型交ぜ書き変換で読みを縮めた場合
+	if(postyomiidx > 0)
+	{	//外した部分が表示されるように、textに挿入
+		text.insert(0, postyomi.substr(0, postyomiidx));
+		cchCursor += postyomiidx;
+		//確定時の後始末(しないと以降の入力で常にpostyomiが付いてしまう)
+		if(fixed)
+		{
+			postyomiidx = 0;
+			postyomi.clear();
 		}
 	}
 

@@ -195,6 +195,7 @@ public:
 
 	// KeyHandlerPostConv
 	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo);
+	void _AcquirePrecedingYomi(ITfContext *pContext, PostConvContext postconvctx, std::wstring *yomi, size_t count);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
@@ -430,8 +431,11 @@ public:
 
 	size_t cursoridx;		//カーソルインデックス
 
+	//後置型変換
 	std::wstring postbuf;	//直近に確定した文字列
 	std::wstring prevkata;	//直前の後置型カタカナ変換で変換した文字列
+	std::wstring postyomi;	//文字数指定無し後置型交ぜ書き変換中の読み。縮め用
+	size_t postyomiidx;		//postyomi中のインデックス。以降が対象の読み
 
 	//候補一覧選択キー
 	WCHAR selkey[MAX_SELKEY_C][2][2];

@@ -583,7 +583,18 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					_EndCompletionList(ec, pContext);
 				}
 
-				_Update(ec, pContext);
+				if(!postyomi.empty()) //文字数指定無しの後置型交ぜ書き変換
+				{
+					kana = postyomi;
+					cursoridx = kana.size();
+					postyomi.clear();
+					postyomiidx = 0;
+					_HandleCharReturn(ec, pContext);
+				}
+				else
+				{
+					_Update(ec, pContext);
+				}
 			}
 		}
 		else
@@ -1014,6 +1025,8 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR ch)
 {
+	postyomi.clear();
+	postyomiidx = 0;
 	if(abbrevmode && !showentry)
 	{
 		return E_PENDING;
@@ -1103,9 +1116,9 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
 			//は未対応。候補表示等の制御が面倒なので。
 			int count = _wtoi(rkc.hiragana + offset);
-			if(count <= 0)
+			if(count < 0) //count=0の場合、なるべく長く読みとみなす
 			{
-				count = 1; //TODO:count=0の場合、なるべく長く読みとみなす
+				count = 1;
 			}
 			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo);
 		}
