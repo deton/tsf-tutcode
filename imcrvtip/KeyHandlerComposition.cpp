@@ -116,6 +116,20 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 			cchCursor = (LONG)comptext.size();
 
+			//文字数指定無し後置型交ぜ書き変換。変換可能な候補無し
+			if(postyomiidx < postyomi.size())
+			{
+				//読みを縮めて交ぜ書き変換
+				size_t st = ForwardMoji(postyomi, postyomiidx, 1);
+				if(st > postyomiidx && st < postyomi.size())
+				{
+					postyomiidx = st;
+					std::wstring yomi(postyomi.substr(st));
+					_StartConvWithYomi(ec, pContext, yomi);
+					return S_OK;
+				}
+			}
+
 			if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 			{
 				_pCandidateList->_SetText(comptext, FALSE, wm_register);
@@ -123,19 +137,6 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			}
 			else
 			{
-				//文字数指定無し後置型交ぜ書き変換。変換可能な候補無し
-				if(postyomiidx < postyomi.size())
-				{
-					//読みを縮めて交ぜ書き変換
-					size_t st = ForwardMoji(postyomi, postyomiidx, 1);
-					if(st > postyomiidx && st < postyomi.size())
-					{
-						postyomiidx = st;
-						std::wstring yomi(postyomi.substr(st));
-						_StartConvWithYomi(ec, pContext, yomi);
-						return S_OK;
-					}
-				}
 				_SetText(ec, pContext, comptext, cchCursor, cchOkuri, FALSE);
 				//辞書登録表示開始
 				return _ShowCandidateList(ec, pContext, wm_register);
@@ -334,6 +335,14 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
+		//文字数指定無し後置型交ぜ書き変換で読みを縮めた場合
+		if(postyomiidx > 0)
+		{	//外した部分が表示されるように、fixed=TRUEで_SetText()
+			_pCandidateList->_SetText(postyomi.substr(0, postyomiidx), TRUE, wm_none);
+			//後始末(しないと以降の入力で常にpostyomiが付いてしまう)
+			postyomiidx = 0;
+			postyomi.clear();
+		}
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
 	}

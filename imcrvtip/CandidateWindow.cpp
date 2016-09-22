@@ -853,6 +853,8 @@ void CCandidateWindow::_ClearStatus()
 	_pTextService->candidates.clear();
 	_pTextService->candidx = 0;
 	_pTextService->candorgcnt = 0;
+	_pTextService->postyomi.clear();
+	_pTextService->postyomiidx = 0;
 	_pTextService->showcandlist = FALSE;
 	_pTextService->showentry = FALSE;
 	_pTextService->inputkey = FALSE;
