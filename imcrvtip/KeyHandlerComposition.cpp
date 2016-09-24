@@ -340,9 +340,8 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 		if(postyomiidx > 0)
 		{	//外した部分が表示されるように、fixed=TRUEで_SetText()
 			_pCandidateList->_SetText(postyomi.substr(0, postyomiidx), TRUE, wm_none);
-			//後始末(しないと以降の入力で常にpostyomiが付いてしまう)
+			postyomi.erase(0, postyomiidx);
 			postyomiidx = 0;
-			postyomi.clear();
 		}
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
