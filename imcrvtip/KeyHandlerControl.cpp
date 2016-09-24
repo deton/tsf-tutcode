@@ -1027,7 +1027,7 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 {
 	postyomi.clear();
 	postyomiidx = 0;
-	postyomiShrinking = false;
+	postyomiResizing = PYR_NO;
 	if(abbrevmode && !showentry)
 	{
 		return E_PENDING;

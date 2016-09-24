@@ -12,22 +12,41 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 
 	if(showentry)
 	{
-		//後置型交ぜ書き変換の候補表示時、読みを縮める操作が行われた
-		if(postyomi.size() > 0 && ch == L'>')
+		//後置型交ぜ書き変換の候補表示時
+		if(postyomi.size() > 0)
 		{
-			if(postyomiidx < postyomi.size())
+			if(ch == L'>') //読みを縮める操作が行われた
 			{
-				//読みを縮めて交ぜ書き変換
-				size_t st = ForwardMoji(postyomi, postyomiidx, 1);
-				if(st > postyomiidx && st < postyomi.size())
+				if(postyomiidx < postyomi.size())
 				{
-					postyomiidx = st;
-					postyomiShrinking = true;
-					std::wstring yomi(postyomi.substr(st));
-					_StartConvWithYomi(ec, pContext, yomi);
+					//読みを縮めて交ぜ書き変換
+					size_t st = ForwardMoji(postyomi, postyomiidx, 1);
+					if(st > postyomiidx && st < postyomi.size())
+					{
+						postyomiidx = st;
+						postyomiResizing = PYR_SHRINKING;
+						std::wstring yomi(postyomi.substr(st));
+						_StartConvWithYomi(ec, pContext, yomi);
+					}
 				}
+				return S_OK;
 			}
-			return S_OK;
+			else if(ch == L'<') //読みを伸ばす操作が行われた
+			{
+				if(postyomiidx > 0)
+				{
+					//読みを伸ばして交ぜ書き変換
+					size_t st = BackwardMoji(postyomi, postyomiidx, 1);
+					if(st < postyomiidx)
+					{
+						postyomiidx = st;
+						postyomiResizing = PYR_EXTENDING;
+						std::wstring yomi(postyomi.substr(st));
+						_StartConvWithYomi(ec, pContext, yomi);
+					}
+				}
+				return S_OK;
+			}
 		}
 
 		_HandleCharShift(ec, pContext);

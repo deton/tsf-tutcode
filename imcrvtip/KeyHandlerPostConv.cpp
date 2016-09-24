@@ -11,7 +11,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 {
 	postyomi.clear();
 	postyomiidx = 0;
-	postyomiShrinking = false;
+	postyomiResizing = PYR_NO;
 	//カーソル直前の文字列を取得
 	std::wstring text;
 	_AcquirePrecedingYomi(pContext, postconvctx, &text, count);
@@ -37,7 +37,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 	postyomi.assign(yomi); //読みを縮めながら検索するために使用
 	if(count == 0) //文字数指定無しの場合
 	{
-		postyomiShrinking = true;
+		postyomiResizing = PYR_SHRINKING;
 	}
 	return _ReplacePrecedingText(ec, pContext, text, yomi, postconvctx, TRUE);
 }
