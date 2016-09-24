@@ -2,6 +2,7 @@
 #include "imcrvtip.h"
 #include "TextService.h"
 #include "CandidateList.h"
+#include "moji.h"
 
 HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, WCHAR ch, WCHAR chO)
 {
@@ -11,6 +12,24 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 
 	if(showentry)
 	{
+		//後置型交ぜ書き変換の候補表示時、読みを縮める操作が行われた
+		if(postyomi.size() > 0 && ch == L'>')
+		{
+			if(postyomiidx < postyomi.size())
+			{
+				//読みを縮めて交ぜ書き変換
+				size_t st = ForwardMoji(postyomi, postyomiidx, 1);
+				if(st > postyomiidx && st < postyomi.size())
+				{
+					postyomiidx = st;
+					postyomiShrinking = true;
+					std::wstring yomi(postyomi.substr(st));
+					_StartConvWithYomi(ec, pContext, yomi);
+				}
+			}
+			return S_OK;
+		}
+
 		_HandleCharShift(ec, pContext);
 	}
 

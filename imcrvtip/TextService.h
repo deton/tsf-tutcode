@@ -436,6 +436,7 @@ public:
 	std::wstring prevkata;	//直前の後置型カタカナ変換で変換した文字列
 	std::wstring postyomi;	//文字数指定無し後置型交ぜ書き変換中の読み。縮め用
 	size_t postyomiidx;		//postyomi中のインデックス。以降が対象の読み
+	bool postyomiShrinking;	//読みを縮めながらの変換試行中かどうか
 
 	//候補一覧選択キー
 	WCHAR selkey[MAX_SELKEY_C][2][2];
