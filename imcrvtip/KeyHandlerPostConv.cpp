@@ -615,7 +615,6 @@ void CTextService::_StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, con
 	inputkey = TRUE;
 	_StartConv(ec, pContext);
 	_Update(ec, pContext);
-	//TODO:cancel時は前置型読み入力モードでなく後置型開始前の状態に
 }
 
 //カーソル直前文字列をBackspaceを送って消した後、置換文字列を確定する。

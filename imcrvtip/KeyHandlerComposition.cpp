@@ -348,13 +348,16 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
-		//文字数指定無し後置型交ぜ書き変換で読みを縮めた場合
-		if(postyomiidx > 0)
-		{	//外した部分が表示されるように、fixed=TRUEで_SetText()
+		//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
+		if(postyomiidx > 0 && fixed)
+		{
+			//読みから外した部分は確定(fixed=TRUEで_SetText())
 			_pCandidateList->_SetText(postyomi.substr(0, postyomiidx), TRUE, wm_none);
 			postyomi.erase(0, postyomiidx);
 			postyomiidx = 0;
 		}
+		//読み伸ばし/縮め途中で、読みから外した部分は表示用の値を更新する
+		_pCandidateList->_SetTextExcludedPostyomi(postyomi.substr(0, postyomiidx));
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
 	}
@@ -385,7 +388,7 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 	}
 
 	std::wstring text(comptext);
-	//文字数指定無し後置型交ぜ書き変換で読みを縮めた場合
+	//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
 	if(postyomiidx > 0)
 	{	//外した部分が表示されるように、textに挿入
 		text.insert(0, postyomi.substr(0, postyomiidx));

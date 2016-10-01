@@ -405,6 +405,7 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 		if(fixed)
 		{
 			_regcomp.clear();
+			_regexcpostyomi.clear();
 			_regtext.insert(_regtextpos, text);
 			_regtextpos += text.size();
 		}
@@ -419,6 +420,18 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 	}
 
 	_Update();
+}
+
+//辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
+void CCandidateWindow::_SetTextExcludedPostyomi(const std::wstring &text)
+{
+	if(_pCandidateWindow != nullptr && !_preEnd)
+	{
+		_pCandidateWindow->_SetTextExcludedPostyomi(text);
+		return;
+	}
+
+	_regexcpostyomi.assign(text);
 }
 
 void CCandidateWindow::_GetPrecedingText(std::wstring *text)
