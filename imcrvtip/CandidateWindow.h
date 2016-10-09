@@ -163,7 +163,8 @@ private:
 	size_t candidx_bak;
 	size_t candorgcnt_bak;
 	std::wstring postyomi_bak;
-	size_t postyomiidx_bak;
+	size_t postyomist_bak;
+	size_t postyomied_bak;
 };
 
 #endif //CANDIDATEWINDOW_H

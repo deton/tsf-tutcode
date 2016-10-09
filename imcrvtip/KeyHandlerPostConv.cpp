@@ -10,7 +10,8 @@
 HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo)
 {
 	postyomi.clear();
-	postyomiidx = 0;
+	postyomist = 0;
+	postyomied = 0;
 	postyomiResizing = PYR_NO;
 	//カーソル直前の文字列を取得
 	std::wstring text;
@@ -29,17 +30,36 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		return S_OK;
 	}
 	std::wstring yomi(text);
+	postyomied = yomi.size();
 	if(isKatuyo)
 	{
 		//TODO:読みに含まれる語尾を―に置き換えて変換
 		yomi.append(L"―");
 	}
-	postyomi.assign(yomi); //読みを縮めながら検索するために使用
+	postyomi = yomi; //読みを縮め/伸ばしながら検索するために使用
 	if(count == 0) //文字数指定無しの場合
 	{
 		postyomiResizing = PYR_SHRINKING;
 	}
 	return _ReplacePrecedingText(ec, pContext, text, yomi, postconvctx, TRUE);
+}
+
+//変換対象読みが活用する語かどうか
+bool CTextService::_IsYomiInflection()
+{
+	return (!postyomi.empty() && postyomi[postyomi.size() - 1] == L'―');
+#if 0
+	WCHAR ch;
+	if(okuriidx != 0)
+	{
+		ch = kana[okuriidx];
+	}
+	else
+	{
+		ch = kana[cursoridx - 1];
+	}
+	return (ch == L'―');
+#endif
 }
 
 //後置型交ぜ書き変換用の読みをカーソル直接の文字列から取得する。
@@ -99,6 +119,79 @@ void CTextService::_AcquirePrecedingYomi(ITfContext *pContext, PostConvContext p
 		st = stch;
 	}
 	text->assign(s.substr(st));
+}
+
+/**
+ * 後置型交ぜ書き変換で、読みを縮める
+ * @param [out] yomi 縮めた読み
+ * @return S_OK:縮めることができた場合。E_FAIL:縮められなかった場合
+ */
+HRESULT CTextService::_ShrinkPostMaze(std::wstring *yomi)
+{
+    yomi->clear();
+    if(postyomist >= postyomied)
+    {
+        return E_FAIL;
+    }
+    if(_IsYomiInflection()) //活用する語
+    {
+        size_t curlen = CountMoji(postyomi.substr(postyomist, postyomied - postyomist));
+        //語幹の長さは保持したまま読みを縮める。対象読みを右にずらしたものに
+        //例: 「あおい」に対し、「あお」→「おい」
+        size_t ed = ForwardMoji(postyomi, postyomied, 1);
+        if(ed > postyomied && ed < postyomi.size())
+        {
+            //(postyomi末尾は'―'なのでed==postyomi.size()は不可)
+            size_t st = ForwardMoji(postyomi, postyomist, 1);
+            if(st > postyomist)
+            {
+                postyomist = st;
+                postyomied = ed;
+                yomi->assign(postyomi.substr(st, ed - st));
+                yomi->append(L"―");
+                return S_OK;
+            }
+        }
+        //ずらせない場合、語幹を縮めて、postyomiの最初から試行
+        //例: 「あおい」に対し、「おい」→「あ」
+        if(curlen > 1)
+        {
+            size_t st = 0;
+            ed = ForwardMoji(postyomi, st, curlen - 1);
+            if(ed > st && ed < postyomi.size())
+            {
+                postyomist = st;
+                postyomied = ed;
+                yomi->assign(postyomi.substr(st, ed - st));
+                yomi->append(L"―");
+                return S_OK;
+            }
+        }
+    }
+    else //活用しない語:読みを縮める。例:「あおい」に対して「おい」
+    {
+        size_t st = ForwardMoji(postyomi, postyomist, 1);
+        if(st > postyomist && st < postyomied)
+        {
+            std::wstring s(postyomi.substr(st));
+            if(s != L"―") //活用する語を示すマーカだけ?
+            {
+                postyomist = st;
+                yomi->assign(s);
+                return S_OK;
+            }
+        }
+        else
+        {
+            //活用しない語として変換できなかったので、
+            //活用する語として変換を試みる
+            postyomist = 0;
+            postyomi.append(L"―");
+            yomi->assign(postyomi);
+            return S_OK;
+        }
+    }
+    return E_FAIL;
 }
 
 //後置型カタカナ変換

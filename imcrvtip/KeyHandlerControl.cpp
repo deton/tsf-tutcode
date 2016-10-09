@@ -585,10 +585,16 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 				if(!postyomi.empty()) //文字数指定無しの後置型交ぜ書き変換
 				{
+					if(postyomi[postyomi.size() - 1] == L'―')
+					{
+						//TODO:ユーザが入力した'―'はそのままにする
+						postyomi.erase(postyomi.size() - 1);
+					}
 					kana = postyomi;
 					cursoridx = kana.size();
 					postyomi.clear();
-					postyomiidx = 0;
+					postyomist = 0;
+					postyomied = 0;
 					_HandleCharReturn(ec, pContext);
 				}
 				else
@@ -1026,7 +1032,8 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR ch)
 {
 	postyomi.clear();
-	postyomiidx = 0;
+	postyomist = 0;
+	postyomied = 0;
 	postyomiResizing = PYR_NO;
 	if(abbrevmode && !showentry)
 	{

@@ -46,6 +46,12 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				comptext.append(kana.substr(okuriidx + 1));
 				useraddmode = REQ_USER_ADD_0;
 			}
+			//活用する語の語尾
+			if(_IsYomiInflection() && postyomied < postyomi.size() - 1) //-1:'―'
+			{
+				cchOkuri = (LONG)comptext.size();
+				comptext.append(postyomi.substr(postyomied, postyomi.size() - 1 - postyomied));
+			}
 
 			cchCursor = (LONG)comptext.size();
 
@@ -117,25 +123,22 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			cchCursor = (LONG)comptext.size();
 
 			//読みを縮めながらの後置型交ぜ書き変換。変換可能な候補無し
-			if(postyomiResizing == PYR_SHRINKING && postyomiidx < postyomi.size())
+			if(postyomiResizing == PYR_SHRINKING)
 			{
-				//読みを縮めて交ぜ書き変換
-				size_t st = ForwardMoji(postyomi, postyomiidx, 1);
-				if(st > postyomiidx && st < postyomi.size())
+				std::wstring yomi;
+				if(_ShrinkPostMaze(&yomi) == S_OK)
 				{
-					postyomiidx = st;
-					std::wstring yomi(postyomi.substr(st));
 					_StartConvWithYomi(ec, pContext, yomi);
 					return S_OK;
 				}
 			}
-			else if(postyomiResizing == PYR_EXTENDING && postyomiidx > 0)
+			else if(postyomiResizing == PYR_EXTENDING && postyomist > 0)
 			{
 				//読みを伸ばして交ぜ書き変換
-				size_t st = BackwardMoji(postyomi, postyomiidx, 1);
-				if(st < postyomiidx)
+				size_t st = BackwardMoji(postyomi, postyomist, 1);
+				if(st < postyomist)
 				{
-					postyomiidx = st;
+					postyomist = st;
 					std::wstring yomi(postyomi.substr(st));
 					_StartConvWithYomi(ec, pContext, yomi);
 					return S_OK;
@@ -349,15 +352,16 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
 		//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
-		if(postyomiidx > 0 && fixed)
+		if(postyomist > 0 && fixed)
 		{
 			//読みから外した部分は確定(fixed=TRUEで_SetText())
-			_pCandidateList->_SetText(postyomi.substr(0, postyomiidx), TRUE, wm_none);
-			postyomi.erase(0, postyomiidx);
-			postyomiidx = 0;
+			_pCandidateList->_SetText(postyomi.substr(0, postyomist), TRUE, wm_none);
+			postyomi.erase(0, postyomist);
+			postyomist = 0;
+			postyomied = postyomi.size();
 		}
 		//読み伸ばし/縮め途中で、読みから外した部分は表示用の値を更新する
-		_pCandidateList->_SetTextExcludedPostyomi(postyomi.substr(0, postyomiidx));
+		_pCandidateList->_SetTextExcludedPostyomi(postyomi.substr(0, postyomist));
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
 	}
@@ -389,14 +393,15 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 
 	std::wstring text(comptext);
 	//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
-	if(postyomiidx > 0)
+	if(postyomist > 0)
 	{	//外した部分が表示されるように、textに挿入
-		text.insert(0, postyomi.substr(0, postyomiidx));
-		cchCursor += postyomiidx;
+		text.insert(0, postyomi.substr(0, postyomist));
+		cchCursor += (LONG)postyomist;
 		//確定時の後始末(しないと以降の入力で常にpostyomiが付いてしまう)
 		if(fixed)
 		{
-			postyomiidx = 0;
+			postyomist = 0;
+			postyomied = 0;
 			postyomi.clear();
 		}
 	}

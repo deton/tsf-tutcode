@@ -851,7 +851,8 @@ void CCandidateWindow::_BackUpStatus()
 	candidx_bak = _pTextService->candidx;
 	candorgcnt_bak = _pTextService->candorgcnt;
 	postyomi_bak = _pTextService->postyomi;
-	postyomiidx_bak = _pTextService->postyomiidx;
+	postyomist_bak = _pTextService->postyomist;
+	postyomied_bak = _pTextService->postyomied;
 }
 
 void CCandidateWindow::_ClearStatus()
@@ -867,7 +868,8 @@ void CCandidateWindow::_ClearStatus()
 	_pTextService->candidx = 0;
 	_pTextService->candorgcnt = 0;
 	_pTextService->postyomi.clear();
-	_pTextService->postyomiidx = 0;
+	_pTextService->postyomist = 0;
+	_pTextService->postyomied = 0;
 	_pTextService->showcandlist = FALSE;
 	_pTextService->showentry = FALSE;
 	_pTextService->inputkey = FALSE;
@@ -887,7 +889,8 @@ void CCandidateWindow::_RestoreStatusReg()
 	_pTextService->candidx = candidx_bak;
 	_pTextService->candorgcnt = candorgcnt_bak;
 	_pTextService->postyomi = postyomi_bak;
-	_pTextService->postyomiidx = postyomiidx_bak;
+	_pTextService->postyomist = postyomist_bak;
+	_pTextService->postyomied = postyomied_bak;
 	_pTextService->showcandlist = TRUE;
 	_pTextService->showentry = TRUE;
 	_pTextService->inputkey = TRUE;
@@ -906,7 +909,8 @@ void CCandidateWindow::_ClearStatusReg()
 	candidx_bak = 0;
 	candorgcnt_bak = 0;
 	postyomi_bak.clear();
-	postyomiidx_bak = 0;
+	postyomist_bak = 0;
+	postyomied_bak = 0;
 }
 
 void CCandidateWindow::_PreEndReq()

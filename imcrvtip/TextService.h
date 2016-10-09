@@ -195,7 +195,9 @@ public:
 
 	// KeyHandlerPostConv
 	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo);
+	bool _IsYomiInflection();
 	void _AcquirePrecedingYomi(ITfContext *pContext, PostConvContext postconvctx, std::wstring *yomi, size_t count);
+	HRESULT _ShrinkPostMaze(std::wstring *yomi);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
@@ -434,8 +436,11 @@ public:
 	//後置型変換
 	std::wstring postbuf;	//直近に確定した文字列
 	std::wstring prevkata;	//直前の後置型カタカナ変換で変換した文字列
+	//後置型交ぜ書き変換
 	std::wstring postyomi;	//文字数指定無し後置型交ぜ書き変換中の読み。縮め用
-	size_t postyomiidx;		//postyomi中のインデックス。以降が対象の読み
+	size_t postyomist;		//postyomi中で、対象となる読みの開始インデックス
+	//size_t postyomistorg;	//postyomistの開始時値(文字数指定時)。活用する語の伸縮用
+	size_t postyomied;		//postyomi中で、対象となる読みの終了インデックス
 	enum PostYomiResizing
 	{
 		PYR_NO,
