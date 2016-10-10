@@ -27,17 +27,11 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 			}
 			else if(ch == L'<') //読みを伸ばす操作が行われた
 			{
-				if(postyomist > 0)
+				std::wstring yomi;
+				if(_ExtendPostMaze(&yomi) == S_OK)
 				{
-					//読みを伸ばして交ぜ書き変換
-					size_t st = BackwardMoji(postyomi, postyomist, 1);
-					if(st < postyomist)
-					{
-						postyomist = st;
-						postyomiResizing = PYR_EXTENDING;
-						std::wstring yomi(postyomi.substr(st));
-						_StartConvWithYomi(ec, pContext, yomi);
-					}
+					postyomiResizing = PYR_EXTENDING;
+					_StartConvWithYomi(ec, pContext, yomi);
 				}
 				return S_OK;
 			}

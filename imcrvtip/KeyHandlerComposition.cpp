@@ -122,7 +122,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 			cchCursor = (LONG)comptext.size();
 
-			//読みを縮めながらの後置型交ぜ書き変換。変換可能な候補無し
+			//読みを縮め/伸ばしながらの後置型交ぜ書き変換。変換可能な候補無し時
 			if(postyomiResizing == PYR_SHRINKING)
 			{
 				std::wstring yomi;
@@ -132,14 +132,11 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 					return S_OK;
 				}
 			}
-			else if(postyomiResizing == PYR_EXTENDING && postyomist > 0)
+			else if(postyomiResizing == PYR_EXTENDING)
 			{
-				//読みを伸ばして交ぜ書き変換
-				size_t st = BackwardMoji(postyomi, postyomist, 1);
-				if(st < postyomist)
+				std::wstring yomi;
+				if(_ExtendPostMaze(&yomi) == S_OK)
 				{
-					postyomist = st;
-					std::wstring yomi(postyomi.substr(st));
 					_StartConvWithYomi(ec, pContext, yomi);
 					return S_OK;
 				}

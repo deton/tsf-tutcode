@@ -198,6 +198,7 @@ public:
 	bool _IsYomiInflection();
 	void _AcquirePrecedingYomi(ITfContext *pContext, PostConvContext postconvctx, std::wstring *yomi, size_t count);
 	HRESULT _ShrinkPostMaze(std::wstring *yomi);
+	HRESULT _ExtendPostMaze(std::wstring *yomi);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);

@@ -135,7 +135,6 @@ HRESULT CTextService::_ShrinkPostMaze(std::wstring *yomi)
     }
     if(_IsYomiInflection()) //活用する語
     {
-        size_t curlen = CountMoji(postyomi.substr(postyomist, postyomied - postyomist));
         //語幹の長さは保持したまま読みを縮める。対象読みを右にずらしたものに
         //例: 「あおい」に対し、「あお」→「おい」
         size_t ed = ForwardMoji(postyomi, postyomied, 1);
@@ -152,6 +151,7 @@ HRESULT CTextService::_ShrinkPostMaze(std::wstring *yomi)
                 return S_OK;
             }
         }
+        size_t curlen = CountMoji(postyomi.substr(postyomist, postyomied - postyomist));
         //ずらせない場合、語幹を縮めて、postyomiの最初から試行
         //例: 「あおい」に対し、「おい」→「あ」
         if(curlen > 1)
@@ -188,6 +188,79 @@ HRESULT CTextService::_ShrinkPostMaze(std::wstring *yomi)
             postyomist = 0;
             postyomi.append(L"―");
             yomi->assign(postyomi);
+            return S_OK;
+        }
+    }
+    return E_FAIL;
+}
+
+/**
+ * 後置型交ぜ書き変換で、読みを伸ばす
+ * @param [out] yomi 伸ばした読み
+ * @return S_OK:伸ばすことができた場合。E_FAIL:伸ばせなかった場合
+ */
+HRESULT CTextService::_ExtendPostMaze(std::wstring *yomi)
+{
+    yomi->clear();
+    if(_IsYomiInflection()) //活用する語
+    {
+        //語幹の長さは保持したまま読みを伸ばす。対象読みを左にずらしたものに
+        //例: 「あおい」に対し、「おい」→「あお」
+        size_t st = BackwardMoji(postyomi, postyomist, 1);
+        if(st < postyomist)
+        {
+            size_t ed = BackwardMoji(postyomi, postyomied, 1);
+            if(ed < postyomied)
+            {
+                postyomist = st;
+                postyomied = ed;
+                yomi->assign(postyomi.substr(st, ed - st));
+                yomi->append(L"―");
+                return S_OK;
+            }
+        }
+        size_t alllen = CountMoji(postyomi) - 1;//-1:'―'
+        size_t curlen = CountMoji(postyomi.substr(postyomist, postyomied - postyomist));
+        //ずらせない場合、語幹を伸ばして、postyomiの末尾から試行
+        //例: 「あおい」に対し、「あ」→「おい」
+        if(curlen < alllen)
+        {
+            size_t ed = postyomi.size() - 1; //-1:'―'
+            st = BackwardMoji(postyomi, ed, curlen + 1);
+            if(st < ed)
+            {
+                postyomist = st;
+                postyomied = ed;
+                yomi->assign(postyomi.substr(st, ed - st));
+                yomi->append(L"―");
+                return S_OK;
+            }
+        }
+        else
+        {
+            //さらに伸ばす場合、活用しない語として変換を試みる
+            postyomi.erase(postyomi.size() - 1);
+            postyomied = postyomi.size();
+            st = BackwardMoji(postyomi, postyomied, 1);
+            if(st < postyomied)
+            {
+                postyomist = st;
+                yomi->assign(postyomi.substr(st, postyomied - st));
+                return S_OK;
+            }
+        }
+    }
+    else //活用しない語:読みを伸ばす。例:「あおい」に対して、「い」→「おい」
+    {
+        if(postyomist == 0)
+        {
+            return E_FAIL;
+        }
+        size_t st = BackwardMoji(postyomi, postyomist, 1);
+        if(st < postyomist)
+        {
+            postyomist = st;
+            yomi->assign(postyomi.substr(st));
             return S_OK;
         }
     }
