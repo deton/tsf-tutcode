@@ -6,6 +6,8 @@
 #include "mozc/win32/base/input_state.h"
 #include "moji.h"
 
+const int MAX_SUFFIX = 4; //活用語尾の最大文字数 TODO:imtutcnfで設定可能にする
+
 //後置型交ぜ書き変換
 HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo)
 {
@@ -156,8 +158,16 @@ HRESULT CTextService::_ShrinkPostMaze(std::wstring *yomi)
         //例: 「あおい」に対し、「おい」→「あ」
         if(curlen > 1)
         {
+            size_t alllen = CountMoji(postyomi) - 1; //-1:'―'
+            size_t newlen = curlen - 1;
             size_t st = 0;
-            ed = ForwardMoji(postyomi, st, curlen - 1);
+            //語尾が長くなりすぎて、余分な候補が表示されるのを回避
+            if(alllen - newlen > MAX_SUFFIX)
+            {
+                size_t n = alllen - newlen - MAX_SUFFIX;
+                st = ForwardMoji(postyomi, st, n);
+            }
+            ed = ForwardMoji(postyomi, st, newlen);
             if(ed > st && ed < postyomi.size())
             {
                 postyomist = st;
@@ -181,15 +191,12 @@ HRESULT CTextService::_ShrinkPostMaze(std::wstring *yomi)
                 return S_OK;
             }
         }
-        else
-        {
-            //活用しない語として変換できなかったので、
-            //活用する語として変換を試みる
-            postyomist = 0;
-            postyomi.append(L"―");
-            yomi->assign(postyomi);
-            return S_OK;
-        }
+        //活用しない語として変換できなかったので、
+        //活用する語として変換を試みる
+        postyomist = 0;
+        postyomi.append(L"―");
+        yomi->assign(postyomi);
+        return S_OK;
     }
     return E_FAIL;
 }
@@ -204,19 +211,24 @@ HRESULT CTextService::_ExtendPostMaze(std::wstring *yomi)
     yomi->clear();
     if(_IsYomiInflection()) //活用する語
     {
-        //語幹の長さは保持したまま読みを伸ばす。対象読みを左にずらしたものに
-        //例: 「あおい」に対し、「おい」→「あお」
-        size_t st = BackwardMoji(postyomi, postyomist, 1);
-        if(st < postyomist)
+        size_t suffixlen = CountMoji(postyomi.substr(postyomied)) - 1;//-1:'―'
+        //語尾を長くしすぎて、余分な候補が表示されるのを回避
+        if(suffixlen < MAX_SUFFIX)
         {
-            size_t ed = BackwardMoji(postyomi, postyomied, 1);
-            if(ed < postyomied)
+            //語幹の長さは保持したまま読みを伸ばす。対象読みを左にずらしたものに
+            //例: 「あおい」に対し、「おい」→「あお」
+            size_t st = BackwardMoji(postyomi, postyomist, 1);
+            if(st < postyomist)
             {
-                postyomist = st;
-                postyomied = ed;
-                yomi->assign(postyomi.substr(st, ed - st));
-                yomi->append(L"―");
-                return S_OK;
+                size_t ed = BackwardMoji(postyomi, postyomied, 1);
+                if(ed < postyomied)
+                {
+                    postyomist = st;
+                    postyomied = ed;
+                    yomi->assign(postyomi.substr(st, ed - st));
+                    yomi->append(L"―");
+                    return S_OK;
+                }
             }
         }
         size_t alllen = CountMoji(postyomi) - 1;//-1:'―'
@@ -226,7 +238,7 @@ HRESULT CTextService::_ExtendPostMaze(std::wstring *yomi)
         if(curlen < alllen)
         {
             size_t ed = postyomi.size() - 1; //-1:'―'
-            st = BackwardMoji(postyomi, ed, curlen + 1);
+            size_t st = BackwardMoji(postyomi, ed, curlen + 1);
             if(st < ed)
             {
                 postyomist = st;
@@ -236,18 +248,15 @@ HRESULT CTextService::_ExtendPostMaze(std::wstring *yomi)
                 return S_OK;
             }
         }
-        else
+        //さらに伸ばす場合、活用しない語として変換を試みる
+        postyomi.erase(postyomi.size() - 1);
+        postyomied = postyomi.size();
+        size_t st = BackwardMoji(postyomi, postyomied, 1);
+        if(st < postyomied)
         {
-            //さらに伸ばす場合、活用しない語として変換を試みる
-            postyomi.erase(postyomi.size() - 1);
-            postyomied = postyomi.size();
-            st = BackwardMoji(postyomi, postyomied, 1);
-            if(st < postyomied)
-            {
-                postyomist = st;
-                yomi->assign(postyomi.substr(st, postyomied - st));
-                return S_OK;
-            }
+            postyomist = st;
+            yomi->assign(postyomi.substr(st, postyomied - st));
+            return S_OK;
         }
     }
     else //活用しない語:読みを伸ばす。例:「あおい」に対して、「い」→「おい」
