@@ -47,10 +47,11 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				useraddmode = REQ_USER_ADD_0;
 			}
 			//活用する語の語尾
-			if(_IsYomiInflection() && postyomied < postyomi.size() - 1) //-1:'―'
+			std::wstring gobi;
+			if(postmazeContext.GetGobi(&gobi))
 			{
 				cchOkuri = (LONG)comptext.size();
-				comptext.append(postyomi.substr(postyomied, postyomi.size() - 1 - postyomied));
+				comptext.append(gobi);
 			}
 
 			cchCursor = (LONG)comptext.size();
@@ -123,23 +124,11 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			cchCursor = (LONG)comptext.size();
 
 			//読みを縮め/伸ばしながらの後置型交ぜ書き変換。変換可能な候補無し時
-			if(postyomiResizing == PYR_SHRINKING)
+			std::wstring yomi;
+			if(postmazeContext.Resize(&yomi))
 			{
-				std::wstring yomi;
-				if(_ShrinkPostMaze(&yomi) == S_OK)
-				{
-					_StartConvWithYomi(ec, pContext, yomi);
-					return S_OK;
-				}
-			}
-			else if(postyomiResizing == PYR_EXTENDING)
-			{
-				std::wstring yomi;
-				if(_ExtendPostMaze(&yomi) == S_OK)
-				{
-					_StartConvWithYomi(ec, pContext, yomi);
-					return S_OK;
-				}
+				_StartConvWithYomi(ec, pContext, yomi);
+				return S_OK;
 			}
 
 			if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
@@ -323,7 +312,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	}
 
 	_EndInputModeWindow();
-	postyomiResizing = PYR_NO;
+	postmazeContext.EndResizing();
 
 	if(inputkey && !fixed && !showcandlist && showentry &&
 		(((cx_untilcandlist != 1) && (candidx + 1 == cx_untilcandlist)) || (cx_untilcandlist == 1)) &&
@@ -349,16 +338,16 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
 		//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
-		if(postyomist > 0 && fixed)
+		std::wstring excluded;
+		if(postmazeContext.GetExcluded(&excluded) && fixed)
 		{
 			//読みから外した部分は確定(fixed=TRUEで_SetText())
-			_pCandidateList->_SetText(postyomi.substr(0, postyomist), TRUE, wm_none);
-			postyomi.erase(0, postyomist);
-			postyomist = 0;
-			postyomied = postyomi.size();
+			_pCandidateList->_SetText(excluded, TRUE, wm_none);
+			postmazeContext.EraseExcluded();
+			excluded.clear();
 		}
 		//読み伸ばし/縮め途中で、読みから外した部分は表示用の値を更新する
-		_pCandidateList->_SetTextExcludedPostyomi(postyomi.substr(0, postyomist));
+		_pCandidateList->_SetTextExcludedPostyomi(excluded);
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
 	}
@@ -390,16 +379,15 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 
 	std::wstring text(comptext);
 	//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
-	if(postyomist > 0)
+	std::wstring excluded;
+	if(postmazeContext.GetExcluded(&excluded))
 	{	//外した部分が表示されるように、textに挿入
-		text.insert(0, postyomi.substr(0, postyomist));
-		cchCursor += (LONG)postyomist;
+		text.insert(0, excluded);
+		cchCursor += (LONG)excluded.size();
 		//確定時の後始末(しないと以降の入力で常にpostyomiが付いてしまう)
 		if(fixed)
 		{
-			postyomist = 0;
-			postyomied = 0;
-			postyomi.clear();
+			postmazeContext.Deactivate();
 		}
 	}
 

@@ -162,9 +162,7 @@ private:
 	CANDIDATES candidates_bak;
 	size_t candidx_bak;
 	size_t candorgcnt_bak;
-	std::wstring postyomi_bak;
-	size_t postyomist_bak;
-	size_t postyomied_bak;
+	CPostMazeContext postmazeContext_bak;
 };
 
 #endif //CANDIDATEWINDOW_H

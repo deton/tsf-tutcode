@@ -7,6 +7,7 @@
 #include "parseskkdic.h"
 #include "configxml.h"
 #include "mozc/win32/base/deleter.h"
+#include "PostMazeContext.h"
 
 class CLangBarItemButton;
 class CCandidateList;
@@ -195,10 +196,7 @@ public:
 
 	// KeyHandlerPostConv
 	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo);
-	bool _IsYomiInflection();
 	void _AcquirePrecedingYomi(ITfContext *pContext, PostConvContext postconvctx, std::wstring *yomi, size_t count);
-	HRESULT _ShrinkPostMaze(std::wstring *yomi);
-	HRESULT _ExtendPostMaze(std::wstring *yomi);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
@@ -437,18 +435,7 @@ public:
 	//後置型変換
 	std::wstring postbuf;	//直近に確定した文字列
 	std::wstring prevkata;	//直前の後置型カタカナ変換で変換した文字列
-	//後置型交ぜ書き変換
-	std::wstring postyomi;	//文字数指定無し後置型交ぜ書き変換中の読み。縮め用
-	size_t postyomist;		//postyomi中で、対象となる読みの開始インデックス
-	//size_t postyomistorg;	//postyomistの開始時値(文字数指定時)。活用する語の伸縮用
-	size_t postyomied;		//postyomi中で、対象となる読みの終了インデックス
-	enum PostYomiResizing
-	{
-		PYR_NO,
-		PYR_SHRINKING,
-		PYR_EXTENDING,
-	};
-	PostYomiResizing postyomiResizing;	//読みを縮め/伸ばしながらの変換試行中かどうか
+	CPostMazeContext postmazeContext; //後置型交ぜ書き変換状態
 
 	//候補一覧選択キー
 	WCHAR selkey[MAX_SELKEY_C][2][2];

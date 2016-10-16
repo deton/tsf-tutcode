@@ -13,14 +13,13 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 	if(showentry)
 	{
 		//後置型交ぜ書き変換の候補表示時
-		if(postyomi.size() > 0)
+		if(postmazeContext.IsActive())
 		{
 			if(ch == L'>') //読みを縮める操作が行われた
 			{
 				std::wstring yomi;
-				if(_ShrinkPostMaze(&yomi) == S_OK)
+				if(postmazeContext.Shrink(&yomi))
 				{
-					postyomiResizing = PYR_SHRINKING;
 					_StartConvWithYomi(ec, pContext, yomi);
 				}
 				return S_OK;
@@ -28,9 +27,8 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 			else if(ch == L'<') //読みを伸ばす操作が行われた
 			{
 				std::wstring yomi;
-				if(_ExtendPostMaze(&yomi) == S_OK)
+				if(postmazeContext.Extend(&yomi))
 				{
-					postyomiResizing = PYR_EXTENDING;
 					_StartConvWithYomi(ec, pContext, yomi);
 				}
 				return S_OK;

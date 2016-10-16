@@ -223,6 +223,7 @@ ver &gt; nul</Command>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TextService.h" />
     <ClInclude Include="VKeyboardWindow.h" />
+    <ClInclude Include="PostMazeContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CandidateKeyHandler.cpp" />
@@ -271,6 +272,7 @@ ver &gt; nul</Command>
     <ClCompile Include="ThreadFocusSink.cpp" />
     <ClCompile Include="ThreadMgrEventSink.cpp" />
     <ClCompile Include="VKeyboardWindow.cpp" />
+    <ClCompile Include="PostMazeContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imcrvtip.def" />

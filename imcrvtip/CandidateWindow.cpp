@@ -441,9 +441,7 @@ void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 		_pCandidateWindow->_GetPrecedingText(text);
 		return;
 	}
-
-	text->clear();
-	text->append(_regtext.substr(0, _regtextpos));
+	text->assign(_regtext, 0, _regtextpos);
 }
 
 void CCandidateWindow::_DeletePrecedingText(size_t delete_count)
@@ -850,9 +848,7 @@ void CCandidateWindow::_BackUpStatus()
 	candidates_bak = _pTextService->candidates;
 	candidx_bak = _pTextService->candidx;
 	candorgcnt_bak = _pTextService->candorgcnt;
-	postyomi_bak = _pTextService->postyomi;
-	postyomist_bak = _pTextService->postyomist;
-	postyomied_bak = _pTextService->postyomied;
+	postmazeContext_bak = _pTextService->postmazeContext;
 }
 
 void CCandidateWindow::_ClearStatus()
@@ -867,9 +863,7 @@ void CCandidateWindow::_ClearStatus()
 	_pTextService->candidates.clear();
 	_pTextService->candidx = 0;
 	_pTextService->candorgcnt = 0;
-	_pTextService->postyomi.clear();
-	_pTextService->postyomist = 0;
-	_pTextService->postyomied = 0;
+	_pTextService->postmazeContext.Deactivate();
 	_pTextService->showcandlist = FALSE;
 	_pTextService->showentry = FALSE;
 	_pTextService->inputkey = FALSE;
@@ -888,9 +882,7 @@ void CCandidateWindow::_RestoreStatusReg()
 	_pTextService->candidates = candidates_bak;
 	_pTextService->candidx = candidx_bak;
 	_pTextService->candorgcnt = candorgcnt_bak;
-	_pTextService->postyomi = postyomi_bak;
-	_pTextService->postyomist = postyomist_bak;
-	_pTextService->postyomied = postyomied_bak;
+	_pTextService->postmazeContext = postmazeContext_bak;
 	_pTextService->showcandlist = TRUE;
 	_pTextService->showentry = TRUE;
 	_pTextService->inputkey = TRUE;
@@ -908,9 +900,7 @@ void CCandidateWindow::_ClearStatusReg()
 	candidates_bak.clear();
 	candidx_bak = 0;
 	candorgcnt_bak = 0;
-	postyomi_bak.clear();
-	postyomist_bak = 0;
-	postyomied_bak = 0;
+	postmazeContext_bak.Deactivate();
 }
 
 void CCandidateWindow::_PreEndReq()
