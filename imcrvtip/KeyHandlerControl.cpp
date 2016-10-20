@@ -1103,15 +1103,21 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	//後置型交ぜ書き変換
 	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 	{
-		int offset = 4;
-		BOOL isKatuyo = FALSE;
-		if(rkc.hiragana[4] == L'K')
-		{
-			offset = 5;
-			isKatuyo = TRUE;
-		}
 		if(postconvctx != PCC_COMPOSITION)
 		{
+			int offset = 4;
+			bool isKatuyo = false;
+			bool resizeWithInflection = true;
+			if(rkc.hiragana[4] == L'K')
+			{
+				offset = 5;
+				isKatuyo = true;
+			}
+			else if(rkc.hiragana[4] == L'k')
+			{
+				offset = 5;
+				resizeWithInflection = false;
+			}
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
 			//は未対応。候補表示等の制御が面倒なので。
 			int count = _wtoi(rkc.hiragana + offset);
@@ -1119,7 +1125,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 			{
 				count = 1;
 			}
-			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo);
+			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo, resizeWithInflection);
 		}
 		else
 		{

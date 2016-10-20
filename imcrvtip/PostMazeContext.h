@@ -12,7 +12,7 @@ public:
 	//XXX:コピー代入演算子は自動生成されるものでOK
 	//CPostMazeContext& operator=(const CPostMazeContext& from);
 
-	void Activate(const std::wstring yomi, bool isKatuyo, bool startResizing);
+	void Activate(const std::wstring& yomi, bool isKatuyo, bool startResizing, bool resizeWithInflection);
 	void Deactivate();
 	bool IsActive();
 	void EndResizing();
@@ -37,4 +37,6 @@ private:
 		PYR_EXTENDING,
 	};
 	PostYomiResizing postyomiResizing;	//読みを縮め/伸ばしながらの変換試行中かどうか
+	/** 活用しない語を縮めた時に、活用する語としての変換を試みる(逆も) */
+	bool resizeWithInflection;
 };

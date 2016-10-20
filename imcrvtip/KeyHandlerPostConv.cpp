@@ -6,8 +6,12 @@
 #include "mozc/win32/base/input_state.h"
 #include "moji.h"
 
-//後置型交ぜ書き変換
-HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo)
+/**
+ * 後置型交ぜ書き変換を開始する
+ * @param isKatuyo 活用する語として変換を開始するか
+ * @param resizeWithInflection 活用しない語を縮めた時に、活用する語としての変換を試みるか
+ */
+HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, bool isKatuyo, bool resizeWithInflection)
 {
 	postmazeContext.Deactivate();
 	//カーソル直前の文字列を取得
@@ -28,7 +32,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 	}
 	std::wstring yomi(text);
 	//count==0:文字数指定無しの場合は縮めながら変換
-	postmazeContext.Activate(yomi, (isKatuyo == TRUE), (count == 0));
+	postmazeContext.Activate(yomi, isKatuyo, (count == 0), resizeWithInflection);
 	if(isKatuyo)
 	{
 		//TODO:読みに含まれる語尾を―に置き換えて変換
