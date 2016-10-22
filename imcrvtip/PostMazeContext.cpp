@@ -1,8 +1,35 @@
 ﻿
+/* MIT License
+Copyright (c) 2016 KIHARA, Hideto
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #include "PostMazeContext.h"
 #include "moji.h"
 
 const int MAX_SUFFIX = 4; //活用語尾の最大文字数 TODO:imtutcnfで設定可能にする
+/**
+ * 活用する語の読みに付加する文字。
+ * 交ぜ書き変換辞書の読みには、活用する語はこの文字付きで登録されている。
+ */
+const std::wstring STR_INFLECTION_MARK = L"―";
+const wchar_t     CHAR_INFLECTION_MARK = L'―';
 
 CPostMazeContext::CPostMazeContext()
 {
@@ -23,24 +50,22 @@ void CPostMazeContext::Deactivate()
 	postyomied = 0;
 	postyomiResizing = PYR_NO;
 	resizeWithInflection = false;
+	isInflection = false;
 }
 
 /**
  * 後置型交ぜ書き変換状態を有効化
  * @param yomi 読み
- * @param isKatuyo 活用する語として変換を開始するか
+ * @param _isInflection 活用する語として変換を開始するか
  * @param startResizing yomiが変換できなかった場合、縮めながらの変換を試みるか
  * @param _resizeWithInflection 活用しない語を縮めた時に、活用する語としての変換を試みるか
  */
-void CPostMazeContext::Activate(const std::wstring& yomi, bool isKatuyo, bool startResizing, bool _resizeWithInflection)
+void CPostMazeContext::Activate(const std::wstring& yomi, bool _isInflection, bool startResizing, bool _resizeWithInflection)
 {
 	postyomi.assign(yomi);
 	postyomist = 0;
 	postyomied = postyomi.size();
-	if(isKatuyo)
-	{
-		postyomi.append(L"―");
-	}
+	isInflection = _isInflection;
 	if(startResizing) 
 	{
 		postyomiResizing = PYR_SHRINKING;
@@ -70,27 +95,24 @@ void CPostMazeContext::EndResizing()
  */
 bool CPostMazeContext::IsYomiInflection()
 {
-	return (IsActive() && postyomi[postyomi.size() - 1] == L'―');
+	return (IsActive() && isInflection);
 }
 
 /**
  * 読みを取得する
+ * @param withInflection 活用する語の場合、活用する語を示す「―」を付けるかどうか
  * @param [out] yomi 読み
  * @return true:読みがあった(=IsActive())場合。false:読みが無い場合
  */
-bool CPostMazeContext::GetYomi(std::wstring *yomi)
+bool CPostMazeContext::GetYomi(bool withInflection, std::wstring *yomi)
 {
 	yomi->clear();
 	if(IsActive())
 	{
-		if(postyomi[postyomi.size() - 1] == L'―')
+		yomi->assign(postyomi);
+		if(withInflection && isInflection)
 		{
-			//TODO:ユーザが入力した'―'はそのままにする
-			yomi->assign(postyomi, 0, postyomi.size() - 1);
-		}
-		else
-		{
-			yomi->assign(postyomi);
+			yomi->append(STR_INFLECTION_MARK);
 		}
 		return true;
 	}
@@ -105,9 +127,9 @@ bool CPostMazeContext::GetYomi(std::wstring *yomi)
 bool CPostMazeContext::GetGobi(std::wstring *gobi)
 {
 	gobi->clear();
-	if(IsYomiInflection() && postyomied < postyomi.size() - 1) //-1:'―'
+	if(IsYomiInflection() && postyomied < postyomi.size())
 	{
-		gobi->assign(postyomi, postyomied, postyomi.size() - 1 - postyomied);
+		gobi->assign(postyomi, postyomied, postyomi.size() - postyomied);
 		return true;
 	}
 	return false;
@@ -175,16 +197,15 @@ bool CPostMazeContext::Shrink(std::wstring *yomi)
 		//語幹の長さは保持したまま読みを縮める。対象読みを右にずらしたものに
 		//例: 「あおい」に対し、「あお」→「おい」
 		size_t ed = ForwardMoji(postyomi, postyomied, 1);
-		if(ed > postyomied && ed < postyomi.size())
+		if(ed > postyomied)
 		{
-			//(postyomi末尾は'―'なのでed==postyomi.size()は不可)
 			size_t st = ForwardMoji(postyomi, postyomist, 1);
 			if(st > postyomist)
 			{
 				postyomist = st;
 				postyomied = ed;
 				yomi->assign(postyomi, st, ed - st);
-				yomi->append(L"―");
+				yomi->append(STR_INFLECTION_MARK);
 				postyomiResizing = PYR_SHRINKING;
 				return true;
 			}
@@ -194,7 +215,7 @@ bool CPostMazeContext::Shrink(std::wstring *yomi)
 		//例: 「あおい」に対し、「おい」→「あ」
 		if(curlen > 1)
 		{
-			size_t alllen = CountMoji(postyomi) - 1; //-1:'―'
+			size_t alllen = CountMoji(postyomi);
 			size_t newlen = curlen - 1;
 			size_t st = 0;
 			//語尾が長くなりすぎて、余分な候補が表示されるのを回避
@@ -204,12 +225,12 @@ bool CPostMazeContext::Shrink(std::wstring *yomi)
 				st = ForwardMoji(postyomi, st, n);
 			}
 			ed = ForwardMoji(postyomi, st, newlen);
-			if(ed > st && ed < postyomi.size())
+			if(ed > st)
 			{
 				postyomist = st;
 				postyomied = ed;
 				yomi->assign(postyomi, st, ed - st);
-				yomi->append(L"―");
+				yomi->append(STR_INFLECTION_MARK);
 				postyomiResizing = PYR_SHRINKING;
 				return true;
 			}
@@ -221,7 +242,7 @@ bool CPostMazeContext::Shrink(std::wstring *yomi)
 		if(st > postyomist && st < postyomied)
 		{
 			std::wstring s(postyomi.substr(st));
-			if(s != L"―") //活用する語を示すマーカだけ?
+			if(s != STR_INFLECTION_MARK) //活用する語を示すマーカだけでない?
 			{
 				postyomist = st;
 				yomi->assign(s);
@@ -229,13 +250,15 @@ bool CPostMazeContext::Shrink(std::wstring *yomi)
 				return true;
 			}
 		}
-		if(resizeWithInflection)
+		//活用しない語として変換できなかったので、活用する語として変換を試みる。
+		//(ユーザが入力した'―'がある場合は、
+		//既に活用する語として変換試行済。2重に'―'は付けない)
+		if(resizeWithInflection && postyomi[postyomi.size() - 1] != CHAR_INFLECTION_MARK)
 		{
-			//活用しない語として変換できなかったので、
-			//活用する語として変換を試みる
 			postyomist = 0;
-			postyomi.append(L"―");
+			isInflection = true;
 			yomi->assign(postyomi);
+			yomi->append(STR_INFLECTION_MARK);
 			postyomiResizing = PYR_SHRINKING;
 			return true;
 		}
@@ -253,7 +276,7 @@ bool CPostMazeContext::Extend(std::wstring *yomi)
 	yomi->clear();
 	if(IsYomiInflection()) //活用する語
 	{
-		size_t suffixlen = CountMoji(postyomi.substr(postyomied)) - 1;//-1:'―'
+		size_t suffixlen = CountMoji(postyomi.substr(postyomied));
 		//語尾を長くしすぎて、余分な候補が表示されるのを回避
 		if(suffixlen < MAX_SUFFIX)
 		{
@@ -268,26 +291,26 @@ bool CPostMazeContext::Extend(std::wstring *yomi)
 					postyomist = st;
 					postyomied = ed;
 					yomi->assign(postyomi, st, ed - st);
-					yomi->append(L"―");
+					yomi->append(STR_INFLECTION_MARK);
 					postyomiResizing = PYR_EXTENDING;
 					return true;
 				}
 			}
 		}
-		size_t alllen = CountMoji(postyomi) - 1;//-1:'―'
+		size_t alllen = CountMoji(postyomi);
 		size_t curlen = CountMoji(postyomi.substr(postyomist, postyomied - postyomist));
 		//ずらせない場合、語幹を伸ばして、postyomiの末尾から試行
 		//例: 「あおい」に対し、「あ」→「おい」
 		if(curlen < alllen)
 		{
-			size_t ed = postyomi.size() - 1; //-1:'―'
+			size_t ed = postyomi.size();
 			size_t st = BackwardMoji(postyomi, ed, curlen + 1);
 			if(st < ed)
 			{
 				postyomist = st;
 				postyomied = ed;
 				yomi->assign(postyomi, st, ed - st);
-				yomi->append(L"―");
+				yomi->append(STR_INFLECTION_MARK);
 				postyomiResizing = PYR_EXTENDING;
 				return true;
 			}
@@ -295,7 +318,7 @@ bool CPostMazeContext::Extend(std::wstring *yomi)
 		if(resizeWithInflection)
 		{
 			//さらに伸ばす場合、活用しない語として変換を試みる
-			postyomi.erase(postyomi.size() - 1);
+			isInflection = false;
 			postyomied = postyomi.size();
 			size_t st = BackwardMoji(postyomi, postyomied, 1);
 			if(st < postyomied)

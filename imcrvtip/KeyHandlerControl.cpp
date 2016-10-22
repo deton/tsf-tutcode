@@ -584,7 +584,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				}
 
 				std::wstring yomi;
-				if(postmazeContext.GetYomi(&yomi)) //後置型交ぜ書き変換
+				if(postmazeContext.GetYomi(false, &yomi)) //後置型交ぜ書き変換
 				{
 					kana = yomi;
 					cursoridx = kana.size();

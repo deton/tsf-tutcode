@@ -30,14 +30,10 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 		}
 		return S_OK;
 	}
-	std::wstring yomi(text);
 	//count==0:文字数指定無しの場合は縮めながら変換
-	postmazeContext.Activate(yomi, isKatuyo, (count == 0), resizeWithInflection);
-	if(isKatuyo)
-	{
-		//TODO:読みに含まれる語尾を―に置き換えて変換
-		yomi.append(L"―");
-	}
+	postmazeContext.Activate(text, isKatuyo, (count == 0), resizeWithInflection);
+	std::wstring yomi;
+	postmazeContext.GetYomi(true, &yomi);
 	return _ReplacePrecedingText(ec, pContext, text, yomi, postconvctx, TRUE);
 }
 
