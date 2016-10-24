@@ -4,7 +4,7 @@
 
 #include "convtype.h"
 
-#define ROMAN_KANA_TBL_DEF_NUM	3133
+#define ROMAN_KANA_TBL_DEF_NUM	3135
 
 //変換テーブル
 extern const ROMAN_KANA_CONV roman_kana_conv_default[ROMAN_KANA_TBL_DEF_NUM];

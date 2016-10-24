@@ -1,6 +1,7 @@
 ﻿alj	maze	-	-	4
 ald	Bushu	-	-	4
 al?	Help4	-	-	4
+m0	Maze0	-	-	4
 m1	Maze1	-	-	4
 m2	Maze2	-	-	4
 m3	Maze3	-	-	4
@@ -10,6 +11,7 @@ m6	Maze6	-	-	4
 m7	Maze7	-	-	4
 m8	Maze8	-	-	4
 m9	Maze9	-	-	4
+n0	MazeK0	-	-	4
 n1	MazeK1	-	-	4
 n2	MazeK2	-	-	4
 n3	MazeK3	-	-	4

@@ -159,6 +159,7 @@
       <row ro="alj" hi="maze" ka="-" an="-" so="4" />
       <row ro="ald" hi="Bushu" ka="-" an="-" so="4" />
       <row ro="al?" hi="Help4" ka="-" an="-" so="4" />
+      <row ro="m0" hi="Maze0" ka="-" an="-" so="4" />
       <row ro="m1" hi="Maze1" ka="-" an="-" so="4" />
       <row ro="m2" hi="Maze2" ka="-" an="-" so="4" />
       <row ro="m3" hi="Maze3" ka="-" an="-" so="4" />
@@ -168,6 +169,7 @@
       <row ro="m7" hi="Maze7" ka="-" an="-" so="4" />
       <row ro="m8" hi="Maze8" ka="-" an="-" so="4" />
       <row ro="m9" hi="Maze9" ka="-" an="-" so="4" />
+      <row ro="n0" hi="MazeK0" ka="-" an="-" so="4" />
       <row ro="n1" hi="MazeK1" ka="-" an="-" so="4" />
       <row ro="n2" hi="MazeK2" ka="-" an="-" so="4" />
       <row ro="n3" hi="MazeK3" ka="-" an="-" so="4" />
