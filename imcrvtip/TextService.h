@@ -7,6 +7,7 @@
 #include "parseskkdic.h"
 #include "configxml.h"
 #include "mozc/win32/base/deleter.h"
+#include "PostMazeContext.h"
 
 class CLangBarItemButton;
 class CCandidateList;
@@ -194,7 +195,8 @@ public:
 	BOOL _SearchRomanByKana(const ROMAN_KANA_NODE &tree, int srcmode, const WCHAR *src, std::wstring &dst);
 
 	// KeyHandlerPostConv
-	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, BOOL isKatuyo);
+	HRESULT _HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, bool isKatuyo, bool resizeWithInflection);
+	void _AcquirePrecedingYomi(ITfContext *pContext, PostConvContext postconvctx, std::wstring *yomi, size_t count);
 	HRESULT _HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostKataShrink(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx);
 	HRESULT _HandlePostBushu(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx);
@@ -430,8 +432,10 @@ public:
 
 	size_t cursoridx;		//カーソルインデックス
 
+	//後置型変換
 	std::wstring postbuf;	//直近に確定した文字列
 	std::wstring prevkata;	//直前の後置型カタカナ変換で変換した文字列
+	CPostMazeContext postmazeContext; //後置型交ぜ書き変換状態
 
 	//候補一覧選択キー
 	WCHAR selkey[MAX_SELKEY_C][2][2];

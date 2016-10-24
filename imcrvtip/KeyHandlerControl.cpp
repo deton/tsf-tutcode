@@ -583,7 +583,18 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					_EndCompletionList(ec, pContext);
 				}
 
-				_Update(ec, pContext);
+				std::wstring yomi;
+				if(postmazeContext.GetYomi(false, &yomi)) //後置型交ぜ書き変換
+				{
+					kana = yomi;
+					cursoridx = kana.size();
+					postmazeContext.Deactivate();
+					_HandleCharReturn(ec, pContext);
+				}
+				else
+				{
+					_Update(ec, pContext);
+				}
 			}
 		}
 		else
@@ -1014,6 +1025,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR ch)
 {
+	postmazeContext.Deactivate();
 	if(abbrevmode && !showentry)
 	{
 		return E_PENDING;
@@ -1091,23 +1103,29 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	//後置型交ぜ書き変換
 	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 	{
-		int offset = 4;
-		BOOL isKatuyo = FALSE;
-		if(rkc.hiragana[4] == L'K')
-		{
-			offset = 5;
-			isKatuyo = TRUE;
-		}
 		if(postconvctx != PCC_COMPOSITION)
 		{
+			int offset = 4;
+			bool isKatuyo = false;
+			bool resizeWithInflection = true;
+			if(rkc.hiragana[4] == L'K')
+			{
+				offset = 5;
+				isKatuyo = true;
+			}
+			else if(rkc.hiragana[4] == L'k')
+			{
+				offset = 5;
+				resizeWithInflection = false;
+			}
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
 			//は未対応。候補表示等の制御が面倒なので。
 			int count = _wtoi(rkc.hiragana + offset);
-			if(count <= 0)
+			if(count < 0) //count=0の場合、なるべく長く読みとみなす
 			{
-				count = 1; //TODO:count=0の場合、なるべく長く読みとみなす
+				count = 1;
 			}
-			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo);
+			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo, resizeWithInflection);
 		}
 		else
 		{

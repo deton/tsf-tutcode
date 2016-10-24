@@ -37,6 +37,8 @@ public:
 	void _InvokeSfHandler(BYTE sf);
 	void _Show(BOOL bShow);
 	void _SetText(const std::wstring &text, BOOL fixed, int mode);
+	//辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
+	void _SetTextExcludedPostyomi(const std::wstring &text);
 	void _GetPrecedingText(std::wstring *text);
 	void _DeletePrecedingText(size_t delete_count);
 	void _Move(LPRECT lpr, TfEditCookie ec = TF_INVALID_EDIT_COOKIE, ITfContext *pContext = nullptr);

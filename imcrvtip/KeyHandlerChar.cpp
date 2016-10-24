@@ -2,6 +2,7 @@
 #include "imcrvtip.h"
 #include "TextService.h"
 #include "CandidateList.h"
+#include "moji.h"
 
 HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, WCHAR ch, WCHAR chO)
 {
@@ -11,6 +12,29 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 
 	if(showentry)
 	{
+		//後置型交ぜ書き変換の候補表示時
+		if(postmazeContext.IsActive())
+		{
+			if(ch == L'>') //読みを縮める操作が行われた
+			{
+				std::wstring yomi;
+				if(postmazeContext.Shrink(&yomi))
+				{
+					_StartConvWithYomi(ec, pContext, yomi);
+				}
+				return S_OK;
+			}
+			else if(ch == L'<') //読みを伸ばす操作が行われた
+			{
+				std::wstring yomi;
+				if(postmazeContext.Extend(&yomi))
+				{
+					_StartConvWithYomi(ec, pContext, yomi);
+				}
+				return S_OK;
+			}
+		}
+
 		_HandleCharShift(ec, pContext);
 	}
 

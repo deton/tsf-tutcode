@@ -51,6 +51,8 @@ public:
 	BOOL _CanShowUIElement();
 	void _Redraw();
 	void _SetText(const std::wstring &text, BOOL fixed, int mode);
+	//辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
+	void _SetTextExcludedPostyomi(const std::wstring &text);
 	void _GetPrecedingText(std::wstring *text);
 	void _DeletePrecedingText(size_t delete_count);
 	void _PreEnd();
@@ -141,6 +143,7 @@ private:
 	std::wstring _regtext;		//確定文字列
 	size_t _regtextpos;			//カーソルインデックス
 	std::wstring _regcomp;		//未確定文字列
+	std::wstring _regexcpostyomi;		//後置型交ぜ書き変換で読みから外した部分
 
 	CANDIDATES candidates;		//描画用候補
 	size_t candidx;				//描画用候補インデックス
@@ -159,6 +162,7 @@ private:
 	CANDIDATES candidates_bak;
 	size_t candidx_bak;
 	size_t candorgcnt_bak;
+	CPostMazeContext postmazeContext_bak;
 };
 
 #endif //CANDIDATEWINDOW_H

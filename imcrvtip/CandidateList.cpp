@@ -493,6 +493,15 @@ void CCandidateList::_SetText(const std::wstring &text, BOOL fixed, int mode)
 	}
 }
 
+//辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
+void CCandidateList::_SetTextExcludedPostyomi(const std::wstring &text)
+{
+	if(_pCandidateWindow != nullptr)
+	{
+		_pCandidateWindow->_SetTextExcludedPostyomi(text);
+	}
+}
+
 void CCandidateList::_GetPrecedingText(std::wstring *text)
 {
 	if(_pCandidateWindow != NULL)

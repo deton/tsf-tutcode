@@ -405,6 +405,7 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 		if(fixed)
 		{
 			_regcomp.clear();
+			_regexcpostyomi.clear();
 			_regtext.insert(_regtextpos, text);
 			_regtextpos += text.size();
 		}
@@ -421,6 +422,18 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 	_Update();
 }
 
+//辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
+void CCandidateWindow::_SetTextExcludedPostyomi(const std::wstring &text)
+{
+	if(_pCandidateWindow != nullptr && !_preEnd)
+	{
+		_pCandidateWindow->_SetTextExcludedPostyomi(text);
+		return;
+	}
+
+	_regexcpostyomi.assign(text);
+}
+
 void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 {
 	if(_pCandidateWindow != NULL && !_preEnd)
@@ -428,9 +441,7 @@ void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 		_pCandidateWindow->_GetPrecedingText(text);
 		return;
 	}
-
-	text->clear();
-	text->append(_regtext.substr(0, _regtextpos));
+	text->assign(_regtext, 0, _regtextpos);
 }
 
 void CCandidateWindow::_DeletePrecedingText(size_t delete_count)
@@ -837,6 +848,7 @@ void CCandidateWindow::_BackUpStatus()
 	candidates_bak = _pTextService->candidates;
 	candidx_bak = _pTextService->candidx;
 	candorgcnt_bak = _pTextService->candorgcnt;
+	postmazeContext_bak = _pTextService->postmazeContext;
 }
 
 void CCandidateWindow::_ClearStatus()
@@ -851,6 +863,7 @@ void CCandidateWindow::_ClearStatus()
 	_pTextService->candidates.clear();
 	_pTextService->candidx = 0;
 	_pTextService->candorgcnt = 0;
+	_pTextService->postmazeContext.Deactivate();
 	_pTextService->showcandlist = FALSE;
 	_pTextService->showentry = FALSE;
 	_pTextService->inputkey = FALSE;
@@ -869,6 +882,7 @@ void CCandidateWindow::_RestoreStatusReg()
 	_pTextService->candidates = candidates_bak;
 	_pTextService->candidx = candidx_bak;
 	_pTextService->candorgcnt = candorgcnt_bak;
+	_pTextService->postmazeContext = postmazeContext_bak;
 	_pTextService->showcandlist = TRUE;
 	_pTextService->showentry = TRUE;
 	_pTextService->inputkey = TRUE;
@@ -886,6 +900,7 @@ void CCandidateWindow::_ClearStatusReg()
 	candidates_bak.clear();
 	candidx_bak = 0;
 	candorgcnt_bak = 0;
+	postmazeContext_bak.Deactivate();
 }
 
 void CCandidateWindow::_PreEndReq()

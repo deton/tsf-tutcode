@@ -256,6 +256,7 @@ std::wstring CCandidateWindow::_MakeRegWordString()
 
 	s.append(_regtext.substr(0, _regtextpos));
 
+	s.append(_regexcpostyomi);
 	s.append(_regcomp + markCursor);
 
 	s.append(_regtext.substr(_regtextpos) + markNBSP);
