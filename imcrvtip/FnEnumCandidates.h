@@ -1,19 +1,22 @@
 ﻿
-#ifndef ENUMDISPLAYATTRIBUTEINFO_H
-#define ENUMDISPLAYATTRIBUTEINFO_H
+#ifndef FNENUMCANDIDATES_H
+#define FNENUMCANDIDATES_H
 
-class CEnumDisplayAttributeInfo : public IEnumTfDisplayAttributeInfo
+#include "FnCandidateString.h"
+
+class CFnEnumCandidates : public IEnumTfCandidates
 {
 public:
-	CEnumDisplayAttributeInfo()
+	CFnEnumCandidates(const CANDIDATES &candidates)
 	{
 		DllAddRef();
 
 		_cRef = 1;
 		_nIndex = 0;
+		_candidates = candidates;
 	}
 
-	~CEnumDisplayAttributeInfo()
+	~CFnEnumCandidates()
 	{
 		DllRelease();
 	}
@@ -28,9 +31,9 @@ public:
 
 		*ppvObj = nullptr;
 
-		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IEnumTfDisplayAttributeInfo))
+		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IEnumTfCandidates))
 		{
-			*ppvObj = (IEnumTfDisplayAttributeInfo *)this;
+			*ppvObj = (IEnumTfCandidates *)this;
 		}
 
 		if(*ppvObj)
@@ -58,10 +61,10 @@ public:
 		return _cRef;
 	}
 
-	// IEnumTfDisplayAttributeInfo
-	STDMETHODIMP Clone(IEnumTfDisplayAttributeInfo **ppEnum)
+	// IEnumTfCandidates
+	STDMETHODIMP Clone(IEnumTfCandidates **ppEnum)
 	{
-		CEnumDisplayAttributeInfo *pClone;
+		CFnEnumCandidates *pClone;
 
 		if(ppEnum == nullptr)
 		{
@@ -72,7 +75,7 @@ public:
 
 		try
 		{
-			pClone = new CEnumDisplayAttributeInfo();
+			pClone = new CFnEnumCandidates(_candidates);
 		}
 		catch(...)
 		{
@@ -86,12 +89,12 @@ public:
 		return S_OK;
 	}
 
-	STDMETHODIMP Next(ULONG ulCount, ITfDisplayAttributeInfo **rgInfo, ULONG *pcFetched)
+	STDMETHODIMP Next(ULONG ulCount, ITfCandidateString **ppCand, ULONG *pcFetched)
 	{
 		ULONG cFetched = 0;
-		ITfDisplayAttributeInfo *pDisplayAttributeInfo;
+		ITfCandidateString *pCandidateString;
 
-		if(rgInfo == nullptr)
+		if(ppCand == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -103,26 +106,25 @@ public:
 
 		while(cFetched < ulCount)
 		{
-			if(_nIndex >= DISPLAYATTRIBUTE_INFO_NUM)
+			if(_nIndex >= (ULONG)_candidates.size())
 			{
 				break;
 			}
 
 			try
 			{
-				pDisplayAttributeInfo = new CDisplayAttributeInfo(
-					c_gdDisplayAttributeInfo[_nIndex].guid, &CTextService::display_attribute_info[_nIndex]);
+				pCandidateString = new CFnCandidateString(_nIndex, _candidates[_nIndex].first.first);
 			}
 			catch(...)
 			{
 				for(ULONG i = 0; i < cFetched; i++)
 				{
-					delete *(rgInfo + i);
+					delete *(ppCand + i);
 				}
 				return E_OUTOFMEMORY;
 			}
 
-			*(rgInfo + cFetched) = pDisplayAttributeInfo;
+			*(ppCand + cFetched) = pCandidateString;
 			cFetched++;
 			_nIndex++;
 		}
@@ -135,7 +137,7 @@ public:
 		return (cFetched == ulCount) ? S_OK : S_FALSE;
 	}
 
-	STDMETHODIMP Reset()
+	STDMETHODIMP Reset(void)
 	{
 		_nIndex = 0;
 		return S_OK;
@@ -143,9 +145,9 @@ public:
 
 	STDMETHODIMP Skip(ULONG ulCount)
 	{
-		if((_nIndex + ulCount) >= DISPLAYATTRIBUTE_INFO_NUM)
+		if((_nIndex + ulCount) >= (ULONG)_candidates.size())
 		{
-			_nIndex = DISPLAYATTRIBUTE_INFO_NUM;
+			_nIndex = (ULONG)_candidates.size();
 			return S_FALSE;
 		}
 
@@ -156,6 +158,7 @@ public:
 private:
 	LONG _cRef;
 	ULONG _nIndex;
+	CANDIDATES _candidates;
 };
 
-#endif //ENUMDISPLAYATTRIBUTEINFO_H
+#endif //FNENUMCANDIDATES_H

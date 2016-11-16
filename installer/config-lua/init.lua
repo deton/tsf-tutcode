@@ -864,21 +864,17 @@ function convert_s_to_table(s)
 	local ret = ""
 	local e = ""
 	local q = 0
+	local d = 0
 	local c = ""
-	local b = ""
 	local r = ""
-	local bsrep = "\u{f05c}"
-
-	s = string.gsub(s, "\\", bsrep)
 
 	for i = 1, string.len(s) do
 		c = string.sub(s, i, i)
-		b = string.sub(s, i - 1, i - 1)
 		r = string.sub(ret, -1)
 
 		if (c == "\"" and q == 0) then
 			q = 1
-		elseif (c == "\"" and q == 1 and b ~= "\\") then
+		elseif (c == "\"" and q == 1 and d == 0) then
 			q = 0
 		end
 
@@ -907,10 +903,14 @@ function convert_s_to_table(s)
 			end
 		else
 			e = e .. c
+			if (c == "\\") then
+				e = e .. c
+				d = d ~ 1
+			else
+				d = 0
+			end
 		end
 	end
-
-	ret = string.gsub(ret, bsrep, "\\\\")
 
 	return ret
 end

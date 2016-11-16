@@ -542,6 +542,12 @@ void CTextService::_ResetStatus()
 	complement = FALSE;
 	purgedicmode = FALSE;
 	hintmode = FALSE;
+	reconversion = FALSE;
+
+	roman.clear();
+	kana.clear();
+	okuriidx = 0;
+	reconvsrc.clear();
 
 	searchkey.clear();
 	searchkeyorg.clear();
@@ -549,10 +555,7 @@ void CTextService::_ResetStatus()
 	candidates.clear();
 	candidates.shrink_to_fit();
 	candidx = 0;
-
-	roman.clear();
-	kana.clear();
-	okuriidx = 0;
+	candorgcnt = 0;
 
 	cursoridx = 0;
 }
