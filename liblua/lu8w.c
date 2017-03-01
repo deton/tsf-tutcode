@@ -4,9 +4,9 @@
 
 #include "lprefix.h"
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <io.h>
 #include <windows.h>
 
@@ -429,4 +429,37 @@ int u8rename(const char *oldfname, const char *newfname)
 	}
 
 	return r;
+}
+
+size_t u8strftime(char *buf, size_t len, const char *format, const struct tm *ptm)
+{
+	wchar_t *wformat;
+	wchar_t *wbuf;
+	char *b = NULL;
+
+	if(len == 0) return 0;
+	buf[0] = '\0';
+
+	wformat = u8stows(format);
+	wbuf = (wchar_t *)calloc(len, sizeof(wchar_t));
+
+	if(wformat && wbuf) {
+		if(wcsftime(wbuf, len, wformat, ptm) > 0) {
+			b = u8wstos(wbuf);
+			if(b) {
+				if(strlen(b) < len) {
+					strcpy(buf, b);
+				}
+				free(b);
+			}
+		}
+	}
+	if(wformat) {
+		free(wformat);
+	}
+	if(wbuf) {
+		free(wbuf);
+	}
+
+	return strlen(buf);
 }

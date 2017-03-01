@@ -535,6 +535,17 @@ Visual C++ 2015 の 正規表現で、文法は ECMAScript を使用していま
 
 「促／ん」がONのとき、仮名が決定したあとに最後の入力文字が入力状態となります。
 
+* 例） 以下のように設定したとき「w」の連続入力により草を生やすことができます。
+    +  ローマ字:「ww」、かな:「ｗ」(いわゆる全角小文字)、促／ん: ON
+    +  ローマ字:「w」、かな:「ｗ」(いわゆる全角小文字)、促／ん: OFF
+
+* 例） 以下のように設定したとき「zsssss …」と入力することで「☆」と「★」が繰り返され任意のタイミングで確定することができます。
+    +  ローマ字:「zs」、かな:「☆」、待機: ON
+    +  ローマ字:「☆s」、かな:「★」、待機: ON
+    +  ローマ字:「★s」、かな:「☆」、待機: ON
+    +  ローマ字:「☆」、かな:「☆」、待機: OFF
+    +  ローマ字:「★」、かな:「★」、待機: OFF
+
 「待機」がONのとき、入力した文字をローマ字仮名変換した結果 (変換出来ないときは入力した文字そのまま) がローマ字として扱われ、辞書検索開始、確定、補完開始、ローマ字に設定されていない組み合わせ、のいずれかになるまで仮名の最終的な決定が遅延されます。
 
 「機能」がONのとき、平仮名文字列(下表)に対応する機能を実行します。
@@ -656,7 +667,7 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.3.3です。
+現在使用しているLuaのバージョンは5.3.4です。
 
 詳細はこちらを参照ください。http://www.lua.org/manual/5.3/manual.html
 
@@ -725,7 +736,8 @@ SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要�
 | skk-default-current-date |  |
 | skk-relative-date |  |
 | skk-ignore-dic-word | デフォルト無効 |
-| skk-omikuji | 独自実装。おみくじを引くことができます。<br>『(skk-omikuji)』 |
+| skk-omikuji | 独自実装。おみくじを引くことができます。『(skk-omikuji)』 |
+| skk-strftime | 独自実装。日時書式出力『(skk-strftime format [unit, diff])』<br>format : https://msdn.microsoft.com/en-us/library/fe06s4ak.aspx<br>unit : 単位 "year", "month", "day", "hour", "min", "sec"<br>diff : 現在とunitとの差分 |
 | fill-column | 70で固定 |
 | comment-start | "/\*" |
 | comment-end | "\*/" |
@@ -883,7 +895,7 @@ Visual Studio Community 2015 Update 3
 
 WiX Toolset v3.10.3
 
-pandoc 1.18
+pandoc 1.19.2.1
 
 ### ビルド手順
 
@@ -954,12 +966,12 @@ pandoc 1.18
 
 ---
 
-Copyright (C) 2013-2016 KIHARA, Hideto
+Copyright (C) 2013-2017 KIHARA, Hideto
 https://github.com/deton/tsf-tutcode
 
 以下CorvusSKKのCopyright:
 
-Copyright (C) 2011-2016 SASAKI Nobuyuki
+Copyright (C) 2011-2017 SASAKI Nobuyuki
 
 nathancorvussolis@gmail.com
 
