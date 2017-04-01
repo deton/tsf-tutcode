@@ -216,6 +216,29 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			if(showentry)
 			{
+				//後置型交ぜ書き変換の候補表示時、読みを縮める。
+				//SKK_AFFIXにCorvusSKKデフォルト"<|>"等が設定されている場合用
+				if(postmazeContext.IsActive())
+				{
+					if(ch == L'>') //読みを縮める操作が行われた
+					{
+						std::wstring yomi;
+						if(postmazeContext.Shrink(&yomi))
+						{
+							_StartConvWithYomi(ec, pContext, yomi);
+						}
+						return S_OK;
+					}
+					else if(ch == L'<') //読みを伸ばす操作が行われた
+					{
+						std::wstring yomi;
+						if(postmazeContext.Extend(&yomi))
+						{
+							_StartConvWithYomi(ec, pContext, yomi);
+						}
+						return S_OK;
+					}
+				}
 				_HandleCharShift(ec, pContext);
 			}
 			//見出し入力開始(接尾辞)
@@ -772,6 +795,16 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	case SKK_LEFT:
 		if(showentry)
 		{
+			//後置型交ぜ書き変換の候補表示時、読みを伸ばす操作が行われた
+			if(postmazeContext.IsActive())
+			{
+				std::wstring yomi;
+				if(postmazeContext.Extend(&yomi))
+				{
+					_StartConvWithYomi(ec, pContext, yomi);
+				}
+				return S_OK;
+			}
 			break;
 		}
 
@@ -858,6 +891,16 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	case SKK_RIGHT:
 		if(showentry)
 		{
+			//後置型交ぜ書き変換の候補表示時、読みを縮める操作が行われた
+			if(postmazeContext.IsActive())
+			{
+				std::wstring yomi;
+				if(postmazeContext.Shrink(&yomi))
+				{
+					_StartConvWithYomi(ec, pContext, yomi);
+				}
+				return S_OK;
+			}
 			break;
 		}
 
