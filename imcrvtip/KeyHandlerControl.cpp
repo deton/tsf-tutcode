@@ -1158,14 +1158,14 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 			int offset = 4;
 			bool isKatuyo = false;
 			bool resizeWithInflection = true;
-			if(rkc.hiragana[4] == L'K')
+			if(rkc.hiragana[offset] == L'K') //活用する語
 			{
-				offset = 5;
+				offset++;
 				isKatuyo = true;
 			}
-			else if(rkc.hiragana[4] == L'k')
+			else if(rkc.hiragana[offset] == L'k') //読みを縮めた際に活用する語としての変換は試みない
 			{
-				offset = 5;
+				offset++;
 				resizeWithInflection = false;
 			}
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
@@ -1183,14 +1183,40 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		}
 		return;
 	}
+	//後置型かな漢字変換。対象とする読みはひらがなのみ
+	else if(wcsncmp(rkc.hiragana, L"KanaK", 5) == 0)
+	{
+		if(postconvctx != PCC_COMPOSITION)
+		{
+			int offset = 5;
+			bool isKatuyo = false;
+			bool resizeWithInflection = true;
+			if(rkc.hiragana[offset] == L'K') //活用する語
+			{
+				offset++;
+				isKatuyo = true;
+			}
+			else if(rkc.hiragana[offset] == L'k') //読みを縮めた際に活用する語としての変換は試みない
+			{
+				offset++;
+				resizeWithInflection = false;
+			}
+			_HandlePostKanaKan(ec, pContext, postconvctx, isKatuyo, resizeWithInflection);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
+		return;
+	}
 	//後置型カタカナ変換
 	else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
 	{
 		int offset = 4;
 		int isShrink = 0;
-		if(rkc.hiragana[4] == L'>')
+		if(rkc.hiragana[offset] == L'>') //直前のカタカナ変換を指定文字縮める
 		{
-			offset = 5;
+			offset++;
 			isShrink = 1;
 		}
 		int count = _wtoi(rkc.hiragana + offset);

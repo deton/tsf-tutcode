@@ -37,7 +37,7 @@ HRESULT CTextService::_HandlePostMaze(TfEditCookie ec, ITfContext *pContext, int
 	return _ReplacePrecedingText(ec, pContext, text, yomi, postconvctx, TRUE);
 }
 
-//後置型交ぜ書き変換用の読みをカーソル直接の文字列から取得する。
+//後置型交ぜ書き変換用の読みをカーソル直前の文字列から取得する。
 void CTextService::_AcquirePrecedingYomi(ITfContext *pContext, PostConvContext postconvctx, std::wstring *text, size_t count)
 {
 	text->clear();
@@ -96,6 +96,66 @@ void CTextService::_AcquirePrecedingYomi(ITfContext *pContext, PostConvContext p
 	text->assign(s.substr(st));
 }
 
+//文字列末尾にある連続するひらがなの最初の位置を返す
+static size_t _BackwardWhileKana(const std::wstring &text)
+{
+	size_t st;
+	size_t prevst = text.size();
+	while((st = BackwardMoji(text, prevst, 1)) < prevst)
+	{
+		prevst = st;
+//TRUEの文字が続く間、後置型カタカナ変換対象とする(ひらがな、「ー」)
+#define TYOON(m) ((m[0]) == 0x30FC)
+#define IN_HIRARANGE(m) (0x3041 <= (m[0]) && (m[0]) <= 0x309F || TYOON(m))
+		if(!IN_HIRARANGE(Get1Moji(text, st)))
+		{
+			// 「キーとばりゅー」に対し1文字残してカタカナ変換で
+			// 「キーとバリュー」になるように、先頭の「ー」は外す
+			while((st = ForwardMoji(text, prevst, 1)) > prevst)
+			{
+				prevst = st;
+				if(!TYOON(Get1Moji(text, st)))
+				{
+					break;
+				}
+			}
+			break;
+		}
+	}
+	return st;
+}
+
+/**
+ * 後置型かな漢字変換を開始する
+ * @param isKatuyo 活用する語として変換を開始するか
+ * @param resizeWithInflection 活用しない語を縮めた時に、活用する語としての変換を試みるか
+ */
+HRESULT CTextService::_HandlePostKanaKan(TfEditCookie ec, ITfContext *pContext, PostConvContext postconvctx, bool isKatuyo, bool resizeWithInflection)
+{
+	postmazeContext.Deactivate();
+	//カーソル直前の文字列を取得
+	std::wstring text;
+	_AcquirePrecedingText(pContext, postconvctx, &text);
+	size_t st = _BackwardWhileKana(text);
+	if(st >= text.size())
+	{
+		if(postconvctx == PCC_APP)
+		{
+			_HandleCharReturn(ec, pContext);
+		}
+		else
+		{
+			_Update(ec, pContext);
+		}
+		return S_OK;
+	}
+	std::wstring todel(text.substr(st));
+	postmazeContext.Activate(todel, isKatuyo, true, resizeWithInflection);
+	std::wstring yomi;
+	postmazeContext.GetYomi(true, &yomi);
+	return _ReplacePrecedingText(ec, pContext, todel, yomi, postconvctx, TRUE);
+}
+
 //後置型カタカナ変換
 HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
 {
@@ -125,28 +185,7 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 	}
 	else //count==0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
-		size_t prevst = size;
-		while((st = BackwardMoji(text, prevst, 1)) < prevst)
-		{
-			prevst = st;
-//TRUEの文字が続く間、後置型カタカナ変換対象とする(ひらがな、「ー」)
-#define TYOON(m) ((m[0]) == 0x30FC)
-#define IN_KATARANGE(m) (0x3041 <= (m[0]) && (m[0]) <= 0x309F || TYOON(m))
-			if(!IN_KATARANGE(Get1Moji(text, st)))
-			{
-				// 「キーとばりゅー」に対し1文字残してカタカナ変換で
-				// 「キーとバリュー」になるように「ー」は除く
-				while((st = ForwardMoji(text, prevst, 1)) > prevst)
-				{
-					prevst = st;
-					if(!TYOON(Get1Moji(text, st)))
-					{
-						break;
-					}
-				}
-				break;
-			}
-		}
+		st = _BackwardWhileKana(text);
 		if(count < 0) // 指定文字数を除いてカタカナに変換
 		{
 			st = ForwardMoji(text, st, -count);
