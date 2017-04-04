@@ -9,6 +9,7 @@ struct {
 	HWND parent;
 	HWND child;
 	HRESULT hr;
+	int count; //取込んだエントリ数
 	BOOL cancel;
 	int error;
 	WCHAR path[MAX_PATH];
@@ -572,6 +573,7 @@ unsigned int __stdcall MakeSKKDicThread(void *p)
 	if(SkkDicInfo.hr == S_OK)
 	{
 		SkkDicInfo.hr = WriteSKKDic(entries_a, entries_n);
+		SkkDicInfo.count = entries_a.size() + entries_n.size();
 	}
 
 	return 0;
@@ -590,7 +592,8 @@ void MakeSKKDicWaitThread(void *p)
 
 	if(SkkDicInfo.hr == S_OK)
 	{
-		MessageBoxW(SkkDicInfo.parent, L"完了しました。", TextServiceDesc, MB_OK | MB_ICONINFORMATION);
+		_snwprintf_s(msg, _TRUNCATE, L"完了しました。(%d件取込)", SkkDicInfo.count);
+		MessageBoxW(SkkDicInfo.parent, msg, TextServiceDesc, MB_OK | MB_ICONINFORMATION);
 	}
 	else if(SkkDicInfo.hr == E_ABORT)
 	{
@@ -624,6 +627,7 @@ INT_PTR CALLBACK DlgProcSKKDic(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 	case WM_INITDIALOG:
 		SkkDicInfo.cancel = FALSE;
 		SkkDicInfo.hr = S_OK;
+		SkkDicInfo.count = 0;
 		SkkDicInfo.child = hDlg;
 		SkkDicInfo.path[0] = L'\0';
 		_beginthread(MakeSKKDicWaitThread, 0, nullptr);
