@@ -88,9 +88,17 @@ int ReadSKKDicLine(FILE *fp, WCHAR bom, int &okuri, std::wstring &key,
 		}
 	}
 
-	if(okuri == -1)
+	if(okuri == -1) //header comment
 	{
-		return 1;
+		if(wsbuf.front() != L';')
+		{
+			//;; okuri-ari/nasi行が無い、mazegaki.dicか、古いSKK辞書
+			okuri = 0;
+		}
+		else
+		{
+			return 1;
+		}
 	}
 
 	s = wsbuf;
