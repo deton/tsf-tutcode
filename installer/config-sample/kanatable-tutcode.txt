@@ -43,6 +43,12 @@ l3	Kata>3	Kata>3	Kata>3	4
 l4	Kata>4	Kata>4	Kata>4	4
 l5	Kata>5	Kata>5	Kata>5	4
 l6	Kata>6	Kata>6	Kata>6	4
+h1	Kata<1	Kata<1	Kata<1	4
+h2	Kata<2	Kata<2	Kata<2	4
+h3	Kata<3	Kata<3	Kata<3	4
+h4	Kata<4	Kata<4	Kata<4	4
+h5	Kata<5	Kata<5	Kata<5	4
+h6	Kata<6	Kata<6	Kata<6	4
 z0	StoK0	StoK0	StoK0	4
 z1	StoK1	StoK1	StoK1	4
 z2	StoK2	StoK2	StoK2	4

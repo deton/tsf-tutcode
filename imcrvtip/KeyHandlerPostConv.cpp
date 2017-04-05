@@ -97,10 +97,10 @@ void CTextService::_AcquirePrecedingYomi(ITfContext *pContext, PostConvContext p
 }
 
 //文字列末尾にある連続するひらがなの最初の位置を返す
-static size_t _BackwardWhileKana(const std::wstring &text)
+static size_t _BackwardWhileKana(const std::wstring &text, size_t idx)
 {
 	size_t st;
-	size_t prevst = text.size();
+	size_t prevst = idx;
 	while((st = BackwardMoji(text, prevst, 1)) < prevst)
 	{
 		prevst = st;
@@ -111,6 +111,33 @@ static size_t _BackwardWhileKana(const std::wstring &text)
 		{
 			// 「キーとばりゅー」に対し1文字残してカタカナ変換で
 			// 「キーとバリュー」になるように、先頭の「ー」は外す
+			while((st = ForwardMoji(text, prevst, 1)) > prevst)
+			{
+				prevst = st;
+				if(!TYOON(Get1Moji(text, st)))
+				{
+					break;
+				}
+			}
+			break;
+		}
+	}
+	return st;
+}
+
+//文字列末尾にある連続するカタカナの最初の位置を返す
+static size_t _BackwardWhileKatakana(const std::wstring &text)
+{
+	size_t st;
+	size_t prevst = text.size();
+	while((st = BackwardMoji(text, prevst, 1)) < prevst)
+	{
+		prevst = st;
+//TRUEの文字が続く間、戻る
+#define IN_KATARANGE(m) (0x30A0 <= (m[0]) && (m[0]) <= 0x30FF)
+		if(!IN_KATARANGE(Get1Moji(text, st)))
+		{
+			// 先頭の「ー」は外す
 			while((st = ForwardMoji(text, prevst, 1)) > prevst)
 			{
 				prevst = st;
@@ -136,7 +163,7 @@ HRESULT CTextService::_HandlePostKanaKan(TfEditCookie ec, ITfContext *pContext, 
 	//カーソル直前の文字列を取得
 	std::wstring text;
 	_AcquirePrecedingText(pContext, postconvctx, &text);
-	size_t st = _BackwardWhileKana(text);
+	size_t st = _BackwardWhileKana(text, text.size());
 	if(st >= text.size())
 	{
 		if(postconvctx == PCC_APP)
@@ -157,7 +184,8 @@ HRESULT CTextService::_HandlePostKanaKan(TfEditCookie ec, ITfContext *pContext, 
 }
 
 //後置型カタカナ変換
-HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx)
+// @param skipKata 末尾の連続するカタカナはスキップして、カタカナを伸ばす
+HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int count, PostConvContext postconvctx, bool skipKata)
 {
 	//カーソル直前の文字列を取得
 	std::wstring text;
@@ -176,22 +204,27 @@ HRESULT CTextService::_HandlePostKata(TfEditCookie ec, ITfContext *pContext, int
 		return S_OK;
 	}
 
+	size_t ed = size;
+	if(skipKata) //連続するカタカナをとばす
+	{
+		ed = _BackwardWhileKatakana(text);
+	}
 	//ひらがなをカタカナに変換
 	std::wstring kata;
 	size_t st;
 	if(count > 0)
 	{
-		st = BackwardMoji(text, size, count);
+		st = BackwardMoji(text, ed, count);
 	}
 	else //count==0: ひらがなが続く間、負: ひらがなとして残す文字数指定
 	{
-		st = _BackwardWhileKana(text);
+		st = _BackwardWhileKana(text, ed);
 		if(count < 0) // 指定文字数を除いてカタカナに変換
 		{
 			st = ForwardMoji(text, st, -count);
 		}
 	}
-	if(size > st)
+	if(st < ed)
 	{
 		std::wstring todel(text.substr(st));
 		_ConvKanaToKana(todel, im_hiragana, kata, im_katakana);

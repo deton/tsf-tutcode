@@ -1219,14 +1219,24 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 			offset++;
 			isShrink = 1;
 		}
-		int count = _wtoi(rkc.hiragana + offset);
-		if(isShrink)
+		else if(rkc.hiragana[offset] == L'<') //カタカナを伸ばす
 		{
-			_HandlePostKataShrink(ec, pContext, count, postconvctx);
+			offset++;
+			isShrink = -1;
 		}
-		else
+		int count = _wtoi(rkc.hiragana + offset);
+		switch(isShrink)
 		{
-			_HandlePostKata(ec, pContext, count, postconvctx);
+		case 1:
+			_HandlePostKataShrink(ec, pContext, count, postconvctx);
+			break;
+		case -1:
+			_HandlePostKata(ec, pContext, count, postconvctx, true);
+			break;
+		case 0:
+		default:
+			_HandlePostKata(ec, pContext, count, postconvctx, false);
+			break;
 		}
 		return;
 	}
