@@ -375,6 +375,7 @@ INT_PTR CALLBACK DlgProcDisplay(HWND hDlg, UINT message, WPARAM wParam, LPARAM l
 
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, ValueShowModeMark);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, ValueShowRoman);
+			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, ValueShowRomanComp);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
 
 			GetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout, _countof(vkbdlayout));
