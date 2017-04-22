@@ -1136,6 +1136,14 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 
 void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch)
 {
+	std::wstring abortedRomanForPostConv;
+	if(!inputkey)
+	{
+		//_HandleKey()でkanaにセットされた、確定予約文字列を後置型変換対象に
+		abortedRomanForPostConv.assign(kana);
+		kana.clear();
+		cursoridx = 0;
+	}
 	PostConvContext postconvctx = _PrepareForFunc(ec, pContext);
 	//前置型交ぜ書き変換
 	if(wcsncmp(rkc.hiragana, L"maze", 4) == 0)
@@ -1175,10 +1183,11 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 			{
 				count = 1;
 			}
-			_HandlePostMaze(ec, pContext, count, postconvctx, isKatuyo, resizeWithInflection);
+			_HandlePostMaze(ec, pContext, count, postconvctx, abortedRomanForPostConv, isKatuyo, resizeWithInflection);
 		}
 		else
 		{
+			_CommitStr(ec, pContext, abortedRomanForPostConv, postconvctx);
 			_Update(ec, pContext);
 		}
 		return;
@@ -1201,10 +1210,11 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 				offset++;
 				resizeWithInflection = false;
 			}
-			_HandlePostKanaKan(ec, pContext, postconvctx, isKatuyo, resizeWithInflection);
+			_HandlePostKanaKan(ec, pContext, postconvctx, abortedRomanForPostConv, isKatuyo, resizeWithInflection);
 		}
 		else
 		{
+			_CommitStr(ec, pContext, abortedRomanForPostConv, postconvctx);
 			_Update(ec, pContext);
 		}
 		return;
@@ -1228,14 +1238,14 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		switch(isShrink)
 		{
 		case 1:
-			_HandlePostKataShrink(ec, pContext, count, postconvctx);
+			_HandlePostKataShrink(ec, pContext, count, postconvctx, abortedRomanForPostConv);
 			break;
 		case -1:
-			_HandlePostKata(ec, pContext, count, postconvctx, true);
+			_HandlePostKata(ec, pContext, count, postconvctx, abortedRomanForPostConv, true);
 			break;
 		case 0:
 		default:
-			_HandlePostKata(ec, pContext, count, postconvctx, false);
+			_HandlePostKata(ec, pContext, count, postconvctx, abortedRomanForPostConv, false);
 			break;
 		}
 		return;
@@ -1243,7 +1253,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	//後置型部首合成変換
 	else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
 	{
-		_HandlePostBushu(ec, pContext, postconvctx);
+		_HandlePostBushu(ec, pContext, postconvctx, abortedRomanForPostConv);
 		return;
 	}
 	//後置型入力シーケンス→漢字変換
@@ -1251,14 +1261,14 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	else if(wcsncmp(rkc.hiragana, L"StoK", 4) == 0)
 	{
 		int count = _wtoi(rkc.hiragana + 4);
-		_HandlePostSeq2Kanji(ec, pContext, count, postconvctx);
+		_HandlePostSeq2Kanji(ec, pContext, count, postconvctx, abortedRomanForPostConv);
 		return;
 	}
 	//後置型漢字→入力シーケンス変換
 	else if(wcsncmp(rkc.hiragana, L"KtoS", 4) == 0)
 	{
 		int count = _wtoi(rkc.hiragana + 4);
-		_HandlePostKanji2Seq(ec, pContext, count, postconvctx);
+		_HandlePostKanji2Seq(ec, pContext, count, postconvctx, abortedRomanForPostConv);
 		return;
 	}
 	//仮想鍵盤表示の切り替え
@@ -1276,11 +1286,12 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		{
 			count = 1;
 		}
-		_HandlePostHelp(ec, pContext, postconvctx, count);
+		_HandlePostHelp(ec, pContext, postconvctx, abortedRomanForPostConv, count);
 		return;
 	}
 	else
 	{
+		_CommitStr(ec, pContext, abortedRomanForPostConv, postconvctx);
 		if(postconvctx != PCC_COMPOSITION)
 		{
 			kana.clear();
@@ -1305,7 +1316,7 @@ CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITf
 	{
 		return PCC_COMPOSITION; //前置型交ぜ書き入力の読み入力中
 	}
-	else if (pContext == nullptr)
+	if (pContext == nullptr)
 	{
 		return PCC_REGWORD; //辞書登録用編集中
 	}

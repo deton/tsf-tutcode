@@ -723,21 +723,16 @@ void CTextService::_DynamicComp(TfEditCookie ec, ITfContext *pContext, BOOL sel)
 
 void CTextService::_ConvRoman()
 {
-	BOOL r = _ConvShift(WCHAR_MAX);
+	if(!_ConvShift(WCHAR_MAX))
+	{
+		roman.clear();
+	}
 
 	if(okuriidx != 0 && okuriidx + 1 == cursoridx)
 	{
 		kana.erase(cursoridx - 1, 1);
 		cursoridx--;
 		okuriidx = 0;
-	}
-
-	if(!r)
-	{
-		//不一致のシーケンスはそのまま確定(短い単語を大文字入力等)
-		kana.insert(cursoridx, roman);
-		cursoridx += roman.size();
-		roman.clear();
 	}
 }
 
@@ -892,7 +887,11 @@ BOOL CTextService::_ConvShift(WCHAR ch)
 		return TRUE;
 	}
 
-	return FALSE;
+	//不一致のシーケンスはそのまま確定(短い単語を大文字入力等)
+	kana.insert(cursoridx, roman);
+	cursoridx += roman.size();
+	roman.clear();
+	return TRUE;
 }
 
 BOOL CTextService::_ConvN()
