@@ -67,45 +67,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 		}
 		else
 		{
-			//ローマ字仮名変換 待機処理
-			rkc.roman[0] = ch;
-			rkc.roman[1] = L'\0';
-			ret = _ConvRomanKana(&rkc);
-			switch(ret)
-			{
-			case S_OK:	//一致
-			case E_PENDING:	//途中まで一致
-				if(rkc.roman[0] != L'\0' && rkc.wait)	//待機
-				{
-					ch = L'\0';
-					switch(inputmode)
-					{
-					case im_hiragana:
-						roman.append(rkc.hiragana);
-						break;
-					case im_katakana:
-						roman.append(rkc.katakana);
-						break;
-					case im_katakana_ank:
-						roman.append(rkc.katakana_ank);
-						break;
-					default:
-						break;
-					}
-				}
-				break;
-			default:
-				break;
-			}
-
-			//ローマ字仮名変換
-			std::wstring roman_conv = roman;
-			if(ch != L'\0')
-			{
-				roman_conv.push_back(ch);
-			}
-			wcsncpy_s(rkc.roman, roman_conv.c_str(), _TRUNCATE);
-			ret = _ConvRomanKana(&rkc);
+			ret = _ConvRomanKanaWithWait(ch, &roman, &rkc);
 
 			//sent from touch-optimized keyboard
 			if(ret == E_ABORT && wParam == VK_PACKET && ch != TKB_NEXT_PAGE && ch != TKB_PREV_PAGE)
@@ -379,4 +341,66 @@ HRESULT CTextService::_HandleCharShift(TfEditCookie ec, ITfContext *pContext)
 	}
 
 	return S_OK;
+}
+
+bool CTextService::_IsPostConvFunc(WCHAR ch)
+{
+	if(!(inputmode == im_hiragana || inputmode == im_katakana || inputmode == im_katakana_ank))
+	{
+		return false;
+	}
+	if(abbrevmode)
+	{
+		return false;
+	}
+	std::wstring emptyroman;
+	ROMAN_KANA_CONV rkc;
+	HRESULT ret = _ConvRomanKanaWithWait(ch, &emptyroman, &rkc);
+	return(ret == S_OK && rkc.func && isupper(rkc.hiragana[0]));
+}
+
+HRESULT CTextService::_ConvRomanKanaWithWait(WCHAR ch, std::wstring *pRoman, ROMAN_KANA_CONV *pRkc)
+{
+	ROMAN_KANA_CONV rkc;
+	//ローマ字仮名変換 待機処理
+	rkc.roman[0] = ch;
+	rkc.roman[1] = L'\0';
+	HRESULT ret = _ConvRomanKana(&rkc);
+	switch(ret)
+	{
+	case S_OK:	//一致
+	case E_PENDING:	//途中まで一致
+		if(rkc.roman[0] != L'\0' && rkc.wait)	//待機
+		{
+			ch = L'\0';
+			switch(inputmode)
+			{
+			case im_hiragana:
+				pRoman->append(rkc.hiragana);
+				break;
+			case im_katakana:
+				pRoman->append(rkc.katakana);
+				break;
+			case im_katakana_ank:
+				pRoman->append(rkc.katakana_ank);
+				break;
+			default:
+				break;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	//ローマ字仮名変換
+	std::wstring roman_conv = *pRoman;
+	if(ch != L'\0')
+	{
+		roman_conv.push_back(ch);
+	}
+	wcsncpy_s(rkc.roman, roman_conv.c_str(), _TRUNCATE);
+	ret = _ConvRomanKana(&rkc);
+	*pRkc = rkc;
+	return ret;
 }

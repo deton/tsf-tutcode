@@ -285,27 +285,33 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 					roman = romanN;
 					if(_ConvShift(WCHAR_MAX))
 					{
-						if(!inputkey)
+						//待機中の文字列や不一致のシーケンスはkanaに設定される。
+						//kanaを_HandleCharShift()すると、少し下の_HandleChar()
+						//呼出しでの後置型変換実行時、(notepad等では)取得不可の
+						//ため確定予約文字列として保持して、後置型変換時に利用。
+						//(_GetRangeText()も試したが取得できないようなので)
+						if(!_IsPostConvFunc(ch))
 						{
-							_HandleCharShift(ec, pContext);
-						}
-						else
-						{
-							if(cx_dynamiccomp || cx_dyncompmulti)
+							if(!inputkey)
 							{
-								_DynamicComp(ec, pContext);
+								_HandleCharShift(ec, pContext);
 							}
 							else
 							{
-								_Update(ec, pContext);
+								if(cx_dynamiccomp || cx_dyncompmulti)
+								{
+									_DynamicComp(ec, pContext);
+								}
+								else
+								{
+									_Update(ec, pContext);
+								}
 							}
 						}
 					}
 					else
 					{
-						//不一致のシーケンスはそのまま確定
-						//(短い単語を大文字入力等)
-						_CommitRoman(ec, pContext);
+						roman.clear();
 					}
 					//最後の入力で再処理
 					chO = chON;
@@ -588,21 +594,4 @@ void CTextService::_GetActiveFlags()
 	}
 
 	_ShowInputMode = cx_showmodeinl && !_UILessMode;
-}
-
-//入力途中のシーケンスを確定する
-HRESULT CTextService::_CommitRoman(TfEditCookie ec, ITfContext *pContext)
-{
-	kana.insert(cursoridx, roman);
-	cursoridx += roman.size();
-	roman.clear();
-	if(!inputkey)
-	{
-		_HandleCharReturn(ec, pContext);
-	}
-	else
-	{
-		_Update(ec, pContext);
-	}
-	return S_OK;
 }
