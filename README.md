@@ -1,5 +1,5 @@
 
-# tsf-tutcode ver. 0.7.0
+# tsf-tutcode ver. 0.7.1
 
 Windowsで動作する漢字直接入力用のIMEです。
 
