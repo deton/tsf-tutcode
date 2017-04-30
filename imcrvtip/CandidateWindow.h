@@ -81,6 +81,7 @@ private:
 	void _CreateNext(int mode);
 
 	//KeyHandler
+	void _InvokeKey(BYTE bSf);
 	void _OnKeyDownRegword(UINT uVKey);
 	void _InvokeSfHandler(BYTE sf);
 	void _InvokeKeyHandler(UINT uVKey);
@@ -113,6 +114,12 @@ private:
 	CCandidateList *_pCandidateList;
 	CCandidateWindow *_pCandidateWindow;		//子
 	CCandidateWindow *_pCandidateWindowParent;	//親
+	//cx_untilcandlist==1で、後置型交ぜ書き変換で読みを縮め/伸ばした場合に、
+	//表示中の候補ウィンドウが残ったままになるのを回避するため。
+	//_PreEnd()呼出後_End()呼出前に_CreateNext()で新たな子作成時、
+	//古い子を取っておいて、_End()では古い子を対象にする。
+	//(_PreEndReq()→_HandleKey()→_CreateNext()→_Create()→_EndReq())
+	CCandidateWindow *_pCandidateWindowOld;
 	CInputModeWindow *_pInputModeWindow;
 	CVKeyboardWindow *_pVKeyboardWindow;
 	HWND _hwnd;			//自分

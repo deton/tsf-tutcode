@@ -4,6 +4,8 @@
 #include "CandidateList.h"
 #include "moji.h"
 
+static void _SetTextExcluded(CCandidateList *_pCandidateList, CPostMazeContext *postmazeContext, BOOL fixed);
+
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed, BOOL back)
 {
 	std::wstring comptext;
@@ -337,17 +339,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
-		//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
-		std::wstring excluded;
-		if(postmazeContext.GetExcluded(&excluded) && fixed)
-		{
-			//読みから外した部分は確定(fixed=TRUEで_SetText())
-			_pCandidateList->_SetText(excluded, TRUE, wm_none);
-			postmazeContext.EraseExcluded();
-			excluded.clear();
-		}
-		//読み伸ばし/縮め途中で、読みから外した部分は表示用の値を更新する
-		_pCandidateList->_SetTextExcludedPostyomi(excluded);
+		_SetTextExcluded(_pCandidateList, &postmazeContext, fixed);
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
 	}
@@ -355,6 +347,21 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	{
 		return _SetText(ec, pContext, comptext, cchCursor, cchOkuri, fixed);
 	}
+}
+
+static void _SetTextExcluded(CCandidateList *_pCandidateList, CPostMazeContext *postmazeContext, BOOL fixed)
+{
+	std::wstring excluded;
+	if(postmazeContext->GetExcluded(&excluded) && fixed)
+	{
+		//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合、
+		//読みから外した部分は確定(fixed=TRUEで_SetText())
+		_pCandidateList->_SetText(excluded, TRUE, wm_none);
+		postmazeContext->EraseExcluded();
+		excluded.clear();
+	}
+	//読み伸ばし/縮め途中で、読みから外した部分は表示用の値を更新する
+	_pCandidateList->_SetTextExcludedPostyomi(excluded);
 }
 
 HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std::wstring &comptext, LONG cchCursor, LONG cchOkuri, BOOL fixed)

@@ -801,6 +801,14 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				std::wstring yomi;
 				if(postmazeContext.Extend(&yomi))
 				{
+					if(showcandlist)
+					{
+						showcandlist = FALSE;
+						if(pContext != nullptr)
+						{
+							_EndCandidateList();
+						}
+					}
 					_StartConvWithYomi(ec, pContext, yomi);
 				}
 				return S_OK;
@@ -897,6 +905,14 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				std::wstring yomi;
 				if(postmazeContext.Shrink(&yomi))
 				{
+					if(showcandlist)
+					{
+						showcandlist = FALSE;
+						if(pContext != nullptr)
+						{
+							_EndCandidateList();
+						}
+					}
 					_StartConvWithYomi(ec, pContext, yomi);
 				}
 				return S_OK;
