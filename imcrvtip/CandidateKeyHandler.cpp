@@ -121,20 +121,7 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 		{
 			if(!_regmode)
 			{
-				if(_pCandidateWindowParent == nullptr)
-				{
-					_InvokeSfHandler(SKK_CANCEL);
-				}
-				else
-				{
-					if(_mode == wm_register)
-					{
-						_RestoreStatusReg();
-					}
-					_PreEndReq();
-					_HandleKey(0, SKK_CANCEL);
-					_EndReq();
-				}
+				_InvokeKey(SKK_CANCEL);
 			}
 			else
 			{
@@ -151,6 +138,19 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 
 	case SKK_NEXT_CAND:
 		_NextPage();
+		break;
+
+	case SKK_LEFT: //後置型交ぜ書き変換の読みを縮める
+		_pTextService->candidx = 0;
+		//TODO:Extend()できない場合は無視すべき。
+		//でないとcx_untilcandlist=1設定時に候補ウィンドウが閉じられる
+		//(_End()して_Create()のかわりに内部状態のみ更新? or CanExtend()追加?)
+		_InvokeKey(SKK_LEFT);
+		break;
+
+	case SKK_RIGHT: //後置型交ぜ書き変換の読みを伸ばす
+		_pTextService->candidx = 0;
+		_InvokeKey(SKK_RIGHT);
 		break;
 
 	default:
@@ -198,10 +198,41 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 				}
 			}
 		}
+		if(i >= MAX_SELKEY_C) //not matched
+		{
+			if(ch == L'>') //後置型交ぜ書き変換の読みを縮める
+			{
+				_pTextService->candidx = 0;
+				_InvokeKey(SKK_RIGHT);
+			}
+			else if(ch == L'<') //後置型交ぜ書き変換の読みを伸ばす
+			{
+				_pTextService->candidx = 0;
+				_InvokeKey(SKK_LEFT);
+			}
+		}
 		break;
 	}
 
 	return S_OK;
+}
+
+void CCandidateWindow::_InvokeKey(BYTE bSf)
+{
+	if(_pCandidateWindowParent == nullptr)
+	{
+		_InvokeSfHandler(bSf);
+	}
+	else
+	{
+		if(_mode == wm_register)
+		{
+			_RestoreStatusReg();
+		}
+		_PreEndReq();
+		_HandleKey(0, bSf);
+		_EndReq();
+	}
 }
 
 void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)

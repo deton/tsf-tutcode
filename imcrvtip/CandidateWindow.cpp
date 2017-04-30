@@ -473,6 +473,13 @@ void CCandidateWindow::_End()
 {
 	_preEnd = FALSE;
 
+	if(_pCandidateWindowOld != nullptr)
+	{
+		_pCandidateWindowOld->_Destroy();
+		SafeRelease(&_pCandidateWindowOld);
+		return;
+	}
+
 #ifndef _DEBUG
 	if(_hwnd != nullptr)
 	{
@@ -921,6 +928,10 @@ void CCandidateWindow::_EndReq()
 
 void CCandidateWindow::_CreateNext(int mode)
 {
+	if(_pCandidateWindow != nullptr)
+	{
+		_pCandidateWindowOld = _pCandidateWindow;
+	}
 	try
 	{
 		_pCandidateWindow = new CCandidateWindow(_pTextService, _pCandidateList);
