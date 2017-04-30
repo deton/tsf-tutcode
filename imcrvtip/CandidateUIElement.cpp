@@ -18,6 +18,7 @@ CCandidateWindow::CCandidateWindow(CTextService *pTextService, CCandidateList *p
 
 	_pCandidateWindow = nullptr;
 	_pCandidateWindowParent = nullptr;
+	_pCandidateWindowOld = nullptr;
 	_pInputModeWindow = nullptr;
 	_pVKeyboardWindow = nullptr;
 

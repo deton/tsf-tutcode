@@ -436,7 +436,7 @@ void CCandidateWindow::_SetTextExcludedPostyomi(const std::wstring &text)
 
 void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 {
-	if(_pCandidateWindow != NULL && !_preEnd)
+	if(_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_GetPrecedingText(text);
 		return;
@@ -446,7 +446,7 @@ void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 
 void CCandidateWindow::_DeletePrecedingText(size_t delete_count)
 {
-	if(_pCandidateWindow != NULL && !_preEnd)
+	if(_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_DeletePrecedingText(delete_count);
 		return;
