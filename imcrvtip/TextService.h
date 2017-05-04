@@ -227,6 +227,7 @@ public:
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, size_t delete_count, const std::wstring &replstr, BOOL startMaze = false);
 	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 	void _CommitStr(TfEditCookie ec, ITfContext *pContext, const std::wstring &s, PostConvContext postconvctx);
+	bool _CancelPostConv(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerDictionary
 	void _ConnectDic();

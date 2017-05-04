@@ -810,3 +810,19 @@ void CTextService::_CommitStr(TfEditCookie ec, ITfContext *pContext, const std::
 		_Update(ec, pContext);
 	}
 }
+
+bool CTextService::_CancelPostConv(TfEditCookie ec, ITfContext *pContext)
+{
+	std::wstring yomi;
+	if(postmazeContext.GetYomi(false, &yomi)) //後置型交ぜ書き変換
+	{
+		kana = yomi;
+		cursoridx = kana.size();
+		postmazeContext.Deactivate();
+		showentry = FALSE;
+		inputkey = FALSE;
+		_HandleCharReturn(ec, pContext);
+		return true;
+	}
+	return false;
+}

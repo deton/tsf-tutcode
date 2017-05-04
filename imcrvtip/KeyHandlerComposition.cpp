@@ -142,6 +142,12 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				return S_OK;
 			}
 
+			if(cx_fixmazecount < 0) //学習無しの場合は辞書登録に遷移しない
+			{
+				showentry = FALSE;
+				_CancelPostConv(ec, pContext);
+				return S_OK;
+			}
 			if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 			{
 				_pCandidateList->_SetText(comptext, FALSE, wm_register);
