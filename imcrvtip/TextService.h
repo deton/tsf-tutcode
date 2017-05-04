@@ -227,6 +227,7 @@ public:
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, size_t delete_count, const std::wstring &replstr, BOOL startMaze = false);
 	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 	void _CommitStr(TfEditCookie ec, ITfContext *pContext, const std::wstring &s, PostConvContext postconvctx);
+	bool _CancelPostConv(TfEditCookie ec, ITfContext *pContext);
 
 	// KeyHandlerDictionary
 	void _ConnectDic();
@@ -423,6 +424,7 @@ public:
 	BOOL cx_delokuricncl;		//取消のとき送り仮名を削除する
 	BOOL cx_backincenter;		//後退に確定を含める
 	BOOL cx_addcandktkn;		//候補に片仮名変換を追加する
+	INT cx_fixmazecount;		//交ぜ書き変換の学習から除外する候補数(-1は学習無し)
 
 	UINT cx_compmultinum;		//複数補完/複数動的補完の表示数
 	BOOL cx_stacompmulti;		//複数補完を使用する

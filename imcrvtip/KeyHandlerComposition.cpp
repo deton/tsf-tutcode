@@ -85,8 +85,17 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			//ユーザー辞書登録
 			if(fixed && !candidates[candidx].second.first.empty())
 			{
-				_AddUserDic(useraddmode, ((candorgcnt <= candidx) ? searchkey : searchkeyorg),
-					candidates[candidx].second.first, candidates[candidx].second.second);
+				if(cx_fixmazecount >= 0)
+				{
+					_AddUserDic(useraddmode, ((candorgcnt <= candidx) ? searchkey : searchkeyorg),
+						candidates[candidx].second.first, candidates[candidx].second.second);
+					//先頭cx_fixmazecount数の候補順固定のため、候補を押し下げる
+					for(int i = min(cx_fixmazecount, candidates.size()) - 1; i >= 0; i--)
+					{
+						_AddUserDic(useraddmode, ((candorgcnt <= i) ? searchkey : searchkeyorg),
+							candidates[i].second.first, candidates[i].second.second);
+					}
+				}
 				_ShowAutoHelp(candidates[candidx].second.first, searchkeyorg);
 			}
 		}
@@ -133,6 +142,12 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				return S_OK;
 			}
 
+			if(cx_fixmazecount < 0) //学習無しの場合は辞書登録に遷移しない
+			{
+				showentry = FALSE;
+				_CancelPostConv(ec, pContext);
+				return S_OK;
+			}
 			if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 			{
 				_pCandidateList->_SetText(comptext, FALSE, wm_register);

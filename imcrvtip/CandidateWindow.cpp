@@ -621,7 +621,7 @@ void CCandidateWindow::_NextPage()
 	uNewPage = uOldPage + 1;
 	if(uNewPage >= _uPageCnt)
 	{
-		if(_pCandidateList != nullptr)
+		if(_pCandidateList != nullptr && _pTextService->cx_fixmazecount >= 0)
 		{
 			if(_hwnd == nullptr)
 			{

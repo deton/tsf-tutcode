@@ -146,6 +146,8 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionBehavior, ValueDelOkuriCncl, cx_delokuricncl, FALSE);
 	_ReadBoolValue(SectionBehavior, ValueBackIncEnter, cx_backincenter, TRUE);
 	_ReadBoolValue(SectionBehavior, ValueAddCandKtkn, cx_addcandktkn, FALSE);
+	ReadValue(pathconfigxml, SectionBehavior, ValueFixMazeCount, strxmlval);
+	cx_fixmazecount = _wtoi(strxmlval.c_str());
 
 	ReadValue(pathconfigxml, SectionBehavior, ValueCompMultiNum, strxmlval);
 	cx_compmultinum = _wtoi(strxmlval.c_str());

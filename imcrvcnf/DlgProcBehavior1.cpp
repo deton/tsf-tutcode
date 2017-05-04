@@ -3,8 +3,13 @@
 #include "imcrvcnf.h"
 #include "resource.h"
 
+static LPCWSTR defaultFixMazeCount = L"0";
+
 INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	WCHAR num[32];
+	std::wstring strxmlval;
+
 	switch(message)
 	{
 	case WM_INITDIALOG:
@@ -22,6 +27,10 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		LoadCheckButton(hDlg, IDC_CHECKBOX_DELOKURICNCL, SectionBehavior, ValueDelOkuriCncl);
 		LoadCheckButton(hDlg, IDC_CHECKBOX_BACKINCENTER, SectionBehavior, ValueBackIncEnter, L"1");
 		LoadCheckButton(hDlg, IDC_CHECKBOX_ADDCANDKTKN, SectionBehavior, ValueAddCandKtkn);
+
+		ReadValue(pathconfigxml, SectionBehavior, ValueFixMazeCount, strxmlval);
+		if(strxmlval.empty()) strxmlval = defaultFixMazeCount;
+		SetDlgItemTextW(hDlg, IDC_EDIT_FIX_MAZECOUNT, strxmlval.c_str());
 
 		return TRUE;
 
@@ -44,6 +53,17 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 
 			return TRUE;
 
+		case IDC_EDIT_FIX_MAZECOUNT:
+			switch(HIWORD(wParam))
+			{
+			case EN_CHANGE:
+				PropSheet_Changed(GetParent(hDlg), hDlg);
+				return TRUE;
+			default:
+				break;
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -65,6 +85,9 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 			SaveCheckButton(hDlg, IDC_CHECKBOX_DELOKURICNCL, ValueDelOkuriCncl);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_BACKINCENTER, ValueBackIncEnter);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_ADDCANDKTKN, ValueAddCandKtkn);
+
+			GetDlgItemTextW(hDlg, IDC_EDIT_FIX_MAZECOUNT, num, _countof(num));
+			WriterKey(pXmlWriter, ValueFixMazeCount, num);
 
 			return TRUE;
 
