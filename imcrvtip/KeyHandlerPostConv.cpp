@@ -639,7 +639,7 @@ HRESULT CTextService::_ReplacePrecedingText(TfEditCookie ec, ITfContext *pContex
 {
 	size_t delete_count = delstr0.size();
 	size_t aborted_count = abortedRomanForPostConv.size();
-	if(aborted_count > delete_count)
+	if(aborted_count >= delete_count)
 	{
 		std::wstring s(abortedRomanForPostConv);
 		s.erase(s.size() - delete_count);
