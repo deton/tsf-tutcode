@@ -111,7 +111,7 @@ void LoadConfigPreservedKey()
 	//for compatibility
 	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
 		{
@@ -252,7 +252,7 @@ void LoadConfigConvPoint()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionConvPoint, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -279,6 +279,15 @@ void LoadConfigConvPoint()
 			}
 
 			i++;
+		}
+	}
+	else if(FAILED(hr))
+	{
+		for(int i = 0; i < 26; i++)
+		{
+			conv_point[i][0][0] = L'A' + (WCHAR)i;
+			conv_point[i][1][0] = L'a' + (WCHAR)i;
+			conv_point[i][2][0] = L'a' + (WCHAR)i;
 		}
 	}
 }
@@ -384,7 +393,7 @@ void LoadConfigKana()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionKana, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -438,7 +447,7 @@ void LoadConfigKana()
 			i++;
 		}
 	}
-	else if(hr != S_OK)
+	else if(FAILED(hr))
 	{
 		for(int i = 0; i < ROMAN_KANA_TBL_DEF_NUM; i++)
 		{
@@ -560,7 +569,7 @@ void LoadConfigJLatin()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionJLatin, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -595,7 +604,7 @@ void LoadConfigJLatin()
 			i++;
 		}
 	}
-	else if(hr != S_OK)
+	else if(FAILED(hr))
 	{
 		memcpy_s(ascii_jlatin_conv, sizeof(ascii_jlatin_conv),
 			ascii_jlatin_conv_default, sizeof(ascii_jlatin_conv_default));

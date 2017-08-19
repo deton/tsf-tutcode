@@ -6,7 +6,7 @@
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
 
-#define NEXT_MERGIN_Y 4
+#define NEXT_MARGIN_Y 4
 
 BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWindowParent, DWORD dwUIElementId, UINT depth, int mode)
 {
@@ -36,7 +36,7 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 			_pD2DFactory->AddRef();
 			_pD2DDCRT = _pTextService->_pD2DDCRT;
 			_pD2DDCRT->AddRef();
-			for(int i = 0; i < DISPLAY_COLOR_NUM; i++)
+			for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 			{
 				_pD2DBrush[i] = _pTextService->_pD2DBrush[i];
 				_pD2DBrush[i]->AddRef();
@@ -205,7 +205,7 @@ void CCandidateWindow::_Destroy()
 
 	SafeRelease(&_pDWTF);
 	SafeRelease(&_pDWFactory);
-	for(int i = 0; i < DISPLAY_COLOR_NUM; i++)
+	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 	{
 		SafeRelease(&_pD2DBrush[i]);
 	}
@@ -248,7 +248,7 @@ void CCandidateWindow::_Move(LPCRECT lpr, TfEditCookie ec, ITfContext *pContext)
 			rc.left = _rect.left;
 			rc.top += _rect.bottom;
 			rc.right = _rect.right;
-			rc.bottom += _rect.bottom + NEXT_MERGIN_Y;
+			rc.bottom += _rect.bottom + NEXT_MARGIN_Y;
 			_pCandidateWindow->_Move(&rc);
 #else
 			_pCandidateWindow->_Move(&_rect);
@@ -270,8 +270,8 @@ void CCandidateWindow::_BeginUIElement()
 
 	if((_hwnd == nullptr) && (_depth == 0))
 	{
-		ITfUIElementMgr *pUIElementMgr;
-		if(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr)) == S_OK)
+		ITfUIElementMgr *pUIElementMgr = nullptr;
+		if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 		{
 			pUIElementMgr->BeginUIElement(this, &bShow, &_dwUIElementId);
 			if(!bShow)
@@ -322,8 +322,8 @@ void CCandidateWindow::_EndUIElement()
 {
 	if((_hwnd == nullptr) && (_depth == 0))
 	{
-		ITfUIElementMgr *pUIElementMgr;
-		if(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr)) == S_OK)
+		ITfUIElementMgr *pUIElementMgr = nullptr;
+		if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 		{
 			pUIElementMgr->EndUIElement(_dwUIElementId);
 			SafeRelease(&pUIElementMgr);
@@ -357,8 +357,8 @@ BOOL CCandidateWindow::_CanShowUIElement()
 {
 	BOOL bShow = TRUE;
 
-	ITfUIElementMgr *pUIElementMgr;
-	if(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr)) == S_OK)
+	ITfUIElementMgr *pUIElementMgr = nullptr;
+	if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 	{
 		pUIElementMgr->BeginUIElement(this, &bShow, &_dwUIElementId);
 		pUIElementMgr->EndUIElement(_dwUIElementId);
@@ -604,8 +604,8 @@ void CCandidateWindow::_UpdateUIElement()
 {
 	if(!_bShow)
 	{
-		ITfUIElementMgr *pUIElementMgr;
-		if(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr)) == S_OK)
+		ITfUIElementMgr *pUIElementMgr = nullptr;
+		if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 		{
 			pUIElementMgr->UpdateUIElement(_dwUIElementId);
 			SafeRelease(&pUIElementMgr);
@@ -900,7 +900,7 @@ void CCandidateWindow::_RestoreStatusReg()
 
 void CCandidateWindow::_ClearStatusReg()
 {
-	inputmode_bak = im_default;
+	inputmode_bak = im_direct;
 	abbrevmode_bak = FALSE;
 	kana_bak.clear();
 	okuriidx_bak = 0;
@@ -946,7 +946,7 @@ void CCandidateWindow::_CreateNext(int mode)
 		rc.left = _rect.left;
 		rc.top += _rect.bottom;
 		rc.right = _rect.right;
-		rc.bottom += _rect.bottom + NEXT_MERGIN_Y;
+		rc.bottom += _rect.bottom + NEXT_MARGIN_Y;
 		_pCandidateWindow->_Move(&rc);
 #else
 		_pCandidateWindow->_Move(&_rect);

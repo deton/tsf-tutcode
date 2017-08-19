@@ -35,7 +35,7 @@ void LoadDictionary(HWND hwnd)
 
 	HRESULT hr = ReadList(pathconfigxml, SectionDictionary, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		HWND hWndListView = GetDlgItem(hwnd, IDC_LIST_SKK_DIC);
 		int i = 0;
@@ -366,7 +366,7 @@ HRESULT LoadSKKDic(HWND hwnd, SKKDIC &entries_a, SKKDIC &entries_n)
 					wcsncpy_s(url, path, _TRUNCATE);
 
 					HRESULT hrd = DownloadDic(url, path, _countof(path));
-					if(hrd != S_OK)
+					if(FAILED(hrd))
 					{
 						SkkDicInfo.error = SKKDIC_DOWNLOAD;
 						_snwprintf_s(SkkDicInfo.path, _TRUNCATE, L"%s", url);
@@ -570,7 +570,7 @@ unsigned int __stdcall MakeSKKDicThread(void *p)
 	SKKDIC entries_a, entries_n;
 
 	SkkDicInfo.hr = LoadSKKDic(SkkDicInfo.parent, entries_a, entries_n);
-	if(SkkDicInfo.hr == S_OK)
+	if(SUCCEEDED(SkkDicInfo.hr))
 	{
 		SkkDicInfo.hr = WriteSKKDic(entries_a, entries_n);
 		SkkDicInfo.count = entries_a.size() + entries_n.size();
@@ -590,7 +590,7 @@ void MakeSKKDicWaitThread(void *p)
 
 	EndDialog(SkkDicInfo.child, TRUE);
 
-	if(SkkDicInfo.hr == S_OK)
+	if(SUCCEEDED(SkkDicInfo.hr))
 	{
 		_snwprintf_s(msg, _TRUNCATE, L"完了しました。(%d件取込)", SkkDicInfo.count);
 		MessageBoxW(SkkDicInfo.parent, msg, TextServiceDesc, MB_OK | MB_ICONINFORMATION);

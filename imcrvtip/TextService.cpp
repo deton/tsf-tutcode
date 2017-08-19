@@ -30,7 +30,7 @@ CTextService::CTextService():
 	hFont = nullptr;
 	_pD2DFactory = nullptr;
 	_pD2DDCRT = nullptr;
-	for(int i = 0; i < DISPLAY_COLOR_NUM; i++)
+	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 	{
 		_pD2DBrush[i] = nullptr;
 	}
@@ -45,7 +45,7 @@ CTextService::CTextService():
 
 	hPipe = INVALID_HANDLE_VALUE;
 
-	inputmode = im_default;
+	inputmode = im_direct;
 
 	_ResetStatus();
 
@@ -180,8 +180,8 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 		goto exit;
 	}
 
-	ITfDocumentMgr *pDocumentMgr;
-	if((_pThreadMgr->GetFocus(&pDocumentMgr) == S_OK) && (pDocumentMgr != nullptr))
+	ITfDocumentMgr *pDocumentMgr = nullptr;
+	if(SUCCEEDED(_pThreadMgr->GetFocus(&pDocumentMgr)) && (pDocumentMgr != nullptr))
 	{
 		_InitTextEditSink(pDocumentMgr);
 		SafeRelease(&pDocumentMgr);
