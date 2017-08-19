@@ -2,8 +2,9 @@
 #ifndef CONFIGXML_H
 #define CONFIGXML_H
 
-#define NOT_S_OK not_s_ok
-#define EXIT_NOT_S_OK(hr) if((hr) != S_OK) goto NOT_S_OK
+#define L_EXIT l_exit
+#define L_NOT_S_OK l_not_s_ok
+#define EXIT_NOT_S_OK(hr) if((hr) != S_OK) goto L_NOT_S_OK
 
 typedef std::pair<std::wstring, std::wstring> APPDATAXMLATTR;
 typedef std::vector<APPDATAXMLATTR> APPDATAXMLROW;
@@ -137,14 +138,23 @@ extern LPCWSTR ValueDispCandNo;
 extern LPCWSTR ValueVerticalCand;
 extern LPCWSTR ValueAnnotation;
 extern LPCWSTR ValueAnnotatLst;
-extern LPCWSTR ValueShowModeInl;
-extern LPCWSTR ValueShowModeSec;
 extern LPCWSTR ValueShowModeMark;
 extern LPCWSTR ValueShowRoman;
 extern LPCWSTR ValueShowRomanComp;
 extern LPCWSTR ValueShowVkbd;
 extern LPCWSTR ValueVkbdLayout;
 extern LPCWSTR ValueVkbdTop;
+
+extern LPCWSTR ValueShowModeInl;
+extern LPCWSTR ValueShowModeSec;
+extern LPCWSTR ValueColorMC;
+extern LPCWSTR ValueColorMF;
+extern LPCWSTR ValueColorHR;
+extern LPCWSTR ValueColorKT;
+extern LPCWSTR ValueColorKA;
+extern LPCWSTR ValueColorJL;
+extern LPCWSTR ValueColorAC;
+extern LPCWSTR ValueColorDR;
 
 //displayattr section
 

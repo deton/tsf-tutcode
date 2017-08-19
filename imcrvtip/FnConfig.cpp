@@ -50,16 +50,31 @@ static const TF_PRESERVEDKEY configpreservedkey[] =
 static const struct {
 	LPCWSTR value;
 	COLORREF color;
-} colorsxmlvalue[DISPLAY_COLOR_NUM] =
+} listcolorsxmlvalue[DISPLAY_LIST_COLOR_NUM] =
 {
-	{ValueColorBG, RGB(0xFF,0xFF,0xFF)},
-	{ValueColorFR, RGB(0x00,0x00,0x00)},
-	{ValueColorSE, RGB(0x00,0x00,0xFF)},
-	{ValueColorCO, RGB(0x80,0x80,0x80)},
-	{ValueColorCA, RGB(0x00,0x00,0x00)},
-	{ValueColorSC, RGB(0x80,0x80,0x80)},
-	{ValueColorAN, RGB(0x80,0x80,0x80)},
-	{ValueColorNO, RGB(0x00,0x00,0x00)}
+	{ValueColorBG, RGB(0xFF, 0xFF, 0xFF)},
+	{ValueColorFR, RGB(0x00, 0x00, 0x00)},
+	{ValueColorSE, RGB(0x00, 0x00, 0xFF)},
+	{ValueColorCO, RGB(0x80, 0x80, 0x80)},
+	{ValueColorCA, RGB(0x00, 0x00, 0x00)},
+	{ValueColorSC, RGB(0x80, 0x80, 0x80)},
+	{ValueColorAN, RGB(0x80, 0x80, 0x80)},
+	{ValueColorNO, RGB(0x00, 0x00, 0x00)}
+};
+
+static const struct {
+	LPCWSTR value;
+	COLORREF color;
+} modecolorsxmlvalue[DISPLAY_MODE_COLOR_NUM] =
+{
+	{ValueColorMC, RGB(0xFF, 0xFF, 0xFF)},
+	{ValueColorMF, RGB(0x00, 0x00, 0x00)},
+	{ValueColorHR, RGB(0xC0, 0x00, 0x00)},
+	{ValueColorKT, RGB(0x00, 0xC0, 0x00)},
+	{ValueColorKA, RGB(0x00, 0xC0, 0x80)},
+	{ValueColorJL, RGB(0x00, 0x00, 0xC0)},
+	{ValueColorAC, RGB(0x00, 0x80, 0xC0)},
+	{ValueColorDR, RGB(0x80, 0x80, 0x80)}
 };
 
 LPCWSTR sectionpreservedkeyonoff[PRESERVEDKEY_NUM] = {SectionPreservedKeyON, SectionPreservedKeyOFF};
@@ -71,7 +86,7 @@ void CTextService::_CreateConfigPath()
 	ZeroMemory(pathconfigxml, sizeof(pathconfigxml));
 
 	//%AppData%\\CorvusSKK\\config.xml
-	if(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath) == S_OK)
+	if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
 		_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnconfigxml);
 
@@ -93,7 +108,7 @@ void CTextService::_CreateConfigPath()
 		}
 #else
 		//%SystemRoot%\\IME\\IMCRVSKK\\config.xml
-		if(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath) == S_OK)
+		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 		{
 			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fnconfigxml);
 
@@ -194,13 +209,13 @@ void CTextService::_LoadBehavior()
 		cx_maxwidth = MAX_WIDTH_DEFAULT;
 	}
 
-	for(int i = 0; i < _countof(cx_colors); i++)
+	for(int i = 0; i < _countof(cx_list_colors); i++)
 	{
-		cx_colors[i] = colorsxmlvalue[i].color;
-		ReadValue(pathconfigxml, SectionDisplay, colorsxmlvalue[i].value, strxmlval);
+		cx_list_colors[i] = listcolorsxmlvalue[i].color;
+		ReadValue(pathconfigxml, SectionDisplay, listcolorsxmlvalue[i].value, strxmlval);
 		if(!strxmlval.empty())
 		{
-			cx_colors[i] = wcstoul(strxmlval.c_str(), nullptr, 0);
+			cx_list_colors[i] = wcstoul(strxmlval.c_str(), nullptr, 0);
 		}
 	}
 
@@ -218,6 +233,9 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionDisplay, ValueVerticalCand, cx_verticalcand, FALSE);
 	_ReadBoolValue(SectionDisplay, ValueAnnotation, cx_annotation, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueAnnotatLst, cx_annotatlst, FALSE);
+
+	_ReadBoolValue(SectionDisplay, ValueShowModeMark, cx_showmodemark, TRUE);
+	_ReadBoolValue(SectionDisplay, ValueShowRoman, cx_showroman, TRUE);
 
 	_ReadBoolValue(SectionDisplay, ValueShowModeInl, cx_showmodeinl, TRUE);
 	ReadValue(pathconfigxml, SectionDisplay, ValueShowModeSec, strxmlval);
@@ -241,6 +259,16 @@ void CTextService::_LoadBehavior()
 	cx_vkbdlayout = std::regex_replace(strxmlval, re, fmt);
 	ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval, L"");
 	cx_vkbdtop = std::regex_replace(strxmlval, re, fmt);
+
+	for(int i = 0; i < _countof(cx_mode_colors); i++)
+	{
+		cx_mode_colors[i] = modecolorsxmlvalue[i].color;
+		ReadValue(pathconfigxml, SectionDisplay, modecolorsxmlvalue[i].value, strxmlval);
+		if(!strxmlval.empty())
+		{
+			cx_mode_colors[i] = wcstoul(strxmlval.c_str(), nullptr, 0);
+		}
+	}
 }
 
 void CTextService::_LoadDisplayAttr()
@@ -342,7 +370,7 @@ void CTextService::_LoadPreservedKey()
 	//for compatibility
 	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
 		{
@@ -679,7 +707,7 @@ void CTextService::_LoadConvPoint()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionConvPoint, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -743,7 +771,7 @@ void CTextService::_LoadKana()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionKana, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -802,7 +830,7 @@ void CTextService::_LoadKana()
 			i++;
 		}
 	}
-	else if(hr != S_OK)
+	else if(FAILED(hr))
 	{
 		ZeroMemory(&rkc, sizeof(rkc));
 
@@ -901,7 +929,7 @@ void CTextService::_LoadJLatin()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionJLatin, list);
 
-	if(hr == S_OK && list.size() != 0)
+	if(SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
@@ -946,7 +974,7 @@ void CTextService::_LoadJLatin()
 			i++;
 		}
 	}
-	else if(hr != S_OK)
+	else if(FAILED(hr))
 	{
 		ZeroMemory(&ajc, sizeof(ajc));
 
@@ -993,7 +1021,7 @@ void CTextService::_InitFont(int dpi)
 
 			HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &_pD2DFactory);
 
-			if(hr == S_OK)
+			if(SUCCEEDED(hr))
 			{
 				D2D1_RENDER_TARGET_PROPERTIES d2dprops = D2D1::RenderTargetProperties(
 					D2D1_RENDER_TARGET_TYPE_DEFAULT,
@@ -1003,24 +1031,24 @@ void CTextService::_InitFont(int dpi)
 				hr = _pD2DFactory->CreateDCRenderTarget(&d2dprops, &_pD2DDCRT);
 			}
 
-			if(hr == S_OK)
+			if(SUCCEEDED(hr))
 			{
-				for(int i = 0; i < DISPLAY_COLOR_NUM; i++)
+				for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 				{
-					hr = _pD2DDCRT->CreateSolidColorBrush(D2D1::ColorF(SWAPRGB(cx_colors[i])), &_pD2DBrush[i]);
-					if(hr != S_OK)
+					hr = _pD2DDCRT->CreateSolidColorBrush(D2D1::ColorF(SWAPRGB(cx_list_colors[i])), &_pD2DBrush[i]);
+					if(FAILED(hr))
 					{
 						break;
 					}
 				}
 			}
 
-			if(hr == S_OK)
+			if(SUCCEEDED(hr))
 			{
 				hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, IID_PUNK_ARGS(&_pDWFactory));
 			}
 
-			if(hr == S_OK)
+			if(SUCCEEDED(hr))
 			{
 				hr = _pDWFactory->CreateTextFormat(cx_fontname, nullptr,
 					static_cast<DWRITE_FONT_WEIGHT>(cx_fontweight),
@@ -1028,12 +1056,12 @@ void CTextService::_InitFont(int dpi)
 					DWRITE_FONT_STRETCH_NORMAL, (FLOAT)MulDiv(cx_fontpoint, dpi, 72), L"JPN", &_pDWTF);
 			}
 
-			if(hr == S_OK)
+			if(SUCCEEDED(hr))
 			{
 				hr = _pDWTF->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
 			}
 
-			if(hr != S_OK)
+			if(FAILED(hr))
 			{
 				_UninitFont();
 
@@ -1059,7 +1087,7 @@ void CTextService::_UninitFont()
 
 	SafeRelease(&_pDWTF);
 	SafeRelease(&_pDWFactory);
-	for(int i = 0; i < DISPLAY_COLOR_NUM; i++)
+	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 	{
 		SafeRelease(&_pD2DBrush[i]);
 	}

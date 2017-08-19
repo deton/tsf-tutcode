@@ -5,6 +5,9 @@
 
 #define INPUTMODE_TIMER_ID		0x54ab516b
 
+#define IM_MARGIN_X 2
+#define IM_MARGIN_Y 2
+
 class CInputModeWindowGetTextExtEditSession : public CEditSessionBase
 {
 public:
@@ -28,7 +31,7 @@ public:
 	{
 		TF_SELECTION tfSelection;
 		ULONG cFetched = 0;
-		if(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched) != S_OK)
+		if(FAILED(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched)))
 		{
 			return E_FAIL;
 		}
@@ -39,9 +42,9 @@ public:
 			return E_FAIL;
 		}
 
-		RECT rc;
+		RECT rc = {};
 		BOOL fClipped;
-		if(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped) != S_OK)
+		if(FAILED(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped)))
 		{
 			SafeRelease(&tfSelection.range);
 			return E_FAIL;
@@ -80,19 +83,19 @@ public:
 
 		if(mi.rcWork.bottom < rc.top)
 		{
-			rc.bottom = mi.rcWork.bottom - height - IM_MERGIN_Y;
+			rc.bottom = mi.rcWork.bottom - height - IM_MARGIN_Y;
 		}
-		else if(mi.rcWork.bottom < (rc.bottom + height + IM_MERGIN_Y))
+		else if(mi.rcWork.bottom < (rc.bottom + height + IM_MARGIN_Y))
 		{
-			rc.bottom = rc.top - height - IM_MERGIN_Y * 2;
+			rc.bottom = rc.top - height - IM_MARGIN_Y * 2;
 		}
 
 		if(rc.bottom < mi.rcWork.top)
 		{
-			rc.bottom = mi.rcWork.top - IM_MERGIN_Y;
+			rc.bottom = mi.rcWork.top - IM_MARGIN_Y;
 		}
 
-		_pInputModeWindow->_Move(rc.left, rc.bottom + IM_MERGIN_Y);
+		_pInputModeWindow->_Move(rc.left, rc.bottom + IM_MARGIN_Y);
 		_pInputModeWindow->_Show(TRUE);
 
 		SafeRelease(&tfSelection.range);
@@ -206,8 +209,8 @@ HRESULT CInputModeWindow::_AdviseTextLayoutSink()
 {
 	HRESULT hr = E_FAIL;
 
-	ITfSource *pSource;
-	if(_pContext->QueryInterface(IID_PPV_ARGS(&pSource)) == S_OK)
+	ITfSource *pSource = nullptr;
+	if(SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 	{
 		hr = pSource->AdviseSink(IID_IUNK_ARGS((ITfTextLayoutSink *)this), &_dwCookieTextLayoutSink);
 		SafeRelease(&pSource);
@@ -222,8 +225,8 @@ HRESULT CInputModeWindow::_UnadviseTextLayoutSink()
 
 	if(_pContext != nullptr)
 	{
-		ITfSource *pSource;
-		if(_pContext->QueryInterface(IID_PPV_ARGS(&pSource)) == S_OK)
+		ITfSource *pSource = nullptr;
+		if(SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 		{
 			hr = pSource->UnadviseSink(_dwCookieTextLayoutSink);
 			SafeRelease(&pSource);
@@ -241,7 +244,7 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	{
 		_pContext = pContext;
 		_pContext->AddRef();
-		if(_AdviseTextLayoutSink() != S_OK)
+		if(FAILED(_AdviseTextLayoutSink()))
 		{
 			return FALSE;
 		}
@@ -263,8 +266,8 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	}
 	else
 	{
-		ITfContextView *pContextView;
-		if(_pContext->GetActiveView(&pContextView) == S_OK)
+		ITfContextView *pContextView = nullptr;
+		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
 			if(FAILED(pContextView->GetWnd(&_hwndParent)) || _hwndParent == nullptr)
 			{
@@ -298,8 +301,8 @@ BOOL CInputModeWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		ClientToScreen(_hwndParent, &pt);
 	}
 
-	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + IM_MERGIN_Y,
-		_size + IM_MERGIN_X * 2, _size + IM_MERGIN_Y * 2, SWP_NOACTIVATE);
+	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + IM_MARGIN_Y,
+		_size + IM_MARGIN_X * 2, _size + IM_MARGIN_Y * 2, SWP_NOACTIVATE);
 
 	return TRUE;
 }
@@ -359,13 +362,13 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
-	HDC hmemdc;
-	HBITMAP hmembmp;
-	HPEN npen;
-	HBRUSH nbrush;
-	HGDIOBJ bmp, pen, brush;
+	HDC hmemdc, hmemdcR;
+	HBITMAP hmembmp, bmp, hmembmpR, bmpR;
+	HPEN pen, npen, penR, npenR;
+	HBRUSH brush, nbrush, brushR, nbrushR;
 	HICON hIcon;
 	RECT r;
+	COLORREF color;
 
 	switch(uMsg)
 	{
@@ -395,23 +398,83 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 
 		hmemdc = CreateCompatibleDC(hdc);
 		hmembmp = CreateCompatibleBitmap(hdc, r.right, r.bottom);
-		bmp = SelectObject(hmemdc, hmembmp);
+		bmp = (HBITMAP)SelectObject(hmemdc, hmembmp);
 
-		npen = CreatePen(PS_SOLID, 1, RGB(0x00, 0x00, 0x00));
-		pen = SelectObject(hmemdc, npen);
-		nbrush = CreateSolidBrush(RGB(0xFF, 0xFF, 0xFF));
-		brush = SelectObject(hmemdc, nbrush);
+		npen = CreatePen(PS_SOLID, 1, _pTextService->cx_mode_colors[CL_COLOR_MF]);
+		pen = (HPEN)SelectObject(hmemdc, npen);
+
+		color = RGB(0xFF, 0xFF, 0xFF);
+		switch(_pTextService->inputmode)
+		{
+		case im_direct:
+			color = _pTextService->cx_mode_colors[CL_COLOR_DR];
+			break;
+		case im_hiragana:
+			color = _pTextService->cx_mode_colors[CL_COLOR_HR];
+			break;
+		case im_katakana:
+			color = _pTextService->cx_mode_colors[CL_COLOR_KT];
+			break;
+		case im_katakana_ank:
+			color = _pTextService->cx_mode_colors[CL_COLOR_KA];
+			break;
+		case im_jlatin:
+			color = _pTextService->cx_mode_colors[CL_COLOR_JL];
+			break;
+		case im_ascii:
+			color = _pTextService->cx_mode_colors[CL_COLOR_AC];
+			break;
+		default:
+			break;
+		}
+		nbrush = CreateSolidBrush(color);
+		brush = (HBRUSH)SelectObject(hmemdc, nbrush);
 
 		Rectangle(hmemdc, 0, 0, r.right, r.bottom);
-
-		_pTextService->_GetIcon(&hIcon, MulDiv(16, _dpi, 96));
-		DrawIconEx(hmemdc, IM_MERGIN_X, IM_MERGIN_Y, hIcon, _size, _size, 0, nbrush, DI_NORMAL);
 
 		SelectObject(hmemdc, pen);
 		SelectObject(hmemdc, brush);
 
 		DeleteObject(npen);
 		DeleteObject(nbrush);
+
+		hmemdcR = CreateCompatibleDC(hdc);
+		hmembmpR = CreateCompatibleBitmap(hdc, r.right, r.bottom);
+		bmpR = (HBITMAP)SelectObject(hmemdcR, hmembmpR);
+
+		penR = (HPEN)SelectObject(hmemdcR, GetStockObject(WHITE_PEN));
+		brushR = (HBRUSH)SelectObject(hmemdcR, GetStockObject(WHITE_BRUSH));
+
+		Rectangle(hmemdcR, 0, 0, r.right, r.bottom);
+
+		_pTextService->_GetIcon(&hIcon, MulDiv(16, _dpi, 96));
+		DrawIconEx(hmemdcR, IM_MARGIN_X, IM_MARGIN_Y, hIcon, _size, _size, 0, (HBRUSH)GetStockObject(WHITE_BRUSH), DI_NORMAL);
+
+		SelectObject(hmemdcR, penR);
+		SelectObject(hmemdcR, brushR);
+
+		npenR = CreatePen(PS_SOLID, 1, _pTextService->cx_mode_colors[CL_COLOR_MC]);
+		penR = (HPEN)SelectObject(hmemdcR, npenR);
+		nbrushR = CreateSolidBrush(_pTextService->cx_mode_colors[CL_COLOR_MC]);
+		brushR = (HBRUSH)SelectObject(hmemdcR, nbrushR);
+
+		SetROP2(hmemdcR, R2_XORPEN);
+
+		Rectangle(hmemdcR, 0, 0, r.right, r.bottom);
+
+		SelectObject(hmemdcR, penR);
+		SelectObject(hmemdcR, brushR);
+
+		DeleteObject(npenR);
+		DeleteObject(nbrushR);
+
+		GdiTransparentBlt(hmemdc, 0, 0, r.right, r.bottom, hmemdcR, 0, 0, r.right, r.bottom,
+			(_pTextService->cx_mode_colors[CL_COLOR_MC] ^ RGB(0xFF, 0xFF, 0xFF)));
+
+		SelectObject(hmemdcR, bmpR);
+
+		DeleteObject(hmembmpR);
+		DeleteObject(hmemdcR);
 
 		BitBlt(hdc, 0, 0, r.right, r.bottom, hmemdc, 0, 0, SRCCOPY);
 
@@ -426,7 +489,7 @@ LRESULT CALLBACK CInputModeWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 		_dpi = HIWORD(wParam);
 		_size = MulDiv(16, _dpi, 96);
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0,
-			_size + IM_MERGIN_X * 2, _size + IM_MERGIN_Y * 2, SWP_NOACTIVATE | SWP_NOMOVE);
+			_size + IM_MARGIN_X * 2, _size + IM_MARGIN_Y * 2, SWP_NOACTIVATE | SWP_NOMOVE);
 		_Redraw();
 		break;
 	case WM_MOUSEACTIVATE:
@@ -510,8 +573,8 @@ public:
 	{
 		HRESULT hr;
 
-		ITfContextView *pContextView;
-		if(_pContext->GetActiveView(&pContextView) == S_OK)
+		ITfContextView *pContextView = nullptr;
+		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
 			try
 			{
@@ -538,55 +601,52 @@ void CTextService::_StartInputModeWindow()
 {
 	switch(inputmode)
 	{
-	case im_default:
+	case im_direct:
 	case im_hiragana:
 	case im_katakana:
 	case im_katakana_ank:
 	case im_jlatin:
 	case im_ascii:
-		_EndInputModeWindow();
-
-		ITfDocumentMgr *pDocumentMgr;
-		if((_pThreadMgr->GetFocus(&pDocumentMgr) == S_OK) && (pDocumentMgr != nullptr))
 		{
-			ITfContext *pContext;
-			if((pDocumentMgr->GetTop(&pContext) == S_OK) && (pContext != nullptr))
+			_EndInputModeWindow();
+
+			ITfDocumentMgr *pDocumentMgr = nullptr;
+			if(SUCCEEDED(_pThreadMgr->GetFocus(&pDocumentMgr)) && (pDocumentMgr != nullptr))
 			{
-				try
+				ITfContext *pContext = nullptr;
+				if(SUCCEEDED(pDocumentMgr->GetTop(&pContext)) && (pContext != nullptr))
 				{
-					_pInputModeWindow = new CInputModeWindow();
-
-					if(_pInputModeWindow->_Create(this, pContext, FALSE, nullptr))
+					try
 					{
-						HRESULT hr = E_FAIL;
-						HRESULT hrSession = E_FAIL;
+						_pInputModeWindow = new CInputModeWindow();
 
-						try
+						if(_pInputModeWindow->_Create(this, pContext, FALSE, nullptr))
 						{
+							HRESULT hr = E_FAIL;
+							HRESULT hrSession = E_FAIL;
+
 							CInputModeWindowEditSession *pEditSession = new CInputModeWindowEditSession(this, pContext, _pInputModeWindow);
 							// Asynchronous, read-only
 							hr = pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNC | TF_ES_READ, &hrSession);
 							SafeRelease(&pEditSession);
 
 							// It is possible that asynchronous requests are treated as synchronous requests.
-							if(hr != S_OK || (hrSession != TF_S_ASYNC && hrSession != S_OK))
+							if(FAILED(hr) || (hrSession != TF_S_ASYNC && FAILED(hrSession)))
 							{
 								_EndInputModeWindow();
 							}
 						}
-						catch(...)
-						{
-						}
 					}
-				}
-				catch(...)
-				{
+					catch(...)
+					{
+						_EndInputModeWindow();
+					}
+
+					SafeRelease(&pContext);
 				}
 
-				SafeRelease(&pContext);
+				SafeRelease(&pDocumentMgr);
 			}
-
-			SafeRelease(&pDocumentMgr);
 		}
 		break;
 	default:

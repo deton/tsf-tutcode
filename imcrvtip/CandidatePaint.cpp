@@ -4,10 +4,10 @@
 #include "CandidateList.h"
 #include "CandidateWindow.h"
 
-#define MERGIN_X 2
-#define MERGIN_Y 4
+#define MARGIN_X 2
+#define MARGIN_Y 4
 
-const int colors_compback[DISPLAY_COLOR_NUM] =
+const int colors_compback[DISPLAY_LIST_COLOR_NUM] =
 {
 	CL_COLOR_BG, CL_COLOR_FR, CL_COLOR_CA, CL_COLOR_CO,
 	CL_COLOR_SE, CL_COLOR_SC, CL_COLOR_AN, CL_COLOR_NO
@@ -44,11 +44,11 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		_pD2DDCRT->BindDC(hdc, &r);
 		_pD2DDCRT->BeginDraw();
 		_pD2DDCRT->SetTransform(D2D1::Matrix3x2F::Identity());
-		_pD2DDCRT->Clear(D2D1::ColorF(SWAPRGB(_pTextService->cx_colors[CL_COLOR_BG])));
+		_pD2DDCRT->Clear(D2D1::ColorF(SWAPRGB(_pTextService->cx_list_colors[CL_COLOR_BG])));
 		rd2d = D2D1::RectF(0.5F, 0.5F, ((FLOAT)cx) - 0.5F, ((FLOAT)cy) - 0.5F);
 		_pD2DDCRT->DrawRectangle(rd2d, _pD2DBrush[CL_COLOR_FR]);
 
-		if(_GetTextMetrics(L"\x20", &dwTM) == S_OK)
+		if(SUCCEEDED(_GetTextMetrics(L"\x20", &dwTM)))
 		{
 			height = (LONG)ceil(dwTM.height);
 		}
@@ -59,9 +59,9 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		hmembmp = CreateCompatibleBitmap(hdc, cx, cy);
 		bmp = SelectObject(hmemdc, hmembmp);
 
-		npen = CreatePen(PS_SOLID, 1, _pTextService->cx_colors[CL_COLOR_FR]);
+		npen = CreatePen(PS_SOLID, 1, _pTextService->cx_list_colors[CL_COLOR_FR]);
 		pen = SelectObject(hmemdc, npen);
-		nbrush = CreateSolidBrush(_pTextService->cx_colors[CL_COLOR_BG]);
+		nbrush = CreateSolidBrush(_pTextService->cx_list_colors[CL_COLOR_BG]);
 		brush = SelectObject(hmemdc, nbrush);
 
 		Rectangle(hmemdc, 0, 0, cx, cy);
@@ -81,17 +81,17 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 	if(_regmode || (_mode == wm_delete))
 	{
-		r.left += MERGIN_X;
-		r.top += MERGIN_Y;
-		r.right -= MERGIN_X;
-		r.bottom -= MERGIN_Y;
+		r.left += MARGIN_X;
+		r.top += MARGIN_Y;
+		r.right -= MARGIN_X;
+		r.bottom -= MARGIN_Y;
 
 		_PaintWord(hmemdc, &r);
 	}
 	else if(((_mode == wm_candidate) || (_mode == wm_complement)) && (_CandCount.size() != 0))
 	{
-		pt.x = MERGIN_X;
-		pt.y = MERGIN_Y;
+		pt.x = MARGIN_X;
+		pt.y = MARGIN_Y;
 
 		GetCurrentPage(&page);
 		count = 0;
@@ -103,7 +103,7 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		for(i = 0; i < _CandCount[page]; i++)
 		{
 			s.clear();
-			for(int cycle = 0; cycle < DISPLAY_COLOR_NUM; cycle++)
+			for(int cycle = 0; cycle < DISPLAY_LIST_COLOR_NUM; cycle++)
 			{
 				s += _MakeCandidateString(page, count, i, cycle);
 			}
@@ -115,7 +115,7 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 			if(_pDWFactory != nullptr)
 			{
-				if(_GetTextMetrics(s.c_str(), &dwTM) == S_OK)
+				if(SUCCEEDED(_GetTextMetrics(s.c_str(), &dwTM)))
 				{
 					r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 				}
@@ -130,19 +130,19 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			{
 				if(i != 0)
 				{
-					pt.x = MERGIN_X;
+					pt.x = MARGIN_X;
 					pt.y += height;
 				}
 			}
 			else
 			{
-				if(pt.x == MERGIN_X && r.right > cx - MERGIN_X)
+				if(pt.x == MARGIN_X && r.right > cx - MARGIN_X)
 				{
 					cx = r.right;
 				}
-				else if(pt.x + r.right > cx - MERGIN_X)
+				else if(pt.x + r.right > cx - MARGIN_X)
 				{
-					pt.x = MERGIN_X;
+					pt.x = MARGIN_X;
 					pt.y += height;
 				}
 			}
@@ -166,7 +166,7 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 		if(_pDWFactory != nullptr)
 		{
-			if(_GetTextMetrics(strPage, &dwTM) == S_OK)
+			if(SUCCEEDED(_GetTextMetrics(strPage, &dwTM)))
 			{
 				r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 			}
@@ -179,18 +179,18 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 		if(_pTextService->cx_verticalcand || (_mode == wm_complement))
 		{
-			pt.x = MERGIN_X;
+			pt.x = MARGIN_X;
 			pt.y += height;
 		}
 		else
 		{
-			if(pt.x == MERGIN_X && r.right > cx - MERGIN_X)
+			if(pt.x == MARGIN_X && r.right > cx - MARGIN_X)
 			{
 				cx = r.right;
 			}
-			else if(pt.x + r.right > cx - MERGIN_X)
+			else if(pt.x + r.right > cx - MARGIN_X)
 			{
-				pt.x = MERGIN_X;
+				pt.x = MARGIN_X;
 				pt.y += height;
 			}
 		}
@@ -209,7 +209,7 @@ void CCandidateWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		}
 		else
 		{
-			SetTextColor(hmemdc, _pTextService->cx_colors[CL_COLOR_NO]);
+			SetTextColor(hmemdc, _pTextService->cx_list_colors[CL_COLOR_NO]);
 			SetBkMode(hdc, TRANSPARENT);
 
 			DrawTextW(hmemdc, strPage, -1, &rc,
@@ -311,7 +311,7 @@ void CCandidateWindow::_PaintWord(HDC hdc, LPRECT lpr)
 	}
 	else
 	{
-		SetTextColor(hdc, _pTextService->cx_colors[CL_COLOR_CA]);
+		SetTextColor(hdc, _pTextService->cx_list_colors[CL_COLOR_CA]);
 		SetBkMode(hdc, TRANSPARENT);
 
 		DrawTextW(hdc, s.c_str(), -1, lpr,
@@ -446,7 +446,7 @@ void CCandidateWindow::_PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT coun
 
 	std::wstring ca = candidates[count + _uShowedCount + idx].first.first;
 
-	for(int cycle = 0; cycle < DISPLAY_COLOR_NUM; cycle++)
+	for(int cycle = 0; cycle < DISPLAY_LIST_COLOR_NUM; cycle++)
 	{
 		s = _MakeCandidateString(page, count, idx, cycle);
 
@@ -459,7 +459,7 @@ void CCandidateWindow::_PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT coun
 
 		if(_pD2DDCRT != nullptr && _pDWTF != nullptr)
 		{
-			if(_GetTextMetrics(s.c_str(), &dwTM) == S_OK)
+			if(SUCCEEDED(_GetTextMetrics(s.c_str(), &dwTM)))
 			{
 				r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 			}
@@ -501,13 +501,13 @@ void CCandidateWindow::_PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT coun
 				(count + _uShowedCount + idx == candidx) &&
 				(color_cycle == CL_COLOR_SE || color_cycle == CL_COLOR_CA))
 			{
-				SetTextColor(hdc, _pTextService->cx_colors[CL_COLOR_BG]);
-				SetBkColor(hdc, _pTextService->cx_colors[CL_COLOR_SE]);
+				SetTextColor(hdc, _pTextService->cx_list_colors[CL_COLOR_BG]);
+				SetBkColor(hdc, _pTextService->cx_list_colors[CL_COLOR_SE]);
 				SetBkMode(hdc, OPAQUE);
 			}
 			else
 			{
-				SetTextColor(hdc, _pTextService->cx_colors[color_cycle]);
+				SetTextColor(hdc, _pTextService->cx_list_colors[color_cycle]);
 				SetBkMode(hdc, TRANSPARENT);
 			}
 
@@ -548,7 +548,7 @@ void CCandidateWindow::_CalcWindowRect()
 
 	if(_pDWFactory != nullptr)
 	{
-		if(_GetTextMetrics(L"\x20", &dwTM) == S_OK)
+		if(SUCCEEDED(_GetTextMetrics(L"\x20", &dwTM)))
 		{
 			height = (LONG)ceil(dwTM.height);
 		}
@@ -563,7 +563,7 @@ void CCandidateWindow::_CalcWindowRect()
 	}
 
 	ZeroMemory(&r, sizeof(r));
-	r.right = _pTextService->cx_maxwidth - MERGIN_X * 2;
+	r.right = _pTextService->cx_maxwidth - MARGIN_X * 2;
 	if(r.right <= 0)
 	{
 		r.right = 1;
@@ -573,7 +573,7 @@ void CCandidateWindow::_CalcWindowRect()
 	{
 		if(_pDWFactory != nullptr)
 		{
-			if(_GetTextMetrics(disptext.c_str(), &dwTM) == S_OK)
+			if(SUCCEEDED(_GetTextMetrics(disptext.c_str(), &dwTM)))
 			{
 				r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 			}
@@ -584,8 +584,8 @@ void CCandidateWindow::_CalcWindowRect()
 				DT_CALCRECT | DT_NOCLIP | DT_NOPREFIX | DT_SINGLELINE | DT_WORDBREAK | DT_NOFULLWIDTHCHARBREAK);
 		}
 
-		cx = r.right + MERGIN_X * 2;
-		cy = height + MERGIN_Y * 2;
+		cx = r.right + MARGIN_X * 2;
+		cy = height + MARGIN_Y * 2;
 	}
 	else if(((_mode == wm_candidate) || (_mode == wm_complement)) && (_CandCount.size() != 0))
 	{
@@ -604,7 +604,7 @@ void CCandidateWindow::_CalcWindowRect()
 		for(i = 0; i < _CandCount[page]; i++)
 		{
 			s.clear();
-			for(int cycle = 0; cycle < DISPLAY_COLOR_NUM; cycle++)
+			for(int cycle = 0; cycle < DISPLAY_LIST_COLOR_NUM; cycle++)
 			{
 				s += _MakeCandidateString(page, count, i, cycle);
 			}
@@ -616,7 +616,7 @@ void CCandidateWindow::_CalcWindowRect()
 
 			if(_pDWFactory != nullptr)
 			{
-				if(_GetTextMetrics(s.c_str(), &dwTM) == S_OK)
+				if(SUCCEEDED(_GetTextMetrics(s.c_str(), &dwTM)))
 				{
 					r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 				}
@@ -642,7 +642,7 @@ void CCandidateWindow::_CalcWindowRect()
 
 		if(_pDWFactory != nullptr)
 		{
-			if(_GetTextMetrics(strPage, &dwTM) == S_OK)
+			if(SUCCEEDED(_GetTextMetrics(strPage, &dwTM)))
 			{
 				r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 			}
@@ -662,7 +662,7 @@ void CCandidateWindow::_CalcWindowRect()
 		for(i = 0; i < _CandCount[page]; i++)
 		{
 			s.clear();
-			for(int cycle = 0; cycle < DISPLAY_COLOR_NUM; cycle++)
+			for(int cycle = 0; cycle < DISPLAY_LIST_COLOR_NUM; cycle++)
 			{
 				s += _MakeCandidateString(page, count, i, cycle);
 			}
@@ -674,7 +674,7 @@ void CCandidateWindow::_CalcWindowRect()
 
 			if(_pDWFactory != nullptr)
 			{
-				if(_GetTextMetrics(s.c_str(), &dwTM) == S_OK)
+				if(SUCCEEDED(_GetTextMetrics(s.c_str(), &dwTM)))
 				{
 					r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 				}
@@ -719,7 +719,7 @@ void CCandidateWindow::_CalcWindowRect()
 
 		if(_pDWFactory != nullptr)
 		{
-			if(_GetTextMetrics(strPage, &dwTM) == S_OK)
+			if(SUCCEEDED(_GetTextMetrics(strPage, &dwTM)))
 			{
 				r.right = (LONG)ceil(dwTM.widthIncludingTrailingWhitespace);
 			}
@@ -752,8 +752,8 @@ void CCandidateWindow::_CalcWindowRect()
 		}
 
 		//候補ウィンドウの幅、高さ
-		cx = xmax + MERGIN_X * 2;
-		cy = pt.y + height + MERGIN_Y * 2;
+		cx = xmax + MARGIN_X * 2;
+		cy = pt.y + height + MARGIN_Y * 2;
 	}
 
 	//表示位置を算出
@@ -833,8 +833,8 @@ HRESULT CCandidateWindow::_GetTextMetrics(LPCWSTR text, DWRITE_TEXT_METRICS *met
 
 	if(metrics != nullptr && _pDWFactory != nullptr && _pDWTF != nullptr)
 	{
-		IDWriteTextLayout *pdwTL;
-		if(_pDWFactory->CreateTextLayout(text, (UINT32)wcslen(text), _pDWTF, 0.0F, 0.0F, &pdwTL) == S_OK)
+		IDWriteTextLayout *pdwTL = nullptr;
+		if(SUCCEEDED(_pDWFactory->CreateTextLayout(text, (UINT32)wcslen(text), _pDWTF, 0.0F, 0.0F, &pdwTL)) && (pdwTL != nullptr))
 		{
 			hr = pdwTL->GetMetrics(metrics);
 			SafeRelease(&pdwTL);
@@ -848,7 +848,7 @@ void CCandidateWindow::_WindowProcDpiChanged(HWND hWnd, UINT uMsg, WPARAM wParam
 {
 	SafeRelease(&_pDWTF);
 	SafeRelease(&_pDWFactory);
-	for(int i = 0; i < DISPLAY_COLOR_NUM; i++)
+	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 	{
 		SafeRelease(&_pD2DBrush[i]);
 	}
@@ -868,7 +868,7 @@ void CCandidateWindow::_WindowProcDpiChanged(HWND hWnd, UINT uMsg, WPARAM wParam
 		_pD2DFactory->AddRef();
 		_pD2DDCRT = _pTextService->_pD2DDCRT;
 		_pD2DDCRT->AddRef();
-		for(int i = 0; i < DISPLAY_COLOR_NUM; i++)
+		for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 		{
 			_pD2DBrush[i] = _pTextService->_pD2DBrush[i];
 			_pD2DBrush[i]->AddRef();

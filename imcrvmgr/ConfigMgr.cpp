@@ -56,7 +56,7 @@ void CreateConfigPath()
 	ZeroMemory(pathinitlua, sizeof(pathinitlua));
 	ZeroMemory(pathbushudic, sizeof(pathbushudic));
 
-	if(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath) == S_OK)
+	if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
 		WCHAR appdir[MAX_PATH];
 
@@ -92,7 +92,7 @@ void UpdateConfigPath()
 
 	//%AppData%\\CorvusSKK\\config.xml
 	//%AppData%\\CorvusSKK\\skkdict.txt
-	if(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath) == S_OK)
+	if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
 		_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnconfigxml);
 		_snwprintf_s(pathskkdic, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnskkdic);
@@ -115,7 +115,7 @@ void UpdateConfigPath()
 		}
 #else
 		//%SystemRoot%\\IME\\IMCRVSKK\\config.xml
-		if(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath) == S_OK)
+		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 		{
 			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fnconfigxml);
 
@@ -139,7 +139,7 @@ void UpdateConfigPath()
 		}
 #else
 		//%SystemRoot%\\IME\\IMCRVSKK\\skkdict.txt
-		if(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath) == S_OK)
+		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 		{
 			_snwprintf_s(pathskkdic, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fnskkdic);
 
@@ -319,7 +319,7 @@ void InitLua()
 	PWSTR knownfolderpath = nullptr;
 
 	//%SystemRoot%\\IME\\IMCRVSKK\\init.lua
-	if(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath) == S_OK)
+	if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
 		_snwprintf_s(pathinitlua, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fninitlua);
 
