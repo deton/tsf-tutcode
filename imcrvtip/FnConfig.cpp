@@ -71,7 +71,7 @@ static const struct {
 	{ValueColorMF, RGB(0x00, 0x00, 0x00)},
 	{ValueColorHR, RGB(0xC0, 0x00, 0x00)},
 	{ValueColorKT, RGB(0x00, 0xC0, 0x00)},
-	{ValueColorKA, RGB(0x00, 0xC0, 0x80)},
+	{ValueColorKA, RGB(0x80, 0x00, 0xC0)},
 	{ValueColorJL, RGB(0x00, 0x00, 0xC0)},
 	{ValueColorAC, RGB(0x00, 0x80, 0xC0)},
 	{ValueColorDR, RGB(0x80, 0x80, 0x80)}
@@ -236,6 +236,7 @@ void CTextService::_LoadBehavior()
 
 	_ReadBoolValue(SectionDisplay, ValueShowModeMark, cx_showmodemark, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueShowRoman, cx_showroman, TRUE);
+	_ReadBoolValue(SectionDisplay, ValueShowRomanJLat, cx_showromanjlat, FALSE);
 
 	_ReadBoolValue(SectionDisplay, ValueShowModeInl, cx_showmodeinl, TRUE);
 	ReadValue(pathconfigxml, SectionDisplay, ValueShowModeSec, strxmlval);

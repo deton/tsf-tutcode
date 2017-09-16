@@ -150,6 +150,11 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, SectionDisplay, ValueShowModeMark, L"1");
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, SectionDisplay, ValueShowRoman, L"1");
+		LoadCheckButton(hDlg, IDC_RADIO_SHOWROMANJLATIN, SectionDisplay, ValueShowRomanJLat);
+		if(!IsDlgButtonChecked(hDlg, IDC_RADIO_SHOWROMANJLATIN))
+		{
+			CheckDlgButton(hDlg, IDC_RADIO_SHOWROMANASCII, BST_CHECKED);
+		}
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, SectionDisplay, ValueShowRomanComp, L"0");
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, SectionDisplay, ValueShowVkbd, L"0");
 
@@ -221,7 +226,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			return TRUE;
 
 		case IDC_EDIT_MAXWIDTH:
-		case IDC_EDIT_SHOWMODESEC:
 		case IDC_EDIT_VKBDLAYOUT:
 		case IDC_EDIT_VKBDTOP:
 			switch(HIWORD(wParam))
@@ -253,9 +257,10 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		case IDC_CHECKBOX_ANNOTATION:
 		case IDC_RADIO_ANNOTATALL:
 		case IDC_RADIO_ANNOTATLST:
-		case IDC_CHECKBOX_SHOWMODEINL:
 		case IDC_CHECKBOX_SHOWMODEMARK:
 		case IDC_CHECKBOX_SHOWROMAN:
+		case IDC_RADIO_SHOWROMANASCII:
+		case IDC_RADIO_SHOWROMANJLATIN:
 		case IDC_CHECKBOX_SHOWROMANCOMP:
 		case IDC_CHECKBOX_SHOWVKBD:
 			PropSheet_Changed(GetParent(hDlg), hDlg);
@@ -367,6 +372,7 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, ValueShowModeMark);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, ValueShowRoman);
+			SaveCheckButton(hDlg, IDC_RADIO_SHOWROMANJLATIN, ValueShowRomanJLat);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, ValueShowRomanComp);
 			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
 

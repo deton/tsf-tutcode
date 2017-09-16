@@ -84,10 +84,12 @@
 #define IDC_RADIO_ANNOTATLST                    2036
 #define IDC_CHECKBOX_SHOWMODEMARK               2037
 #define IDC_CHECKBOX_SHOWROMAN                  2038
-#define IDC_CHECKBOX_SHOWROMANCOMP              2039
-#define IDC_CHECKBOX_SHOWVKBD                   2040
-#define IDC_EDIT_VKBDLAYOUT                     2041
-#define IDC_EDIT_VKBDTOP                        2042
+#define IDC_RADIO_SHOWROMANASCII                2039
+#define IDC_RADIO_SHOWROMANJLATIN               2040
+#define IDC_CHECKBOX_SHOWROMANCOMP              2041
+#define IDC_CHECKBOX_SHOWVKBD                   2042
+#define IDC_EDIT_VKBDLAYOUT                     2043
+#define IDC_EDIT_VKBDTOP                        2044
 
 #define IDC_CHECKBOX_SHOWMODEINL                2101
 #define IDC_EDIT_SHOWMODESEC                    2102
