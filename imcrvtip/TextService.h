@@ -410,6 +410,7 @@ public:
 	BOOL cx_annotatlst;			//注釈を表示する(FALSE:全て/TRUE:候補一覧のみ)
 	BOOL cx_showmodemark;		//▽▼*マークを表示する
 	BOOL cx_showroman;			//ローマ字を表示する
+	BOOL cx_showromanjlat;		//ローマ字を表示する(FALSE:ASCII/TRUE:全英)
 	BOOL cx_showromancomp;		//入力途中のキーシーケンスを表示する
 	BOOL cx_showvkbd;			//入力途中に仮想鍵盤を表示する
 	std::wstring cx_vkbdlayout;	//仮想鍵盤のレイアウト(dvorak等)

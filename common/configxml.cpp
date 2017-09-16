@@ -112,6 +112,7 @@ LPCWSTR ValueAnnotation = L"annotation";
 LPCWSTR ValueAnnotatLst = L"annotatlst";
 LPCWSTR ValueShowModeMark = L"showmodemark";
 LPCWSTR ValueShowRoman = L"showroman";
+LPCWSTR ValueShowRomanJLat = L"showromanjlat";
 LPCWSTR ValueShowRomanComp = L"showromancomp";
 LPCWSTR ValueShowVkbd = L"showvkbd";
 LPCWSTR ValueVkbdLayout = L"vkbdlayout";
