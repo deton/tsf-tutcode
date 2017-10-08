@@ -335,10 +335,10 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 	switch(color_cycle)
 	{
 	case CL_COLOR_BG:
-		s.append(markNBSP);
 		break;
 
 	case CL_COLOR_FR:
+		s.append(markNBSP);
 		break;
 
 	case CL_COLOR_SE:
@@ -419,11 +419,10 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 					std::wregex(markSP), std::wstring(markNBSP)));
 			}
 		}
-
-		s.append(markNBSP);
 		break;
 
 	case CL_COLOR_NO:
+		s.append(markNBSP);
 		break;
 
 	default:
