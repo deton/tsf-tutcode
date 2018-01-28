@@ -507,8 +507,8 @@ Visual C++ 2015 の 正規表現で、文法は ECMAScript を使用していま
 | ひらがな   |                        | ひらがなモード |
 | abbrev     |                        | abbrevモード |
 | 接辞       |                        | 接頭辞・接尾辞 |
-| 次候補     |                        | 辞書検索開始、次候補 |
-| 前候補     |                        | 「後退」のキーも使用可 |
+| 次候補     | 0x22 (PgDn)            | 辞書検索開始、次候補 |
+| 前候補     | 0x21 (PgUp)            | 「後退」のキーも使用可 |
 | 辞書削除   |                        | ユーザー辞書から候補を削除 |
 | 次補完     |                        | 補完開始、次見出し語候補 |
 | 前補完     | Shift+0x09(Shift+Tab)  | 前見出し語候補 |
@@ -852,13 +852,16 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 * Windows 8.1 の場合
     +  「PC設定」の画面 → 「PCとデバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
 
-* Windows 10 の場合
+* Windows 10 (Ver.1703 まで) の場合
     +  「デバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
 
 タッチパネルを搭載していないマシンでハードウェアキーボードに準拠したレイアウトを使用するには、レジストリに以下の値を設定してください。
 
     [HKEY_CURRENT_USER\SOFTWARE\Microsoft\TabletTip\1.7]
     "EnableCompatibilityKeyboard"=dword:00000001
+
+* Windows 10 (Ver.1709 から) の場合
+    +  ハードウェアキーボードに準拠したレイアウトはMS-IMEでのみ使用できるようです。
 
 ### 漢直Winよりもtsf-tutcodeを選ぶ状況
 
@@ -913,7 +916,7 @@ Visual Studio Community 2015 Update 3
 
 WiX Toolset v3.11
 
-pandoc 2.0.1.1
+pandoc 2.1.1
 
 ### ビルド手順
 
@@ -1002,12 +1005,12 @@ pandoc 2.0.1.1
 
 ---
 
-Copyright (C) 2013-2017 KIHARA, Hideto
+Copyright (C) 2013-2018 KIHARA, Hideto
 https://github.com/deton/tsf-tutcode
 
 以下CorvusSKKのCopyright:
 
-Copyright (C) 2011-2017 SASAKI Nobuyuki
+Copyright (C) 2011-2018 SASAKI Nobuyuki
 
 nathancorvussolis@gmail.com
 
