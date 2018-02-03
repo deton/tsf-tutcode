@@ -31,6 +31,8 @@
 #define REQ_USER_DEL_1		L'D'	//ユーザー辞書削除(送りなし、補完あり)
 #define REQ_USER_SAVE		L'S'	//ユーザー辞書保存
 #define REQ_EXEC_CNF		L'P'	//設定ダイアログ起動
+#define REQ_CAPS_LOCK		L'I'	//Caps Lock
+#define REQ_KANA_LOCK		L'J'	//Kana Lock
 #define REQ_BUSHU			L'b'	//部首合成変換
 //reply
 #define REP_OK				L'T'	//hit
@@ -77,13 +79,14 @@ extern const TF_DISPLAYATTRIBUTE c_daDisplayAttributeConvAnnot;
 extern const BOOL c_daDisplayAttributeSeries[DISPLAYATTRIBUTE_INFO_NUM];
 
 BOOL IsWindowsVersionOrLater(DWORD dwMajorVersion, DWORD dwMinorVersion, DWORD dwBuildNumber);
-#define IsWindowsVersion62OrLater() IsWindowsVersionOrLater(6, 2, 0)
-#define IsWindowsVersion63OrLater() IsWindowsVersionOrLater(6, 3, 0)
-#define IsWindowsVersion100OrLater() IsWindowsVersionOrLater(10, 0, 0)
-#define IsWindowsVersion100TH1OrLater() IsWindowsVersionOrLater(10, 0, 10240)
-#define IsWindowsVersion100TH2OrLater() IsWindowsVersionOrLater(10, 0, 10586)
-#define IsWindowsVersion100RS1OrLater() IsWindowsVersionOrLater(10, 0, 14393)
-#define IsWindowsVersion100RS2OrLater() IsWindowsVersionOrLater(10, 0, 15063)
+#define IsWindowsVersion62OrLater() IsWindowsVersionOrLater(6, 2, 0) // Windows 8
+#define IsWindowsVersion63OrLater() IsWindowsVersionOrLater(6, 3, 0) // Windows 8.1
+#define IsWindowsVersion100OrLater() IsWindowsVersionOrLater(10, 0, 0) // Windows 10
+#define IsWindowsVersion100TH1OrLater() IsWindowsVersionOrLater(10, 0, 10240) // Windows 10 ver.1507
+#define IsWindowsVersion100TH2OrLater() IsWindowsVersionOrLater(10, 0, 10586) // Windows 10 ver.1511
+#define IsWindowsVersion100RS1OrLater() IsWindowsVersionOrLater(10, 0, 14393) // Windows 10 ver.1607
+#define IsWindowsVersion100RS2OrLater() IsWindowsVersionOrLater(10, 0, 15063) // Windows 10 ver.1703
+#define IsWindowsVersion100RS3OrLater() IsWindowsVersionOrLater(10, 0, 16299) // Windows 10 ver.1709
 
 BOOL GetUserUUID(LPWSTR *ppszUUID);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
