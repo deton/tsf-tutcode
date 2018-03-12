@@ -914,7 +914,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 Visual Studio Community 2015 Update 3
 
-WiX Toolset v3.11
+WiX Toolset v3.11.1
 
 pandoc 2.1.1
 
