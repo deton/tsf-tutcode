@@ -34,7 +34,7 @@ public:
 			return S_OK;
 		}
 
-		TF_SELECTION tfSelection;
+		TF_SELECTION tfSelection = {};
 		ULONG cFetched = 0;
 		if(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched) != S_OK)
 		{
@@ -47,7 +47,7 @@ public:
 			return E_FAIL;
 		}
 
-		RECT rc;
+		RECT rc = {};
 		BOOL fClipped;
 		if(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped) != S_OK)
 		{
@@ -62,16 +62,16 @@ public:
 			return E_FAIL;
 		}
 
-		POINT pt;
+		POINT pt = {};
 		pt.x = rc.left;
 		pt.y = rc.bottom;
 		HMONITOR hMonitor = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
 
-		MONITORINFO mi;
+		MONITORINFO mi = {};
 		mi.cbSize = sizeof(mi);
 		GetMonitorInfoW(hMonitor, &mi);
 
-		RECT rw;
+		RECT rw = {};
 		_pVKeyboardWindow->_GetRect(&rw);
 		LONG height = rw.bottom - rw.top;
 		LONG width = rw.right - rw.left;
@@ -242,7 +242,7 @@ HRESULT CVKeyboardWindow::_UnadviseTextLayoutSink()
 
 BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext, BOOL bCandidateWindow, HWND hWnd)
 {
-	POINT pt = {0, 0};
+	POINT pt = {};
 
 	if(pContext != nullptr)
 	{
@@ -290,12 +290,12 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		return FALSE;
 	}
 
-	RECT rw;
+	RECT rw = {};
 	_CalcWindowRect(&rw);
 
 	if(bCandidateWindow)
 	{
-		RECT r;
+		RECT r = {};
 		GetClientRect(_hwndParent, &r);
 		pt.x = r.left;
 		pt.y = r.bottom;
@@ -309,9 +309,8 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 
 BOOL CVKeyboardWindow::_InitClass()
 {
-	WNDCLASSEXW wcex;
+	WNDCLASSEXW wcex = {};
 
-	ZeroMemory(&wcex, sizeof(wcex));
 	wcex.cbSize = sizeof(wcex);
 	wcex.style = CS_VREDRAW | CS_HREDRAW;
 	wcex.lpfnWndProc = CVKeyboardWindow::_WindowPreProc;
@@ -367,7 +366,7 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 	HPEN npen;
 	HBRUSH nbrush;
 	HGDIOBJ bmp, pen, brush, font;
-	RECT r;
+	RECT r = {};
 
 	switch(uMsg)
 	{

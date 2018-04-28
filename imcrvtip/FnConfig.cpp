@@ -168,7 +168,7 @@ void CTextService::_LoadBehavior()
 	cx_compmultinum = _wtoi(strxmlval.c_str());
 	if(cx_compmultinum > MAX_SELKEY_C || cx_compmultinum < 1)
 	{
-		cx_compmultinum = COMPMULTIDISP_NUM;
+		cx_compmultinum = COMPMULTIDISP_DEF;
 	}
 	_ReadBoolValue(SectionBehavior, ValueStaCompMulti, cx_stacompmulti, FALSE);
 	_ReadBoolValue(SectionBehavior, ValueDynamicComp, cx_dynamiccomp, FALSE);
@@ -189,7 +189,7 @@ void CTextService::_LoadBehavior()
 
 	if(cx_fontpoint < 8 || cx_fontpoint > 72)
 	{
-		cx_fontpoint = 12;
+		cx_fontpoint = FONT_POINT_DEF;
 	}
 	if(cx_fontweight < 0 || cx_fontweight > 1000)
 	{
@@ -223,10 +223,10 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionDisplay, ValueColorFont, cx_colorfont, TRUE);
 
 	ReadValue(pathconfigxml, SectionDisplay, ValueUntilCandList, strxmlval);
-	cx_untilcandlist = _wtoi(strxmlval.c_str());
-	if(cx_untilcandlist > 9 || strxmlval.empty())
+	cx_untilcandlist = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str());
+	if(cx_untilcandlist > 9 || cx_untilcandlist < 0)
 	{
-		cx_untilcandlist = 5;
+		cx_untilcandlist = UNTILCANDLIST_DEF;
 	}
 
 	_ReadBoolValue(SectionDisplay, ValueDispCandNo, cx_dispcandnum, FALSE);
@@ -240,10 +240,10 @@ void CTextService::_LoadBehavior()
 
 	_ReadBoolValue(SectionDisplay, ValueShowModeInl, cx_showmodeinl, TRUE);
 	ReadValue(pathconfigxml, SectionDisplay, ValueShowModeSec, strxmlval);
-	cx_showmodesec = _wtoi(strxmlval.c_str());
+	cx_showmodesec = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str());
 	if(cx_showmodesec > 60 || cx_showmodesec <= 0)
 	{
-		cx_showmodesec = 3;
+		cx_showmodesec = SHOWMODESEC_DEF;
 	}
 
 	_ReadBoolValue(SectionDisplay, ValueShowModeMark, cx_showmodemark, TRUE);
@@ -986,25 +986,25 @@ void CTextService::_LoadJLatin()
 
 void CTextService::_InitFont(int dpi)
 {
-	LOGFONTW logfont;
-	logfont.lfHeight = -MulDiv(cx_fontpoint, dpi, 72);
-	logfont.lfWidth = 0;
-	logfont.lfEscapement = 0;
-	logfont.lfOrientation = 0;
-	logfont.lfWeight = cx_fontweight;
-	logfont.lfItalic = cx_fontitalic;
-	logfont.lfUnderline = FALSE;
-	logfont.lfStrikeOut = FALSE;
-	logfont.lfCharSet = SHIFTJIS_CHARSET;
-	logfont.lfOutPrecision = OUT_DEFAULT_PRECIS;
-	logfont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-	logfont.lfQuality = PROOF_QUALITY;
-	logfont.lfPitchAndFamily = DEFAULT_PITCH;
-	wcscpy_s(logfont.lfFaceName, cx_fontname);
+	LOGFONTW lf = {};
+	lf.lfHeight = -MulDiv(cx_fontpoint, dpi, 72);
+	lf.lfWidth = 0;
+	lf.lfEscapement = 0;
+	lf.lfOrientation = 0;
+	lf.lfWeight = cx_fontweight;
+	lf.lfItalic = cx_fontitalic;
+	lf.lfUnderline = FALSE;
+	lf.lfStrikeOut = FALSE;
+	lf.lfCharSet = SHIFTJIS_CHARSET;
+	lf.lfOutPrecision = OUT_DEFAULT_PRECIS;
+	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+	lf.lfQuality = PROOF_QUALITY;
+	lf.lfPitchAndFamily = DEFAULT_PITCH;
+	wcscpy_s(lf.lfFaceName, cx_fontname);
 
 	if(hFont == nullptr)
 	{
-		hFont = CreateFontIndirectW(&logfont);
+		hFont = CreateFontIndirectW(&lf);
 	}
 
 	if(cx_drawapi && !_UILessMode && (_pD2DFactory == nullptr))
@@ -1061,14 +1061,14 @@ void CTextService::_InitFont(int dpi)
 			{
 				_UninitFont();
 
-				hFont = CreateFontIndirectW(&logfont);
+				hFont = CreateFontIndirectW(&lf);
 			}
 		}
 		__except(EXCEPTION_EXECUTE_HANDLER)
 		{
 			_UninitFont();
 			//use GDI font
-			hFont = CreateFontIndirectW(&logfont);
+			hFont = CreateFontIndirectW(&lf);
 		}
 	}
 }

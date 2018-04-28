@@ -3,11 +3,23 @@
 
   <?include installer-version.wxi ?>
 
-  <Product Id="*" Name="tsf-tutcode (x64)" Version="$(var.version)" Manufacturer="nathancorvussolis"
-    Language="1033" UpgradeCode="8EC1F2D0-BE94-43E6-9C74-6CA6ADA9737E">
+  <Product
+    Id="*"
+    Name="tsf-tutcode (x64)"
+    Version="$(var.version)"
+    Manufacturer="nathancorvussolis"
+    Language="1033"
+    UpgradeCode="8EC1F2D0-BE94-43E6-9C74-6CA6ADA9737E">
 
-    <Package Id="*" Compressed="yes" Description="tsf-tutcode (x64)" Comments="ver. $(var.version)"
-      Platform="x64" InstallerVersion="405" InstallScope="perMachine" InstallPrivileges="elevated" />
+    <Package
+      Id="*"
+      Compressed="yes"
+      Description="tsf-tutcode (x64)"
+      Comments="ver. $(var.version)"
+      Platform="x64"
+      InstallerVersion="405"
+      InstallScope="perMachine"
+      InstallPrivileges="elevated" />
 
     <Media Id="1" Cabinet="x64.cab" CompressionLevel="high" EmbedCab="yes" />
 
@@ -20,24 +32,24 @@
     </Directory>
 
     <DirectoryRef Id="IMTSFTUTCODE_X64">
-      <Component Guid="*" Id="CNF_X64" Win64="yes">
+      <Component Id="CNF_X64" Guid="*" Win64="yes">
         <File Id="F_imtutcnf_x64" Name="imtutcnf.exe" Source="..\x64\Release\imtutcnf.exe" />
       </Component>
-      <Component Guid="*" Id="MGR_X64" Win64="yes">
+      <Component Id="MGR_X64" Guid="*" Win64="yes">
         <File Id="F_imtutmgr_x64" Name="imtutmgr.exe" Source="..\x64\Release\imtutmgr.exe" />
       </Component>
-      <Component Guid="*" Id="TIP_X64" Win64="yes">
+      <Component Id="TIP_X64" Guid="*" Win64="yes">
         <File Id="F_imtuttip_x64" Name="imtuttip.dll" Source="..\x64\Release\imtuttip.dll" SelfRegCost="1" />
       </Component>
-      <Component Guid="*" Id="LUAEXE_X64" Win64="yes">
+      <Component Id="LUAEXE_X64" Guid="*" Win64="yes">
         <File Id="F_luaexe_x64" Name="lua.exe" Source="..\x64\Release\lua.exe" />
       </Component>
-      <Component Guid="*" Id="LUADLL_X64" Win64="yes">
+      <Component Id="LUADLL_X64" Guid="*" Win64="yes">
         <File Id="F_luadll_x64" Name="lua53.dll" Source="..\x64\Release\lua53.dll" />
       </Component>
     </DirectoryRef>
 
-    <Component Guid="*" Id="REG_X64" Directory="TARGETDIR" Win64="yes">
+    <Component Id="REG_X64" Guid="*" Directory="TARGETDIR" Win64="yes">
       <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
         <RegistryValue Action="write" Type="string" Name="imtutmgr"
           Value="&quot;[%SystemRoot]\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" />
