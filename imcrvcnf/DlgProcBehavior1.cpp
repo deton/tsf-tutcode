@@ -7,7 +7,6 @@ static LPCWSTR defaultFixMazeCount = L"0";
 
 INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	WCHAR num[32];
 	std::wstring strxmlval;
 
 	switch(message)
@@ -69,36 +68,28 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		}
 		break;
 
-	case WM_NOTIFY:
-		switch(((LPNMHDR)lParam)->code)
-		{
-		case PSN_APPLY:
-			WriterStartSection(pXmlWriter, SectionBehavior);	//Start of SectionBehavior
-
-			SaveCheckButton(hDlg, IDC_CHECKBOX_DEFAULTMODE, ValueDefaultMode);
-			SaveCheckButton(hDlg, IDC_RADIO_DEFMODEASCII, ValueDefModeAscii);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_BEGINCVOKURI, ValueBeginCvOkuri);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_PRECEDEOKURI, ValuePrecedeOkuri);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SHIFTNNOKURI, ValueShiftNNOkuri);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SRCHALLOKURI, ValueSrchAllOkuri);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_DELCVPOSCNCL, ValueDelCvPosCncl);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_DELOKURICNCL, ValueDelOkuriCncl);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_BACKINCENTER, ValueBackIncEnter);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_ADDCANDKTKN, ValueAddCandKtkn);
-
-			GetDlgItemTextW(hDlg, IDC_EDIT_FIX_MAZECOUNT, num, _countof(num));
-			WriterKey(pXmlWriter, ValueFixMazeCount, num);
-
-			return TRUE;
-
-		default:
-			break;
-		}
-		break;
-
 	default:
 		break;
 	}
 
 	return FALSE;
+}
+
+void SaveBehavior1(IXmlWriter *pWriter, HWND hDlg)
+{
+	WCHAR num[32];
+
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_DEFAULTMODE, ValueDefaultMode);
+	SaveCheckButton(pWriter, hDlg, IDC_RADIO_DEFMODEASCII, ValueDefModeAscii);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_BEGINCVOKURI, ValueBeginCvOkuri);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_PRECEDEOKURI, ValuePrecedeOkuri);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHIFTNNOKURI, ValueShiftNNOkuri);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SRCHALLOKURI, ValueSrchAllOkuri);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_DELCVPOSCNCL, ValueDelCvPosCncl);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_DELOKURICNCL, ValueDelOkuriCncl);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_BACKINCENTER, ValueBackIncEnter);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_ADDCANDKTKN, ValueAddCandKtkn);
+
+	GetDlgItemTextW(hDlg, IDC_EDIT_FIX_MAZECOUNT, num, _countof(num));
+	WriterKey(pWriter, ValueFixMazeCount, num);
 }

@@ -32,14 +32,12 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	INT fontpoint, fontweight, count;
 	BOOL fontitalic;
-	CHOOSEFONTW cf;
-	LOGFONTW lf;
+	CHOOSEFONTW cf = {};
+	LOGFONTW lf = {};
 	static HFONT hFont;
-	RECT rect;
-	POINT pt;
 	LONG w;
 	std::wstring strxmlval;
-	CHOOSECOLORW cc;
+	CHOOSECOLORW cc = {};
 	static COLORREF customColor[16];
 
 	switch(message)
@@ -56,7 +54,7 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		fontpoint = _wtoi(strxmlval.c_str());
 		if(fontpoint < 8 || fontpoint > 72)
 		{
-			fontpoint = 12;
+			fontpoint = FONT_POINT_DEF;
 		}
 
 		ReadValue(pathconfigxml, SectionFont, ValueFontWeight, strxmlval);
@@ -121,10 +119,10 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			SendMessageW(hwnd, CB_ADDSTRING, 0, (LPARAM)num);
 		}
 		ReadValue(pathconfigxml, SectionDisplay, ValueUntilCandList, strxmlval);
-		count = strxmlval.empty() ? 5 : _wtoi(strxmlval.c_str());
+		count = strxmlval.empty() ? UNTILCANDLIST_DEF : _wtoi(strxmlval.c_str());
 		if(count > 9 || count < 0)
 		{
-			count = 5;
+			count = UNTILCANDLIST_DEF;
 		}
 		SendMessageW(hwnd, CB_SETCURSEL, (WPARAM)count, 0);
 
@@ -137,16 +135,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		{
 			CheckDlgButton(hDlg, IDC_RADIO_ANNOTATALL, BST_CHECKED);
 		}
-
-		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEINL, SectionDisplay, ValueShowModeInl, L"1");
-		ReadValue(pathconfigxml, SectionDisplay, ValueShowModeSec, strxmlval);
-		count = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str());
-		if(count > 60 || count <= 0)
-		{
-			count = 3;
-		}
-		_snwprintf_s(num, _TRUNCATE, L"%d", count);
-		SetDlgItemTextW(hDlg, IDC_EDIT_SHOWMODESEC, num);
 
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, SectionDisplay, ValueShowModeMark, L"1");
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, SectionDisplay, ValueShowRoman, L"1");
@@ -194,7 +182,7 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			{
 				EnableWindow(hwnd, FALSE);
 			}
-			break;
+			return TRUE;
 		default:
 			break;
 		}
@@ -205,7 +193,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			GetObjectW(hFont, sizeof(lf), &lf);
 			lf.lfHeight = -MulDiv(GetDlgItemInt(hDlg, IDC_EDIT_FONTPOINT, nullptr, FALSE), 96, 72);
 
-			ZeroMemory(&cf, sizeof(cf));
 			cf.lStructSize = sizeof(cf);
 			cf.hwndOwner = hDlg;
 			cf.lpLogFont = &lf;
@@ -233,6 +220,47 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			case EN_CHANGE:
 				PropSheet_Changed(GetParent(hDlg), hDlg);
 				return TRUE;
+			default:
+				break;
+			}
+			break;
+
+		case IDC_COL_BG:
+		case IDC_COL_FR:
+		case IDC_COL_SE:
+		case IDC_COL_CO:
+		case IDC_COL_CA:
+		case IDC_COL_SC:
+		case IDC_COL_AN:
+		case IDC_COL_NO:
+			switch(HIWORD(wParam))
+			{
+			case STN_CLICKED:
+			case STN_DBLCLK:
+				for(int i = 0; i < _countof(displayListColor); i++)
+				{
+					if(LOWORD(wParam) == displayListColor[i].id)
+					{
+						cc.lStructSize = sizeof(cc);
+						cc.hwndOwner = hDlg;
+						cc.hInstance = nullptr;
+						cc.rgbResult = displayListColor[i].color;
+						cc.lpCustColors = customColor;
+						cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+						cc.lCustData = 0;
+						cc.lpfnHook = nullptr;
+						cc.lpTemplateName = nullptr;
+
+						if(ChooseColorW(&cc))
+						{
+							DrawSelectColor(hDlg, displayListColor[i].id, cc.rgbResult);
+							displayListColor[i].color = cc.rgbResult;
+							PropSheet_Changed(GetParent(hDlg), hDlg);
+						}
+						return TRUE;
+					}
+				}
+				break;
 			default:
 				break;
 			}
@@ -271,39 +299,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		}
 		break;
 
-	case WM_LBUTTONDOWN:
-		for(int i = 0; i < _countof(displayListColor); i++)
-		{
-			hwnd = GetDlgItem(hDlg, displayListColor[i].id);
-			GetWindowRect(hwnd, &rect);
-			pt.x = GET_X_LPARAM(lParam);
-			pt.y = GET_Y_LPARAM(lParam);
-			ClientToScreen(hDlg, &pt);
-
-			if(rect.left <= pt.x && pt.x <= rect.right &&
-				rect.top <= pt.y && pt.y <= rect.bottom)
-			{
-				cc.lStructSize = sizeof(cc);
-				cc.hwndOwner = hDlg;
-				cc.hInstance = nullptr;
-				cc.rgbResult = displayListColor[i].color;
-				cc.lpCustColors = customColor;
-				cc.Flags = CC_FULLOPEN | CC_RGBINIT;
-				cc.lCustData = 0;
-				cc.lpfnHook = nullptr;
-				cc.lpTemplateName = nullptr;
-				if(ChooseColorW(&cc))
-				{
-					DrawSelectColor(hDlg, displayListColor[i].id, cc.rgbResult);
-					displayListColor[i].color = cc.rgbResult;
-					PropSheet_Changed(GetParent(hDlg), hDlg);
-					return TRUE;
-				}
-				break;
-			}
-		}
-		break;
-
 	case WM_PAINT:
 		hdc = BeginPaint(hDlg, &ps);
 		for(int i = 0; i < _countof(displayListColor); i++)
@@ -313,83 +308,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		EndPaint(hDlg, &ps);
 
 		return TRUE;
-
-	case WM_NOTIFY:
-		switch(((LPNMHDR)lParam)->code)
-		{
-		case PSN_APPLY:
-			WriterStartSection(pXmlWriter, SectionFont);	//Start of SectionFont
-
-			GetDlgItemTextW(hDlg, IDC_EDIT_FONTNAME, fontname, _countof(fontname));
-			WriterKey(pXmlWriter, ValueFontName, fontname);
-
-			hFont = (HFONT)SendMessageW(GetDlgItem(hDlg, IDC_EDIT_FONTNAME), WM_GETFONT, 0, 0);
-			GetObjectW(hFont, sizeof(lf), &lf);
-			GetDlgItemTextW(hDlg, IDC_EDIT_FONTPOINT, num, _countof(num));
-			WriterKey(pXmlWriter, ValueFontSize, num);
-			_snwprintf_s(num, _TRUNCATE, L"%d", lf.lfWeight);
-			WriterKey(pXmlWriter, ValueFontWeight, num);
-			_snwprintf_s(num, _TRUNCATE, L"%d", lf.lfItalic == FALSE ? 0 : 1);
-			WriterKey(pXmlWriter, ValueFontItalic, num);
-
-			WriterEndSection(pXmlWriter);	//End of SectionFont
-
-			WriterStartSection(pXmlWriter, SectionDisplay);	//Start of SectionDisplay
-
-			GetDlgItemTextW(hDlg, IDC_EDIT_MAXWIDTH, num, _countof(num));
-			w = _wtol(num);
-			if(w < 0)
-			{
-				w = MAX_WIDTH_DEFAULT;
-			}
-			_snwprintf_s(num, _TRUNCATE, L"%d", w);
-			SetDlgItemTextW(hDlg, IDC_EDIT_MAXWIDTH, num);
-			WriterKey(pXmlWriter, ValueMaxWidth, num);
-
-			for(int i = 0; i < _countof(displayListColor); i++)
-			{
-				_snwprintf_s(num, _TRUNCATE, L"0x%06X", displayListColor[i].color);
-				WriterKey(pXmlWriter, displayListColor[i].value, num);
-			}
-
-			SaveCheckButton(hDlg, IDC_RADIO_API_D2D, ValueDrawAPI);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_COLOR_FONT, ValueColorFont);
-
-			hwnd = GetDlgItem(hDlg, IDC_COMBO_UNTILCANDLIST);
-			count = (INT)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
-			if(count > 9 || count < 0)
-			{
-				count = 5;
-			}
-			num[0] = L'0' + count;
-			num[1] = L'\0';
-			WriterKey(pXmlWriter, ValueUntilCandList, num);
-
-			SaveCheckButton(hDlg, IDC_CHECKBOX_DISPCANDNO, ValueDispCandNo);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_VERTICALCAND, ValueVerticalCand);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_ANNOTATION, ValueAnnotation);
-			SaveCheckButton(hDlg, IDC_RADIO_ANNOTATLST, ValueAnnotatLst);
-
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWMODEMARK, ValueShowModeMark);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMAN, ValueShowRoman);
-			SaveCheckButton(hDlg, IDC_RADIO_SHOWROMANJLATIN, ValueShowRomanJLat);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, ValueShowRomanComp);
-			SaveCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
-
-			GetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout, _countof(vkbdlayout));
-			WriterKey(pXmlWriter, ValueVkbdLayout, vkbdlayout);
-			GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
-			WriterKey(pXmlWriter, ValueVkbdTop, vkbdtop);
-
-			//at DlgProcDisplay2
-			//WriterEndSection(pXmlWriter);	//End of SectionDisplay
-
-			return TRUE;
-
-		default:
-			break;
-		}
-		break;
 
 	case WM_DESTROY:
 		DeleteObject(hFont);
@@ -401,4 +319,78 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	}
 
 	return FALSE;
+}
+
+void SaveFont(IXmlWriter *pWriter, HWND hDlg)
+{
+	WCHAR fontname[LF_FACESIZE];
+	HFONT hFont;
+	LOGFONTW lf = {};
+	WCHAR num[16];
+
+	GetDlgItemTextW(hDlg, IDC_EDIT_FONTNAME, fontname, _countof(fontname));
+	WriterKey(pWriter, ValueFontName, fontname);
+
+	hFont = (HFONT)SendMessageW(GetDlgItem(hDlg, IDC_EDIT_FONTNAME), WM_GETFONT, 0, 0);
+	GetObjectW(hFont, sizeof(lf), &lf);
+	GetDlgItemTextW(hDlg, IDC_EDIT_FONTPOINT, num, _countof(num));
+	WriterKey(pWriter, ValueFontSize, num);
+	_snwprintf_s(num, _TRUNCATE, L"%d", lf.lfWeight);
+	WriterKey(pWriter, ValueFontWeight, num);
+	_snwprintf_s(num, _TRUNCATE, L"%d", lf.lfItalic == FALSE ? 0 : 1);
+	WriterKey(pWriter, ValueFontItalic, num);
+}
+
+void SaveDisplay1(IXmlWriter *pWriter, HWND hDlg)
+{
+	WCHAR num[16];
+	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
+	LONG w;
+	HWND hwnd;
+	int count;
+
+	GetDlgItemTextW(hDlg, IDC_EDIT_MAXWIDTH, num, _countof(num));
+	w = _wtol(num);
+	if (w < 0)
+	{
+		w = MAX_WIDTH_DEFAULT;
+	}
+	_snwprintf_s(num, _TRUNCATE, L"%d", w);
+	SetDlgItemTextW(hDlg, IDC_EDIT_MAXWIDTH, num);
+	WriterKey(pWriter, ValueMaxWidth, num);
+
+	for (int i = 0; i < _countof(displayListColor); i++)
+	{
+		_snwprintf_s(num, _TRUNCATE, L"0x%06X", displayListColor[i].color);
+		WriterKey(pWriter, displayListColor[i].value, num);
+	}
+
+	SaveCheckButton(pWriter, hDlg, IDC_RADIO_API_D2D, ValueDrawAPI);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_COLOR_FONT, ValueColorFont);
+
+	hwnd = GetDlgItem(hDlg, IDC_COMBO_UNTILCANDLIST);
+	count = (int)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
+	if (count > 9 || count < 0)
+	{
+		count = UNTILCANDLIST_DEF;
+	}
+	num[0] = L'0' + count;
+	num[1] = L'\0';
+	WriterKey(pWriter, ValueUntilCandList, num);
+
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_DISPCANDNO, ValueDispCandNo);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_VERTICALCAND, ValueVerticalCand);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_ANNOTATION, ValueAnnotation);
+	SaveCheckButton(pWriter, hDlg, IDC_RADIO_ANNOTATLST, ValueAnnotatLst);
+
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWMODEMARK, ValueShowModeMark);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWROMAN, ValueShowRoman);
+	SaveCheckButton(pWriter, hDlg, IDC_RADIO_SHOWROMANJLATIN, ValueShowRomanJLat);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWROMANCOMP, ValueShowRomanComp);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
+
+	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout, _countof(vkbdlayout));
+	WriterKey(pWriter, ValueVkbdLayout, vkbdlayout);
+	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
+	WriterKey(pWriter, ValueVkbdTop, vkbdtop);
 }
