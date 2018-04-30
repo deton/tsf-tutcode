@@ -5,8 +5,8 @@
 #include "moji.h"
 #include <sstream>
 
-#define IM_MERGIN_X 2
-#define IM_MERGIN_Y 2
+#define IM_MARGIN_X 2
+#define IM_MARGIN_Y 2
 
 class CVKeyboardWindowGetTextExtEditSession : public CEditSessionBase
 {
@@ -88,19 +88,19 @@ public:
 
 		if(mi.rcWork.bottom < rc.top)
 		{
-			rc.bottom = mi.rcWork.bottom - height - IM_MERGIN_Y;
+			rc.bottom = mi.rcWork.bottom - height - IM_MARGIN_Y;
 		}
-		else if(mi.rcWork.bottom < (rc.bottom + height + IM_MERGIN_Y))
+		else if(mi.rcWork.bottom < (rc.bottom + height + IM_MARGIN_Y))
 		{
-			rc.bottom = rc.top - height - IM_MERGIN_Y * 2;
+			rc.bottom = rc.top - height - IM_MARGIN_Y * 2;
 		}
 
 		if(rc.bottom < mi.rcWork.top)
 		{
-			rc.bottom = mi.rcWork.top - IM_MERGIN_Y;
+			rc.bottom = mi.rcWork.top - IM_MARGIN_Y;
 		}
 
-		_pVKeyboardWindow->_Move(rc.left, rc.bottom + IM_MERGIN_Y);
+		_pVKeyboardWindow->_Move(rc.left, rc.bottom + IM_MARGIN_Y);
 		_pVKeyboardWindow->_Show(TRUE);
 
 		SafeRelease(&tfSelection.range);
@@ -302,7 +302,7 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		ClientToScreen(_hwndParent, &pt);
 	}
 
-	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + IM_MERGIN_Y, rw.right, rw.bottom, SWP_NOSIZE | SWP_NOACTIVATE);
+	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + IM_MARGIN_Y, rw.right, rw.bottom, SWP_NOSIZE | SWP_NOACTIVATE);
 
 	return TRUE;
 }
@@ -393,8 +393,8 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 			std::wistringstream iss(_vkb);
 			for(std::wstring s; getline(iss, s);)
 			{
-				int y = IM_MERGIN_Y + i * _fontHeight;
-				TextOut(hmemdc, IM_MERGIN_X, y, s.c_str(), s.size());
+				int y = IM_MARGIN_Y + i * _fontHeight;
+				TextOut(hmemdc, IM_MARGIN_X, y, s.c_str(), s.size());
 				i++;
 			}
 		}
@@ -510,12 +510,12 @@ void CVKeyboardWindow::_CalcWindowRect(LPRECT lpRect)
 	TEXTMETRICW tm;
 	GetTextMetricsW(hdc, &tm);
 	_fontHeight = tm.tmHeight;
-	lpRect->bottom = IM_MERGIN_Y * 2 + _fontHeight * 4;
+	lpRect->bottom = IM_MARGIN_Y * 2 + _fontHeight * 4;
 
 	RECT r = {0, 0, 0, 0};
 	//XXX:漢字は固定幅と想定。表示文字列ごとに計算するのは面倒なので
 	DrawTextW(hdc, L"並態両乗専│興口洋船久", -1, &r, DT_CALCRECT);
-	lpRect->right = IM_MERGIN_X * 2 + r.right;
+	lpRect->right = IM_MARGIN_X * 2 + r.right;
 
 	SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, lpRect->right, lpRect->bottom, SWP_NOMOVE | SWP_NOACTIVATE);
 
