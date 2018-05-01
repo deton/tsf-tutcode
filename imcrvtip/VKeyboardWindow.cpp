@@ -36,7 +36,7 @@ public:
 
 		TF_SELECTION tfSelection = {};
 		ULONG cFetched = 0;
-		if(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched) != S_OK)
+		if(FAILED(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched)))
 		{
 			return E_FAIL;
 		}
@@ -49,7 +49,7 @@ public:
 
 		RECT rc = {};
 		BOOL fClipped;
-		if(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped) != S_OK)
+		if(FAILED(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped)))
 		{
 			SafeRelease(&tfSelection.range);
 			return E_FAIL;
@@ -213,8 +213,8 @@ HRESULT CVKeyboardWindow::_AdviseTextLayoutSink()
 {
 	HRESULT hr = E_FAIL;
 
-	ITfSource *pSource;
-	if(_pContext->QueryInterface(IID_PPV_ARGS(&pSource)) == S_OK)
+	ITfSource *pSource = nullptr;
+	if(SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 	{
 		hr = pSource->AdviseSink(IID_IUNK_ARGS((ITfTextLayoutSink *)this), &_dwCookieTextLayoutSink);
 		SafeRelease(&pSource);
@@ -229,8 +229,8 @@ HRESULT CVKeyboardWindow::_UnadviseTextLayoutSink()
 
 	if(_pContext != nullptr)
 	{
-		ITfSource *pSource;
-		if(_pContext->QueryInterface(IID_PPV_ARGS(&pSource)) == S_OK)
+		ITfSource *pSource = nullptr;
+		if(SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 		{
 			hr = pSource->UnadviseSink(_dwCookieTextLayoutSink);
 			SafeRelease(&pSource);
@@ -248,7 +248,7 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	{
 		_pContext = pContext;
 		_pContext->AddRef();
-		if(_AdviseTextLayoutSink() != S_OK)
+		if(FAILED(_AdviseTextLayoutSink()))
 		{
 			return FALSE;
 		}
@@ -269,8 +269,8 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	}
 	else
 	{
-		ITfContextView *pContextView;
-		if(_pContext->GetActiveView(&pContextView) == S_OK)
+		ITfContextView *pContextView = nullptr;
+		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
 			if(FAILED(pContextView->GetWnd(&_hwndParent)) || _hwndParent == nullptr)
 			{
@@ -302,7 +302,8 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		ClientToScreen(_hwndParent, &pt);
 	}
 
-	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + IM_MARGIN_Y, rw.right, rw.bottom, SWP_NOSIZE | SWP_NOACTIVATE);
+	SetWindowPos(_hwnd, HWND_TOPMOST, pt.x, pt.y + IM_MARGIN_Y,
+		rw.right, rw.bottom, SWP_NOSIZE | SWP_NOACTIVATE);
 
 	return TRUE;
 }
@@ -362,10 +363,10 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 	PAINTSTRUCT ps;
 	HDC hdc;
 	HDC hmemdc;
-	HBITMAP hmembmp;
-	HPEN npen;
-	HBRUSH nbrush;
-	HGDIOBJ bmp, pen, brush, font;
+	HBITMAP hmembmp, bmp;
+	HPEN pen, npen;
+	HBRUSH brush, nbrush;
+	HFONT font;
 	RECT r = {};
 
 	switch(uMsg)
@@ -377,16 +378,16 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 
 		hmemdc = CreateCompatibleDC(hdc);
 		hmembmp = CreateCompatibleBitmap(hdc, r.right, r.bottom);
-		bmp = SelectObject(hmemdc, hmembmp);
+		bmp = (HBITMAP)SelectObject(hmemdc, hmembmp);
 
 		npen = CreatePen(PS_SOLID, 1, RGB(0x00, 0x00, 0x00));
-		pen = SelectObject(hmemdc, npen);
+		pen = (HPEN)SelectObject(hmemdc, npen);
 		nbrush = CreateSolidBrush(RGB(0xFF, 0xFF, 0xFF));
-		brush = SelectObject(hmemdc, nbrush);
+		brush = (HBRUSH)SelectObject(hmemdc, nbrush);
 
 		Rectangle(hmemdc, 0, 0, r.right, r.bottom);
 
-		font = SelectObject(hmemdc, _pTextService->hFont);
+		font = (HFONT)SelectObject(hmemdc, _pTextService->hFont);
 		if(!_vkb.empty())
 		{
 			int i = 0;
@@ -506,13 +507,13 @@ void CVKeyboardWindow::_CalcWindowRect(LPRECT lpRect)
 	SetRectEmpty(lpRect);
 
 	HDC hdc = GetDC(_hwnd);
-	HGDIOBJ fontSave = SelectObject(hdc, _pTextService->hFont);
-	TEXTMETRICW tm;
+	HFONT fontSave = (HFONT)SelectObject(hdc, _pTextService->hFont);
+	TEXTMETRICW tm = {};
 	GetTextMetricsW(hdc, &tm);
 	_fontHeight = tm.tmHeight;
 	lpRect->bottom = IM_MARGIN_Y * 2 + _fontHeight * 4;
 
-	RECT r = {0, 0, 0, 0};
+	RECT r = {};
 	//XXX:漢字は固定幅と想定。表示文字列ごとに計算するのは面倒なので
 	DrawTextW(hdc, L"並態両乗専│興口洋船久", -1, &r, DT_CALCRECT);
 	lpRect->right = IM_MARGIN_X * 2 + r.right;
@@ -543,8 +544,8 @@ public:
 	{
 		HRESULT hr;
 
-		ITfContextView *pContextView;
-		if(_pContext->GetActiveView(&pContextView) == S_OK)
+		ITfContextView *pContextView = nullptr;
+		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
 			try
 			{
@@ -581,11 +582,11 @@ void CTextService::_StartVKeyboardWindow()
 		return;
 	}
 
-	ITfDocumentMgr *pDocumentMgr;
-	if((_pThreadMgr->GetFocus(&pDocumentMgr) == S_OK) && (pDocumentMgr != nullptr))
+	ITfDocumentMgr *pDocumentMgr = nullptr;
+	if(SUCCEEDED(_pThreadMgr->GetFocus(&pDocumentMgr)) && (pDocumentMgr != nullptr))
 	{
-		ITfContext *pContext;
-		if((pDocumentMgr->GetTop(&pContext) == S_OK) && (pContext != nullptr))
+		ITfContext *pContext = nullptr;
+		if(SUCCEEDED(pDocumentMgr->GetTop(&pContext)) && (pContext != nullptr))
 		{
 			try
 			{
@@ -596,26 +597,21 @@ void CTextService::_StartVKeyboardWindow()
 					HRESULT hr = E_FAIL;
 					HRESULT hrSession = E_FAIL;
 
-					try
-					{
-						CVKeyboardWindowEditSession *pEditSession = new CVKeyboardWindowEditSession(this, pContext, _pVKeyboardWindow);
-						// Asynchronous, read-only
-						hr = pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNC | TF_ES_READ, &hrSession);
-						SafeRelease(&pEditSession);
+					CVKeyboardWindowEditSession *pEditSession = new CVKeyboardWindowEditSession(this, pContext, _pVKeyboardWindow);
+					// Asynchronous, read-only
+					hr = pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNC | TF_ES_READ, &hrSession);
+					SafeRelease(&pEditSession);
 
-						// It is possible that asynchronous requests are treated as synchronous requests.
-						if(hr != S_OK || (hrSession != TF_S_ASYNC && hrSession != S_OK))
-						{
-							_EndVKeyboardWindow();
-						}
-					}
-					catch(...)
+					// It is possible that asynchronous requests are treated as synchronous requests.
+					if(FAILED(hr) || (hrSession != TF_S_ASYNC && FAILED(hrSession)))
 					{
+						_EndVKeyboardWindow();
 					}
 				}
 			}
 			catch(...)
 			{
+				_EndVKeyboardWindow();
 			}
 
 			SafeRelease(&pContext);
