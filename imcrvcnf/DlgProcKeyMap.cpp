@@ -7,7 +7,7 @@ static const struct {
 	int idd;
 	LPCWSTR keyName;
 	LPCWSTR defaultValue;
-} KeyMap[2][27] =
+} KeyMap[2][28] =
 {
 	{
 		{IDC_EDIT_KANA,			ValueKeyMapKana,		L""},
@@ -22,6 +22,7 @@ static const struct {
 		{IDC_EDIT_PURGE_DIC,	ValueKeyMapPurgeDic,	L"\\cx"},
 		{IDC_EDIT_NEXT_COMP,	ValueKeyMapNextComp,	L"\\ci"},
 		{IDC_EDIT_PREV_COMP,	ValueKeyMapPrevComp,	L"\\cu"},
+		{IDC_EDIT_COMP_CAND,	ValueKeyMapCompCand,	L""},
 		{IDC_EDIT_HINT,			ValueKeyMapHint,		L""},
 		{IDC_EDIT_CONV_POINT,	ValueKeyMapConvPoint,	L""},
 		{IDC_EDIT_DIRECT,		ValueKeyMapDirect,		L""},
@@ -51,6 +52,7 @@ static const struct {
 		{IDC_EDIT_PURGE_DIC,	ValueKeyMapPurgeDic,	L""},
 		{IDC_EDIT_NEXT_COMP,	ValueKeyMapNextComp,	L""},
 		{IDC_EDIT_PREV_COMP,	ValueKeyMapPrevComp,	L"S\\x09"},
+		{IDC_EDIT_COMP_CAND,	ValueKeyMapCompCand,	L""},
 		{IDC_EDIT_HINT,			ValueKeyMapHint,		L""},
 		{IDC_EDIT_CONV_POINT,	ValueKeyMapConvPoint,	L""},
 		{IDC_EDIT_DIRECT,		ValueKeyMapDirect,		L""},
@@ -110,6 +112,7 @@ INT_PTR CALLBACK DlgProcKeyMap(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		case IDC_EDIT_PURGE_DIC:
 		case IDC_EDIT_NEXT_COMP:
 		case IDC_EDIT_PREV_COMP:
+		case IDC_EDIT_COMP_CAND:
 		case IDC_EDIT_HINT:
 		case IDC_EDIT_CONV_POINT:
 		case IDC_EDIT_DIRECT:

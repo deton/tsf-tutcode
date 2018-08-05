@@ -68,6 +68,7 @@ LPCWSTR ValueDelCvPosCncl = L"delcvposcncl";
 LPCWSTR ValueDelOkuriCncl = L"delokuricncl";
 LPCWSTR ValueBackIncEnter = L"backincenter";
 LPCWSTR ValueAddCandKtkn = L"addcandktkn";
+LPCWSTR ValueSetByDirect = L"setbydirect";
 LPCWSTR ValueFixMazeCount = L"fixmazecount";
 
 LPCWSTR ValueCompMultiNum = L"compmultinum";
@@ -175,6 +176,7 @@ LPCWSTR ValueKeyMapPrevCand = L"prevcand";
 LPCWSTR ValueKeyMapPurgeDic = L"purgedic";
 LPCWSTR ValueKeyMapNextComp = L"nextcomp";
 LPCWSTR ValueKeyMapPrevComp = L"prevcomp";
+LPCWSTR ValueKeyMapCompCand = L"compcand";
 LPCWSTR ValueKeyMapHint = L"hint";
 LPCWSTR ValueKeyMapConvPoint = L"convpoint";
 LPCWSTR ValueKeyMapDirect = L"direct";

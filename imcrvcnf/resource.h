@@ -52,7 +52,8 @@
 #define IDC_CHECKBOX_DELOKURICNCL               1209
 #define IDC_CHECKBOX_BACKINCENTER               1210
 #define IDC_CHECKBOX_ADDCANDKTKN                1211
-#define IDC_EDIT_FIX_MAZECOUNT                  1212
+#define IDC_CHECKBOX_SETBYDIRECT				1212
+#define IDC_EDIT_FIX_MAZECOUNT                  1213
 
 #define IDC_COMBO_COMPMULTINUM                  1301
 #define IDC_CHECKBOX_STACOMPMULTI               1302
@@ -186,7 +187,8 @@
 #define IDC_EDIT_PURGE_DIC                      3310
 #define IDC_EDIT_NEXT_COMP                      3311
 #define IDC_EDIT_PREV_COMP                      3312
-#define IDC_EDIT_HINT                           3313
+#define IDC_EDIT_COMP_CAND                      3313
+#define IDC_EDIT_HINT                           3314
 #define IDC_EDIT_CONV_POINT                     3321
 #define IDC_EDIT_DIRECT                         3322
 #define IDC_EDIT_ENTER                          3323
