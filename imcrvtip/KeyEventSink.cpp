@@ -119,6 +119,12 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		case SKK_OTHERIME:
 			return TRUE;
 			break;
+		case SKK_DIRECT:
+			if(cx_setbydirect && !inputkey && roman.empty())
+			{
+				return FALSE;
+			}
+			break;
 		case SKK_VIESC:
 			inputmode = im_ascii;
 			_UpdateLanguageBar();
@@ -138,6 +144,12 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		case SKK_ASCII:
 		case SKK_OTHERIME:
 			return TRUE;
+			break;
+		case SKK_DIRECT:
+			if(cx_setbydirect && !inputkey && roman.empty())
+			{
+				return FALSE;
+			}
 			break;
 		case SKK_VIESC:
 			inputmode = im_ascii;
@@ -251,6 +263,9 @@ STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BO
 		return E_INVALIDARG;
 	}
 
+	if(wParam == '\x1b') {
+		int x = 0;
+	}
 	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, FALSE);
 	if(eaten == -1)
 	{

@@ -65,6 +65,7 @@ extern LPCWSTR ValueDelCvPosCncl;
 extern LPCWSTR ValueDelOkuriCncl;
 extern LPCWSTR ValueBackIncEnter;
 extern LPCWSTR ValueAddCandKtkn;
+extern LPCWSTR ValueSetByDirect;
 extern LPCWSTR ValueFixMazeCount;
 
 extern LPCWSTR ValueCompMultiNum;
@@ -172,6 +173,7 @@ extern LPCWSTR ValueKeyMapPrevCand;
 extern LPCWSTR ValueKeyMapPurgeDic;
 extern LPCWSTR ValueKeyMapNextComp;
 extern LPCWSTR ValueKeyMapPrevComp;
+extern LPCWSTR ValueKeyMapCompCand;
 extern LPCWSTR ValueKeyMapHint;
 extern LPCWSTR ValueKeyMapConvPoint;
 extern LPCWSTR ValueKeyMapDirect;
