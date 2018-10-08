@@ -12,11 +12,9 @@ int ReadSKKDicLine(FILE *fp, WCHAR bom, int &okuri, std::wstring &key,
 	CHAR buf[READBUFSIZE * sizeof(WCHAR)];
 	std::string sbuf;
 	WCHAR wbuf[READBUFSIZE];
-	std::wstring wsbuf;
-	size_t is;
+	std::wstring wsbuf, s, fmt;
+	size_t is, ie;
 	void *rp;
-	std::wstring s, fmt;
-	std::wregex re;
 
 	c.clear();
 	o.clear();
@@ -80,31 +78,17 @@ int ReadSKKDicLine(FILE *fp, WCHAR bom, int &okuri, std::wstring &key,
 		okuri = 0;
 		return 1;
 	}
-	else
-	{
-		if(L'\0' <= wsbuf.front() && wsbuf.front() <= L'\x20')
-		{
-			return 1;
-		}
-	}
 
-	if(okuri == -1) //header comment
+	if(okuri == -1)
 	{
-		if(wsbuf.front() != L';')
-		{
-			//;; okuri-ari/nasi行が無い、mazegaki.dicか、古いSKK辞書
-			okuri = 0;
-		}
-		else
-		{
-			return 1;
-		}
+		return 1;
 	}
 
 	s = wsbuf;
-	re.assign(L"[\\x00-\\x19]");
+
+	static const std::wregex rectrl(L"[\\x00-\\x19]");
 	fmt.assign(L"");
-	s = std::regex_replace(s, re, fmt);
+	s = std::regex_replace(s, rectrl, fmt);
 
 	if(okuri == 1)
 	{
@@ -112,24 +96,31 @@ int ReadSKKDicLine(FILE *fp, WCHAR bom, int &okuri, std::wstring &key,
 		ParseSKKDicOkuriBlock(s, o);
 
 		//送りありエントリのブロックを除去
-		re.assign(L"\\[[^\\[\\]]+?/[^\\[\\]]+?/\\]/");
+		static const std::wregex reblock(L"\\[[^\\[\\]]+?/[^\\[\\]]+?/\\]/");
 		fmt.assign(L"");
-		s = std::regex_replace(s, re, fmt);
+		s = std::regex_replace(s, reblock, fmt);
 	}
 
-	is = s.find_first_of(L'\x20');
+	is = s.find(L"\x20/");
 	if(is == std::wstring::npos)
 	{
 		return 1;
 	}
-	key = s.substr(0, is);
 
-	is = s.find_first_of(L'/', is);
-	if(is == std::wstring::npos)
+	ie = s.find_last_not_of(L'\x20', is);
+	if(ie == std::wstring::npos)
 	{
 		return 1;
 	}
-	s = s.substr(is);
+
+	if(s.find_last_of(L'\x20', ie) != std::wstring::npos)
+	{
+		return 1;
+	}
+
+	key = s.substr(0, ie + 1);
+
+	s = s.substr(is + 1);
 
 	ParseSKKDicCandiate(s, c);
 
@@ -175,28 +166,30 @@ void ParseSKKDicCandiate(const std::wstring &s, SKKDICCANDIDATES &c)
 
 void ParseSKKDicOkuriBlock(const std::wstring &s, SKKDICOKURIBLOCKS &o)
 {
-	std::wstring so, okurik, okuric;
-	std::wregex re, reb;
+	std::wstring so, okurik, okuric, fmt;
 	std::wsmatch m;
 	SKKDICCANDIDATES okurics;
 
-	re.assign(L"\\[[^\\[\\]]+?/[^\\[\\]]+?/\\]/");
-	reb.assign(L"\\[([^\\[\\]]+?)(/[^\\[\\]]+?/)\\]/");
 	so = s;
 
-	while(std::regex_search(so, m, re))
+	static const std::wregex reblock(L"\\[([^\\[\\]]+?)(/[^\\[\\]]+?/)\\]/");
+
+	while(std::regex_search(so, m, reblock))
 	{
 		okurics.clear();
 
-		okurik = std::regex_replace(m.str(), reb, std::wstring(L"$1"));
-		okuric = std::regex_replace(m.str(), reb, std::wstring(L"$2"));
+		fmt.assign(L"$1");
+		okurik = std::regex_replace(m.str(), reblock, fmt);
+		fmt.assign(L"$2");
+		okuric = std::regex_replace(m.str(), reblock, fmt);
 
 		ParseSKKDicCandiate(okuric, okurics);
 
 		std::reverse(okurics.begin(), okurics.end());
 
 		o.insert(o.begin(), std::make_pair(okurik, okurics));
-		so = m.suffix();
+
+		so = m.suffix().str();
 	}
 }
 
@@ -207,33 +200,40 @@ std::wstring ParseConcat(const std::wstring &s)
 	std::wsmatch res;
 	wchar_t u;
 	LPCWSTR bsrep = L"\uf05c";
+
 	ret = s;
 
-	re.assign(L"^\\(\\s*concat\\s+\".+\"\\s*\\)$");
-	if(std::regex_search(ret, re))
+	static const std::wregex reconcat(L"^\\(\\s*concat\\s+\"(.+)\"\\s*\\)$");
+
+	if(std::regex_search(ret, reconcat))
 	{
-		re.assign(L"^\\(\\s*concat\\s+\"(.+)\"\\s*\\)$");
 		fmt.assign(L"$1");
-		ret = std::regex_replace(ret, re, fmt);
+		ret = std::regex_replace(ret, reconcat, fmt);
+
 		re.assign(L"\"\\s+\"");
 		fmt.assign(L"");
 		ret = std::regex_replace(ret, re, fmt);
+
 		//バックスラッシュ
 		re.assign(L"\\\\\\\\");
 		fmt.assign(bsrep);
 		ret = std::regex_replace(ret, re, fmt);
+
 		//二重引用符
 		re.assign(L"\\\\\\\"");
 		fmt.assign(L"\\\"");
 		ret = std::regex_replace(ret, re, fmt);
+
 		//空白文字
 		re.assign(L"\\\\s");
 		fmt.assign(L"\x20");
 		ret = std::regex_replace(ret, re, fmt);
+
 		//制御文字など
 		re.assign(L"\\\\[abtnvfred ]");
 		fmt.assign(L"");
 		ret = std::regex_replace(ret, re, fmt);
+
 		//8進数表記の文字
 		re.assign(L"\\\\[0-3][0-7]{2}");
 		while(std::regex_search(ret, res, re))
@@ -246,13 +246,15 @@ std::wstring ParseConcat(const std::wstring &s)
 			{
 				numstr.append(1, u);
 			}
-			ret = res.suffix();
+			ret = res.suffix().str();
 		}
 		ret = numstr + ret;
+
 		//意味なしエスケープ
 		re.assign(L"\\\\");
 		fmt.assign(L"");
 		ret = std::regex_replace(ret, re, fmt);
+
 		//バックスラッシュ
 		re.assign(bsrep);
 		fmt.assign(L"\\");
@@ -270,8 +272,9 @@ std::wstring MakeConcat(const std::wstring &s)
 	ret = s;
 
 	// "/" -> \057, ";" -> \073
-	re.assign(L"[/;]");
-	if(std::regex_search(ret, re))
+	static const std::wregex respcch(L"[/;]");
+
+	if(std::regex_search(ret, respcch))
 	{
 		// "\"" -> "\\\"", "\\" -> "\\\\"
 		re.assign(L"([\\\"\\\\])");
