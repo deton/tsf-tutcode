@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?include installer-version.wxi ?>
+
+  <Product
+    Id="*"
+    Name="tsf-tutcode (arm)"
+    Version="$(var.version)"
+    Manufacturer="KIHARA Hideto"
+    Language="1033"
+    UpgradeCode="1DEAEAC3-08A9-43DF-A9C2-EA4BE17A1415">
+
+    <!-- replace template summary after building msi -->
+    <!-- ex: msiinfo -p Arm64;1033 -->
+    <Package
+      Id="*"
+      Compressed="yes"
+      Description="tsf-tutcode (arm)"
+      Comments="ver. $(var.version)"
+      Platform="x64"
+      InstallerVersion="500"
+      InstallScope="perMachine"
+      InstallPrivileges="elevated" />
+
+    <Media Id="1" Cabinet="arm.cab" CompressionLevel="high" EmbedCab="yes" />
+
+    <!-- system directory -->
+    <!-- ARM64 : %windir%\System32 -->
+    <!-- ARM32 : %windir%\SysArm32 -->
+    <!-- x86   : %windir%\SysWOW64 -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="WindowsFolder" Name="Windows">
+        <Directory Id="SYSTEM64BIT" Name="System32">
+          <Directory Id="IME_ARM64" Name="IME">
+            <Directory Id="IMTSFTUTCODE_ARM64" Name="IMTSFTUTCODE" />
+          </Directory>
+        </Directory>
+        <Directory Id="SYSTEM32BIT" Name="SysArm32">
+          <Directory Id="IME_ARM32" Name="IME">
+            <Directory Id="IMTSFTUTCODE_ARM32" Name="IMTSFTUTCODE" />
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <DirectoryRef Id="IMTSFTUTCODE_ARM64">
+      <Component Id="CNF_ARM64" Guid="*" Win64="yes">
+        <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe" Source="..\ARM64\Release\imtutcnf.exe" />
+      </Component>
+      <Component Id="MGR_ARM64" Guid="*" Win64="yes">
+        <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe" Source="..\ARM64\Release\imtutmgr.exe" />
+      </Component>
+      <Component Id="TIP_ARM64" Guid="*" Win64="yes">
+        <File Id="F_imtuttip_arm64" Name="imtuttip.dll" Source="..\ARM64\Release\imtuttip.dll" />
+      </Component>
+      <Component Id="LUAEXE_ARM64" Guid="*" Win64="yes">
+        <File Id="F_luaexe_arm64" Name="lua.exe" Source="..\ARM64\Release\lua.exe" />
+      </Component>
+      <Component Id="LUADLL_ARM64" Guid="*" Win64="yes">
+        <File Id="F_luadll_arm64" Name="lua53.dll" Source="..\ARM64\Release\lua53.dll" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="IMTSFTUTCODE_ARM32">
+      <Component Id="CNF_ARM32" Guid="*">
+        <File Id="F_imtutcnf_arm32" Name="imtutcnf.exe" Source="..\ARM\Release\imtutcnf.exe" />
+      </Component>
+      <Component Id="MGR_ARM32" Guid="*">
+        <File Id="F_imtutmgr_arm32" Name="imtutmgr.exe" Source="..\ARM\Release\imtutmgr.exe" />
+      </Component>
+      <Component Id="TIP_ARM32" Guid="*">
+        <!-- self registration arm32 dll fails. use regsvr32 command in custom action. -->
+        <File Id="F_imtuttip_arm32" Name="imtuttip.dll" Source="..\ARM\Release\imtuttip.dll" />
+      </Component>
+      <Component Id="LUAEXE_ARM32" Guid="*">
+        <File Id="F_luaexe_arm32" Name="lua.exe" Source="..\ARM\Release\lua.exe" />
+      </Component>
+      <Component Id="LUADLL_ARM32" Guid="*">
+        <File Id="F_luadll_arm32" Name="lua53.dll" Source="..\ARM\Release\lua53.dll" />
+      </Component>
+    </DirectoryRef>
+<!--
+    <DirectoryRef Id="IMTSFTUTCODE_ARM64">
+      <Component Id="CONCRT140_ARM64" Guid="*">
+        <File Id="F_concrt140_arm64" Name="concrt140.dll"
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\concrt140.dll" />
+      </Component>
+      <Component Id="MSVCP140_ARM64" Guid="*">
+        <File Id="F_msvcp140_arm64" Name="msvcp140.dll"
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\msvcp140.dll" />
+      </Component>
+      <Component Id="MSVCP140_1_ARM64" Guid="*">
+        <File Id="F_msvcp140_1_arm64" Name="msvcp140_1.dll"
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\msvcp140_1.dll" />
+      </Component>
+      <Component Id="MSVCP140_2_ARM64" Guid="*">
+        <File Id="F_msvcp140_2_arm64" Name="msvcp140_2.dll"
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\msvcp140_2.dll" />
+      </Component>
+      <Component Id="VCCORLIB140_ARM64" Guid="*">
+        <File Id="F_vccorlib140_arm64" Name="vccorlib140.dll"
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\vccorlib140.dll" />
+      </Component>
+      <Component Id="VCRUNTIME140_ARM64" Guid="*">
+        <File Id="F_vcruntime140_arm64" Name="vcruntime140.dll"
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\vcruntime140.dll" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="IMTSFTUTCODE_ARM32">
+      <Component Id="CONCRT140_ARM32" Guid="*">
+        <File Id="F_concrt140_arm32" Name="concrt140.dll"
+          Source="$(env.VCToolsRedistDir)arm\Microsoft.VC141.CRT\concrt140.dll" />
+      </Component>
+      <Component Id="MSVCP140_ARM32" Guid="*">
+        <File Id="F_msvcp140_arm32" Name="msvcp140.dll"
+          Source="$(env.VCToolsRedistDir)arm\Microsoft.VC141.CRT\msvcp140.dll" />
+      </Component>
+      <Component Id="MSVCP140_1_ARM32" Guid="*">
+        <File Id="F_msvcp140_1_arm32" Name="msvcp140_1.dll"
+          Source="$(env.VCToolsRedistDir)arm\Microsoft.VC141.CRT\msvcp140_1.dll" />
+      </Component>
+      <Component Id="MSVCP140_2_ARM32" Guid="*">
+        <File Id="F_msvcp140_2_arm32" Name="msvcp140_2.dll"
+          Source="$(env.VCToolsRedistDir)arm\Microsoft.VC141.CRT\msvcp140_2.dll" />
+      </Component>
+      <Component Id="VCCORLIB140_ARM32" Guid="*">
+        <File Id="F_vccorlib140_arm32" Name="vccorlib140.dll"
+          Source="$(env.VCToolsRedistDir)arm\Microsoft.VC141.CRT\vccorlib140.dll" />
+      </Component>
+      <Component Id="VCRUNTIME140_ARM32" Guid="*">
+        <File Id="F_vcruntime140_arm32" Name="vcruntime140.dll"
+          Source="$(env.VCToolsRedistDir)arm\Microsoft.VC141.CRT\vcruntime140.dll" />
+      </Component>
+    </DirectoryRef>
+-->
+    <Feature Id="Default" Title="Main" Level="1">
+      <ComponentRef Id="CNF_ARM64" />
+      <ComponentRef Id="MGR_ARM64" />
+      <ComponentRef Id="TIP_ARM64" />
+      <ComponentRef Id="LUAEXE_ARM64" />
+      <ComponentRef Id="LUADLL_ARM64" />
+      <ComponentRef Id="CNF_ARM32" />
+      <ComponentRef Id="MGR_ARM32" />
+      <ComponentRef Id="TIP_ARM32" />
+      <ComponentRef Id="LUAEXE_ARM32" />
+      <ComponentRef Id="LUADLL_ARM32" />
+ <!--
+      <ComponentRef Id="CONCRT140_ARM64" />
+      <ComponentRef Id="MSVCP140_ARM64" />
+      <ComponentRef Id="MSVCP140_1_ARM64" />
+      <ComponentRef Id="MSVCP140_2_ARM64" />
+      <ComponentRef Id="VCCORLIB140_ARM64" />
+      <ComponentRef Id="VCRUNTIME140_ARM64" />
+      <ComponentRef Id="CONCRT140_ARM32" />
+      <ComponentRef Id="MSVCP140_ARM32" />
+      <ComponentRef Id="MSVCP140_1_ARM32" />
+      <ComponentRef Id="MSVCP140_2_ARM32" />
+      <ComponentRef Id="VCCORLIB140_ARM32" />
+      <ComponentRef Id="VCRUNTIME140_ARM32" />
+-->
+    </Feature>
+
+    <!-- TODO: use merge modules instead of local deployment or static link -->
+<!--
+    <DirectoryRef Id="TARGETDIR">
+      <Merge Id="CRT_ARM64" DiskId="1" Language="0"
+        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CRT_arm64.msm" />
+      <Merge Id="AMP_ARM64" DiskId="1" Language="0"
+        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CXXAMP_arm64.msm" />
+      <Merge Id="OMP_ARM64" DiskId="1" Language="0"
+        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_OpenMP_arm64.msm" />
+      <Merge Id="CRT_ARM32" DiskId="1" Language="0"
+        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CRT_arm.msm" />
+      <Merge Id="AMP_ARM32" DiskId="1" Language="0"
+        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CXXAMP_arm.msm" />
+      <Merge Id="OMP_ARM32" DiskId="1" Language="0"
+        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_OpenMP_arm.msm" />
+    </DirectoryRef>
+    <Feature Id="VCRedist" Title="Runtime" AllowAdvertise="no" Display="hidden" Level="1">
+      <MergeRef Id="CRT_ARM64" />
+      <MergeRef Id="AMP_ARM64" />
+      <MergeRef Id="OMP_ARM64" />
+      <MergeRef Id="CRT_ARM32" />
+      <MergeRef Id="AMP_ARM32" />
+      <MergeRef Id="OMP_ARM32" />
+    </Feature>
+-->
+
+    <UIRef Id="WixUI_Minimal" />
+    <WixVariable Id="WixUILicenseRtf" Value="theme-bundle\license.rtf" />
+    <Property Id="ARPPRODUCTICON" Value="IMTSFTUTCODE_ICO" />
+    <Icon Id="IMTSFTUTCODE_ICO" SourceFile="..\imtuttip\Icon\kanchoku.ico" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+
+    <CustomAction Id="REGARM64DLL"
+      Directory="IMTSFTUTCODE_ARM64"
+      Execute="deferred" Impersonate="no"
+      ExeCommand="regsvr32 /s [#F_imtuttip_arm64]" />
+    <CustomAction Id="UNREGARM64DLL"
+      Directory="IMTSFTUTCODE_ARM64"
+      Execute="deferred" Impersonate="no"
+      ExeCommand="regsvr32 /s /u [#F_imtuttip_arm64]" />
+    <CustomAction Id="REGARM32DLL"
+      Directory="IMTSFTUTCODE_ARM32"
+      Execute="deferred" Impersonate="no"
+      ExeCommand="regsvr32 /s [#F_imtuttip_arm32]" />
+    <CustomAction Id="UNREGARM32DLL"
+      Directory="IMTSFTUTCODE_ARM32"
+      Execute="deferred" Impersonate="no"
+      ExeCommand="regsvr32 /s /u [#F_imtuttip_arm32]" />
+
+    <InstallExecuteSequence>
+      <ScheduleReboot After="InstallFinalize" />
+      <Custom Action="UNREGARM64DLL" Before="RemoveFiles">Installed</Custom>
+      <Custom Action="UNREGARM32DLL" Before="RemoveFiles">Installed</Custom>
+      <Custom Action="REGARM64DLL" After="InstallFiles">NOT REMOVE</Custom>
+      <Custom Action="REGARM32DLL" After="InstallFiles">NOT REMOVE</Custom>
+    </InstallExecuteSequence>
+
+    <Condition Message="This application does not support this version of Windows.">
+      <![CDATA[VersionNT >= 603]]>
+    </Condition>
+
+  </Product>
+
+</Wix>

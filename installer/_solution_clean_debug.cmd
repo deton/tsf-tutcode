@@ -3,10 +3,17 @@ setlocal
 
 pushd "%~dp0"
 
-call "%VS140COMNTOOLS%VsDevCmd.bat"
+call _vsdev.cmd
 
-msbuild "..\imcrvskk.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Debug,Platform=x86
-msbuild "..\imcrvskk.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Debug,Platform=x64
+call _version.cmd
+
+msbuild "..\tsf-tutcode.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Debug,Platform=x86
+msbuild "..\tsf-tutcode.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Debug,Platform=x64
+
+if "%ENABLE_PLATFORM_ARM%" neq "0" (
+  msbuild "..\tsf-tutcode.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Debug,Platform=ARM
+  msbuild "..\tsf-tutcode.sln" /nologo /maxcpucount /verbosity:normal /target:Clean /property:Configuration=Debug,Platform=ARM64
+)
 
 popd
 

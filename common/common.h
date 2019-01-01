@@ -1,6 +1,4 @@
-﻿
-#ifndef COMMON_H
-#define COMMON_H
+﻿#pragma once
 
 #include "version.h"
 
@@ -13,7 +11,7 @@
 #define MAX_SKKSERVER_PORT	(5 + 1)		//SKKサーバー ポート 読み込みバッファ
 #define COMPMULTIDISP_DEF	3		//複数補完/複数動的補完の表示数
 #define FONT_POINT_DEF		12		//フォントポイントサイズ
-#define MAX_WIDTH_DEFAULT	800		//候補一覧の最大幅
+#define MAX_WIDTH_DEFAULT	320		//候補一覧の最大幅
 #define UNTILCANDLIST_DEF	5		//候補一覧表示に要する変換回数
 #define SHOWMODESEC_DEF		3		//入力モードを表示する秒数
 #define MAX_SELKEY_C		9		//候補一覧選択キー最大数
@@ -82,19 +80,31 @@ extern const TF_DISPLAYATTRIBUTE c_daDisplayAttributeConvAnnot;
 extern const BOOL c_daDisplayAttributeSeries[DISPLAYATTRIBUTE_INFO_NUM];
 
 BOOL IsWindowsVersionOrLater(DWORD dwMajorVersion, DWORD dwMinorVersion, DWORD dwBuildNumber);
-#define IsWindowsVersion62OrLater() IsWindowsVersionOrLater(6, 2, 0) // Windows 8
-#define IsWindowsVersion63OrLater() IsWindowsVersionOrLater(6, 3, 0) // Windows 8.1
-#define IsWindowsVersion100OrLater() IsWindowsVersionOrLater(10, 0, 0) // Windows 10
-#define IsWindowsVersion100TH1OrLater() IsWindowsVersionOrLater(10, 0, 10240) // Windows 10 ver.1507
-#define IsWindowsVersion100TH2OrLater() IsWindowsVersionOrLater(10, 0, 10586) // Windows 10 ver.1511
-#define IsWindowsVersion100RS1OrLater() IsWindowsVersionOrLater(10, 0, 14393) // Windows 10 ver.1607
-#define IsWindowsVersion100RS2OrLater() IsWindowsVersionOrLater(10, 0, 15063) // Windows 10 ver.1703
-#define IsWindowsVersion100RS3OrLater() IsWindowsVersionOrLater(10, 0, 16299) // Windows 10 ver.1709
+// Windows 8
+#define IsWindowsVersion62OrLater() IsWindowsVersionOrLater(6, 2, 0)
+// Windows 8.1
+#define IsWindowsVersion63OrLater() IsWindowsVersionOrLater(6, 3, 0)
+// Windows 10
+#define IsWindowsVersion100OrLater() IsWindowsVersionOrLater(10, 0, 0)
+// Windows 10 ver.1507 Threshold 1 Released in July 2015
+#define IsWindowsVersion100TH1OrLater() IsWindowsVersionOrLater(10, 0, 10240)
+// Windows 10 ver.1511 Threshold 2 November Update
+#define IsWindowsVersion100TH2OrLater() IsWindowsVersionOrLater(10, 0, 10586)
+// Windows 10 ver.1607 Redstone 1 Anniversary Update
+#define IsWindowsVersion100RS1OrLater() IsWindowsVersionOrLater(10, 0, 14393)
+// Windows 10 ver.1703 Redstone 2 Creators Update
+#define IsWindowsVersion100RS2OrLater() IsWindowsVersionOrLater(10, 0, 15063)
+// Windows 10 ver.1709 Redstone 3 Fall Creators Update
+#define IsWindowsVersion100RS3OrLater() IsWindowsVersionOrLater(10, 0, 16299)
+// Windows 10 ver.1803 Redstone 4 April 2018 Update
+#define IsWindowsVersion100RS4OrLater() IsWindowsVersionOrLater(10, 0, 17134)
+// Windows 10 ver.1809 Redstone 5 October 2018 Update
+#define IsWindowsVersion100RS5OrLater() IsWindowsVersionOrLater(10, 0, 17763)
 
 BOOL GetUserUUID(LPWSTR *ppszUUID);
 BOOL GetUserSid(LPWSTR *ppszUserSid);
 
-BOOL StartProcess(HMODULE hCurrentModule, LPCWSTR lpFileName);
+BOOL StartProcess(HMODULE hCurrentModule, LPCWSTR lpFileName, LPCWSTR lpArgs = nullptr);
 
 #define FORWARD_ITERATION_I(iterator, container) \
 	for(auto (iterator) = (container).begin(); (iterator) != (container).end(); ++(iterator))
@@ -113,5 +123,3 @@ template<class T> void SafeRelease(T **ppT)
 		*ppT = nullptr;
 	}
 }
-
-#endif //COMMON_H

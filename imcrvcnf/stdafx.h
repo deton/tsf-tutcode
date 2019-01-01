@@ -1,5 +1,4 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -25,3 +24,5 @@
 #include <CommDlg.h>
 #include <WinInet.h>
 #include <ShellScalingApi.h>
+#include <Shlwapi.h>
+#include <shellapi.h>

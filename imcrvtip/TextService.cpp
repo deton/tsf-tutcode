@@ -27,7 +27,14 @@ CTextService::CTextService():
 	_pCandidateList = nullptr;
 	_pInputModeWindow = nullptr;
 
-	hFont = nullptr;
+	_gaDisplayAttributeInputMark = 0;
+	_gaDisplayAttributeInputText = 0;
+	_gaDisplayAttributeInputOkuri = 0;
+	_gaDisplayAttributeConvMark = 0;
+	_gaDisplayAttributeConvText = 0;
+	_gaDisplayAttributeConvOkuri = 0;
+	_gaDisplayAttributeConvAnnot = 0;
+
 	_pD2DFactory = nullptr;
 	_pD2DDCRT = nullptr;
 	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
@@ -36,7 +43,6 @@ CTextService::CTextService():
 	}
 	_drawtext_option = D2D1_DRAW_TEXT_OPTIONS_NONE;
 	_pDWFactory = nullptr;
-	_pDWTF = nullptr;
 
 	_dwActiveFlags = 0;
 	_ImmersiveMode = FALSE;
@@ -247,7 +253,7 @@ STDAPI CTextService::Deactivate()
 
 	_UninitThreadMgrEventSink();
 
-	_UninitFont();
+	_UninitD2D();
 
 	SafeRelease(&_pThreadMgr);
 

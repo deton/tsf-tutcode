@@ -1,6 +1,4 @@
-﻿
-#ifndef IMCRVTIP_H
-#define IMCRVTIP_H
+﻿#pragma once
 
 #include <tsattrs.h>
 
@@ -37,7 +35,7 @@ enum InputMode
 #define SKK_PURGE_DIC	0x58	// 辞書削除		X
 #define SKK_NEXT_COMP	0x09	// 次補完		c-i(HT)
 #define SKK_PREV_COMP	0x15	// 前補完		c-u
-#define SKK_COMP_CAND	0x2E	// 補完と変換	.
+#define SKK_COMP_CAND	0x03	// 補完と変換	c-c
 #define SKK_HINT		0x3B	// 絞り込み		;
 
 #define SKK_CONV_POINT	0x51	// 変換位置		Q ;
@@ -121,6 +119,10 @@ enum WindowMode {
 	wm_complement,	//補完一覧
 	wm_delete		//候補削除
 };
+
+//描画API
+#define DRAW_API_GDI	0	//GDI
+#define DRAW_API_D2D	1	//Direct2D
 
 extern LPCWSTR TextServiceDesc;
 extern LPCWSTR LangbarItemDesc;
@@ -220,5 +222,3 @@ extern const IID IID_ITfFnGetPreferredTouchKeyboardLayout;
 #define D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT (static_cast<D2D1_DRAW_TEXT_OPTIONS>(0x00000004))
 
 #endif //_WIN32_WINNT_WINBLUE
-
-#endif //IMCRVTIP_H

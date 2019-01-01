@@ -2,3 +2,5 @@
 set VERSION=0.8.1
 
 set TARGETDIR=build
+
+set ENABLE_PLATFORM_ARM=0

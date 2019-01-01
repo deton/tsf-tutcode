@@ -352,7 +352,7 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 	{
 		_ResetStatus();
 
-		_UninitFont();
+		_UninitD2D();
 
 		_CreateConfigPath();
 
@@ -374,10 +374,7 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 
 		_GetActiveFlags();
 
-		HDC hdc = GetDC(nullptr);
-		int dpi = GetDeviceCaps(hdc, LOGPIXELSY);
-		ReleaseDC(nullptr, hdc);
-		_InitFont(dpi);
+		_InitD2D();
 
 		//OnPreservedKey(), CLangBarItemButton::OnClick(),
 		//CLangBarItemButton::OnMenuSelect() 経由ならひらがなモード
@@ -402,7 +399,7 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 		_ResetStatus();
 		_ClearComposition();
 
-		_UninitFont();
+		_UninitD2D();
 
 		_CreateConfigPath();
 

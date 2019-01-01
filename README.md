@@ -409,7 +409,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 |---|---|
 | 数字 | 選択キー (1〜9で固定) |
 | 表示 | 選択キー (必須、候補一覧の表示にも使用) |
-| 予備 | 選択キー (空でもOK) |
+| 予備1,2 | 選択キー (空でもOK) |
 
 
 ### キー設定（ON/OFF）
@@ -422,7 +422,7 @@ IME ON/OFF のキーをそれぞれ指定します。
 
 「仮想ｷｰ表示」エディットボックスにフォーカスがある状態でキー入力すると仮想キーコードを表示します。
 
-仮想キーコードの詳細はこちらを参照ください。 https://msdn.microsoft.com/en-us/library/dd375731(v=vs.85).aspx
+仮想キーコードの詳細はこちらを参照ください。 https://docs.microsoft.com/en-us/windows/desktop/inputdev/virtual-key-codes
 
 最大で ON/OFF それぞれ8行ずつです。
 
@@ -439,9 +439,9 @@ IME OFFにして大文字入力直後にIME ONにしようとした時に、意�
 
 各機能に対してキーを正規表現で設定してください。
 
-Visual C++ 2015 の 正規表現で、文法は ECMAScript を使用しています。
+Visual C++ 2017 の 正規表現で、文法は ECMAScript を使用しています。
 
-正規表現の詳細はこちらを参照ください。 https://msdn.microsoft.com/en-us/library/bb982727(v=vs.140).aspx
+正規表現の詳細はこちらを参照ください。 https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=vs-2017
 
 無効な正規表現で設定するとその機能は無効となります。警告等は表示されません。
 
@@ -481,7 +481,7 @@ Visual C++ 2015 の 正規表現で、文法は ECMAScript を使用していま
 | 辞書削除   | Ctrl+x                 | ユーザー辞書から候補を削除 |
 | 次補完     | Ctrl+i(Tab)            | 補完開始、次見出し語候補 |
 | 前補完     | Ctrl+u                 | 前見出し語候補 |
-| 補完と変換 | .                      | 最初の見出し語候補で辞書検索開始<br>skk-start-henkan-with-completion-char |
+| 補完と変換 | Ctrl+c                 | 最初の見出し語候補で辞書検索開始<br>skk-start-henkan-with-completion-char |
 | 絞り込み   |                        | 候補を絞り込む見出し語の入力開始<br>skk-hint-start-char |
 | 変換位置   |                        | 変換位置指定<br>2回連続入力で文字自体が確定する<br>skk-sticky-key |
 | 直接入力   |                        | 見出し語入力でローマ字仮名変換しない |
@@ -690,7 +690,7 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 現在使用しているLuaのバージョンは5.3.5です。
 
-詳細はこちらを参照ください。http://www.lua.org/manual/5.3/manual.html
+詳細はこちらを参照ください。https://www.lua.org/manual/5.3/manual.html
 
 Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsAPIとCランタイム関数を呼ぶようにパッチを当てています。
 
@@ -755,12 +755,16 @@ SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要�
 | skk-relative-date |  |
 | skk-ignore-dic-word | デフォルト無効 |
 | skk-omikuji | 独自実装。おみくじを引くことができます。『(skk-omikuji)』 |
-| skk-strftime | 独自実装。日時書式出力『(skk-strftime format [unit, diff])』<br>format : https://msdn.microsoft.com/en-us/library/fe06s4ak.aspx<br>unit : 単位 "year", "month", "day", "hour", "min", "sec"<br>diff : 現在とunitとの差分 |
+| skk-strftime | 独自実装。日時書式出力『(skk-strftime format [unit, diff])』<br>format : https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?view=vs-2017<br>unit : 単位 "year", "month", "day", "hour", "min", "sec"<br>diff : 現在とunitとの差分 |
 | fill-column | 70で固定 |
 | comment-start | "/\*" |
 | comment-end | "\*/" |
 | skk-henkan-key | 変換する見出し語 |
 | skk-num-list | 変換する見出し語に含まれる数値文字列のリスト |
+
+skk-omikuji 辞書 https://github.com/nathancorvussolis/corvusskk/blob/master/installer/config-sample/skk-omikuji.txt
+
+skk-strftime 辞書 https://github.com/nathancorvussolis/corvusskk/blob/master/installer/config-sample/skk-strftime.txt
 
 
 ### 数値変換
@@ -912,11 +916,14 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2015 Update 3
+Visual Studio Community 2017 15.9.4
+
+* Desktop development with C++
+* C++ compilers and libraries for ARM/ARM64
 
 WiX Toolset v3.11.1
 
-pandoc 2.2.2.1
+pandoc 2.5
 
 ### ビルド手順
 

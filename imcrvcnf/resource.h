@@ -1,6 +1,4 @@
-﻿
-#ifndef RESOURCE_H
-#define RESOURCE_H
+﻿#pragma once
 
 #ifndef IDC_STATIC
 #define IDC_STATIC (-1)
@@ -158,8 +156,9 @@
 
 #define IDC_LIST_SELKEY                         3101
 #define IDC_EDIT_SELKEY_DISP                    3102
-#define IDC_EDIT_SELKEY_SPARE                   3103
-#define IDC_BUTTON_SELKEY_W                     3104
+#define IDC_EDIT_SELKEY_SPARE1                  3103
+#define IDC_EDIT_SELKEY_SPARE2                  3104
+#define IDC_BUTTON_SELKEY_W                     3105
 
 #define IDC_LIST_PRSRVKEY_ON                    3201
 #define IDC_LIST_PRSRVKEY_OFF                   3202
@@ -235,5 +234,3 @@
 #define IDC_BUTTON_JLATTBL_DOWN                 4305
 #define IDC_BUTTON_JLATTBL_W                    4306
 #define IDC_BUTTON_JLATTBL_D                    4307
-
-#endif //RESOURCE_H
