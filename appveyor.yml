@@ -4,10 +4,12 @@ platform:
 
 install:
   - cinst pandoc
+
+build: off
+build_script:
   - installer\_solution_build.cmd
   - installer\_build.cmd
 
-build: off
 test: off
 deploy: off
 
