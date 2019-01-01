@@ -1,6 +1,4 @@
-﻿
-#ifndef TEXTSERVICE_H
-#define TEXTSERVICE_H
+﻿#pragma once
 
 #include "imcrvtip.h"
 #include "convtype.h"
@@ -146,8 +144,8 @@ public:
 	BOOL _IsKeyVoid(WCHAR ch, BYTE vk);
 	void _ResetStatus();
 	void _GetActiveFlags();
-	void _InitFont(int dpi);
-	void _UninitFont();
+	void _InitD2D();
+	void _UninitD2D();
 
 	// KeyHandlerChar
 	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, WCHAR ch, WCHAR chO);
@@ -373,9 +371,6 @@ public:
 	ID2D1SolidColorBrush *_pD2DBrush[DISPLAY_LIST_COLOR_NUM];
 	D2D1_DRAW_TEXT_OPTIONS _drawtext_option;
 	IDWriteFactory *_pDWFactory;
-	IDWriteTextFormat *_pDWTF;
-
-	HFONT hFont;
 
 	DWORD _dwActiveFlags;	//ITfThreadMgrEx::GetActiveFlags()
 	BOOL _ImmersiveMode;	//Immersive Mode
@@ -401,7 +396,7 @@ public:
 
 	LONG cx_maxwidth;			//候補一覧の最大幅
 	COLORREF cx_list_colors[DISPLAY_LIST_COLOR_NUM];		//候補一覧の色
-	BOOL cx_drawapi;			//候補一覧の描画API(FALSE:GDI/TRUE:Direct2D)
+	UINT cx_drawapi;			//候補一覧の描画API(0:GDI/1:Direct2D)
 	BOOL cx_colorfont;			//候補一覧の描画API 彩色(Direct2Dのときカラーフォントにする)
 	UINT cx_untilcandlist;		//候補一覧表示に要する変換回数(0:表示なし/1:1回目...)
 	BOOL cx_verticalcand;		//候補一覧を縦に表示する
@@ -459,7 +454,7 @@ public:
 	CPostMazeContext postmazeContext; //後置型交ぜ書き変換状態
 
 	//候補一覧選択キー
-	WCHAR selkey[MAX_SELKEY_C][2][2];
+	WCHAR selkey[MAX_SELKEY_C][3][2];
 
 	//preserved key
 	TF_PRESERVEDKEY preservedkey[PRESERVEDKEY_NUM][MAX_PRESERVEDKEY];
@@ -468,5 +463,3 @@ public:
 	static BOOL display_attribute_series[DISPLAYATTRIBUTE_INFO_NUM];
 	static TF_DISPLAYATTRIBUTE display_attribute_info[DISPLAYATTRIBUTE_INFO_NUM];
 };
-
-#endif //TEXTSERVICE_H

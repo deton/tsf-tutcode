@@ -94,6 +94,7 @@ int GetDpi(HWND hwnd)
 	// Windows 10 ver.1703 supports Per-Monitor DPI Awareness V2
 	if(IsWindowsVersion100RS2OrLater())
 	{
+		// try delay load api-ms-win-shcore-scaling-l1-1-1.dll
 		__try
 		{
 			HMONITOR hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
@@ -153,12 +154,17 @@ void SaveCheckButton(IXmlWriter *pWriter, HWND hDlg, int nIDDlgItem, LPCWSTR lpK
 	WriterKey(pWriter, lpKeyName, num);
 }
 
-void SaveConfigXml(HWND hPropSheetDlg)
+BOOL SaveConfigXml(HWND hPropSheetDlg)
 {
-	IXmlWriter *pWriter;
-	IStream *pFileStream;
+	IXmlWriter *pWriter = nullptr;
+	IStream *pFileStream = nullptr;
 
-	WriterInit(pathconfigxml, &pWriter, &pFileStream);
+	HRESULT hr = WriterInit(pathconfigxml, &pWriter, &pFileStream);
+	if (FAILED(hr))
+	{
+		CloseStreamWriter(pWriter, pFileStream);
+		return FALSE;
+	}
 
 	//skk
 	{
@@ -303,5 +309,11 @@ void SaveConfigXml(HWND hPropSheetDlg)
 
 	WriterFinal(&pWriter, &pFileStream);
 
-	SetFileDacl(pathconfigxml);
+	BOOL ret = SetFileDacl(pathconfigxml);
+	if(ret == FALSE)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 }

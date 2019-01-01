@@ -1,5 +1,4 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -18,5 +17,4 @@
 #include <msctf.h>
 #include <xmllite.h>
 #include <Shlwapi.h>
-#include <NTSecAPI.h>
-#include <wincrypt.h>
+#include <bcrypt.h>

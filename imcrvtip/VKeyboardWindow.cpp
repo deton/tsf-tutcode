@@ -290,6 +290,8 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		return FALSE;
 	}
 
+	_InitFont();
+
 	RECT rw = {};
 	_CalcWindowRect(&rw);
 
@@ -360,60 +362,12 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM w
 
 LRESULT CALLBACK CVKeyboardWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	PAINTSTRUCT ps;
-	HDC hdc;
-	HDC hmemdc;
-	HBITMAP hmembmp, bmp;
-	HPEN pen, npen;
-	HBRUSH brush, nbrush;
-	HFONT font;
-	RECT r = {};
-
 	switch(uMsg)
 	{
 	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-
-		GetClientRect(hWnd, &r);
-
-		hmemdc = CreateCompatibleDC(hdc);
-		hmembmp = CreateCompatibleBitmap(hdc, r.right, r.bottom);
-		bmp = (HBITMAP)SelectObject(hmemdc, hmembmp);
-
-		npen = CreatePen(PS_SOLID, 1, RGB(0x00, 0x00, 0x00));
-		pen = (HPEN)SelectObject(hmemdc, npen);
-		nbrush = CreateSolidBrush(RGB(0xFF, 0xFF, 0xFF));
-		brush = (HBRUSH)SelectObject(hmemdc, nbrush);
-
-		Rectangle(hmemdc, 0, 0, r.right, r.bottom);
-
-		font = (HFONT)SelectObject(hmemdc, _pTextService->hFont);
-		if(!_vkb.empty())
-		{
-			int i = 0;
-			std::wistringstream iss(_vkb);
-			for(std::wstring s; getline(iss, s);)
-			{
-				int y = IM_MARGIN_Y + i * _fontHeight;
-				TextOut(hmemdc, IM_MARGIN_X, y, s.c_str(), s.size());
-				i++;
-			}
-		}
-
-		SelectObject(hmemdc, font);
-		SelectObject(hmemdc, pen);
-		SelectObject(hmemdc, brush);
-		DeleteObject(npen);
-		DeleteObject(nbrush);
-
-		BitBlt(hdc, 0, 0, r.right, r.bottom, hmemdc, 0, 0, SRCCOPY);
-
-		SelectObject(hmemdc, bmp);
-
-		DeleteObject(hmembmp);
-		DeleteObject(hmemdc);
-
-		EndPaint(hWnd, &ps);
+		_WindowProcPaint(hWnd, uMsg, wParam, lParam);
+		break;
+	case WM_ERASEBKGND:
 		break;
 	case WM_MOUSEACTIVATE:
 		return MA_NOACTIVATE;
@@ -431,6 +385,8 @@ void CVKeyboardWindow::_Destroy()
 		DestroyWindow(_hwnd);
 		_hwnd = nullptr;
 	}
+
+	_UninitFont();
 
 	_UnadviseTextLayoutSink();
 	SafeRelease(&_pContext);
@@ -507,7 +463,7 @@ void CVKeyboardWindow::_CalcWindowRect(LPRECT lpRect)
 	SetRectEmpty(lpRect);
 
 	HDC hdc = GetDC(_hwnd);
-	HFONT fontSave = (HFONT)SelectObject(hdc, _pTextService->hFont);
+	HFONT fontSave = (HFONT)SelectObject(hdc, hFont);
 	TEXTMETRICW tm = {};
 	GetTextMetricsW(hdc, &tm);
 	_fontHeight = tm.tmHeight;
@@ -522,6 +478,91 @@ void CVKeyboardWindow::_CalcWindowRect(LPRECT lpRect)
 
 	SelectObject(hdc, fontSave);
 	ReleaseDC(_hwnd, hdc);
+}
+
+void CVKeyboardWindow::_InitFont()
+{
+	LOGFONTW lf = {};
+	lf.lfHeight = -MulDiv(_pTextService->cx_fontpoint, _dpi, 72);
+	lf.lfWidth = 0;
+	lf.lfEscapement = 0;
+	lf.lfOrientation = 0;
+	lf.lfWeight = _pTextService->cx_fontweight;
+	lf.lfItalic = _pTextService->cx_fontitalic;
+	lf.lfUnderline = FALSE;
+	lf.lfStrikeOut = FALSE;
+	lf.lfCharSet = SHIFTJIS_CHARSET;
+	lf.lfOutPrecision = OUT_DEFAULT_PRECIS;
+	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+	lf.lfQuality = PROOF_QUALITY;
+	lf.lfPitchAndFamily = DEFAULT_PITCH;
+	wcscpy_s(lf.lfFaceName, _pTextService->cx_fontname);
+
+	hFont = CreateFontIndirectW(&lf);
+}
+
+void CVKeyboardWindow::_UninitFont()
+{
+	if (hFont != nullptr)
+	{
+		DeleteObject(hFont);
+		hFont = nullptr;
+	}
+}
+
+void CVKeyboardWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	PAINTSTRUCT ps;
+	HDC hdc;
+	HDC hmemdc;
+	HBITMAP hmembmp, bmp;
+	HPEN pen, npen;
+	HBRUSH brush, nbrush;
+	HFONT font;
+	RECT r = {};
+
+	hdc = BeginPaint(hWnd, &ps);
+
+	GetClientRect(hWnd, &r);
+
+	hmemdc = CreateCompatibleDC(hdc);
+	hmembmp = CreateCompatibleBitmap(hdc, r.right, r.bottom);
+	bmp = (HBITMAP)SelectObject(hmemdc, hmembmp);
+
+	npen = CreatePen(PS_SOLID, 1, RGB(0x00, 0x00, 0x00));
+	pen = (HPEN)SelectObject(hmemdc, npen);
+	nbrush = CreateSolidBrush(RGB(0xFF, 0xFF, 0xFF));
+	brush = (HBRUSH)SelectObject(hmemdc, nbrush);
+
+	Rectangle(hmemdc, 0, 0, r.right, r.bottom);
+
+	font = (HFONT)SelectObject(hmemdc, hFont);
+	if(!_vkb.empty())
+	{
+		int i = 0;
+		std::wistringstream iss(_vkb);
+		for(std::wstring s; getline(iss, s);)
+		{
+			int y = IM_MARGIN_Y + i * _fontHeight;
+			TextOut(hmemdc, IM_MARGIN_X, y, s.c_str(), s.size());
+			i++;
+		}
+	}
+
+	SelectObject(hmemdc, font);
+	SelectObject(hmemdc, pen);
+	SelectObject(hmemdc, brush);
+	DeleteObject(npen);
+	DeleteObject(nbrush);
+
+	BitBlt(hdc, 0, 0, r.right, r.bottom, hmemdc, 0, 0, SRCCOPY);
+
+	SelectObject(hmemdc, bmp);
+
+	DeleteObject(hmembmp);
+	DeleteObject(hmemdc);
+
+	EndPaint(hWnd, &ps);
 }
 
 class CVKeyboardWindowEditSession : public CEditSessionBase

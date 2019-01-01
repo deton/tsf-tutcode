@@ -1,6 +1,4 @@
-﻿
-#ifndef CONVTYPE_H
-#define CONVTYPE_H
+﻿#pragma once
 
 #define ROMAN_NUM	8
 #define KANA_NUM	8
@@ -25,5 +23,3 @@ typedef struct {
 
 #define ROMAN_KANA_TBL_MAX		32768
 #define ASCII_JLATIN_TBL_NUM	128
-
-#endif //CONVTYPE_H

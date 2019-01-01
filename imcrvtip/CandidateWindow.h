@@ -1,6 +1,4 @@
-﻿
-#ifndef CANDIDATEWINDOW_H
-#define CANDIDATEWINDOW_H
+﻿#pragma once
 
 #include "TextService.h"
 #include "CandidateList.h"
@@ -97,6 +95,8 @@ private:
 	void _PaintCandidate(HDC hdc, LPRECT lpr, UINT page, UINT count, UINT idx);
 	void _CalcWindowRect();
 	HRESULT _GetTextMetrics(LPCWSTR text, DWRITE_TEXT_METRICS *metrics);
+	void _InitFont();
+	void _UninitFont();
 	void _WindowProcDpiChanged(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	DWORD _dwUIElementId;
@@ -133,6 +133,7 @@ private:
 	//候補一覧、辞書登録のウィンドウ
 	std::wstring disptext;		//表示文字列
 	HFONT hFont;				//フォント
+	int _dpi;
 
 	//Direct2D/DirectWrite
 	ID2D1Factory *_pD2DFactory;
@@ -172,5 +173,3 @@ private:
 	size_t candorgcnt_bak;
 	CPostMazeContext postmazeContext_bak;
 };
-
-#endif //CANDIDATEWINDOW_H

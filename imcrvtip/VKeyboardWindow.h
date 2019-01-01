@@ -1,6 +1,5 @@
 ﻿
-#ifndef VKEYBOARDWINDOW_H
-#define VKEYBOARDWINDOW_H
+#pragma once
 
 #include "TextService.h"
 #include "EditSession.h"
@@ -39,6 +38,10 @@ private:
 	HRESULT _AdviseTextLayoutSink();
 	HRESULT _UnadviseTextLayoutSink();
 
+	void _WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void _InitFont();
+	void _UninitFont();
+
 	ITfContext *_pContext;
 
 	DWORD _dwCookieTextLayoutSink;
@@ -46,10 +49,10 @@ private:
 	CTextService *_pTextService;
 	HWND _hwndParent;
 	HWND _hwnd;
+	HFONT hFont;
+	int _dpi;
 
 	std::wstring _vkb;
 	LONG _fontHeight;
 	BOOL _bHide;
 };
-
-#endif //VKEYBOARDWINDOW_H

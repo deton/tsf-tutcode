@@ -1,6 +1,4 @@
-﻿
-#ifndef IMCRVCNF_H
-#define IMCRVCNF_H
+﻿#pragma once
 
 #include "common.h"
 
@@ -16,7 +14,7 @@ int GetFontHeight(HWND hwnd, int size);
 void DrawSelectColor(HWND hDlg, int id, COLORREF col);
 void LoadCheckButton(HWND hDlg, int nIDDlgItem, LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault = L"");
 void SaveCheckButton(IXmlWriter *pWriter, HWND hDlg, int nIDDlgItem, LPCWSTR lpKeyName);
-void SaveConfigXml(HWND hDlg);
+BOOL SaveConfigXml(HWND hDlg);
 // DlgDicMake
 void MakeSKKDic(HWND hDlg);
 // DlgDicAddUrl
@@ -83,5 +81,3 @@ extern WCHAR urlskkdic[INTERNET_MAX_URL_LENGTH];
 #define WM_GETDPISCALEDSIZE             0x02E4
 #endif //(WINVER < 0x0605)
 #endif //NTDDI_WIN10_RS2
-
-#endif //IMCRVCNF_H

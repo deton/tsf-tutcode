@@ -1,6 +1,4 @@
-﻿
-#ifndef VERSION_H
-#define VERSION_H
+﻿#pragma once
 
 #define TEXTSERVICE_NAME	L"tsf-tutcode"
 #ifndef _DEBUG
@@ -16,5 +14,3 @@
 #define RC_PRODUCT			"tsf-tutcode"
 #define RC_VERSION			"0.8.1"
 #define RC_VERSION_D		0,8,1,0
-
-#endif
