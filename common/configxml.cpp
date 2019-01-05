@@ -68,6 +68,7 @@ LPCWSTR ValueDelCvPosCncl = L"delcvposcncl";
 LPCWSTR ValueDelOkuriCncl = L"delokuricncl";
 LPCWSTR ValueBackIncEnter = L"backincenter";
 LPCWSTR ValueAddCandKtkn = L"addcandktkn";
+LPCWSTR ValueEnToggleKana = L"entogglekana";
 LPCWSTR ValueSetByDirect = L"setbydirect";
 LPCWSTR ValueFixMazeCount = L"fixmazecount";
 

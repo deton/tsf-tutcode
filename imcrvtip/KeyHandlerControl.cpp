@@ -42,8 +42,11 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					_HandleCharReturn(ec, pContext);
 				}
 
-				//ひらがな/カタカナモードへ
-				inputmode = (inputmode == im_hiragana ? im_katakana : im_hiragana);
+				if (cx_entogglekana || inputmode == im_hiragana)
+				{
+					//ひらがな/カタカナモードへ
+					inputmode = (inputmode == im_hiragana ? im_katakana : im_hiragana);
+				}
 				_UpdateLanguageBar();
 			}
 			return S_OK;
@@ -55,8 +58,11 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				_HandleCharReturn(ec, pContext);
 			}
 
-			//ひらがなモードへ
-			inputmode = im_hiragana;
+			if (cx_entogglekana)
+			{
+				//ひらがなモードへ
+				inputmode = im_hiragana;
+			}
 			_UpdateLanguageBar();
 			return S_OK;
 			break;
@@ -126,8 +132,11 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				_HandleCharReturn(ec, pContext);
 			}
 
-			//ひらがなモードへ
-			inputmode = im_hiragana;
+			if (cx_entogglekana || inputmode == im_hiragana)
+			{
+				//ひらがなモードへ
+				inputmode = im_hiragana;
+			}
 			_UpdateLanguageBar();
 			return S_OK;
 			break;
@@ -167,6 +176,14 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 	case SKK_JMODE:
 		switch(inputmode)
 		{
+		case im_katakana:
+		case im_katakana_ank:
+			if (inputkey || !kana.empty() || !roman.empty())
+			{
+				_ConvRoman();
+				_HandleCharReturn(ec, pContext);
+			}
+			// no break
 		case im_jlatin:
 		case im_ascii:
 			//ひらがなモードへ
