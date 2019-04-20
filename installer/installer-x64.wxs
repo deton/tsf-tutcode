@@ -49,6 +49,17 @@
       </Component>
     </DirectoryRef>
 
+    <DirectoryRef Id="IMTSFTUTCODE_X64">
+      <Component Id="MSVCP140_X64" Guid="*" Win64="yes">
+        <File Id="F_msvcp140_x64" Name="msvcp140.dll"
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC141.CRT\msvcp140.dll" />
+      </Component>
+      <Component Id="VCRUNTIME140_X64" Guid="*" Win64="yes">
+        <File Id="F_vcruntime140_x64" Name="vcruntime140.dll"
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC141.CRT\vcruntime140.dll" />
+      </Component>
+    </DirectoryRef>
+
     <Component Id="REG_X64" Guid="*" Directory="TARGETDIR" Win64="yes">
       <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
         <RegistryValue Action="write" Type="string" Name="imtutmgr"
@@ -62,21 +73,9 @@
       <ComponentRef Id="TIP_X64" />
       <ComponentRef Id="LUAEXE_X64" />
       <ComponentRef Id="LUADLL_X64" />
+      <ComponentRef Id="MSVCP140_X64" />
+      <ComponentRef Id="VCRUNTIME140_X64" />
       <ComponentRef Id="REG_X64" />
-    </Feature>
-
-    <DirectoryRef Id="TARGETDIR">
-      <Merge Id="CRT_X64" DiskId="1" Language="0"
-        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CRT_x64.msm" />
-      <Merge Id="AMP_X64" DiskId="1" Language="0"
-        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CXXAMP_x64.msm" />
-      <Merge Id="OMP_X64" DiskId="1" Language="0"
-        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_OpenMP_x64.msm" />
-    </DirectoryRef>
-    <Feature Id="VCRedist" Title="Runtime" AllowAdvertise="no" Display="hidden" Level="1">
-      <MergeRef Id="CRT_X64" />
-      <MergeRef Id="AMP_X64" />
-      <MergeRef Id="OMP_X64" />
     </Feature>
 
     <UIRef Id="WixUI_Minimal" />
