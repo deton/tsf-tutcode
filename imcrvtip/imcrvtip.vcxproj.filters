@@ -167,6 +167,18 @@
     <ClCompile Include="ThreadMgrEventSink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\configxml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\moji.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\eucjis2004table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="mozc\win32\tip\tip_surrounding_text.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

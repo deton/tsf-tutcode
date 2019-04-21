@@ -392,7 +392,8 @@ HRESULT CTextService::_HandlePostSeq2Kanji(TfEditCookie ec, ITfContext *pContext
 		while((st = BackwardMoji(text, prevst, 1)) < prevst)
 		{
 			prevst = st;
-			if(!isroman(Get1Moji(text, st)))
+			std::wstring ch = Get1Moji(text, st);
+			if(!isroman(ch))
 			{
 				st = ForwardMoji(text, st, 1);
 				break;

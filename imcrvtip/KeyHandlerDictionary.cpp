@@ -118,20 +118,21 @@ exit:
 
 void CTextService::_SearchBushuDic(const std::wstring &bushu1, const std::wstring &bushu2, std::wstring *kanji)
 {
+	DWORD bytesWrite, bytesRead;
+
 	kanji->clear();
 	_StartManager();
 	_ConnectDic();
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 	_snwprintf_s(pipebuf, _TRUNCATE, L"%c\n%s\t%s\n", REQ_BUSHU,
 			bushu1.c_str(), bushu2.c_str());
-	DWORD bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
+	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
 	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
 
 	ZeroMemory(pipebuf, sizeof(pipebuf));
-	DWORD bytesRead = 0;
 	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;

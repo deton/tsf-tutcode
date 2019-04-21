@@ -58,6 +58,20 @@
       <Component Id="LUADLL_X86" Guid="*">
         <File Id="F_luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
       </Component>
+      <Component Id="ZLIBDLL_X86" Guid="*">
+        <File Id="F_zlibdll_x86" Name="zlib1.dll" Source="..\Win32\Release\zlib1.dll" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="IMTSFTUTCODE_X86">
+      <Component Id="MSVCP140_X86" Guid="*">
+        <File Id="F_msvcp140_x86" Name="msvcp140.dll"
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC141.CRT\msvcp140.dll" />
+      </Component>
+      <Component Id="VCRUNTIME140_X86" Guid="*">
+        <File Id="F_vcruntime140_x86" Name="vcruntime140.dll"
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC141.CRT\vcruntime140.dll" />
+      </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_WIN">
@@ -100,26 +114,15 @@
       <ComponentRef Id="TIP_X86" />
       <ComponentRef Id="LUAEXE_X86" />
       <ComponentRef Id="LUADLL_X86" />
+      <ComponentRef Id="ZLIBDLL_X86" />
+      <ComponentRef Id="MSVCP140_X86" />
+      <ComponentRef Id="VCRUNTIME140_X86" />
       <ComponentRef Id="CONFIG_XML" />
       <ComponentRef Id="INIT_LUA" />
       <ComponentRef Id="SKKDICT_TXT" />
       <ComponentRef Id="LICENSE_TXT" />
       <ComponentRef Id="README_HTML" />
       <ComponentRef Id="REG_X86" />
-    </Feature>
-
-    <DirectoryRef Id="TARGETDIR">
-      <Merge Id="CRT_X86" DiskId="1" Language="0"
-        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CRT_x86.msm" />
-      <Merge Id="AMP_X86" DiskId="1" Language="0"
-        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_CXXAMP_x86.msm" />
-      <Merge Id="OMP_X86" DiskId="1" Language="0"
-        SourceFile="$(env.VCToolsRedistDir)MergeModules\Microsoft_VC141_OpenMP_x86.msm" />
-    </DirectoryRef>
-    <Feature Id="VCRedist" Title="Runtime" AllowAdvertise="no" Display="hidden" Level="1">
-      <MergeRef Id="CRT_X86" />
-      <MergeRef Id="AMP_X86" />
-      <MergeRef Id="OMP_X86" />
     </Feature>
 
     <UIRef Id="WixUI_Minimal" />

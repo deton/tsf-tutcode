@@ -53,11 +53,11 @@ tsftutcode-X.Y.Z.exe を実行してください。 (X, Y, Z はバージョン�
 
 インストール先
 
-* 32bit版 Windows
+* 32bit 版 Windows
 
     + %SystemRoot%\System32\IME\IMTSFTUTCODE
 
-* 64bit版 Windows
+* 64bit 版 Windows
 
     + %SystemRoot%\System32\IME\IMTSFTUTCODE
     + %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE
@@ -193,7 +193,7 @@ IMオフ状態で打鍵してしまった文字列を、後から日本語に置
 * 言語バーの入力モードアイコンを左クリックし、メニューから「設定」を選択する。
 * 言語バーのヘルプボタンを左クリックし、メニューから「tsf-tutcode」を選択する。
 * Windows 8 以降の通知領域の入力モードアイコンを右クリックし、メニューから「設定」を選択する。
-* %SystemRoot%\System32\IME\IMCRVSKK\imcrvcnf.exe または %SystemRoot%\SysWOW64\IME\IMCRVSKK\imcrvcnf.exe を直接実行する。
+* %SystemRoot%\System32\IME\IMTSFTUTCODE\imtutcnf.exe または %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE\imtutcnf.exe を直接実行する
   * コマンドライン引数またはドラッグアンドドロップで後述の設定ファイルを渡すことが可能です。
 
 設定ダイアログで保存した後は、IME OFF → ON で新しい設定が反映されます。
@@ -297,9 +297,25 @@ tsf-tutcodeは、部首合成変換ユーザー辞書を読み込むだけで書
 
 ![](installer/resource-md/01_dictionary.png)
 
-SKK辞書の詳細はこちらを参照ください。 http://openlab.jp/skk/wiki/wiki.cgi?page=FrontPage
+SKK辞書の詳細はこちらを参照ください。
+
+* https://skk-dev.github.io/dict/
+
+* http://openlab.ring.gr.jp/skk/wiki/wiki.cgi
+
+こちらから辞書をダウンロード出来ます。
+
+* https://github.com/skk-dev/dict
+
+* http://openlab.ring.gr.jp/skk/skk/dic/
+
+* https://github.com/nathancorvussolis/skkdic
 
 SKK辞書ファイルの文字コードは、EUC-JIS-2004、UTF-8 (BOMなし/あり)、UTF-16 (LE, BOMあり) に対応しています。
+
+アーカイブファイルフォーマットは tar、gzip に対応しています。対応する拡張子は、 .gz、.tar、.tar.gz、.tgz です。
+
+拡張子が .tar、.tar.gz、.tgz の場合、拡張子を除いたアーカイブファイル名をファイル名に含むファイルが対象となります。
 
 設定ダイアログのリストに交ぜ書き変換辞書を追加し、取込ボタンを押してください。取込済SKK辞書に変換されて使用可能となります。
 
@@ -442,9 +458,9 @@ IME OFFにして大文字入力直後にIME ONにしようとした時に、意�
 
 各機能に対してキーを正規表現で設定してください。
 
-Visual C++ 2017 の 正規表現で、文法は ECMAScript を使用しています。
+Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用しています。
 
-正規表現の詳細はこちらを参照ください。 https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=vs-2017
+正規表現の詳細はこちらを参照ください。 https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=vs-2019
 
 無効な正規表現で設定するとその機能は無効となります。警告等は表示されません。
 
@@ -724,7 +740,7 @@ Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsA
 
 Emacs Lispのプログラム実行変換に対応していますが、あくまで「もどき」なのでご了承ください。
 
-SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要です。 http://openlab.ring.gr.jp/skk/skk/dic/SKK-JISYO.lisp
+Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要です。 https://github.com/skk-dev/dict/blob/master/SKK-JISYO.lisp
 
 以下のシンボルに大体対応しています。
 
@@ -741,7 +757,9 @@ SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要�
 | number-to-string |  |
 | window-width | 80で固定 |
 | window-height | 23で固定 |
+| current-time |  |
 | current-time-string |  |
+| format-time-string |  |
 | car | ほぼ skk-num-list 用 |
 | cdr | ほぼ skk-num-list 用 |
 | 1+ |  |
@@ -758,7 +776,7 @@ SKK Openlab の Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要�
 | skk-relative-date |  |
 | skk-ignore-dic-word | デフォルト無効 |
 | skk-omikuji | 独自実装。おみくじを引くことができます。『(skk-omikuji)』 |
-| skk-strftime | 独自実装。日時書式出力『(skk-strftime format [unit, diff])』<br>format : https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?view=vs-2017<br>unit : 単位 "year", "month", "day", "hour", "min", "sec"<br>diff : 現在とunitとの差分 |
+| skk-strftime | 独自実装。日時書式出力『(skk-strftime format [unit, diff])』<br>format : https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?view=vs-2019<br>unit : 単位 "year", "month", "day", "hour", "min", "sec"<br>diff : 現在とunitとの差分 |
 | fill-column | 70で固定 |
 | comment-start | "/\*" |
 | comment-end | "\*/" |
@@ -919,14 +937,13 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2017 15.9.4
+Visual Studio Community 2019 16.0.1
 
 * Desktop development with C++
-* C++ compilers and libraries for ARM/ARM64
 
 WiX Toolset v3.11.1
 
-pandoc 2.5
+pandoc 2.7.2
 
 ### ビルド手順
 
@@ -934,6 +951,16 @@ pandoc 2.5
 
     > installer\_solution_build.cmd
     > installer\_build.cmd
+
+ビルド ＆ 署名 ＆ 検証
+
+    > installer\_solution_build.cmd
+    > installer\_sign.cmd <SHA-1 hash> <URL>
+
+        * <SHA-1 hash> : SHA-1 hash of certificate for SHA-256 file digest algorithm
+        * <URL> : SHA-256 RFC-3161 timestamp server
+
+    > installer\_verify.cmd
 
 クリア
 
