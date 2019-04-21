@@ -193,7 +193,7 @@ IMオフ状態で打鍵してしまった文字列を、後から日本語に置
 * 言語バーの入力モードアイコンを左クリックし、メニューから「設定」を選択する。
 * 言語バーのヘルプボタンを左クリックし、メニューから「tsf-tutcode」を選択する。
 * Windows 8 以降の通知領域の入力モードアイコンを右クリックし、メニューから「設定」を選択する。
-* imtutcnf.exe を直接実行する。
+* %SystemRoot%\System32\IME\IMTSFTUTCODE\imtutcnf.exe または %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE\imtutcnf.exe を直接実行する
   * コマンドライン引数またはドラッグアンドドロップで後述の設定ファイルを渡すことが可能です。
 
 設定ダイアログで保存した後は、IME OFF → ON で新しい設定が反映されます。
@@ -312,6 +312,10 @@ SKK辞書の詳細はこちらを参照ください。
 * https://github.com/nathancorvussolis/skkdic
 
 SKK辞書ファイルの文字コードは、EUC-JIS-2004、UTF-8 (BOMなし/あり)、UTF-16 (LE, BOMあり) に対応しています。
+
+アーカイブファイルフォーマットは tar、gzip に対応しています。対応する拡張子は、 .gz、.tar、.tar.gz、.tgz です。
+
+拡張子が .tar、.tar.gz、.tgz の場合、拡張子を除いたアーカイブファイル名をファイル名に含むファイルが対象となります。
 
 設定ダイアログのリストに交ぜ書き変換辞書を追加し、取込ボタンを押してください。取込済SKK辞書に変換されて使用可能となります。
 
@@ -713,7 +717,7 @@ Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsA
 
 辞書管理プロセスのカレントディレクトリは %AppData%\tsf-tutcode になっています。
 
-カスタマイズする際のデバッグ用にコンソールプログラムの lua.exe を使用してください。
+コンソールプログラムのlua.exeが %SystemRoot%\System32\IME\IMTSFTUTCODE と %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE にあるので、カスタマイズする際のデバッグ用に使ってください。
 
 辞書管理プロセスの起動時にスクリプトファイル (init.lua) が下記の優先順位で読み込まれます。
 

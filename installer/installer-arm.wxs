@@ -59,20 +59,23 @@
     </Directory>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
-      <Component Id="CNF_ARM64" Guid="*" Win64="yes">
+      <Component Id="CNF_ARM64" Guid="*">
         <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe" Source="..\ARM64\Release\imtutcnf.exe" />
       </Component>
-      <Component Id="MGR_ARM64" Guid="*" Win64="yes">
+      <Component Id="MGR_ARM64" Guid="*">
         <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe" Source="..\ARM64\Release\imtutmgr.exe" />
       </Component>
-      <Component Id="TIP_ARM64" Guid="*" Win64="yes">
+      <Component Id="TIP_ARM64" Guid="*">
         <File Id="F_imtuttip_arm64" Name="imtuttip.dll" Source="..\ARM64\Release\imtuttip.dll" SelfRegCost="1" />
       </Component>
-      <Component Id="LUAEXE_ARM64" Guid="*" Win64="yes">
+      <Component Id="LUAEXE_ARM64" Guid="*">
         <File Id="F_luaexe_arm64" Name="lua.exe" Source="..\ARM64\Release\lua.exe" />
       </Component>
-      <Component Id="LUADLL_ARM64" Guid="*" Win64="yes">
+      <Component Id="LUADLL_ARM64" Guid="*">
         <File Id="F_luadll_arm64" Name="lua53.dll" Source="..\ARM64\Release\lua53.dll" />
+      </Component>
+      <Component Id="ZLIBDLL_ARM64" Guid="*">
+        <File Id="F_zlibdll_ARM64" Name="zlib1.dll" Source="..\ARM64\Release\zlib1.dll" />
       </Component>
     </DirectoryRef>
 
@@ -87,23 +90,11 @@
       </Component>
     </DirectoryRef>
 
-    <!-- arm32 modules use static crt library. -->
+    <!-- TIP only for ARM32 -->
     <DirectoryRef Id="IMTSFTUTCODE_ARM32">
-      <Component Id="CNF_ARM32" Guid="*">
-        <File Id="F_imtutcnf_arm32" Name="imtutcnf.exe" Source="..\ARM\Release\imtutcnf.exe" />
-      </Component>
-      <Component Id="MGR_ARM32" Guid="*">
-        <File Id="F_imtutmgr_arm32" Name="imtutmgr.exe" Source="..\ARM\Release\imtutmgr.exe" />
-      </Component>
       <Component Id="TIP_ARM32" Guid="*">
         <!-- self registration arm32 dll fails. use regsvr32 command in custom action. -->
         <File Id="F_imtuttip_arm32" Name="imtuttip.dll" Source="..\ARM\Release\imtuttip.dll" />
-      </Component>
-      <Component Id="LUAEXE_ARM32" Guid="*">
-        <File Id="F_luaexe_arm32" Name="lua.exe" Source="..\ARM\Release\lua.exe" />
-      </Component>
-      <Component Id="LUADLL_ARM32" Guid="*">
-        <File Id="F_luadll_arm32" Name="lua53.dll" Source="..\ARM\Release\lua53.dll" />
       </Component>
     </DirectoryRef>
 
@@ -122,6 +113,9 @@
       </Component>
       <Component Id="LUADLL_X86" Guid="*">
         <File Id="F_luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
+      </Component>
+      <Component Id="ZLIBDLL_X86" Guid="ED3222D1-7EF1-4EAD-9C57-FF0DE4C13478">
+        <File Id="F_zlibdll_X86" Name="zlib1.dll" Source="..\Win32\Release\zlib1.dll" />
       </Component>
     </DirectoryRef>
 
@@ -175,18 +169,16 @@
       <ComponentRef Id="TIP_ARM64" />
       <ComponentRef Id="LUAEXE_ARM64" />
       <ComponentRef Id="LUADLL_ARM64" />
+      <ComponentRef Id="ZLIBDLL_ARM64" />
       <ComponentRef Id="MSVCP140_ARM64" />
       <ComponentRef Id="VCRUNTIME140_ARM64" />
-      <ComponentRef Id="CNF_ARM32" />
-      <ComponentRef Id="MGR_ARM32" />
       <ComponentRef Id="TIP_ARM32" />
-      <ComponentRef Id="LUAEXE_ARM32" />
-      <ComponentRef Id="LUADLL_ARM32" />
       <ComponentRef Id="CNF_X86" />
       <ComponentRef Id="MGR_X86" />
       <ComponentRef Id="TIP_X86" />
       <ComponentRef Id="LUAEXE_X86" />
       <ComponentRef Id="LUADLL_X86" />
+      <ComponentRef Id="ZLIBDLL_X86" />
       <ComponentRef Id="MSVCP140_X86" />
       <ComponentRef Id="VCRUNTIME140_X86" />
       <ComponentRef Id="CONFIG_XML" />
