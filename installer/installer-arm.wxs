@@ -59,34 +59,34 @@
     </Directory>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
-      <Component Id="CNF_ARM64" Guid="*">
+      <Component Id="CNF_ARM64" Guid="*" Win64="yes">
         <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe" Source="..\ARM64\Release\imtutcnf.exe" />
       </Component>
-      <Component Id="MGR_ARM64" Guid="*">
+      <Component Id="MGR_ARM64" Guid="*" Win64="yes">
         <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe" Source="..\ARM64\Release\imtutmgr.exe" />
       </Component>
-      <Component Id="TIP_ARM64" Guid="*">
+      <Component Id="TIP_ARM64" Guid="*" Win64="yes">
         <File Id="F_imtuttip_arm64" Name="imtuttip.dll" Source="..\ARM64\Release\imtuttip.dll" SelfRegCost="1" />
       </Component>
-      <Component Id="LUAEXE_ARM64" Guid="*">
+      <Component Id="LUAEXE_ARM64" Guid="*" Win64="yes">
         <File Id="F_luaexe_arm64" Name="lua.exe" Source="..\ARM64\Release\lua.exe" />
       </Component>
-      <Component Id="LUADLL_ARM64" Guid="*">
+      <Component Id="LUADLL_ARM64" Guid="*" Win64="yes">
         <File Id="F_luadll_arm64" Name="lua53.dll" Source="..\ARM64\Release\lua53.dll" />
       </Component>
-      <Component Id="ZLIBDLL_ARM64" Guid="*">
+      <Component Id="ZLIBDLL_ARM64" Guid="*" Win64="yes">
         <File Id="F_zlibdll_ARM64" Name="zlib1.dll" Source="..\ARM64\Release\zlib1.dll" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
-      <Component Id="MSVCP140_ARM64" Guid="*">
+      <Component Id="MSVCP140_ARM64" Guid="*" Win64="yes">
         <File Id="F_msvcp140_arm64" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\msvcp140.dll" />
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\msvcp140.dll" />
       </Component>
-      <Component Id="VCRUNTIME140_ARM64" Guid="*">
+      <Component Id="VCRUNTIME140_ARM64" Guid="*" Win64="yes">
         <File Id="F_vcruntime140_arm64" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC141.CRT\vcruntime140.dll" />
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\vcruntime140.dll" />
       </Component>
     </DirectoryRef>
 
@@ -122,11 +122,11 @@
     <DirectoryRef Id="IMTSFTUTCODE_X86">
       <Component Id="MSVCP140_X86" Guid="*">
         <File Id="F_msvcp140_x86" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC141.CRT\msvcp140.dll" />
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC142.CRT\msvcp140.dll" />
       </Component>
       <Component Id="VCRUNTIME140_X86" Guid="*">
         <File Id="F_vcruntime140_x86" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC141.CRT\vcruntime140.dll" />
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC142.CRT\vcruntime140.dll" />
       </Component>
     </DirectoryRef>
 

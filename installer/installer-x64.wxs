@@ -55,11 +55,11 @@
     <DirectoryRef Id="IMTSFTUTCODE_X64">
       <Component Id="MSVCP140_X64" Guid="*" Win64="yes">
         <File Id="F_msvcp140_x64" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC141.CRT\msvcp140.dll" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\msvcp140.dll" />
       </Component>
       <Component Id="VCRUNTIME140_X64" Guid="*" Win64="yes">
         <File Id="F_vcruntime140_x64" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC141.CRT\vcruntime140.dll" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\vcruntime140.dll" />
       </Component>
     </DirectoryRef>
 
