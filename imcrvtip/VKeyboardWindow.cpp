@@ -483,7 +483,7 @@ void CVKeyboardWindow::_CalcWindowRect(LPRECT lpRect)
 void CVKeyboardWindow::_InitFont()
 {
 	LOGFONTW lf = {};
-	lf.lfHeight = -MulDiv(_pTextService->cx_fontpoint, _dpi, 72);
+	lf.lfHeight = -MulDiv(_pTextService->cx_fontpoint, _dpi, C_FONT_LOGICAL_HEIGHT_PPI);
 	lf.lfWidth = 0;
 	lf.lfEscapement = 0;
 	lf.lfOrientation = 0;
