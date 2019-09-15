@@ -24,7 +24,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 	//(TSFによるカーソル直前文字列削除ができなかった場合用。)
 	//mozcのwin32/tip/tip_keyevent_handler.ccから。
 	bool is_key_down = isKeyDown;
-	if(isTest)
+	if (isTest)
 	{
 		const mozc::win32::LParamKeyInfo key_info(lParam);
 		is_key_down = key_info.IsKeyDownInImeProcessKey();
@@ -32,7 +32,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 	const mozc::win32::VKBackBasedDeleter::ClientAction vk_back_action =
 		deleter.OnKeyEvent(wParam, is_key_down, isTest);
 
-	switch(vk_back_action)
+	switch (vk_back_action)
 	{
 	case mozc::win32::VKBackBasedDeleter::DO_DEFAULT_ACTION:
 		// do nothing.
@@ -41,7 +41,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		deleter.EndDeletion();
 		break;
 	case mozc::win32::VKBackBasedDeleter::SEND_KEY_TO_APPLICATION:
-		if(is_key_down && isTest && !postbuf.empty())
+		if (is_key_down && isTest && !postbuf.empty())
 		{
 			postbuf.pop_back();
 		}
@@ -49,7 +49,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 	case mozc::win32::VKBackBasedDeleter::CONSUME_KEY_BUT_NEVER_SEND_TO_SERVER:
 		return -1; // Consume this key but do not send this key to server.
 	case mozc::win32::VKBackBasedDeleter::CALL_END_DELETION_BUT_NEVER_SEND_TO_SERVER:
-		if(!isTest)
+		if (!isTest)
 		{
 			deleter.EndDeletion();
 			return -1;
@@ -59,7 +59,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 			return FALSE;
 		}
 	case mozc::win32::VKBackBasedDeleter::APPLY_PENDING_STATUS:
-		if(!isTest)
+		if (!isTest)
 		{
 			_InvokeKeyHandler(pContext, wParam, lParam, SKK_AFTER_DELETER);
 			return -1;
@@ -188,15 +188,15 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		return TRUE;
 	}
 
-	if(!postbuf.empty())
+	if (!postbuf.empty())
 	{
-		if((wParam == VK_BACK || wParam == VK_LEFT) && is_key_down && isTest)
+		if ((wParam == VK_BACK || wParam == VK_LEFT) && is_key_down && isTest)
 		{
 			postbuf.pop_back();
 		}
 		else
 		{
-			switch(wParam)
+			switch (wParam)
 			{
 			//case VK_LEFT:
 			case VK_RIGHT:
@@ -206,7 +206,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 			case VK_END:
 			case VK_PRIOR:
 			case VK_NEXT:
-				if(is_key_down && isTest)
+				if (is_key_down && isTest)
 				{
 					postbuf.clear();
 				}
@@ -233,7 +233,7 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 	}
 
 	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, TRUE);
-	if(eaten == -1)
+	if (eaten == -1)
 	{
 		*pfEaten = TRUE;
 		return S_OK;
@@ -264,7 +264,7 @@ STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BO
 	}
 
 	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, FALSE);
-	if(eaten == -1)
+	if (eaten == -1)
 	{
 		*pfEaten = TRUE;
 		return S_OK;
@@ -287,7 +287,7 @@ STDAPI CTextService::OnTestKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, 
 	}
 
 	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, TRUE);
-	if(eaten == -1)
+	if (eaten == -1)
 	{
 		*pfEaten = TRUE;
 		return S_OK;
@@ -305,7 +305,7 @@ STDAPI CTextService::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL
 	}
 
 	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, FALSE);
-	if(eaten == -1)
+	if (eaten == -1)
 	{
 		*pfEaten = TRUE;
 		return S_OK;

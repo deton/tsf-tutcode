@@ -27,14 +27,14 @@ public:
 	// ITfEditSession
 	STDMETHODIMP DoEditSession(TfEditCookie ec)
 	{
-		if(_pVKeyboardWindow->_IsHide())
+		if (_pVKeyboardWindow->_IsHide())
 		{
 			return S_OK;
 		}
 
 		TF_SELECTION tfSelection = {};
 		ULONG cFetched = 0;
-		if(FAILED(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched)))
+		if (FAILED(_pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched)))
 		{
 			return E_FAIL;
 		}
@@ -42,20 +42,20 @@ public:
 		CComPtr<ITfRange> pRangeSelection;
 		pRangeSelection.Attach(tfSelection.range);
 
-		if(cFetched != 1)
+		if (cFetched != 1)
 		{
 			return E_FAIL;
 		}
 
 		RECT rc = {};
 		BOOL fClipped;
-		if(FAILED(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped)))
+		if (FAILED(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped)))
 		{
 			return E_FAIL;
 		}
 
 		//ignore abnormal position (from CUAS ?)
-		if((rc.top == rc.bottom) && ((rc.right - rc.left) == 1))
+		if ((rc.top == rc.bottom) && ((rc.right - rc.left) == 1))
 		{
 			return E_FAIL;
 		}
@@ -74,26 +74,26 @@ public:
 		LONG height = rw.bottom - rw.top;
 		LONG width = rw.right - rw.left;
 
-		if(rc.left < mi.rcWork.left)
+		if (rc.left < mi.rcWork.left)
 		{
 			rc.left = mi.rcWork.left;
 		}
 
-		if(mi.rcWork.right < rc.right)
+		if (mi.rcWork.right < rc.right)
 		{
 			rc.left = mi.rcWork.right - width;
 		}
 
-		if(mi.rcWork.bottom < rc.top)
+		if (mi.rcWork.bottom < rc.top)
 		{
 			rc.bottom = mi.rcWork.bottom - height - IM_MARGIN_Y;
 		}
-		else if(mi.rcWork.bottom < (rc.bottom + height + IM_MARGIN_Y))
+		else if (mi.rcWork.bottom < (rc.bottom + height + IM_MARGIN_Y))
 		{
 			rc.bottom = rc.top - height - IM_MARGIN_Y * 2;
 		}
 
-		if(rc.bottom < mi.rcWork.top)
+		if (rc.bottom < mi.rcWork.top)
 		{
 			rc.bottom = mi.rcWork.top - IM_MARGIN_Y;
 		}
@@ -135,19 +135,19 @@ CVKeyboardWindow::~CVKeyboardWindow()
 
 STDAPI CVKeyboardWindow::QueryInterface(REFIID riid, void **ppvObj)
 {
-	if(ppvObj == nullptr)
+	if (ppvObj == nullptr)
 	{
 		return E_INVALIDARG;
 	}
 
 	*ppvObj = nullptr;
 
-	if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfTextLayoutSink))
+	if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfTextLayoutSink))
 	{
 		*ppvObj = static_cast<ITfTextLayoutSink *>(this);
 	}
 
-	if(*ppvObj)
+	if (*ppvObj)
 	{
 		AddRef();
 		return S_OK;
@@ -163,7 +163,7 @@ STDAPI_(ULONG) CVKeyboardWindow::AddRef()
 
 STDAPI_(ULONG) CVKeyboardWindow::Release()
 {
-	if(--_cRef == 0)
+	if (--_cRef == 0)
 	{
 		delete this;
 		return 0;
@@ -176,12 +176,12 @@ STDAPI CVKeyboardWindow::OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode
 {
 	HRESULT hr;
 
-	if(pContext != _pContext)
+	if (pContext != _pContext)
 	{
 		return S_OK;
 	}
 
-	switch(lcode)
+	switch (lcode)
 	{
 	case TF_LC_CREATE:
 		break;
@@ -227,7 +227,7 @@ HRESULT CVKeyboardWindow::_UnadviseTextLayoutSink()
 {
 	HRESULT hr = E_FAIL;
 
-	if(_pContext != nullptr)
+	if (_pContext != nullptr)
 	{
 		CComPtr<ITfSource> pSource;
 		if (SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
@@ -243,16 +243,16 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 {
 	POINT pt = {};
 
-	if(pContext != nullptr)
+	if (pContext != nullptr)
 	{
 		_pContext = pContext;
-		if(FAILED(_AdviseTextLayoutSink()))
+		if (FAILED(_AdviseTextLayoutSink()))
 		{
 			return FALSE;
 		}
 	}
 
-	if(!bCandidateWindow && _pContext == nullptr)
+	if (!bCandidateWindow && _pContext == nullptr)
 	{
 		return FALSE;
 	}
@@ -260,16 +260,16 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	_pTextService = pTextService;
 	_vkb = _pTextService->_MakeVkbTable();
 
-	if(bCandidateWindow)
+	if (bCandidateWindow)
 	{
 		_hwndParent = hWnd;
 	}
 	else
 	{
 		CComPtr<ITfContextView> pContextView;
-		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
+		if (SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
-			if(FAILED(pContextView->GetWnd(&_hwndParent)) || _hwndParent == nullptr)
+			if (FAILED(pContextView->GetWnd(&_hwndParent)) || _hwndParent == nullptr)
 			{
 				_hwndParent = GetFocus();
 			}
@@ -281,7 +281,7 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 		_hwndParent, nullptr, g_hInst, this);
 
-	if(_hwnd == nullptr)
+	if (_hwnd == nullptr)
 	{
 		return FALSE;
 	}
@@ -291,7 +291,7 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	RECT rw = {};
 	_CalcWindowRect(&rw);
 
-	if(bCandidateWindow)
+	if (bCandidateWindow)
 	{
 		RECT r = {};
 		GetClientRect(_hwndParent, &r);
@@ -337,7 +337,7 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM w
 {
 	CVKeyboardWindow *pVKeyboardWindow = nullptr;
 
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_NCCREATE:
 		pVKeyboardWindow = (CVKeyboardWindow *)((LPCREATESTRUCTW)lParam)->lpCreateParams;
@@ -348,7 +348,7 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM w
 		break;
 	}
 
-	if(pVKeyboardWindow != nullptr)
+	if (pVKeyboardWindow != nullptr)
 	{
 		return pVKeyboardWindow->_WindowProc(hWnd, uMsg, wParam, lParam);
 	}
@@ -358,7 +358,7 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM w
 
 LRESULT CALLBACK CVKeyboardWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_PAINT:
 		_WindowProcPaint(hWnd, uMsg, wParam, lParam);
@@ -376,7 +376,7 @@ LRESULT CALLBACK CVKeyboardWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 
 void CVKeyboardWindow::_Destroy()
 {
-	if(_hwnd != nullptr)
+	if (_hwnd != nullptr)
 	{
 		DestroyWindow(_hwnd);
 		_hwnd = nullptr;
@@ -392,7 +392,7 @@ void CVKeyboardWindow::_Destroy()
 
 void CVKeyboardWindow::_Move(int x, int y)
 {
-	if(_hwnd != nullptr)
+	if (_hwnd != nullptr)
 	{
 		SetWindowPos(_hwnd, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
 	}
@@ -404,14 +404,14 @@ void CVKeyboardWindow::_Show(BOOL bShow)
 
 	//辞書登録時用の仮想鍵盤を表示しようとしてる場合、大元の仮想鍵盤は非表示に。
 	//再帰的な辞書登録をキャンセルした時の、2重の仮想鍵盤表示を回避するため
-	if(bShow && _pContext == nullptr)
+	if (bShow && _pContext == nullptr)
 	{
 		_pTextService->_HideVKeyboardWindow();
 	}
 
-	if(_hwnd != nullptr)
+	if (_hwnd != nullptr)
 	{
-		if(bShow && _vkb.empty())
+		if (bShow && _vkb.empty())
 		{
 			bShow = FALSE;
 		}
@@ -422,14 +422,14 @@ void CVKeyboardWindow::_Show(BOOL bShow)
 
 void CVKeyboardWindow::_Redraw()
 {
-	if(_bHide)
+	if (_bHide)
 	{
 		return;
 	}
-	if(_hwnd != nullptr)
+	if (_hwnd != nullptr)
 	{
 		_vkb = _pTextService->_MakeVkbTable();
-		if(_vkb.empty())
+		if (_vkb.empty())
 		{
 			ShowWindow(_hwnd, SW_HIDE);
 		}
@@ -444,10 +444,10 @@ void CVKeyboardWindow::_Redraw()
 
 void CVKeyboardWindow::_GetRect(LPRECT lpRect)
 {
-	if(lpRect != nullptr)
+	if (lpRect != nullptr)
 	{
 		SetRectEmpty(lpRect);
-		if(_hwnd != nullptr)
+		if (_hwnd != nullptr)
 		{
 			GetClientRect(_hwnd, lpRect);
 		}
@@ -533,11 +533,11 @@ void CVKeyboardWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 	Rectangle(hmemdc, 0, 0, r.right, r.bottom);
 
 	font = (HFONT)SelectObject(hmemdc, hFont);
-	if(!_vkb.empty())
+	if (!_vkb.empty())
 	{
 		int i = 0;
 		std::wistringstream iss(_vkb);
-		for(std::wstring s; getline(iss, s);)
+		for (std::wstring s; getline(iss, s);)
 		{
 			int y = IM_MARGIN_Y + i * _fontHeight;
 			TextOut(hmemdc, IM_MARGIN_X, y, s.c_str(), s.size());
@@ -581,7 +581,7 @@ public:
 		HRESULT hr;
 
 		CComPtr<ITfContextView> pContextView;
-		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
+		if (SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
 			try
 			{
@@ -604,29 +604,29 @@ private:
 
 void CTextService::_StartVKeyboardWindow()
 {
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(TRUE);
 		_pVKeyboardWindow->_Redraw();
 		return;
 	}
 
-	if(!_IsRomanKanaStatus())
+	if (!_IsRomanKanaStatus())
 	{
 		return;
 	}
 
 	CComPtr<ITfDocumentMgr> pDocumentMgr;
-	if(SUCCEEDED(_pThreadMgr->GetFocus(&pDocumentMgr)) && (pDocumentMgr != nullptr))
+	if (SUCCEEDED(_pThreadMgr->GetFocus(&pDocumentMgr)) && (pDocumentMgr != nullptr))
 	{
 		CComPtr<ITfContext> pContext;
-		if(SUCCEEDED(pDocumentMgr->GetTop(&pContext)) && (pContext != nullptr))
+		if (SUCCEEDED(pDocumentMgr->GetTop(&pContext)) && (pContext != nullptr))
 		{
 			try
 			{
 				_pVKeyboardWindow.Attach(new CVKeyboardWindow());
 
-				if(_pVKeyboardWindow->_Create(this, pContext, FALSE, nullptr))
+				if (_pVKeyboardWindow->_Create(this, pContext, FALSE, nullptr))
 				{
 					HRESULT hr = E_FAIL;
 					HRESULT hrSession = E_FAIL;
@@ -638,7 +638,7 @@ void CTextService::_StartVKeyboardWindow()
 					hr = pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNC | TF_ES_READ, &hrSession);
 
 					// It is possible that asynchronous requests are treated as synchronous requests.
-					if(FAILED(hr) || (hrSession != TF_S_ASYNC && FAILED(hrSession)))
+					if (FAILED(hr) || (hrSession != TF_S_ASYNC && FAILED(hrSession)))
 					{
 						_EndVKeyboardWindow();
 					}
@@ -654,7 +654,7 @@ void CTextService::_StartVKeyboardWindow()
 
 void CTextService::_HideVKeyboardWindow()
 {
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(FALSE);
 	}
@@ -662,7 +662,7 @@ void CTextService::_HideVKeyboardWindow()
 
 void CTextService::_EndVKeyboardWindow()
 {
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Destroy();
 	}
@@ -671,7 +671,7 @@ void CTextService::_EndVKeyboardWindow()
 
 void CTextService::_RedrawVKeyboardWindow()
 {
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Redraw();
 	}
@@ -679,7 +679,7 @@ void CTextService::_RedrawVKeyboardWindow()
 
 BOOL CTextService::_IsRomanKanaStatus()
 {
-	if((inputmode == im_hiragana || inputmode == im_katakana || inputmode == im_katakana_ank)
+	if ((inputmode == im_hiragana || inputmode == im_katakana || inputmode == im_katakana_ank)
 			&& !abbrevmode && !showcandlist)
 	{
 		return TRUE;
@@ -689,18 +689,18 @@ BOOL CTextService::_IsRomanKanaStatus()
 
 std::wstring CTextService::_MakeVkbTable()
 {
-	if(!_IsRomanKanaStatus())
+	if (!_IsRomanKanaStatus())
 	{
 		return L"";
 	}
-	if(roman.empty())
+	if (roman.empty())
 	{
 		return cx_vkbdtop; //初期状態の仮想鍵盤を表示
 	}
 	ROMAN_KANA_CONV rkc;
 	wcsncpy_s(rkc.roman, roman.c_str(), _TRUNCATE);
 	HRESULT ret = _ConvRomanKana(&rkc);
-	switch(ret)
+	switch (ret)
 	{
 	case S_OK:	//一致
 		return cx_vkbdtop; //初期状態の仮想鍵盤を表示
@@ -713,12 +713,12 @@ std::wstring CTextService::_MakeVkbTable()
 	std::wstring vkb;
 	FORWARD_ITERATION_I(itr, cx_vkbdlayout)
 	{
-		if(*itr == L'\n')
+		if (*itr == L'\n')
 		{
 			vkb.append(L"\n");
 			continue;
 		}
-		if(*itr == L'│') //左手ブロックと右手ブロックの区切り
+		if (*itr == L'│') //左手ブロックと右手ブロックの区切り
 		{
 			vkb.append(L"│");
 			continue;
@@ -728,17 +728,17 @@ std::wstring CTextService::_MakeVkbTable()
 		ROMAN_KANA_CONV rkc;
 		wcsncpy_s(rkc.roman, seq.c_str(), _TRUNCATE);
 		HRESULT ret = _ConvRomanKana(&rkc);
-		switch(ret)
+		switch (ret)
 		{
 		case S_OK:	//一致
-			if(rkc.func)
+			if (rkc.func)
 			{
 				vkb.append(L"・");
 			}
 			else
 			{
 				std::wstring s;
-				switch(inputmode)
+				switch (inputmode)
 				{
 				case im_katakana:
 				case im_katakana_ank: //XXX:半角幅だと列位置がずれるので

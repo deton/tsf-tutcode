@@ -127,17 +127,17 @@ void CTextService::_SearchBushuDic(const std::wstring &bushu1, const std::wstrin
 	_snwprintf_s(pipebuf, _TRUNCATE, L"%c\n%s\t%s\n", REQ_BUSHU,
 			bushu1.c_str(), bushu2.c_str());
 	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
-	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
+	if (WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
 
 	ZeroMemory(pipebuf, sizeof(pipebuf));
-	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
+	if (ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;
 	}
-	if(pipebuf[0] != REP_OK)
+	if (pipebuf[0] != REP_OK)
 	{
 		goto exit;
 	}

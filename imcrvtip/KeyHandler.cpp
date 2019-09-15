@@ -331,7 +331,7 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 					//今回入力された文字単独で不一致の場合そのまま確定
 					kana.insert(cursoridx, 1, ch);
 					cursoridx++;
-					if(!inputkey)
+					if (!inputkey)
 					{
 						_HandleCharReturn(ec, pContext);
 					}

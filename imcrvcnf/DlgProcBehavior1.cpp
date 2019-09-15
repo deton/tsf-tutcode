@@ -30,7 +30,7 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SETBYDIRECT, SectionBehavior, ValueSetByDirect);
 
 		ReadValue(pathconfigxml, SectionBehavior, ValueFixMazeCount, strxmlval);
-		if(strxmlval.empty()) strxmlval = defaultFixMazeCount;
+		if (strxmlval.empty()) strxmlval = defaultFixMazeCount;
 		SetDlgItemTextW(hDlg, IDC_EDIT_FIX_MAZECOUNT, strxmlval.c_str());
 
 		return TRUE;
@@ -57,7 +57,7 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 			return TRUE;
 
 		case IDC_EDIT_FIX_MAZECOUNT:
-			switch(HIWORD(wParam))
+			switch (HIWORD(wParam))
 			{
 			case EN_CHANGE:
 				PropSheet_Changed(GetParent(hDlg), hDlg);

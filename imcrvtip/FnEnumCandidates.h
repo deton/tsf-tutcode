@@ -22,19 +22,19 @@ public:
 	// IUnknown
 	STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj)
 	{
-		if(ppvObj == nullptr)
+		if (ppvObj == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppvObj = nullptr;
 
-		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IEnumTfCandidates))
+		if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IEnumTfCandidates))
 		{
 			*ppvObj = static_cast<IEnumTfCandidates *>(this);
 		}
 
-		if(*ppvObj)
+		if (*ppvObj)
 		{
 			AddRef();
 			return S_OK;
@@ -50,7 +50,7 @@ public:
 
 	STDMETHODIMP_(ULONG) Release(void)
 	{
-		if(--_cRef == 0)
+		if (--_cRef == 0)
 		{
 			delete this;
 			return 0;
@@ -64,7 +64,7 @@ public:
 	{
 		CFnEnumCandidates *pClone = nullptr;
 
-		if(ppEnum == nullptr)
+		if (ppEnum == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -92,19 +92,19 @@ public:
 		ULONG cFetched = 0;
 		ITfCandidateString *pCandidateString = nullptr;
 
-		if(ppCand == nullptr)
+		if (ppCand == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
-		if(ulCount == 0)
+		if (ulCount == 0)
 		{
 			return S_OK;
 		}
 
-		while(cFetched < ulCount)
+		while (cFetched < ulCount)
 		{
-			if(_nIndex >= (ULONG)_candidates.size())
+			if (_nIndex >= (ULONG)_candidates.size())
 			{
 				break;
 			}
@@ -115,7 +115,7 @@ public:
 			}
 			catch(...)
 			{
-				for(ULONG i = 0; i < cFetched; i++)
+				for (ULONG i = 0; i < cFetched; i++)
 				{
 					delete *(ppCand + i);
 				}
@@ -127,7 +127,7 @@ public:
 			_nIndex++;
 		}
 
-		if(pcFetched != nullptr)
+		if (pcFetched != nullptr)
 		{
 			*pcFetched = cFetched;
 		}
@@ -143,7 +143,7 @@ public:
 
 	STDMETHODIMP Skip(ULONG ulCount)
 	{
-		if((_nIndex + ulCount) >= (ULONG)_candidates.size())
+		if ((_nIndex + ulCount) >= (ULONG)_candidates.size())
 		{
 			_nIndex = (ULONG)_candidates.size();
 			return S_FALSE;

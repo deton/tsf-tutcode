@@ -199,14 +199,14 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 				}
 			}
 		}
-		if(i >= MAX_SELKEY_C) //not matched
+		if (i >= MAX_SELKEY_C) //not matched
 		{
-			if(ch == L'>') //後置型交ぜ書き変換の読みを縮める
+			if (ch == L'>') //後置型交ぜ書き変換の読みを縮める
 			{
 				_pTextService->candidx = 0;
 				_InvokeKey(SKK_RIGHT);
 			}
-			else if(ch == L'<') //後置型交ぜ書き変換の読みを伸ばす
+			else if (ch == L'<') //後置型交ぜ書き変換の読みを伸ばす
 			{
 				_pTextService->candidx = 0;
 				_InvokeKey(SKK_LEFT);
@@ -220,13 +220,13 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 
 void CCandidateWindow::_InvokeKey(BYTE bSf)
 {
-	if(_pCandidateWindowParent == nullptr)
+	if (_pCandidateWindowParent == nullptr)
 	{
 		_InvokeSfHandler(bSf);
 	}
 	else
 	{
-		if(_mode == wm_register)
+		if (_mode == wm_register)
 		{
 			_RestoreStatusReg();
 		}

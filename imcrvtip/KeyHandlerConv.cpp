@@ -154,15 +154,15 @@ WORD CTextService::_GetModifiers()
 	BYTE m = 0;
 	BYTE keystate[256];
 	GetKeyboardState(keystate);
-	if((keystate[VK_SHIFT] & 0x80) == 0x80)
+	if ((keystate[VK_SHIFT] & 0x80) == 0x80)
 	{
 		m |= TF_MOD_SHIFT; //0x0004
 	}
-	if((keystate[VK_CONTROL] & 0x80) == 0x80)
+	if ((keystate[VK_CONTROL] & 0x80) == 0x80)
 	{
 		m |= TF_MOD_CONTROL; //0x0002
 	}
-	if((keystate[VK_MENU] & 0x80) == 0x80)
+	if ((keystate[VK_MENU] & 0x80) == 0x80)
 	{
 		m |= TF_MOD_ALT; //0x0001
 	}
@@ -1041,7 +1041,7 @@ BOOL CTextService::_SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *s
 			case im_hiragana:
 				//src==dstの場合はスキップ。src,dstが違う定義がないか探すため。
 				//src==dstの定義は_ConvKanaToKana()でsrcが使われることでカバー
-				if(wcscmp(rkc.hiragana, src) == 0)
+				if (wcscmp(rkc.hiragana, src) == 0)
 				{
 					exist = FALSE;
 				}
@@ -1051,7 +1051,7 @@ BOOL CTextService::_SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *s
 				}
 				break;
 			case im_katakana:
-				if(wcscmp(rkc.katakana, src) == 0)
+				if (wcscmp(rkc.katakana, src) == 0)
 				{
 					exist = FALSE;
 				}
@@ -1061,7 +1061,7 @@ BOOL CTextService::_SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *s
 				}
 				break;
 			case im_katakana_ank:
-				if(wcscmp(rkc.katakana_ank, src) == 0)
+				if (wcscmp(rkc.katakana_ank, src) == 0)
 				{
 					exist = FALSE;
 				}
@@ -1073,7 +1073,7 @@ BOOL CTextService::_SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *s
 			default:
 				break;
 			}
-			if(exist)
+			if (exist)
 			{
 				break;
 			}
@@ -1100,7 +1100,7 @@ void CTextService::_ConvKanaToRoman(std::wstring &dst, const std::wstring &src, 
 	WCHAR srckana[3];
 	std::wstring dsttmp;
 
-	switch(srcmode)
+	switch (srcmode)
 	{
 	case im_hiragana:
 	case im_katakana:
@@ -1110,10 +1110,10 @@ void CTextService::_ConvKanaToRoman(std::wstring &dst, const std::wstring &src, 
 		break;
 	}
 
-	for(i = 0; i < src.size(); i++)
+	for (i = 0; i < src.size(); i++)
 	{
 		// surrogate pair, 「う゛」
-		if(((i + 1) < src.size()) &&
+		if (((i + 1) < src.size()) &&
 			(IS_SURROGATE_PAIR(src[i], src[i + 1]) || (src[i] == L'う' && src[i + 1] == L'゛')))
 		{
 			srckana[0] = src[i];
@@ -1129,7 +1129,7 @@ void CTextService::_ConvKanaToRoman(std::wstring &dst, const std::wstring &src, 
 
 		exist = _SearchRomanByKana(roman_kana_tree, srcmode, srckana, dsttmp);
 
-		if(!exist)	//ローマ字仮名変換表に無ければそのまま
+		if (!exist)	//ローマ字仮名変換表に無ければそのまま
 		{
 			dsttmp.append(srckana);
 		}
@@ -1145,17 +1145,17 @@ BOOL CTextService::_SearchRomanByKana(const ROMAN_KANA_NODE &tree, int srcmode, 
 
 	FORWARD_ITERATION_I(v_itr, tree.nodes)
 	{
-		switch(srcmode)
+		switch (srcmode)
 		{
 		case im_hiragana:
-			if(wcscmp(src, v_itr->conv.hiragana) == 0)
+			if (wcscmp(src, v_itr->conv.hiragana) == 0)
 			{
 				rkc = v_itr->conv;
 				exist = TRUE;
 			}
 			break;
 		case im_katakana:
-			if(wcscmp(src, v_itr->conv.katakana) == 0)
+			if (wcscmp(src, v_itr->conv.katakana) == 0)
 			{
 				rkc = v_itr->conv;
 				exist = TRUE;
@@ -1165,16 +1165,16 @@ BOOL CTextService::_SearchRomanByKana(const ROMAN_KANA_NODE &tree, int srcmode, 
 			break;
 		}
 
-		if(exist)
+		if (exist)
 		{
 			dst.append(rkc.roman);
 			break;
 		}
-		else if(!v_itr->nodes.empty())
+		else if (!v_itr->nodes.empty())
 		{
 			exist = _SearchRomanByKana(*v_itr, srcmode, src, dst);
 
-			if(exist)
+			if (exist)
 			{
 				break;
 			}

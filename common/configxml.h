@@ -205,7 +205,7 @@ extern LPCWSTR SectionJLatin;
 
 #define L_EXIT l_exit
 #define L_FAILED l_failed
-#define EXIT_FAILED(hr) if(FAILED(hr)) goto L_FAILED
+#define EXIT_FAILED(hr) if (FAILED(hr)) goto L_FAILED
 
 typedef std::pair<std::wstring, std::wstring> APPDATAXMLATTR;
 typedef std::vector<APPDATAXMLATTR> APPDATAXMLROW;

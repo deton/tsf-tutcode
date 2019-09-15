@@ -29,19 +29,19 @@ public:
 	// IUnknown
 	STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj)
 	{
-		if(ppvObj == nullptr)
+		if (ppvObj == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppvObj = nullptr;
 
-		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfCandidateList))
+		if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfCandidateList))
 		{
 			*ppvObj = static_cast<ITfCandidateList *>(this);
 		}
 
-		if(*ppvObj)
+		if (*ppvObj)
 		{
 			AddRef();
 			return S_OK;
@@ -57,7 +57,7 @@ public:
 
 	STDMETHODIMP_(ULONG) Release(void)
 	{
-		if(--_cRef == 0)
+		if (--_cRef == 0)
 		{
 			delete this;
 			return 0;
@@ -71,7 +71,7 @@ public:
 	{
 		IEnumTfCandidates *pEnumCandidates = nullptr;
 
-		if(ppEnum == nullptr)
+		if (ppEnum == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -96,14 +96,14 @@ public:
 	{
 		ITfCandidateString *pCandidateString = nullptr;
 
-		if(ppCand == nullptr)
+		if (ppCand == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppCand = nullptr;
 
-		if(nIndex >= (ULONG)_candidates.size())
+		if (nIndex >= (ULONG)_candidates.size())
 		{
 			return E_FAIL;
 		}
@@ -124,7 +124,7 @@ public:
 
 	STDMETHODIMP GetCandidateNum(ULONG *pnCnt)
 	{
-		if(pnCnt == nullptr)
+		if (pnCnt == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -137,7 +137,7 @@ public:
 	STDMETHODIMP SetResult(ULONG nIndex, TfCandidateResult imcr)
 	{
 		HRESULT hr = S_OK;
-		if(imcr == CAND_FINALIZED)
+		if (imcr == CAND_FINALIZED)
 		{
 			hr = _pTextService->_SetResult(_searchkey, _candidates, nIndex);
 		}

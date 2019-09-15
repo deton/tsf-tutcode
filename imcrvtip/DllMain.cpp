@@ -18,7 +18,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		{
 			return FALSE;
 		}
-		if(!CVKeyboardWindow::_InitClass())
+		if (!CVKeyboardWindow::_InitClass())
 		{
 			return FALSE;
 		}

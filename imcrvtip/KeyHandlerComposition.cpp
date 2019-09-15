@@ -50,7 +50,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			}
 			//活用する語の語尾
 			std::wstring gobi;
-			if(postmazeContext.GetGobi(&gobi))
+			if (postmazeContext.GetGobi(&gobi))
 			{
 				cchOkuri = (LONG)comptext.size();
 				comptext.append(gobi);
@@ -85,12 +85,12 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			//ユーザー辞書登録
 			if (fixed && !candidates[candidx].second.first.empty())
 			{
-				if(cx_fixmazecount >= 0)
+				if (cx_fixmazecount >= 0)
 				{
 					_AddUserDic(useraddmode, ((candorgcnt <= candidx) ? searchkey : searchkeyorg),
 						candidates[candidx].second.first, candidates[candidx].second.second);
 					//先頭cx_fixmazecount数の候補順固定のため、候補を押し下げる
-					for(int i = min(cx_fixmazecount, candidates.size()) - 1; i >= 0; i--)
+					for (int i = min(cx_fixmazecount, candidates.size()) - 1; i >= 0; i--)
 					{
 						_AddUserDic(useraddmode, ((candorgcnt <= i) ? searchkey : searchkeyorg),
 							candidates[i].second.first, candidates[i].second.second);
@@ -136,13 +136,13 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 			//読みを縮め/伸ばしながらの後置型交ぜ書き変換。変換可能な候補無し時
 			std::wstring yomi;
-			if(postmazeContext.Resize(&yomi))
+			if (postmazeContext.Resize(&yomi))
 			{
 				_StartConvWithYomi(ec, pContext, yomi);
 				return S_OK;
 			}
 
-			if(cx_fixmazecount < 0) //学習無しの場合は辞書登録に遷移しない
+			if (cx_fixmazecount < 0) //学習無しの場合は辞書登録に遷移しない
 			{
 				showentry = FALSE;
 				_CancelPostConv(ec, pContext);
@@ -382,7 +382,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 static void _SetTextExcluded(CCandidateList *_pCandidateList, CPostMazeContext *postmazeContext, BOOL fixed)
 {
 	std::wstring excluded;
-	if(postmazeContext->GetExcluded(&excluded) && fixed)
+	if (postmazeContext->GetExcluded(&excluded) && fixed)
 	{
 		//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合、
 		//読みから外した部分は確定(fixed=TRUEで_SetText())
@@ -413,12 +413,12 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 	std::wstring text(comptext);
 	//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
 	std::wstring excluded;
-	if(postmazeContext.GetExcluded(&excluded))
+	if (postmazeContext.GetExcluded(&excluded))
 	{	//外した部分が表示されるように、textに挿入
 		text.insert(0, excluded);
 		cchCursor += (LONG)excluded.size();
 		//確定時の後始末(しないと以降の入力で常にpostyomiが付いてしまう)
-		if(fixed)
+		if (fixed)
 		{
 			postmazeContext.Deactivate();
 		}

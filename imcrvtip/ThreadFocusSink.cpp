@@ -17,7 +17,7 @@ STDAPI CTextService::OnSetThreadFocus()
 		_pInputModeWindow->_Show(TRUE);
 	}
 
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(TRUE);
 	}
@@ -39,7 +39,7 @@ STDAPI CTextService::OnKillThreadFocus()
 		_pInputModeWindow->_Show(FALSE);
 	}
 
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(FALSE);
 	}

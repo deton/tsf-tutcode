@@ -42,13 +42,13 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 		_InitFont();
 	}
 
-	if(_hwnd != nullptr && _pTextService->cx_showvkbd)
+	if (_hwnd != nullptr && _pTextService->cx_showvkbd)
 	{
 		try
 		{
 			_pTextService->_HideVKeyboardWindow();
 			_pVKeyboardWindow = new CVKeyboardWindow();
-			if(!_pVKeyboardWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
+			if (!_pVKeyboardWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
 			{
 				_pVKeyboardWindow->_Destroy();
 				_pVKeyboardWindow.Release();
@@ -191,7 +191,7 @@ void CCandidateWindow::_Destroy()
 		_pInputModeWindow->_Destroy();
 	}
 	_pInputModeWindow.Release();
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Destroy();
 	}
@@ -428,7 +428,7 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 //辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
 void CCandidateWindow::_SetTextExcludedPostyomi(const std::wstring &text)
 {
-	if(_pCandidateWindow != nullptr && !_preEnd)
+	if (_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_SetTextExcludedPostyomi(text);
 		return;
@@ -439,7 +439,7 @@ void CCandidateWindow::_SetTextExcludedPostyomi(const std::wstring &text)
 
 void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 {
-	if(_pCandidateWindow != nullptr && !_preEnd)
+	if (_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_GetPrecedingText(text);
 		return;
@@ -449,13 +449,13 @@ void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 
 void CCandidateWindow::_DeletePrecedingText(size_t delete_count)
 {
-	if(_pCandidateWindow != nullptr && !_preEnd)
+	if (_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_DeletePrecedingText(delete_count);
 		return;
 	}
 
-	if(_regtextpos >= delete_count && _regtext.size() >= delete_count)
+	if (_regtextpos >= delete_count && _regtext.size() >= delete_count)
 	{
 		_regtext.erase(_regtextpos - delete_count, delete_count);
 		_regtextpos -= delete_count;
@@ -476,7 +476,7 @@ void CCandidateWindow::_End()
 {
 	_preEnd = FALSE;
 
-	if(_pCandidateWindowOld != nullptr)
+	if (_pCandidateWindowOld != nullptr)
 	{
 		_pCandidateWindowOld->_Destroy();
 		_pCandidateWindowOld.Release();
@@ -930,7 +930,7 @@ void CCandidateWindow::_EndReq()
 
 void CCandidateWindow::_CreateNext(int mode)
 {
-	if(_pCandidateWindow != nullptr)
+	if (_pCandidateWindow != nullptr)
 	{
 		_pCandidateWindowOld = _pCandidateWindow;
 	}

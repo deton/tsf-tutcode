@@ -235,21 +235,21 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			{
 				//後置型交ぜ書き変換の候補表示時、読みを縮める。
 				//SKK_AFFIXにCorvusSKKデフォルト"<|>"等が設定されている場合用
-				if(postmazeContext.IsActive())
+				if (postmazeContext.IsActive())
 				{
-					if(ch == L'>') //読みを縮める操作が行われた
+					if (ch == L'>') //読みを縮める操作が行われた
 					{
 						std::wstring yomi;
-						if(postmazeContext.Shrink(&yomi))
+						if (postmazeContext.Shrink(&yomi))
 						{
 							_StartConvWithYomi(ec, pContext, yomi);
 						}
 						return S_OK;
 					}
-					else if(ch == L'<') //読みを伸ばす操作が行われた
+					else if (ch == L'<') //読みを伸ばす操作が行われた
 					{
 						std::wstring yomi;
-						if(postmazeContext.Extend(&yomi))
+						if (postmazeContext.Extend(&yomi))
 						{
 							_StartConvWithYomi(ec, pContext, yomi);
 						}
@@ -549,7 +549,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		break;
 
 	case SKK_CONV_POINT:
-		if(_HandleConvPoint(ec, pContext, ch) == S_OK)
+		if (_HandleConvPoint(ec, pContext, ch) == S_OK)
 		{
 			return S_OK;
 		}
@@ -634,7 +634,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					_EndCompletionList(ec, pContext);
 				}
 
-				if(!_CancelPostConv(ec, pContext))
+				if (!_CancelPostConv(ec, pContext))
 				{
 					_Update(ec, pContext);
 				}
@@ -744,7 +744,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			_HandleCharReturn(ec, pContext);
 		}
-		else if(!skipupdate)
+		else if (!skipupdate)
 		{
 			if (cx_dynamiccomp || cx_dyncompmulti)
 			{
@@ -816,15 +816,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if (showentry)
 		{
 			//後置型交ぜ書き変換の候補表示時、読みを伸ばす操作が行われた
-			if(postmazeContext.IsActive())
+			if (postmazeContext.IsActive())
 			{
 				std::wstring yomi;
-				if(postmazeContext.Extend(&yomi))
+				if (postmazeContext.Extend(&yomi))
 				{
-					if(showcandlist)
+					if (showcandlist)
 					{
 						showcandlist = FALSE;
-						if(pContext != nullptr)
+						if (pContext != nullptr)
 						{
 							_EndCandidateList();
 						}
@@ -920,15 +920,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if (showentry)
 		{
 			//後置型交ぜ書き変換の候補表示時、読みを縮める操作が行われた
-			if(postmazeContext.IsActive())
+			if (postmazeContext.IsActive())
 			{
 				std::wstring yomi;
-				if(postmazeContext.Shrink(&yomi))
+				if (postmazeContext.Shrink(&yomi))
 				{
-					if(showcandlist)
+					if (showcandlist)
 					{
 						showcandlist = FALSE;
-						if(pContext != nullptr)
+						if (pContext != nullptr)
 						{
 							_EndCandidateList();
 						}
@@ -1064,7 +1064,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 	case SKK_OTHERIME:
 		_ConvRoman();
-		if(_ShowInputMode)
+		if (_ShowInputMode)
 		{
 			_HandleCharShift(ec, pContext);
 		}
@@ -1088,7 +1088,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			mozc::commands::Output pending;
 			pending.CopyFrom(deleter.pending_output());
-			if(pending.maze)
+			if (pending.maze)
 			{
 				_StartConvWithYomi(ec, pContext, pending.kana);
 			}
@@ -1112,25 +1112,25 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WCHAR ch)
 {
 	postmazeContext.Deactivate();
-	if(abbrevmode && !showentry)
+	if (abbrevmode && !showentry)
 	{
 		return E_PENDING;
 	}
 
-	switch(inputmode)
+	switch (inputmode)
 	{
 	case im_hiragana:
 	case im_katakana:
-		if(showentry)
+		if (showentry)
 		{
 			_HandleCharShift(ec, pContext);
 		}
 
-		if(!inputkey)
+		if (!inputkey)
 		{
-			if(_ConvShift(ch))
+			if (_ConvShift(ch))
 			{
-				if(!kana.empty())
+				if (!kana.empty())
 				{
 					_HandleCharShift(ec, pContext);
 				}
@@ -1141,13 +1141,13 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 		}
 		else
 		{
-			if(_ConvShift(ch) && (okuriidx == 0) && (cursoridx != 0))
+			if (_ConvShift(ch) && (okuriidx == 0) && (cursoridx != 0))
 			{
 				//送り仮名入力開始
 				kana.insert(cursoridx, 1, CHAR_SKK_OKURI);	//送りローマ字
 				okuriidx = cursoridx;
 				cursoridx++;
-				if(cx_dynamiccomp || cx_dyncompmulti)
+				if (cx_dynamiccomp || cx_dyncompmulti)
 				{
 					_DynamicComp(ec, pContext);
 				}
@@ -1158,7 +1158,7 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 			}
 		}
 
-		if(ch == L'\0')
+		if (ch == L'\0')
 		{
 			return S_OK;
 		}
@@ -1173,7 +1173,7 @@ HRESULT CTextService::_HandleConvPoint(TfEditCookie ec, ITfContext *pContext, WC
 void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMAN_KANA_CONV &rkc, WCHAR ch)
 {
 	std::wstring abortedRomanForPostConv;
-	if(!inputkey)
+	if (!inputkey)
 	{
 		//_HandleKey()でkanaにセットされた、確定予約文字列を後置型変換対象に
 		abortedRomanForPostConv.assign(kana);
@@ -1182,9 +1182,9 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	}
 	PostConvContext postconvctx = _PrepareForFunc(ec, pContext);
 	//前置型交ぜ書き変換
-	if(wcsncmp(rkc.hiragana, L"maze", 4) == 0)
+	if (wcsncmp(rkc.hiragana, L"maze", 4) == 0)
 	{
-		if(postconvctx != PCC_COMPOSITION)
+		if (postconvctx != PCC_COMPOSITION)
 		{
 			_HandleConvPoint(ec, pContext, ch);
 		}
@@ -1195,19 +1195,19 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		return;
 	}
 	//後置型交ぜ書き変換
-	else if(wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
+	else if (wcsncmp(rkc.hiragana, L"Maze", 4) == 0)
 	{
-		if(postconvctx != PCC_COMPOSITION)
+		if (postconvctx != PCC_COMPOSITION)
 		{
 			int offset = 4;
 			bool isKatuyo = false;
 			bool resizeWithInflection = true;
-			if(rkc.hiragana[offset] == L'K') //活用する語
+			if (rkc.hiragana[offset] == L'K') //活用する語
 			{
 				offset++;
 				isKatuyo = true;
 			}
-			else if(rkc.hiragana[offset] == L'k') //読みを縮めた際に活用する語としての変換は試みない
+			else if (rkc.hiragana[offset] == L'k') //読みを縮めた際に活用する語としての変換は試みない
 			{
 				offset++;
 				resizeWithInflection = false;
@@ -1215,7 +1215,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 			//前置型交ぜ書き変換で入力中の読みの一部に対する後置型交ぜ書き変換
 			//は未対応。候補表示等の制御が面倒なので。
 			int count = _wtoi(rkc.hiragana + offset);
-			if(count < 0) //count=0の場合、なるべく長く読みとみなす
+			if (count < 0) //count=0の場合、なるべく長く読みとみなす
 			{
 				count = 1;
 			}
@@ -1229,19 +1229,19 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		return;
 	}
 	//後置型かな漢字変換。対象とする読みはひらがなのみ
-	else if(wcsncmp(rkc.hiragana, L"KanaK", 5) == 0)
+	else if (wcsncmp(rkc.hiragana, L"KanaK", 5) == 0)
 	{
-		if(postconvctx != PCC_COMPOSITION)
+		if (postconvctx != PCC_COMPOSITION)
 		{
 			int offset = 5;
 			bool isKatuyo = false;
 			bool resizeWithInflection = true;
-			if(rkc.hiragana[offset] == L'K') //活用する語
+			if (rkc.hiragana[offset] == L'K') //活用する語
 			{
 				offset++;
 				isKatuyo = true;
 			}
-			else if(rkc.hiragana[offset] == L'k') //読みを縮めた際に活用する語としての変換は試みない
+			else if (rkc.hiragana[offset] == L'k') //読みを縮めた際に活用する語としての変換は試みない
 			{
 				offset++;
 				resizeWithInflection = false;
@@ -1256,22 +1256,22 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		return;
 	}
 	//後置型カタカナ変換
-	else if(wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
+	else if (wcsncmp(rkc.hiragana, L"Kata", 4) == 0)
 	{
 		int offset = 4;
 		int isShrink = 0;
-		if(rkc.hiragana[offset] == L'>') //直前のカタカナ変換を指定文字縮める
+		if (rkc.hiragana[offset] == L'>') //直前のカタカナ変換を指定文字縮める
 		{
 			offset++;
 			isShrink = 1;
 		}
-		else if(rkc.hiragana[offset] == L'<') //カタカナを伸ばす
+		else if (rkc.hiragana[offset] == L'<') //カタカナを伸ばす
 		{
 			offset++;
 			isShrink = -1;
 		}
 		int count = _wtoi(rkc.hiragana + offset);
-		switch(isShrink)
+		switch (isShrink)
 		{
 		case 1:
 			_HandlePostKataShrink(ec, pContext, count, postconvctx, abortedRomanForPostConv);
@@ -1287,38 +1287,38 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 		return;
 	}
 	//後置型部首合成変換
-	else if(wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
+	else if (wcsncmp(rkc.hiragana, L"Bushu", 5) == 0)
 	{
 		_HandlePostBushu(ec, pContext, postconvctx, abortedRomanForPostConv);
 		return;
 	}
 	//後置型入力シーケンス→漢字変換
 	//("Seq2Kanji"だとKANA_NUM(8)を越えるので"StoK")
-	else if(wcsncmp(rkc.hiragana, L"StoK", 4) == 0)
+	else if (wcsncmp(rkc.hiragana, L"StoK", 4) == 0)
 	{
 		int count = _wtoi(rkc.hiragana + 4);
 		_HandlePostSeq2Kanji(ec, pContext, count, postconvctx, abortedRomanForPostConv);
 		return;
 	}
 	//後置型漢字→入力シーケンス変換
-	else if(wcsncmp(rkc.hiragana, L"KtoS", 4) == 0)
+	else if (wcsncmp(rkc.hiragana, L"KtoS", 4) == 0)
 	{
 		int count = _wtoi(rkc.hiragana + 4);
 		_HandlePostKanji2Seq(ec, pContext, count, postconvctx, abortedRomanForPostConv);
 		return;
 	}
 	//仮想鍵盤表示の切り替え
-	else if(wcsncmp(rkc.hiragana, L"vkbd", 4) == 0)
+	else if (wcsncmp(rkc.hiragana, L"vkbd", 4) == 0)
 	{
 		int n = _wtoi(rkc.hiragana + 4);
 		_HandleVkbdToggle(ec, pContext, n);
 		return;
 	}
 	//打鍵ヘルプ
-	else if(wcsncmp(rkc.hiragana, L"Help", 4) == 0)
+	else if (wcsncmp(rkc.hiragana, L"Help", 4) == 0)
 	{
 		int count = _wtoi(rkc.hiragana + 4);
-		if(count <= 0)
+		if (count <= 0)
 		{
 			count = 1;
 		}
@@ -1328,13 +1328,13 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 	else
 	{
 		_CommitStr(ec, pContext, abortedRomanForPostConv, postconvctx);
-		if(postconvctx != PCC_COMPOSITION)
+		if (postconvctx != PCC_COMPOSITION)
 		{
 			kana.clear();
 			cursoridx = 0;
 		}
 	}
-	if(postconvctx == PCC_APP)
+	if (postconvctx == PCC_APP)
 	{
 		_HandleCharReturn(ec, pContext);
 	}
@@ -1348,7 +1348,7 @@ void CTextService::_HandleFunc(TfEditCookie ec, ITfContext *pContext, const ROMA
 CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITfContext *pContext)
 {
 	roman.clear();
-	if(inputkey && !kana.empty())
+	if (inputkey && !kana.empty())
 	{
 		return PCC_COMPOSITION; //前置型交ぜ書き入力の読み入力中
 	}
@@ -1359,7 +1359,7 @@ CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITf
 	else
 	{
 		_ResetStatus();
-		if(cx_showromancomp)
+		if (cx_showromancomp)
 		{
 			//wordpadやWord2010だとcomposition表示をクリアしないとうまく動かず
 			_HandleCharReturn(ec, pContext);
@@ -1374,7 +1374,7 @@ CTextService::PostConvContext CTextService::_PrepareForFunc(TfEditCookie ec, ITf
  */
 void CTextService::_HandleVkbdToggle(TfEditCookie ec, ITfContext *pContext, int n)
 {
-	switch(n)
+	switch (n)
 	{
 	case 1:
 		cx_showvkbd = TRUE;
@@ -1387,7 +1387,7 @@ void CTextService::_HandleVkbdToggle(TfEditCookie ec, ITfContext *pContext, int 
 		cx_showvkbd = !cx_showvkbd;
 		break;
 	}
-	if(cx_showvkbd)
+	if (cx_showvkbd)
 	{
 		//XXX: 辞書登録中に表示される仮想鍵盤の切り替えは未対応
 		_StartVKeyboardWindow();

@@ -205,10 +205,10 @@ STDAPI CCandidateWindow::Show(BOOL bShow)
 	}
 #endif
 
-	if(_pVKeyboardWindow != nullptr && _regmode)
+	if (_pVKeyboardWindow != nullptr && _regmode)
 	{
 #ifndef _DEBUG
-		if(_pCandidateWindow == nullptr)
+		if (_pCandidateWindow == nullptr)
 		{
 #endif
 			_pVKeyboardWindow->_Show(bShow);

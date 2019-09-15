@@ -20,19 +20,19 @@ public:
 	// IUnknown
 	STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj)
 	{
-		if(ppvObj == nullptr)
+		if (ppvObj == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppvObj = nullptr;
 
-		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfCandidateString))
+		if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfCandidateString))
 		{
 			*ppvObj = static_cast<ITfCandidateString *>(this);
 		}
 
-		if(*ppvObj)
+		if (*ppvObj)
 		{
 			AddRef();
 			return S_OK;
@@ -48,7 +48,7 @@ public:
 
 	STDMETHODIMP_(ULONG) Release(void)
 	{
-		if(--_cRef == 0)
+		if (--_cRef == 0)
 		{
 			delete this;
 			return 0;
@@ -62,7 +62,7 @@ public:
 	{
 		BSTR bstr = nullptr;
 
-		if(pbstr == nullptr)
+		if (pbstr == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -71,7 +71,7 @@ public:
 
 		bstr = SysAllocString(_candidate.c_str());
 
-		if(bstr == nullptr)
+		if (bstr == nullptr)
 		{
 			return E_OUTOFMEMORY;
 		}
@@ -83,7 +83,7 @@ public:
 
 	STDMETHODIMP GetIndex(ULONG *pnIndex)
 	{
-		if(pnIndex == nullptr)
+		if (pnIndex == nullptr)
 		{
 			return E_INVALIDARG;
 		}

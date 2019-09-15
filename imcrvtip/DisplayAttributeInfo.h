@@ -21,19 +21,19 @@ public:
 	// IUnknown
 	STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj)
 	{
-		if(ppvObj == nullptr)
+		if (ppvObj == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppvObj = nullptr;
 
-		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfDisplayAttributeInfo))
+		if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfDisplayAttributeInfo))
 		{
 			*ppvObj = static_cast<ITfDisplayAttributeInfo *>(this);
 		}
 
-		if(*ppvObj)
+		if (*ppvObj)
 		{
 			AddRef();
 			return S_OK;
@@ -49,7 +49,7 @@ public:
 
 	STDMETHODIMP_(ULONG) Release(void)
 	{
-		if(--_cRef == 0)
+		if (--_cRef == 0)
 		{
 			delete this;
 			return 0;
@@ -61,12 +61,12 @@ public:
 	// ITfDisplayAttributeInfo
 	STDMETHODIMP GetGUID(GUID *pguid)
 	{
-		if(pguid == nullptr)
+		if (pguid == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
-		if(_pguid == nullptr)
+		if (_pguid == nullptr)
 		{
 			return E_FAIL;
 		}
@@ -80,7 +80,7 @@ public:
 	{
 		BSTR bstrDesc = nullptr;
 
-		if(pbstrDesc == nullptr)
+		if (pbstrDesc == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -89,7 +89,7 @@ public:
 
 		bstrDesc = SysAllocString(TextServiceDesc);
 
-		if(bstrDesc == nullptr)
+		if (bstrDesc == nullptr)
 		{
 			return E_OUTOFMEMORY;
 		}
@@ -101,7 +101,7 @@ public:
 
 	STDMETHODIMP GetAttributeInfo(TF_DISPLAYATTRIBUTE *pda)
 	{
-		if(pda == nullptr)
+		if (pda == nullptr)
 		{
 			return E_INVALIDARG;
 		}

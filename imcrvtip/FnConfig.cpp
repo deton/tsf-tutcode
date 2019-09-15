@@ -836,8 +836,8 @@ void CTextService::_LoadKana()
 			}
 
 			_AddKanaTree(roman_kana_tree, rkc, 0);
-			for(int j = 0; rkc.roman[j] != '\0'; j++) {
-				if(rkc.roman[j] <= ISROMAN_TBL_SIZE) {
+			for (int j = 0; rkc.roman[j] != '\0'; j++) {
+				if (rkc.roman[j] <= ISROMAN_TBL_SIZE) {
 					isroman_tbl[rkc.roman[j]] = TRUE;
 				}
 			}

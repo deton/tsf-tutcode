@@ -98,7 +98,7 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		fmt.assign(L"$2");
 		keyorg = std::regex_replace(argument, re, fmt);
 		conv = ConvBushu(key, keyorg);
-		if(!conv.empty())
+		if (!conv.empty())
 		{
 			result = REP_OK;
 			result += L"\n";

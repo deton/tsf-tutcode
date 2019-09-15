@@ -13,21 +13,21 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 	if (showentry)
 	{
 		//後置型交ぜ書き変換の候補表示時
-		if(postmazeContext.IsActive())
+		if (postmazeContext.IsActive())
 		{
-			if(ch == L'>') //読みを縮める操作が行われた
+			if (ch == L'>') //読みを縮める操作が行われた
 			{
 				std::wstring yomi;
-				if(postmazeContext.Shrink(&yomi))
+				if (postmazeContext.Shrink(&yomi))
 				{
 					_StartConvWithYomi(ec, pContext, yomi);
 				}
 				return S_OK;
 			}
-			else if(ch == L'<') //読みを伸ばす操作が行われた
+			else if (ch == L'<') //読みを伸ばす操作が行われた
 			{
 				std::wstring yomi;
-				if(postmazeContext.Extend(&yomi))
+				if (postmazeContext.Extend(&yomi))
 				{
 					_StartConvWithYomi(ec, pContext, yomi);
 				}
@@ -103,7 +103,7 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 
 					_Update(ec, pContext);
 				}
-				else if(rkc.func)	//機能
+				else if (rkc.func)	//機能
 				{
 					_HandleFunc(ec, pContext, rkc, ch);
 				}
@@ -214,14 +214,14 @@ HRESULT CTextService::_HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM 
 				else
 				{
 					roman.push_back(ch);
-					if(cx_showromancomp)
+					if (cx_showromancomp)
 					{
 						_Update(ec, pContext);
 					}
 					else
 					{
 						_RedrawVKeyboardWindow();
-						if(!inputkey)
+						if (!inputkey)
 						{
 							//OnEndEdit()とOnCompositionTerminated()から
 							//_ResetStatus()が呼ばれてroman.clear()されるのを回避する
@@ -305,7 +305,7 @@ HRESULT CTextService::_HandleCharReturn(TfEditCookie ec, ITfContext *pContext, B
 	cursoridx = kana.size();
 	_Update(ec, pContext, fixedtext, TRUE, back);
 	_RedrawVKeyboardWindow();
-	if(pContext != nullptr)
+	if (pContext != nullptr)
 	{
 		_AddToPostBuf(fixedtext);
 	}
@@ -347,11 +347,11 @@ HRESULT CTextService::_HandleCharShift(TfEditCookie ec, ITfContext *pContext)
 
 bool CTextService::_IsPostConvFunc(WCHAR ch)
 {
-	if(!(inputmode == im_hiragana || inputmode == im_katakana || inputmode == im_katakana_ank))
+	if (!(inputmode == im_hiragana || inputmode == im_katakana || inputmode == im_katakana_ank))
 	{
 		return false;
 	}
-	if(abbrevmode)
+	if (abbrevmode)
 	{
 		return false;
 	}
@@ -368,14 +368,14 @@ HRESULT CTextService::_ConvRomanKanaWithWait(WCHAR ch, std::wstring *pRoman, ROM
 	rkc.roman[0] = ch;
 	rkc.roman[1] = L'\0';
 	HRESULT ret = _ConvRomanKana(&rkc);
-	switch(ret)
+	switch (ret)
 	{
 	case S_OK:	//一致
 	case E_PENDING:	//途中まで一致
-		if(rkc.roman[0] != L'\0' && rkc.wait)	//待機
+		if (rkc.roman[0] != L'\0' && rkc.wait)	//待機
 		{
 			ch = L'\0';
-			switch(inputmode)
+			switch (inputmode)
 			{
 			case im_hiragana:
 				pRoman->append(rkc.hiragana);
@@ -397,7 +397,7 @@ HRESULT CTextService::_ConvRomanKanaWithWait(WCHAR ch, std::wstring *pRoman, ROM
 
 	//ローマ字仮名変換
 	std::wstring roman_conv = *pRoman;
-	if(ch != L'\0')
+	if (ch != L'\0')
 	{
 		roman_conv.push_back(ch);
 	}
