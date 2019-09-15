@@ -943,10 +943,11 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2019 16.1.3
+Visual Studio Community 2019 16.2.0
 
 * Desktop development with C++
-* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.21)
+* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.22)
+* C++ ATL for v142 build tools (x86 & x64)
 
 WiX Toolset v3.11.1
 

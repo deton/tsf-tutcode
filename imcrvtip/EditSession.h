@@ -11,16 +11,13 @@ public:
 		_cRef = 1;
 
 		_pContext = pContext;
-		_pContext->AddRef();
-
 		_pTextService = pTextService;
-		_pTextService->AddRef();
 	}
 
 	virtual ~CEditSessionBase()
 	{
-		SafeRelease(&_pContext);
-		SafeRelease(&_pTextService);
+		_pContext.Release();
+		_pTextService.Release();
 	}
 
 	// IUnknown
@@ -35,7 +32,7 @@ public:
 
 		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfEditSession))
 		{
-			*ppvObj = (ITfEditSession *)this;
+			*ppvObj = static_cast<ITfEditSession *>(this);
 		}
 
 		if(*ppvObj)
@@ -67,8 +64,8 @@ public:
 	virtual STDMETHODIMP DoEditSession(TfEditCookie ec) = 0;
 
 protected:
-	ITfContext *_pContext;
-	CTextService *_pTextService;
+	CComPtr<ITfContext> _pContext;
+	CComPtr<CTextService> _pTextService;
 
 private:
 	LONG _cRef;

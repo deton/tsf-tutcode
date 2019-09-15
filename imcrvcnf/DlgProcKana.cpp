@@ -27,7 +27,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 	WCHAR path[MAX_PATH];
 	WCHAR text[16] = {};
 
-	switch(message)
+	switch (message)
 	{
 	case WM_INITDIALOG:
 		hWndListView = GetDlgItem(hDlg, IDC_LIST_KANATBL);
@@ -82,7 +82,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 	case WM_COMMAND:
 		hWndListView = GetDlgItem(hDlg, IDC_LIST_KANATBL);
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDC_BUTTON_LOADKANA:
 			path[0] = L'\0';
@@ -95,7 +95,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 			ofn.lpstrTitle = L"Load Kana Table File";
 			ofn.lpstrFilter = L"*.txt\0*.txt\0" L"*.*\0*.*\0\0";
 
-			if(GetOpenFileNameW(&ofn))
+			if (GetOpenFileNameW(&ofn))
 			{
 				LoadKanaTxt(hDlg, ofn.lpstrFile);
 				PropSheet_Changed(GetParent(hDlg), hDlg);
@@ -114,7 +114,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 			ofn.lpstrFilter = L"*.txt\0*.txt\0" L"*.*\0*.*\0\0";
 			ofn.lpstrDefExt = L"txt";
 
-			if(GetSaveFileNameW(&ofn))
+			if (GetSaveFileNameW(&ofn))
 			{
 				SaveKanaTxt(hDlg, ofn.lpstrFile);
 				MessageBoxW(hDlg, L"完了しました。", TextServiceDesc, MB_OK | MB_ICONINFORMATION);
@@ -124,7 +124,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_BUTTON_KANATBL_W:
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
 			count = ListView_GetItemCount(hWndListView);
-			if(index >= 0)
+			if (index >= 0)
 			{
 				PropSheet_Changed(GetParent(hDlg), hDlg);
 
@@ -147,7 +147,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 				soku[0] = L'0' + (rkc.soku ? 1 : 0) + (rkc.wait ? 2 : 0) + (rkc.func ? 4 : 0);
 				ListView_SetItemText(hWndListView, index, 4, soku);
 			}
-			else if(count < ROMAN_KANA_TBL_MAX)
+			else if (count < ROMAN_KANA_TBL_MAX)
 			{
 				PropSheet_Changed(GetParent(hDlg), hDlg);
 
@@ -190,7 +190,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 		case IDC_BUTTON_KANATBL_D:
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
-			if(index != -1)
+			if (index != -1)
 			{
 				PropSheet_Changed(GetParent(hDlg), hDlg);
 
@@ -200,7 +200,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 
 		case IDC_BUTTON_KANATBL_UP:
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
-			if(index > 0)
+			if (index > 0)
 			{
 				PropSheet_Changed(GetParent(hDlg), hDlg);
 
@@ -241,7 +241,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		case IDC_BUTTON_KANATBL_DOWN:
 			index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
 			count = ListView_GetItemCount(hWndListView);
-			if(index >= 0 && index < count - 1)
+			if (index >= 0 && index < count - 1)
 			{
 				PropSheet_Changed(GetParent(hDlg), hDlg);
 
@@ -285,15 +285,15 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 
 	case WM_NOTIFY:
-		switch(((LPNMHDR)lParam)->code)
+		switch (((LPNMHDR)lParam)->code)
 		{
 		case LVN_ITEMCHANGED:
 			pListView = (NMLISTVIEW*)((LPNMHDR)lParam);
-			if(pListView->uChanged & LVIF_STATE)
+			if (pListView->uChanged & LVIF_STATE)
 			{
 				hWndListView = ((LPNMHDR)lParam)->hwndFrom;
 				index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
-				if(index == -1)
+				if (index == -1)
 				{
 					SetDlgItemTextW(hDlg, IDC_EDIT_KANATBL_R, L"");
 					SetDlgItemTextW(hDlg, IDC_EDIT_KANATBL_H, L"");
@@ -346,16 +346,16 @@ void LoadConfigKanaTxt(LPCWSTR path)
 	roman_kana_conv.shrink_to_fit();
 
 	_wfopen_s(&fp, path, RccsUTF8);
-	if(fp == nullptr)
+	if (fp == nullptr)
 	{
 		return;
 	}
 
 	ZeroMemory(b, sizeof(b));
 
-	while(fgetws(b, CONFKANALEN, fp) != nullptr)
+	while (fgetws(b, CONFKANALEN, fp) != nullptr)
 	{
-		if(roman_kana_conv.size() >= ROMAN_KANA_TBL_MAX)
+		if (roman_kana_conv.size() >= ROMAN_KANA_TBL_MAX)
 		{
 			break;
 		}
@@ -365,15 +365,15 @@ void LoadConfigKanaTxt(LPCWSTR path)
 		sidx = 0;
 		eidx = wcscspn(&b[sidx], seps);
 
-		for(int i = 0; i <= 4; i++)
+		for (int i = 0; i <= 4; i++)
 		{
-			if(sidx + eidx >= _countof(b))
+			if (sidx + eidx >= _countof(b))
 			{
 				break;
 			}
 			b[sidx + eidx] = L'\0';
 
-			switch(i)
+			switch (i)
 			{
 			case 0:
 				_snwprintf_s(rkc.roman, _TRUNCATE, L"%s", &b[sidx]);
@@ -398,7 +398,7 @@ void LoadConfigKanaTxt(LPCWSTR path)
 			}
 
 			sidx += eidx + 1;
-			if(sidx >= _countof(b))
+			if (sidx >= _countof(b))
 			{
 				break;
 			}
@@ -407,7 +407,7 @@ void LoadConfigKanaTxt(LPCWSTR path)
 
 		ZeroMemory(b, sizeof(b));
 
-		if(rkc.roman[0] == L'\0' &&
+		if (rkc.roman[0] == L'\0' &&
 			rkc.hiragana[0] == L'\0' &&
 			rkc.katakana[0] == L'\0' &&
 			rkc.katakana_ank[0] == L'\0')
@@ -432,7 +432,7 @@ void LoadKanaTxt(HWND hDlg, LPCWSTR path)
 	ListView_DeleteAllItems(hWndListView);
 	int count = (int)roman_kana_conv.size();
 
-	for(int i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		item.mask = LVIF_TEXT;
 		item.pszText = roman_kana_conv[i].roman;
@@ -472,7 +472,7 @@ void SaveKanaTxt(HWND hDlg, LPCWSTR path)
 	HWND hWndListView = GetDlgItem(hDlg, IDC_LIST_KANATBL);
 	int count = ListView_GetItemCount(hWndListView);
 
-	for(int i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
+	for (int i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
 	{
 		ListView_GetItemText(hWndListView, i, 0, rkc.roman, _countof(rkc.roman));
 		ListView_GetItemText(hWndListView, i, 1, rkc.hiragana, _countof(rkc.hiragana));
@@ -487,13 +487,13 @@ void SaveKanaTxt(HWND hDlg, LPCWSTR path)
 	}
 
 	_wfopen_s(&fp, path, WccsUTF8);
-	if(fp != nullptr)
+	if (fp != nullptr)
 	{
 		count = (int)roman_kana_conv.size();
 
-		for(int i = 0; i < count; i++)
+		for (int i = 0; i < count; i++)
 		{
-			if(roman_kana_conv[i].roman[0] == L'\0' &&
+			if (roman_kana_conv[i].roman[0] == L'\0' &&
 				roman_kana_conv[i].hiragana[0] == L'\0' &&
 				roman_kana_conv[i].katakana[0] == L'\0' &&
 				roman_kana_conv[i].katakana_ank[0] == L'\0')
@@ -521,12 +521,12 @@ void LoadConfigKana()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionKana, list);
 
-	if(SUCCEEDED(hr) && list.size() != 0)
+	if (SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
-			if(i >= ROMAN_KANA_TBL_MAX)
+			if (i >= ROMAN_KANA_TBL_MAX)
 			{
 				break;
 			}
@@ -538,34 +538,34 @@ void LoadConfigKana()
 				WCHAR *pszb = nullptr;
 				size_t blen = 0;
 
-				if(r_itr->first == AttributeRoman)
+				if (r_itr->first == AttributeRoman)
 				{
 					pszb = rkc.roman;
 					blen = _countof(rkc.roman);
 				}
-				else if(r_itr->first == AttributeHiragana)
+				else if (r_itr->first == AttributeHiragana)
 				{
 					pszb = rkc.hiragana;
 					blen = _countof(rkc.hiragana);
 				}
-				else if(r_itr->first == AttributeKatakana)
+				else if (r_itr->first == AttributeKatakana)
 				{
 					pszb = rkc.katakana;
 					blen = _countof(rkc.katakana);
 				}
-				else if(r_itr->first == AttributeKatakanaAnk)
+				else if (r_itr->first == AttributeKatakanaAnk)
 				{
 					pszb = rkc.katakana_ank;
 					blen = _countof(rkc.katakana_ank);
 				}
-				else if(r_itr->first == AttributeSpOp)
+				else if (r_itr->first == AttributeSpOp)
 				{
 					rkc.soku = (_wtoi(r_itr->second.c_str()) & 0x1) ? TRUE : FALSE;
 					rkc.wait = (_wtoi(r_itr->second.c_str()) & 0x2) ? TRUE : FALSE;
 					rkc.func = (_wtoi(r_itr->second.c_str()) & 0x4) ? TRUE : FALSE;
 				}
 
-				if(pszb != nullptr)
+				if (pszb != nullptr)
 				{
 					wcsncpy_s(pszb, blen, r_itr->second.c_str(), _TRUNCATE);
 				}
@@ -575,11 +575,11 @@ void LoadConfigKana()
 			i++;
 		}
 	}
-	else if(FAILED(hr))
+	else if (FAILED(hr))
 	{
-		for(int i = 0; i < ROMAN_KANA_TBL_DEF_NUM; i++)
+		for (int i = 0; i < ROMAN_KANA_TBL_DEF_NUM; i++)
 		{
-			if(roman_kana_conv_default[i].roman[0] == L'\0')
+			if (roman_kana_conv_default[i].roman[0] == L'\0')
 			{
 				break;
 			}
@@ -598,7 +598,7 @@ void LoadKana(HWND hDlg)
 	HWND hWndListView = GetDlgItem(hDlg, IDC_LIST_KANATBL);
 	int count = (int)roman_kana_conv.size();
 
-	for(int i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		item.mask = LVIF_TEXT;
 		item.pszText = roman_kana_conv[i].roman;
@@ -640,7 +640,7 @@ void SaveKana(IXmlWriter *pWriter, HWND hDlg)
 	HWND hWndListView = GetDlgItem(hDlg, IDC_LIST_KANATBL);
 	int count = ListView_GetItemCount(hWndListView);
 
-	for(int i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
+	for (int i = 0; i < count && i < ROMAN_KANA_TBL_MAX; i++)
 	{
 		ListView_GetItemText(hWndListView, i, 0, rkc.roman, _countof(rkc.roman));
 		ListView_GetItemText(hWndListView, i, 1, rkc.hiragana, _countof(rkc.hiragana));
@@ -654,7 +654,7 @@ void SaveKana(IXmlWriter *pWriter, HWND hDlg)
 		roman_kana_conv.push_back(rkc);
 	}
 
-	for(int i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		attr.first = AttributeRoman;
 		attr.second = roman_kana_conv[i].roman;

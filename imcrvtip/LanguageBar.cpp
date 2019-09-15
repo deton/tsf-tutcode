@@ -62,37 +62,36 @@ CLangBarItemButton::CLangBarItemButton(CTextService *pTextService, REFGUID guid)
 	_pLangBarItemSink = nullptr;
 
 	_pTextService = pTextService;
-	_pTextService->AddRef();
 }
 
 CLangBarItemButton::~CLangBarItemButton()
 {
-	SafeRelease(&_pTextService);
+	_pTextService.Release();
 
 	DllRelease();
 }
 
 STDAPI CLangBarItemButton::QueryInterface(REFIID riid, void **ppvObj)
 {
-	if(ppvObj == nullptr)
+	if (ppvObj == nullptr)
 	{
 		return E_INVALIDARG;
 	}
 
 	*ppvObj = nullptr;
 
-	if(IsEqualIID(riid, IID_IUnknown) ||
+	if (IsEqualIID(riid, IID_IUnknown) ||
 		IsEqualIID(riid, IID_ITfLangBarItem) ||
 		IsEqualIID(riid, IID_ITfLangBarItemButton))
 	{
-		*ppvObj = (ITfLangBarItemButton *)this;
+		*ppvObj = static_cast<ITfLangBarItemButton *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfSource))
+	else if (IsEqualIID(riid, IID_ITfSource))
 	{
-		*ppvObj = (ITfSource *)this;
+		*ppvObj = static_cast<ITfSource *>(this);
 	}
 
-	if(*ppvObj)
+	if (*ppvObj)
 	{
 		AddRef();
 		return S_OK;
@@ -108,7 +107,7 @@ STDAPI_(ULONG) CLangBarItemButton::AddRef()
 
 STDAPI_(ULONG) CLangBarItemButton::Release()
 {
-	if(--_cRef == 0)
+	if (--_cRef == 0)
 	{
 		delete this;
 		return 0;
@@ -119,7 +118,7 @@ STDAPI_(ULONG) CLangBarItemButton::Release()
 
 STDAPI CLangBarItemButton::GetInfo(TF_LANGBARITEMINFO *pInfo)
 {
-	if(pInfo == nullptr)
+	if (pInfo == nullptr)
 	{
 		return E_INVALIDARG;
 	}
@@ -131,12 +130,12 @@ STDAPI CLangBarItemButton::GetInfo(TF_LANGBARITEMINFO *pInfo)
 
 STDAPI CLangBarItemButton::GetStatus(DWORD *pdwStatus)
 {
-	if(pdwStatus == nullptr)
+	if (pdwStatus == nullptr)
 	{
 		return E_INVALIDARG;
 	}
 
-	if(_pTextService->_IsKeyboardDisabled())
+	if (_pTextService->_IsKeyboardDisabled())
 	{
 		*pdwStatus = TF_LBI_STATUS_DISABLED;
 	}
@@ -150,7 +149,7 @@ STDAPI CLangBarItemButton::GetStatus(DWORD *pdwStatus)
 
 STDAPI CLangBarItemButton::Show(BOOL fShow)
 {
-	if(_pLangBarItemSink == nullptr)
+	if (_pLangBarItemSink == nullptr)
 	{
 		return E_FAIL;
 	}
@@ -160,9 +159,9 @@ STDAPI CLangBarItemButton::Show(BOOL fShow)
 
 STDAPI CLangBarItemButton::GetTooltipString(BSTR *pbstrToolTip)
 {
-	BSTR bstrToolTip;
+	BSTR bstrToolTip = nullptr;
 
-	if(pbstrToolTip == nullptr)
+	if (pbstrToolTip == nullptr)
 	{
 		return E_INVALIDARG;
 	}
@@ -171,7 +170,7 @@ STDAPI CLangBarItemButton::GetTooltipString(BSTR *pbstrToolTip)
 
 	bstrToolTip = SysAllocString(LangbarItemDesc);
 
-	if(bstrToolTip == nullptr)
+	if (bstrToolTip == nullptr)
 	{
 		return E_OUTOFMEMORY;
 	}
@@ -183,19 +182,19 @@ STDAPI CLangBarItemButton::GetTooltipString(BSTR *pbstrToolTip)
 
 STDAPI CLangBarItemButton::OnClick(TfLBIClick click, POINT pt, const RECT *prcArea)
 {
-	if(IsEqualGUID(_LangBarItemInfo.guidItem, GUID_LBI_INPUTMODE))
+	if (IsEqualGUID(_LangBarItemInfo.guidItem, GUID_LBI_INPUTMODE))
 	{
-		switch(click)
+		switch (click)
 		{
 		case TF_LBI_CLK_RIGHT:
 			{
 				HMENU hMenu = LoadMenuW(g_hInst, MAKEINTRESOURCEW(IDR_SYSTRAY_MENU));
-				if(hMenu)
+				if (hMenu)
 				{
 					UINT check = IDM_DIRECT;
-					for(int i = 0; i < _countof(menuItems); i++)
+					for (int i = 0; i < _countof(menuItems); i++)
 					{
-						if(_pTextService->inputmode == menuItems[i].inputmode)
+						if (_pTextService->inputmode == menuItems[i].inputmode)
 						{
 							check = menuItems[i].id;
 							break;
@@ -207,11 +206,11 @@ STDAPI CLangBarItemButton::OnClick(TfLBIClick click, POINT pt, const RECT *prcAr
 					CheckMenuItem(hMenu, IDM_KANALOCK,
 						MF_BYCOMMAND | ((GetKeyState(VK_KANA) & 1) == 1 ? MF_CHECKED : MF_UNCHECKED));
 					HMENU hSubMenu = GetSubMenu(hMenu, 0);
-					if(hSubMenu)
+					if (hSubMenu)
 					{
 						TPMPARAMS tpm;
 						TPMPARAMS *ptpm = nullptr;
-						if(prcArea != nullptr)
+						if (prcArea != nullptr)
 						{
 							tpm.cbSize = sizeof(tpm);
 							tpm.rcExclude = *prcArea;
@@ -230,7 +229,7 @@ STDAPI CLangBarItemButton::OnClick(TfLBIClick click, POINT pt, const RECT *prcAr
 			{
 				BOOL fOpen = _pTextService->_IsKeyboardOpen();
 
-				if(fOpen)
+				if (fOpen)
 				{
 					_pTextService->_ClearComposition();
 				}
@@ -252,14 +251,14 @@ STDAPI CLangBarItemButton::OnClick(TfLBIClick click, POINT pt, const RECT *prcAr
 
 STDAPI CLangBarItemButton::InitMenu(ITfMenu *pMenu)
 {
-	if(pMenu == nullptr)
+	if (pMenu == nullptr)
 	{
 		return E_INVALIDARG;
 	}
 
-	for(int i = 0; i < _countof(menuItems); i++)
+	for (int i = 0; i < _countof(menuItems); i++)
 	{
-		switch(menuItems[i].id)
+		switch (menuItems[i].id)
 		{
 		case IDM_CAPSLOCK:
 			pMenu->AddMenuItem(menuItems[i].id, menuItems[i].flag |
@@ -290,11 +289,11 @@ STDAPI CLangBarItemButton::InitMenu(ITfMenu *pMenu)
 
 STDAPI CLangBarItemButton::OnMenuSelect(UINT wID)
 {
-	switch(wID)
+	switch (wID)
 	{
 	case IDM_CAPSLOCK:
 	case IDM_KANALOCK:
-		switch(wID)
+		switch (wID)
 		{
 		case IDM_CAPSLOCK:
 			_pTextService->_CommandDic(REQ_CAPS_LOCK);
@@ -314,11 +313,11 @@ STDAPI CLangBarItemButton::OnMenuSelect(UINT wID)
 	case IDM_KATAKANA_ANK:
 	case IDM_JLATIN:
 	case IDM_ASCII:
-		for(int i = 0; i < _countof(menuItems); i++)
+		for (int i = 0; i < _countof(menuItems); i++)
 		{
-			if(wID == menuItems[i].id)
+			if (wID == menuItems[i].id)
 			{
-				if(_pTextService->_IsKeyboardOpen())
+				if (_pTextService->_IsKeyboardOpen())
 				{
 					_pTextService->_ClearComposition();
 				}
@@ -335,7 +334,7 @@ STDAPI CLangBarItemButton::OnMenuSelect(UINT wID)
 		}
 		break;
 	case IDM_DIRECT:
-		if(_pTextService->_IsKeyboardOpen())
+		if (_pTextService->_IsKeyboardOpen())
 		{
 			_pTextService->_ClearComposition();
 
@@ -352,7 +351,7 @@ STDAPI CLangBarItemButton::OnMenuSelect(UINT wID)
 
 STDAPI CLangBarItemButton::GetIcon(HICON *phIcon)
 {
-	if(phIcon == nullptr)
+	if (phIcon == nullptr)
 	{
 		return E_INVALIDARG;
 	}
@@ -368,9 +367,9 @@ STDAPI CLangBarItemButton::GetIcon(HICON *phIcon)
 
 STDAPI CLangBarItemButton::GetText(BSTR *pbstrText)
 {
-	BSTR bstrText;
+	BSTR bstrText = nullptr;
 
-	if(pbstrText == nullptr)
+	if (pbstrText == nullptr)
 	{
 		return E_INVALIDARG;
 	}
@@ -379,7 +378,7 @@ STDAPI CLangBarItemButton::GetText(BSTR *pbstrText)
 
 	bstrText = SysAllocString(LangbarItemDesc);
 
-	if(bstrText == nullptr)
+	if (bstrText == nullptr)
 	{
 		return E_OUTOFMEMORY;
 	}
@@ -391,57 +390,63 @@ STDAPI CLangBarItemButton::GetText(BSTR *pbstrText)
 
 STDAPI CLangBarItemButton::AdviseSink(REFIID riid, IUnknown *punk, DWORD *pdwCookie)
 {
-	if(!IsEqualIID(IID_ITfLangBarItemSink, riid))
+	if (punk == nullptr || pdwCookie == nullptr)
+	{
+		return E_INVALIDARG;
+	}
+
+	if (!IsEqualIID(IID_ITfLangBarItemSink, riid))
 	{
 		return CONNECT_E_CANNOTCONNECT;
 	}
 
-	if(_pLangBarItemSink != nullptr)
+	if (_pLangBarItemSink != nullptr)
 	{
 		return CONNECT_E_ADVISELIMIT;
 	}
 
-	if(FAILED(punk->QueryInterface(IID_PPV_ARGS(&_pLangBarItemSink))))
+	if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARGS(&_pLangBarItemSink))) && (_pLangBarItemSink != nullptr))
 	{
-		_pLangBarItemSink = nullptr;
+		*pdwCookie = TEXTSERVICE_LANGBARITEMSINK_COOKIE;
+	}
+	else
+	{
+		_pLangBarItemSink.Release();
 		return E_NOINTERFACE;
 	}
-
-	*pdwCookie = TEXTSERVICE_LANGBARITEMSINK_COOKIE;
 
 	return S_OK;
 }
 
 STDAPI CLangBarItemButton::UnadviseSink(DWORD dwCookie)
 {
-	if(dwCookie != TEXTSERVICE_LANGBARITEMSINK_COOKIE)
+	if (dwCookie != TEXTSERVICE_LANGBARITEMSINK_COOKIE)
 	{
 		return CONNECT_E_NOCONNECTION;
 	}
 
-	if(_pLangBarItemSink == nullptr)
+	if (_pLangBarItemSink == nullptr)
 	{
 		return CONNECT_E_NOCONNECTION;
 	}
 
-	SafeRelease(&_pLangBarItemSink);
+	_pLangBarItemSink.Release();
 
 	return S_OK;
 }
 
 HRESULT CLangBarItemButton::_Update()
 {
-	VARIANT var;
+	CComVariant var;
 
-	VariantInit(&var);
 	V_VT(&var) = VT_I4;
 
 	V_I4(&var) = TF_SENTENCEMODE_PHRASEPREDICT;
 	_pTextService->_SetCompartment(GUID_COMPARTMENT_KEYBOARD_INPUTMODE_SENTENCE, &var);
 
-	if(!_pTextService->_IsKeyboardDisabled() && _pTextService->_IsKeyboardOpen())
+	if (!_pTextService->_IsKeyboardDisabled() && _pTextService->_IsKeyboardOpen())
 	{
-		switch(_pTextService->inputmode)
+		switch (_pTextService->inputmode)
 		{
 		case im_hiragana:
 			V_I4(&var) = TF_CONVERSIONMODE_NATIVE | TF_CONVERSIONMODE_FULLSHAPE |
@@ -471,9 +476,7 @@ HRESULT CLangBarItemButton::_Update()
 		}
 	}
 
-	VariantClear(&var);
-
-	if(_pLangBarItemSink == nullptr)
+	if (_pLangBarItemSink == nullptr)
 	{
 		return E_FAIL;
 	}
@@ -486,9 +489,9 @@ HRESULT CLangBarItemButton::_GetIcon(HICON *phIcon, INT size, BOOL bNT62)
 	size_t iconindex = 0;
 	WORD iconid = 0;
 
-	if(!_pTextService->_IsKeyboardDisabled() && _pTextService->_IsKeyboardOpen())
+	if (!_pTextService->_IsKeyboardDisabled() && _pTextService->_IsKeyboardOpen())
 	{
-		switch(_pTextService->inputmode)
+		switch (_pTextService->inputmode)
 		{
 		case im_hiragana:
 			iconindex = 1;
@@ -510,16 +513,16 @@ HRESULT CLangBarItemButton::_GetIcon(HICON *phIcon, INT size, BOOL bNT62)
 		}
 	}
 
-	if(bNT62)
+	if (bNT62)
 	{
-		if(iconindex < _countof(iconIDZ))
+		if (iconindex < _countof(iconIDZ))
 		{
 			iconid = iconIDZ[iconindex];
 		}
 	}
 	else
 	{
-		if(iconindex < _countof(iconIDX))
+		if (iconindex < _countof(iconIDX))
 		{
 			iconid = iconIDX[iconindex];
 		}
@@ -538,40 +541,40 @@ BOOL CTextService::_InitLanguageBar()
 	_pLangBarItem = nullptr;
 	_pLangBarItemI = nullptr;
 
-	ITfLangBarItemMgr *pLangBarItemMgr = nullptr;
-	if(SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pLangBarItemMgr))) && (pLangBarItemMgr != nullptr))
+	CComPtr<ITfLangBarItemMgr> pLangBarItemMgr;
+	if (SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pLangBarItemMgr))) && (pLangBarItemMgr != nullptr))
 	{
 		try
 		{
-			_pLangBarItem = new CLangBarItemButton(this, c_guidLangBarItemButton);
-			if(SUCCEEDED(pLangBarItemMgr->AddItem(_pLangBarItem)))
+			_pLangBarItem.Attach(new CLangBarItemButton(this, c_guidLangBarItemButton));
+			if (SUCCEEDED(pLangBarItemMgr->AddItem(_pLangBarItem)))
 			{
 				fRet = TRUE;
 			}
 			else
 			{
-				SafeRelease(&_pLangBarItem);
+				_pLangBarItem.Release();
 			}
 		}
-		catch(...)
+		catch (...)
 		{
 		}
 
-		if(IsWindowsVersion62OrLater())
+		if (IsWindowsVersion62OrLater())
 		{
 			try
 			{
-				_pLangBarItemI = new CLangBarItemButton(this, GUID_LBI_INPUTMODE);
-				if(SUCCEEDED(pLangBarItemMgr->AddItem(_pLangBarItemI)))
+				_pLangBarItemI.Attach(new CLangBarItemButton(this, GUID_LBI_INPUTMODE));
+				if (SUCCEEDED(pLangBarItemMgr->AddItem(_pLangBarItemI)))
 				{
 					fRetI = TRUE;
 				}
 				else
 				{
-					SafeRelease(&_pLangBarItemI);
+					_pLangBarItemI.Release();
 				}
 			}
-			catch(...)
+			catch (...)
 			{
 			}
 		}
@@ -579,8 +582,6 @@ BOOL CTextService::_InitLanguageBar()
 		{
 			fRetI = TRUE;
 		}
-
-		SafeRelease(&pLangBarItemMgr);
 	}
 
 	return (fRet && fRetI);
@@ -588,39 +589,37 @@ BOOL CTextService::_InitLanguageBar()
 
 void CTextService::_UninitLanguageBar()
 {
-	ITfLangBarItemMgr *pLangBarItemMgr = nullptr;
-	if(SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pLangBarItemMgr))) && (pLangBarItemMgr != nullptr))
+	CComPtr<ITfLangBarItemMgr> pLangBarItemMgr;
+	if (SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pLangBarItemMgr))) && (pLangBarItemMgr != nullptr))
 	{
-		if(_pLangBarItem != nullptr)
+		if (_pLangBarItem != nullptr)
 		{
 			pLangBarItemMgr->RemoveItem(_pLangBarItem);
 		}
 
-		if(_pLangBarItemI != nullptr)
+		if (_pLangBarItemI != nullptr)
 		{
 			pLangBarItemMgr->RemoveItem(_pLangBarItemI);
 		}
-
-		SafeRelease(&pLangBarItemMgr);
 	}
 
-	SafeRelease(&_pLangBarItem);
-	SafeRelease(&_pLangBarItemI);
+	_pLangBarItem.Release();
+	_pLangBarItemI.Release();
 }
 
 void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 {
-	if(_pLangBarItem != nullptr)
+	if (_pLangBarItem != nullptr)
 	{
 		_pLangBarItem->_Update();
 	}
 
-	if(_pLangBarItemI != nullptr)
+	if (_pLangBarItemI != nullptr)
 	{
 		_pLangBarItemI->_Update();
 	}
 
-	if(showinputmode && _ShowInputMode && !_IsComposing())
+	if (showinputmode && _ShowInputMode && !_IsComposing())
 	{
 		_StartInputModeWindow();
 	}
@@ -636,7 +635,7 @@ void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 
 void CTextService::_GetIcon(HICON *phIcon, INT size)
 {
-	if(_pLangBarItem != nullptr)
+	if (_pLangBarItem != nullptr)
 	{
 		_pLangBarItem->_GetIcon(phIcon, size, FALSE);
 	}

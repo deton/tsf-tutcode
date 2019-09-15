@@ -87,21 +87,21 @@ void CTextService::_CreateConfigPath()
 	ZeroMemory(pathconfigxml, sizeof(pathconfigxml));
 
 	//%AppData%\\CorvusSKK\\config.xml
-	if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
+	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
 		_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnconfigxml);
 
 		CoTaskMemFree(knownfolderpath);
 	}
 
-	if(GetFileAttributesW(pathconfigxml) == INVALID_FILE_ATTRIBUTES)
+	if (GetFileAttributesW(pathconfigxml) == INVALID_FILE_ATTRIBUTES)
 	{
 #ifdef _DEBUG
 		//<module directory>\\config.xml
-		if(GetModuleFileNameW(g_hInst, pathconfigxml, _countof(pathconfigxml)) != 0)
+		if (GetModuleFileNameW(g_hInst, pathconfigxml, _countof(pathconfigxml)) != 0)
 		{
 			WCHAR *pdir = wcsrchr(pathconfigxml, L'\\');
-			if(pdir != nullptr)
+			if (pdir != nullptr)
 			{
 				*(pdir + 1) = L'\0';
 				wcsncat_s(pathconfigxml, fnconfigxml, _TRUNCATE);
@@ -109,7 +109,7 @@ void CTextService::_CreateConfigPath()
 		}
 #else
 		//%SystemRoot%\\IME\\IMCRVSKK\\config.xml
-		if(SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
+		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 		{
 			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fnconfigxml);
 
@@ -127,7 +127,7 @@ void CTextService::_CreateIpcName()
 
 	LPWSTR pszUserUUID = nullptr;
 
-	if(GetUserUUID(&pszUserUUID))
+	if (GetUserUUID(&pszUserUUID))
 	{
 		_snwprintf_s(mgrpipename, _TRUNCATE, L"%s%s", IMCRVMGRPIPE, pszUserUUID);
 		_snwprintf_s(mgrmutexname, _TRUNCATE, L"%s%s", IMCRVMGRMUTEX, pszUserUUID);
@@ -143,7 +143,7 @@ void CTextService::_ReadBoolValue(LPCWSTR section, LPCWSTR key, BOOL &value, BOO
 
 	ReadValue(pathconfigxml, section, key, strxmlval, (defval ? L"1" : L"0"));
 	value = _wtoi(strxmlval.c_str());
-	if(value != TRUE && value != FALSE)
+	if (value != TRUE && value != FALSE)
 	{
 		value = defval;
 	}
@@ -170,7 +170,7 @@ void CTextService::_LoadBehavior()
 
 	ReadValue(pathconfigxml, SectionBehavior, ValueCompMultiNum, strxmlval);
 	cx_compmultinum = _wtoi(strxmlval.c_str());
-	if(cx_compmultinum > MAX_SELKEY_C || cx_compmultinum < 1)
+	if (cx_compmultinum > MAX_SELKEY_C || cx_compmultinum < 1)
 	{
 		cx_compmultinum = COMPMULTIDISP_DEF;
 	}
@@ -191,15 +191,15 @@ void CTextService::_LoadBehavior()
 	ReadValue(pathconfigxml, SectionFont, ValueFontItalic, strxmlval);
 	cx_fontitalic = _wtoi(strxmlval.c_str());
 
-	if(cx_fontpoint < 8 || cx_fontpoint > 72)
+	if (cx_fontpoint < 8 || cx_fontpoint > 72)
 	{
 		cx_fontpoint = FONT_POINT_DEF;
 	}
-	if(cx_fontweight < 0 || cx_fontweight > 1000)
+	if (cx_fontweight < 0 || cx_fontweight > 1000)
 	{
 		cx_fontweight = FW_NORMAL;
 	}
-	if(cx_fontitalic != FALSE)
+	if (cx_fontitalic != FALSE)
 	{
 		cx_fontitalic = TRUE;
 	}
@@ -208,16 +208,16 @@ void CTextService::_LoadBehavior()
 
 	ReadValue(pathconfigxml, SectionDisplay, ValueMaxWidth, strxmlval);
 	cx_maxwidth = strxmlval.empty() ? -1 : _wtol(strxmlval.c_str());
-	if(cx_maxwidth < 0)
+	if (cx_maxwidth < 0)
 	{
 		cx_maxwidth = MAX_WIDTH_DEFAULT;
 	}
 
-	for(int i = 0; i < _countof(cx_list_colors); i++)
+	for (int i = 0; i < _countof(cx_list_colors); i++)
 	{
 		cx_list_colors[i] = listcolorsxmlvalue[i].color;
 		ReadValue(pathconfigxml, SectionDisplay, listcolorsxmlvalue[i].value, strxmlval);
-		if(!strxmlval.empty())
+		if (!strxmlval.empty())
 		{
 			cx_list_colors[i] = wcstoul(strxmlval.c_str(), nullptr, 0);
 		}
@@ -239,7 +239,7 @@ void CTextService::_LoadBehavior()
 
 	ReadValue(pathconfigxml, SectionDisplay, ValueUntilCandList, strxmlval);
 	cx_untilcandlist = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str());
-	if(cx_untilcandlist > 9 || cx_untilcandlist < 0)
+	if (cx_untilcandlist > 9 || cx_untilcandlist < 0)
 	{
 		cx_untilcandlist = UNTILCANDLIST_DEF;
 	}
@@ -256,7 +256,7 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionDisplay, ValueShowModeInl, cx_showmodeinl, TRUE);
 	ReadValue(pathconfigxml, SectionDisplay, ValueShowModeSec, strxmlval);
 	cx_showmodesec = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str());
-	if(cx_showmodesec > 60 || cx_showmodesec <= 0)
+	if (cx_showmodesec > 60 || cx_showmodesec <= 0)
 	{
 		cx_showmodesec = SHOWMODESEC_DEF;
 	}
@@ -276,11 +276,11 @@ void CTextService::_LoadBehavior()
 	ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval, L"");
 	cx_vkbdtop = std::regex_replace(strxmlval, re, fmt);
 
-	for(int i = 0; i < _countof(cx_mode_colors); i++)
+	for (int i = 0; i < _countof(cx_mode_colors); i++)
 	{
 		cx_mode_colors[i] = modecolorsxmlvalue[i].color;
 		ReadValue(pathconfigxml, SectionDisplay, modecolorsxmlvalue[i].value, strxmlval);
-		if(!strxmlval.empty())
+		if (!strxmlval.empty())
 		{
 			cx_mode_colors[i] = wcstoul(strxmlval.c_str(), nullptr, 0);
 		}
@@ -293,15 +293,15 @@ void CTextService::_LoadDisplayAttr()
 	BOOL se;
 	TF_DISPLAYATTRIBUTE da;
 
-	for(int i = 0; i < DISPLAYATTRIBUTE_INFO_NUM; i++)
+	for (int i = 0; i < DISPLAYATTRIBUTE_INFO_NUM; i++)
 	{
 		display_attribute_series[i] = c_gdDisplayAttributeInfo[i].se;
 		display_attribute_info[i] = c_gdDisplayAttributeInfo[i].da;
 
 		ReadValue(pathconfigxml, SectionDisplayAttr, c_gdDisplayAttributeInfo[i].key, strxmlval);
-		if(!strxmlval.empty())
+		if (!strxmlval.empty())
 		{
-			if(swscanf_s(strxmlval.c_str(), L"%d,%d,0x%06X,%d,0x%06X,%d,%d,%d,0x%06X,%d",
+			if (swscanf_s(strxmlval.c_str(), L"%d,%d,0x%06X,%d,0x%06X,%d,%d,%d,0x%06X,%d",
 				&se, &da.crText.type, &da.crText.cr, &da.crBk.type, &da.crBk.cr,
 				&da.lsStyle, &da.fBoldLine, &da.crLine.type, &da.crLine.cr, &da.bAttr) == 10)
 			{
@@ -320,7 +320,7 @@ void CTextService::_LoadSelKey()
 
 	ZeroMemory(selkey, sizeof(selkey));
 
-	for(int i = 0; i < MAX_SELKEY_C; i++)
+	for (int i = 0; i < MAX_SELKEY_C; i++)
 	{
 		num[0] = L'0' + i + 1;
 		num[1] = L'\0';
@@ -334,34 +334,34 @@ void CTextService::_LoadSelKey()
 
 void CTextService::_SetPreservedKeyONOFF(int onoff, const APPDATAXMLLIST &list)
 {
-	if(onoff != 0 && onoff != 1)
+	if (onoff != 0 && onoff != 1)
 	{
 		return;
 	}
 
 	ZeroMemory(preservedkey[onoff], sizeof(preservedkey[onoff]));
 
-	if(list.size() != 0)
+	if (list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
-			if(i >= MAX_PRESERVEDKEY)
+			if (i >= MAX_PRESERVEDKEY)
 			{
 				break;
 			}
 
 			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
-				if(r_itr->first == AttributeVKey)
+				if (r_itr->first == AttributeVKey)
 				{
 					preservedkey[onoff][i].uVKey = wcstoul(r_itr->second.c_str(), nullptr, 0);
 				}
-				else if(r_itr->first == AttributeMKey)
+				else if (r_itr->first == AttributeMKey)
 				{
 					preservedkey[onoff][i].uModifiers =
 						wcstoul(r_itr->second.c_str(), nullptr, 0) & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT);
-					if((preservedkey[onoff][i].uModifiers & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT)) == 0)
+					if ((preservedkey[onoff][i].uModifiers & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT)) == 0)
 					{
 						preservedkey[onoff][i].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
 					}
@@ -373,7 +373,7 @@ void CTextService::_SetPreservedKeyONOFF(int onoff, const APPDATAXMLLIST &list)
 	}
 	else
 	{
-		for(int i = 0; i < _countof(configpreservedkey); i++)
+		for (int i = 0; i < _countof(configpreservedkey); i++)
 		{
 			preservedkey[onoff][i] = configpreservedkey[i];
 		}
@@ -387,16 +387,16 @@ void CTextService::_LoadPreservedKey()
 	//for compatibility
 	HRESULT hr = ReadList(pathconfigxml, SectionPreservedKey, list);
 
-	if(SUCCEEDED(hr) && list.size() != 0)
+	if (SUCCEEDED(hr) && list.size() != 0)
 	{
-		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
+		for (int k = 0; k < PRESERVEDKEY_NUM; k++)
 		{
 			_SetPreservedKeyONOFF(k, list);
 		}
 	}
 	else
 	{
-		for(int k = 0; k < PRESERVEDKEY_NUM; k++)
+		for (int k = 0; k < PRESERVEDKEY_NUM; k++)
 		{
 			list.clear();
 			hr = ReadList(pathconfigxml, sectionpreservedkeyonoff[k], list);
@@ -417,21 +417,21 @@ void CTextService::_LoadCKeyMap()
 
 	key[1] = L'\0';
 
-	for(int i = 0; i < _countof(configkeymap); i++)
+	for (int i = 0; i < _countof(configkeymap); i++)
 	{
-		if(configkeymap[i].skkfunc == SKK_NULL)
+		if (configkeymap[i].skkfunc == SKK_NULL)
 		{
 			break;
 		}
 		ReadValue(pathconfigxml, SectionKeyMap, configkeymap[i].keyname, strxmlval);
 		wcsncpy_s(keyre, strxmlval.c_str(), _TRUNCATE);
-		if(keyre[0] == L'\0')
+		if (keyre[0] == L'\0')
 		{
 			continue;
 		}
 
 		//全英/アスキーモード
-		switch(configkeymap[i].skkfunc)
+		switch (configkeymap[i].skkfunc)
 		{
 		case SKK_JMODE:
 		case SKK_ENTER:
@@ -445,7 +445,7 @@ void CTextService::_LoadCKeyMap()
 		case SKK_PASTE:
 		case SKK_OTHERIME:
 		case SKK_VIESC:
-			for(WCHAR ch = 0x01; ch < CKEYMAPNUM; ch++)
+			for (WCHAR ch = 0x01; ch < CKEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -453,15 +453,15 @@ void CTextService::_LoadCKeyMap()
 				try
 				{
 					re.assign(keyre);
-					if(std::regex_match(s, re))
+					if (std::regex_match(s, re))
 					{
-						if(ckeymap.keylatin[ch] != SKK_JMODE)	//「ひらがな」が優先
+						if (ckeymap.keylatin[ch] != SKK_JMODE)	//「ひらがな」が優先
 						{
 							ckeymap.keylatin[ch] = configkeymap[i].skkfunc;
 						}
 					}
 				}
-				catch(...)
+				catch (...)
 				{
 					break;
 				}
@@ -472,13 +472,13 @@ void CTextService::_LoadCKeyMap()
 		}
 
 		//ひらがな/カタカナモード
-		switch(configkeymap[i].skkfunc)
+		switch (configkeymap[i].skkfunc)
 		{
 		case SKK_JMODE:
 		case SKK_VOID:
 			break;
 		default:
-			for(WCHAR ch = 0x01; ch < CKEYMAPNUM; ch++)
+			for (WCHAR ch = 0x01; ch < CKEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -486,12 +486,12 @@ void CTextService::_LoadCKeyMap()
 				try
 				{
 					re.assign(keyre);
-					if(std::regex_match(s, re))
+					if (std::regex_match(s, re))
 					{
 						ckeymap.keyjmode[ch] = configkeymap[i].skkfunc;
 					}
 				}
-				catch(...)
+				catch (...)
 				{
 					break;
 				}
@@ -500,10 +500,10 @@ void CTextService::_LoadCKeyMap()
 		}
 
 		//無効
-		switch(configkeymap[i].skkfunc)
+		switch (configkeymap[i].skkfunc)
 		{
 		case SKK_VOID:
-			for(WCHAR ch = 0x01; ch < CKEYMAPNUM; ch++)
+			for (WCHAR ch = 0x01; ch < CKEYMAPNUM; ch++)
 			{
 				key[0] = ch;
 				s.assign(key);
@@ -511,12 +511,12 @@ void CTextService::_LoadCKeyMap()
 				try
 				{
 					re.assign(keyre);
-					if(std::regex_match(s, re))
+					if (std::regex_match(s, re))
 					{
 						ckeymap.keyvoid[ch] = configkeymap[i].skkfunc;
 					}
 				}
-				catch(...)
+				catch (...)
 				{
 					break;
 				}
@@ -537,26 +537,26 @@ void CTextService::_LoadVKeyMap()
 	std::wstring strxmlval;
 	VKEYMAP *pkeymaps[] = {&vkeymap, &vkeymap_shift, &vkeymap_ctrl};
 
-	for(int i = 0; i < _countof(pkeymaps); i++)
+	for (int i = 0; i < _countof(pkeymaps); i++)
 	{
 		*pkeymaps[i] = VKEYMAP{};
 	}
 
-	for(int i = 0; i < _countof(configkeymap); i++)
+	for (int i = 0; i < _countof(configkeymap); i++)
 	{
-		if(configkeymap[i].skkfunc == SKK_NULL)
+		if (configkeymap[i].skkfunc == SKK_NULL)
 		{
 			break;
 		}
 		ReadValue(pathconfigxml, SectionVKeyMap, configkeymap[i].keyname, strxmlval);
 		wcsncpy_s(keyre, strxmlval.c_str(), _TRUNCATE);
-		if(keyre[0] == L'\0')
+		if (keyre[0] == L'\0')
 		{
 			continue;
 		}
 
 		//全英/アスキーモード
-		switch(configkeymap[i].skkfunc)
+		switch (configkeymap[i].skkfunc)
 		{
 		case SKK_JMODE:
 		case SKK_ENTER:
@@ -570,11 +570,11 @@ void CTextService::_LoadVKeyMap()
 		case SKK_PASTE:
 		case SKK_OTHERIME:
 		case SKK_VIESC:
-			for(int j = 0; j < _countof(pkeymaps); j++)
+			for (int j = 0; j < _countof(pkeymaps); j++)
 			{
-				for(WCHAR ch = 0x01; ch < VKEYMAPNUM; ch++)
+				for (WCHAR ch = 0x01; ch < VKEYMAPNUM; ch++)
 				{
-					switch(j)
+					switch (j)
 					{
 					case 0:
 						key[0] = ch;
@@ -597,15 +597,15 @@ void CTextService::_LoadVKeyMap()
 					try
 					{
 						re.assign(keyre);
-						if(std::regex_match(s, re))
+						if (std::regex_match(s, re))
 						{
-							if(pkeymaps[j]->keylatin[ch] != SKK_JMODE)	//「ひらがな」が優先
+							if (pkeymaps[j]->keylatin[ch] != SKK_JMODE)	//「ひらがな」が優先
 							{
 								pkeymaps[j]->keylatin[ch] = configkeymap[i].skkfunc;
 							}
 						}
 					}
-					catch(...)
+					catch (...)
 					{
 						break;
 					}
@@ -617,17 +617,17 @@ void CTextService::_LoadVKeyMap()
 		}
 
 		//ひらがな/カタカナモード
-		switch(configkeymap[i].skkfunc)
+		switch (configkeymap[i].skkfunc)
 		{
 		case SKK_JMODE:
 		case SKK_VOID:
 			break;
 		default:
-			for(int j = 0; j < _countof(pkeymaps); j++)
+			for (int j = 0; j < _countof(pkeymaps); j++)
 			{
-				for(WCHAR ch = 0x01; ch < VKEYMAPNUM; ch++)
+				for (WCHAR ch = 0x01; ch < VKEYMAPNUM; ch++)
 				{
-					switch(j)
+					switch (j)
 					{
 					case 0:
 						key[0] = ch;
@@ -650,12 +650,12 @@ void CTextService::_LoadVKeyMap()
 					try
 					{
 						re.assign(keyre);
-						if(std::regex_match(s, re))
+						if (std::regex_match(s, re))
 						{
 							pkeymaps[j]->keyjmode[ch] = configkeymap[i].skkfunc;
 						}
 					}
-					catch(...)
+					catch (...)
 					{
 						break;
 					}
@@ -665,14 +665,14 @@ void CTextService::_LoadVKeyMap()
 		}
 
 		//無効
-		switch(configkeymap[i].skkfunc)
+		switch (configkeymap[i].skkfunc)
 		{
 		case SKK_VOID:
-			for(int j = 0; j < _countof(pkeymaps); j++)
+			for (int j = 0; j < _countof(pkeymaps); j++)
 			{
-				for(WCHAR ch = 0x01; ch < VKEYMAPNUM; ch++)
+				for (WCHAR ch = 0x01; ch < VKEYMAPNUM; ch++)
 				{
-					switch(j)
+					switch (j)
 					{
 					case 0:
 						key[0] = ch;
@@ -695,12 +695,12 @@ void CTextService::_LoadVKeyMap()
 					try
 					{
 						re.assign(keyre);
-						if(std::regex_match(s, re))
+						if (std::regex_match(s, re))
 						{
 							pkeymaps[j]->keyvoid[ch] = configkeymap[i].skkfunc;
 						}
 					}
-					catch(...)
+					catch (...)
 					{
 						break;
 					}
@@ -724,12 +724,12 @@ void CTextService::_LoadConvPoint()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionConvPoint, list);
 
-	if(SUCCEEDED(hr) && list.size() != 0)
+	if (SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
-			if(i >= MAX_CONV_POINT)
+			if (i >= MAX_CONV_POINT)
 			{
 				break;
 			}
@@ -738,15 +738,15 @@ void CTextService::_LoadConvPoint()
 
 			FORWARD_ITERATION_I(r_itr, *l_itr)
 			{
-				if(r_itr->first == AttributeCPStart)
+				if (r_itr->first == AttributeCPStart)
 				{
 					cp.ch[0] = r_itr->second.c_str()[0];
 				}
-				else if(r_itr->first == AttributeCPAlter)
+				else if (r_itr->first == AttributeCPAlter)
 				{
 					cp.ch[1] = r_itr->second.c_str()[0];
 				}
-				else if(r_itr->first == AttributeCPOkuri)
+				else if (r_itr->first == AttributeCPOkuri)
 				{
 					cp.ch[2] = r_itr->second.c_str()[0];
 				}
@@ -755,7 +755,7 @@ void CTextService::_LoadConvPoint()
 			auto vs_itr = std::lower_bound(conv_point_s.begin(), conv_point_s.end(),
 				cp.ch[0], [] (CONV_POINT m, WCHAR v) { return (m.ch[0] < v); });
 
-			if(vs_itr == conv_point_s.end() || cp.ch[0] != vs_itr->ch[0])
+			if (vs_itr == conv_point_s.end() || cp.ch[0] != vs_itr->ch[0])
 			{
 				conv_point_s.insert(vs_itr, cp);
 			}
@@ -763,7 +763,7 @@ void CTextService::_LoadConvPoint()
 			auto va_itr = std::lower_bound(conv_point_a.begin(), conv_point_a.end(),
 				cp.ch[1], [] (CONV_POINT m, WCHAR v) { return (m.ch[1] < v); });
 
-			if(va_itr == conv_point_a.end() || cp.ch[1] != va_itr->ch[1])
+			if (va_itr == conv_point_a.end() || cp.ch[1] != va_itr->ch[1])
 			{
 				conv_point_a.insert(va_itr, cp);
 			}
@@ -785,12 +785,12 @@ void CTextService::_LoadKana()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionKana, list);
 
-	if(SUCCEEDED(hr) && list.size() != 0)
+	if (SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
-			if(i >= ROMAN_KANA_TBL_MAX)
+			if (i >= ROMAN_KANA_TBL_MAX)
 			{
 				break;
 			}
@@ -802,34 +802,34 @@ void CTextService::_LoadKana()
 				WCHAR *pszb = nullptr;
 				size_t blen = 0;
 
-				if(r_itr->first == AttributeRoman)
+				if (r_itr->first == AttributeRoman)
 				{
 					pszb = rkc.roman;
 					blen = _countof(rkc.roman);
 				}
-				else if(r_itr->first == AttributeHiragana)
+				else if (r_itr->first == AttributeHiragana)
 				{
 					pszb = rkc.hiragana;
 					blen = _countof(rkc.hiragana);
 				}
-				else if(r_itr->first == AttributeKatakana)
+				else if (r_itr->first == AttributeKatakana)
 				{
 					pszb = rkc.katakana;
 					blen = _countof(rkc.katakana);
 				}
-				else if(r_itr->first == AttributeKatakanaAnk)
+				else if (r_itr->first == AttributeKatakanaAnk)
 				{
 					pszb = rkc.katakana_ank;
 					blen = _countof(rkc.katakana_ank);
 				}
-				else if(r_itr->first == AttributeSpOp)
+				else if (r_itr->first == AttributeSpOp)
 				{
 					rkc.soku = (_wtoi(r_itr->second.c_str()) & 0x1) ? TRUE : FALSE;
 					rkc.wait = (_wtoi(r_itr->second.c_str()) & 0x2) ? TRUE : FALSE;
 					rkc.func = (_wtoi(r_itr->second.c_str()) & 0x4) ? TRUE : FALSE;
 				}
 
-				if(pszb != nullptr)
+				if (pszb != nullptr)
 				{
 					wcsncpy_s(pszb, blen, std::regex_replace(r_itr->second, re, fmt).c_str(), _TRUNCATE);
 				}
@@ -844,11 +844,11 @@ void CTextService::_LoadKana()
 			i++;
 		}
 	}
-	else if(FAILED(hr))
+	else if (FAILED(hr))
 	{
 		ROMAN_KANA_CONV rkc = {};
 
-		for(WCHAR ch = 0x20; ch <= 0x7E; ch++)
+		for (WCHAR ch = 0x20; ch <= 0x7E; ch++)
 		{
 			rkc.roman[0] = ch;
 			rkc.hiragana[0] = ch;
@@ -864,7 +864,7 @@ BOOL CTextService::_AddKanaTree(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int 
 {
 	BOOL added = FALSE;
 
-	if((_countof(rkc.roman) <= (depth + 1)) || (rkc.roman[depth] == L'\0'))
+	if ((_countof(rkc.roman) <= (depth + 1)) || (rkc.roman[depth] == L'\0'))
 	{
 		return FALSE;
 	}
@@ -872,11 +872,11 @@ BOOL CTextService::_AddKanaTree(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int 
 	auto v_itr = std::lower_bound(tree.nodes.begin(), tree.nodes.end(),
 		rkc.roman[depth], [] (ROMAN_KANA_NODE m, WCHAR v) { return (m.ch < v); });
 
-	if(v_itr != tree.nodes.end() && v_itr->ch == rkc.roman[depth])
+	if (v_itr != tree.nodes.end() && v_itr->ch == rkc.roman[depth])
 	{
-		if(rkc.roman[depth + 1] == L'\0')
+		if (rkc.roman[depth + 1] == L'\0')
 		{
-			if(v_itr->conv.roman[0] == L'\0')
+			if (v_itr->conv.roman[0] == L'\0')
 			{
 				//ローマ字探索最後のノードにローマ字仮名変換がなければ更新
 				v_itr->conv = rkc;
@@ -890,7 +890,7 @@ BOOL CTextService::_AddKanaTree(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int 
 		}
 	}
 
-	if(!added)
+	if (!added)
 	{
 		//子ノードを追加
 		_AddKanaTreeItem(tree, rkc, depth);
@@ -904,7 +904,7 @@ void CTextService::_AddKanaTreeItem(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, 
 {
 	ROMAN_KANA_NODE rkn = {};
 
-	if((_countof(rkc.roman) <= (depth + 1)) || (rkc.roman[depth] == L'\0'))
+	if ((_countof(rkc.roman) <= (depth + 1)) || (rkc.roman[depth] == L'\0'))
 	{
 		return;
 	}
@@ -914,7 +914,7 @@ void CTextService::_AddKanaTreeItem(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, 
 	auto v_itr = std::lower_bound(tree.nodes.begin(), tree.nodes.end(),
 		rkn.ch, [] (ROMAN_KANA_NODE m, WCHAR v) { return (m.ch < v); });
 
-	if(rkc.roman[depth + 1] == L'\0')
+	if (rkc.roman[depth + 1] == L'\0')
 	{
 		//ローマ字探索最後のノードにローマ字仮名変換ありの子ノードを追加
 		rkn.conv = rkc;
@@ -941,12 +941,12 @@ void CTextService::_LoadJLatin()
 
 	HRESULT hr = ReadList(pathconfigxml, SectionJLatin, list);
 
-	if(SUCCEEDED(hr) && list.size() != 0)
+	if (SUCCEEDED(hr) && list.size() != 0)
 	{
 		int i = 0;
 		FORWARD_ITERATION_I(l_itr, list)
 		{
-			if(i >= ASCII_JLATIN_TBL_NUM)
+			if (i >= ASCII_JLATIN_TBL_NUM)
 			{
 				break;
 			}
@@ -958,18 +958,18 @@ void CTextService::_LoadJLatin()
 				WCHAR *pszb = nullptr;
 				size_t blen = 0;
 
-				if(r_itr->first == AttributeLatin)
+				if (r_itr->first == AttributeLatin)
 				{
 					pszb = ajc.ascii;
 					blen = _countof(ajc.ascii);
 				}
-				else if(r_itr->first == AttributeJLatin)
+				else if (r_itr->first == AttributeJLatin)
 				{
 					pszb = ajc.jlatin;
 					blen = _countof(ajc.jlatin);
 				}
 
-				if(pszb != nullptr)
+				if (pszb != nullptr)
 				{
 					wcsncpy_s(pszb, blen, std::regex_replace(r_itr->second, re, fmt).c_str(), _TRUNCATE);
 				}
@@ -978,7 +978,7 @@ void CTextService::_LoadJLatin()
 			auto v_itr = std::lower_bound(ascii_jlatin_conv.begin(), ascii_jlatin_conv.end(),
 				ajc.ascii[0], [] (ASCII_JLATIN_CONV m, WCHAR v) { return (m.ascii[0] < v); });
 
-			if(v_itr == ascii_jlatin_conv.end() || ajc.ascii[0] != v_itr->ascii[0])
+			if (v_itr == ascii_jlatin_conv.end() || ajc.ascii[0] != v_itr->ascii[0])
 			{
 				ascii_jlatin_conv.insert(v_itr, ajc);
 			}
@@ -986,11 +986,11 @@ void CTextService::_LoadJLatin()
 			i++;
 		}
 	}
-	else if(FAILED(hr))
+	else if (FAILED(hr))
 	{
 		ASCII_JLATIN_CONV ajc = {};
 
-		for(WCHAR ch = 0x20; ch <= 0x7E; ch++)
+		for (WCHAR ch = 0x20; ch <= 0x7E; ch++)
 		{
 			ajc.ascii[0] = ch;
 			ajc.jlatin[0] = ch;
@@ -1002,7 +1002,7 @@ void CTextService::_LoadJLatin()
 
 void CTextService::_InitD2D()
 {
-	if((cx_drawapi == DRAW_API_D2D) && !_UILessMode && (_pD2DFactory == nullptr))
+	if ((cx_drawapi == DRAW_API_D2D) && !_UILessMode && (_pD2DFactory == nullptr))
 	{
 		//try delay load d2d1.dll and dwrite.dll
 		__try
@@ -1012,7 +1012,9 @@ void CTextService::_InitD2D()
 
 			HRESULT hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &_pD2DFactory);
 
-			if(SUCCEEDED(hr))
+			if (_pD2DFactory == nullptr) hr = E_FAIL;
+
+			if (SUCCEEDED(hr))
 			{
 				D2D1_RENDER_TARGET_PROPERTIES d2dprops = D2D1::RenderTargetProperties(
 					D2D1_RENDER_TARGET_TYPE_DEFAULT,
@@ -1020,31 +1022,38 @@ void CTextService::_InitD2D()
 					0.0F, 0.0F, D2D1_RENDER_TARGET_USAGE_NONE, D2D1_FEATURE_LEVEL_DEFAULT);
 
 				hr = _pD2DFactory->CreateDCRenderTarget(&d2dprops, &_pD2DDCRT);
+
+				if (_pD2DDCRT == nullptr) hr = E_FAIL;
 			}
 
-			if(SUCCEEDED(hr))
+			if (SUCCEEDED(hr))
 			{
-				for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
+				for (int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 				{
 					hr = _pD2DDCRT->CreateSolidColorBrush(D2D1::ColorF(SWAPRGB(cx_list_colors[i])), &_pD2DBrush[i]);
-					if(FAILED(hr))
+
+					if (_pD2DBrush[i] == nullptr) hr = E_FAIL;
+
+					if (FAILED(hr))
 					{
 						break;
 					}
 				}
 			}
 
-			if(SUCCEEDED(hr))
+			if (SUCCEEDED(hr))
 			{
 				hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, IID_PUNK_ARGS(&_pDWFactory));
+
+				if (_pDWFactory == nullptr) hr = E_FAIL;
 			}
 
-			if(FAILED(hr))
+			if (FAILED(hr))
 			{
 				_UninitD2D();
 			}
 		}
-		__except(EXCEPTION_EXECUTE_HANDLER)
+		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
 			_UninitD2D();
 		}
@@ -1053,11 +1062,11 @@ void CTextService::_InitD2D()
 
 void CTextService::_UninitD2D()
 {
-	SafeRelease(&_pDWFactory);
-	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
+	_pDWFactory.Release();
+	for (int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 	{
-		SafeRelease(&_pD2DBrush[i]);
+		_pD2DBrush[i].Release();
 	}
-	SafeRelease(&_pD2DDCRT);
-	SafeRelease(&_pD2DFactory);
+	_pD2DDCRT.Release();
+	_pD2DFactory.Release();
 }

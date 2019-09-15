@@ -30,7 +30,7 @@ public:
 
 		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfDisplayAttributeInfo))
 		{
-			*ppvObj = (ITfDisplayAttributeInfo *)this;
+			*ppvObj = static_cast<ITfDisplayAttributeInfo *>(this);
 		}
 
 		if(*ppvObj)
@@ -78,7 +78,7 @@ public:
 
 	STDMETHODIMP GetDescription(BSTR *pbstrDesc)
 	{
-		BSTR bstrDesc;
+		BSTR bstrDesc = nullptr;
 
 		if(pbstrDesc == nullptr)
 		{

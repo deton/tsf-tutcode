@@ -15,15 +15,13 @@ public:
 		ITfContextView *pContextView, CVKeyboardWindow *pVKeyboardWindow) : CEditSessionBase(pTextService, pContext)
 	{
 		_pVKeyboardWindow = pVKeyboardWindow;
-		_pVKeyboardWindow->AddRef();
 		_pContextView = pContextView;
-		_pContextView->AddRef();
 	}
 
 	~CVKeyboardWindowGetTextExtEditSession()
 	{
-		SafeRelease(&_pVKeyboardWindow);
-		SafeRelease(&_pContextView);
+		_pVKeyboardWindow.Release();
+		_pContextView.Release();
 	}
 
 	// ITfEditSession
@@ -41,9 +39,11 @@ public:
 			return E_FAIL;
 		}
 
+		CComPtr<ITfRange> pRangeSelection;
+		pRangeSelection.Attach(tfSelection.range);
+
 		if(cFetched != 1)
 		{
-			SafeRelease(&tfSelection.range);
 			return E_FAIL;
 		}
 
@@ -51,14 +51,12 @@ public:
 		BOOL fClipped;
 		if(FAILED(_pContextView->GetTextExt(ec, tfSelection.range, &rc, &fClipped)))
 		{
-			SafeRelease(&tfSelection.range);
 			return E_FAIL;
 		}
 
 		//ignore abnormal position (from CUAS ?)
 		if((rc.top == rc.bottom) && ((rc.right - rc.left) == 1))
 		{
-			SafeRelease(&tfSelection.range);
 			return E_FAIL;
 		}
 
@@ -103,14 +101,12 @@ public:
 		_pVKeyboardWindow->_Move(rc.left, rc.bottom + IM_MARGIN_Y);
 		_pVKeyboardWindow->_Show(TRUE);
 
-		SafeRelease(&tfSelection.range);
-
 		return S_OK;
 	}
 
 private:
-	ITfContextView *_pContextView;
-	CVKeyboardWindow *_pVKeyboardWindow;
+	CComPtr<ITfContextView> _pContextView;
+	CComPtr<CVKeyboardWindow> _pVKeyboardWindow;
 };
 
 CVKeyboardWindow::CVKeyboardWindow(): _bHide(FALSE)
@@ -119,10 +115,15 @@ CVKeyboardWindow::CVKeyboardWindow(): _bHide(FALSE)
 
 	_cRef = 1;
 
-	_hwnd = nullptr;
-	_hwndParent = nullptr;
-	_pTextService = nullptr;
 	_pContext = nullptr;
+	_dwCookieTextLayoutSink= TF_INVALID_COOKIE;
+	_pTextService = nullptr;
+	_hwndParent = nullptr;
+	_hwnd = nullptr;
+
+	HDC hdc = GetDC(nullptr);
+	_dpi = GetDeviceCaps(hdc, LOGPIXELSY);
+	ReleaseDC(nullptr, hdc);
 }
 
 CVKeyboardWindow::~CVKeyboardWindow()
@@ -143,7 +144,7 @@ STDAPI CVKeyboardWindow::QueryInterface(REFIID riid, void **ppvObj)
 
 	if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfTextLayoutSink))
 	{
-		*ppvObj = (ITfTextLayoutSink *)this;
+		*ppvObj = static_cast<ITfTextLayoutSink *>(this);
 	}
 
 	if(*ppvObj)
@@ -188,10 +189,10 @@ STDAPI CVKeyboardWindow::OnLayoutChange(ITfContext *pContext, TfLayoutCode lcode
 	case TF_LC_CHANGE:
 		try
 		{
-			CVKeyboardWindowGetTextExtEditSession *pEditSession =
-				new CVKeyboardWindowGetTextExtEditSession(_pTextService, pContext, pContextView, this);
+			CComPtr<ITfEditSession> pEditSession;
+			pEditSession.Attach(
+				new CVKeyboardWindowGetTextExtEditSession(_pTextService, pContext, pContextView, this));
 			pContext->RequestEditSession(_pTextService->_GetClientId(), pEditSession, TF_ES_SYNC | TF_ES_READ, &hr);
-			SafeRelease(&pEditSession);
 		}
 		catch(...)
 		{
@@ -213,11 +214,10 @@ HRESULT CVKeyboardWindow::_AdviseTextLayoutSink()
 {
 	HRESULT hr = E_FAIL;
 
-	ITfSource *pSource = nullptr;
-	if(SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
+	CComPtr<ITfSource> pSource;
+	if (SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 	{
-		hr = pSource->AdviseSink(IID_IUNK_ARGS((ITfTextLayoutSink *)this), &_dwCookieTextLayoutSink);
-		SafeRelease(&pSource);
+		hr = pSource->AdviseSink(IID_IUNK_ARGS(static_cast<ITfTextLayoutSink *>(this)), &_dwCookieTextLayoutSink);
 	}
 
 	return hr;
@@ -229,11 +229,10 @@ HRESULT CVKeyboardWindow::_UnadviseTextLayoutSink()
 
 	if(_pContext != nullptr)
 	{
-		ITfSource *pSource = nullptr;
-		if(SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
+		CComPtr<ITfSource> pSource;
+		if (SUCCEEDED(_pContext->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 		{
 			hr = pSource->UnadviseSink(_dwCookieTextLayoutSink);
-			SafeRelease(&pSource);
 		}
 	}
 
@@ -247,7 +246,6 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	if(pContext != nullptr)
 	{
 		_pContext = pContext;
-		_pContext->AddRef();
 		if(FAILED(_AdviseTextLayoutSink()))
 		{
 			return FALSE;
@@ -260,7 +258,6 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	}
 
 	_pTextService = pTextService;
-	_pTextService->AddRef();
 	_vkb = _pTextService->_MakeVkbTable();
 
 	if(bCandidateWindow)
@@ -269,14 +266,13 @@ BOOL CVKeyboardWindow::_Create(CTextService *pTextService, ITfContext *pContext,
 	}
 	else
 	{
-		ITfContextView *pContextView = nullptr;
+		CComPtr<ITfContextView> pContextView;
 		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
 			if(FAILED(pContextView->GetWnd(&_hwndParent)) || _hwndParent == nullptr)
 			{
 				_hwndParent = GetFocus();
 			}
-			SafeRelease(&pContextView);
 		}
 	}
 
@@ -389,9 +385,9 @@ void CVKeyboardWindow::_Destroy()
 	_UninitFont();
 
 	_UnadviseTextLayoutSink();
-	SafeRelease(&_pContext);
+	_pContext.Release();
 
-	SafeRelease(&_pTextService);
+	_pTextService.Release();
 }
 
 void CVKeyboardWindow::_Move(int x, int y)
@@ -572,12 +568,11 @@ public:
 		CVKeyboardWindow *pVKeyboardWindow) : CEditSessionBase(pTextService, pContext)
 	{
 		_pVKeyboardWindow = pVKeyboardWindow;
-		_pVKeyboardWindow->AddRef();
 	}
 
 	~CVKeyboardWindowEditSession()
 	{
-		SafeRelease(&_pVKeyboardWindow);
+		_pVKeyboardWindow.Release();
 	}
 
 	// ITfEditSession
@@ -585,28 +580,26 @@ public:
 	{
 		HRESULT hr;
 
-		ITfContextView *pContextView = nullptr;
+		CComPtr<ITfContextView> pContextView;
 		if(SUCCEEDED(_pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
 			try
 			{
-				CVKeyboardWindowGetTextExtEditSession *pEditSession =
-					new CVKeyboardWindowGetTextExtEditSession(_pTextService, _pContext, pContextView, _pVKeyboardWindow);
+				CComPtr<ITfEditSession> pEditSession;
+				pEditSession.Attach(
+					new CVKeyboardWindowGetTextExtEditSession(_pTextService, _pContext, pContextView, _pVKeyboardWindow));
 				_pContext->RequestEditSession(_pTextService->_GetClientId(), pEditSession, TF_ES_SYNC | TF_ES_READ, &hr);
-				SafeRelease(&pEditSession);
 			}
 			catch(...)
 			{
 			}
-
-			SafeRelease(&pContextView);
 		}
 
 		return S_OK;
 	}
 
 private:
-	CVKeyboardWindow *_pVKeyboardWindow;
+	CComPtr<CVKeyboardWindow> _pVKeyboardWindow;
 };
 
 void CTextService::_StartVKeyboardWindow()
@@ -623,25 +616,26 @@ void CTextService::_StartVKeyboardWindow()
 		return;
 	}
 
-	ITfDocumentMgr *pDocumentMgr = nullptr;
+	CComPtr<ITfDocumentMgr> pDocumentMgr;
 	if(SUCCEEDED(_pThreadMgr->GetFocus(&pDocumentMgr)) && (pDocumentMgr != nullptr))
 	{
-		ITfContext *pContext = nullptr;
+		CComPtr<ITfContext> pContext;
 		if(SUCCEEDED(pDocumentMgr->GetTop(&pContext)) && (pContext != nullptr))
 		{
 			try
 			{
-				_pVKeyboardWindow = new CVKeyboardWindow();
+				_pVKeyboardWindow.Attach(new CVKeyboardWindow());
 
 				if(_pVKeyboardWindow->_Create(this, pContext, FALSE, nullptr))
 				{
 					HRESULT hr = E_FAIL;
 					HRESULT hrSession = E_FAIL;
 
-					CVKeyboardWindowEditSession *pEditSession = new CVKeyboardWindowEditSession(this, pContext, _pVKeyboardWindow);
+					CComPtr<ITfEditSession> pEditSession;
+					pEditSession.Attach(
+						new CVKeyboardWindowEditSession(this, pContext, _pVKeyboardWindow));
 					// Asynchronous, read-only
 					hr = pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNC | TF_ES_READ, &hrSession);
-					SafeRelease(&pEditSession);
 
 					// It is possible that asynchronous requests are treated as synchronous requests.
 					if(FAILED(hr) || (hrSession != TF_S_ASYNC && FAILED(hrSession)))
@@ -654,11 +648,7 @@ void CTextService::_StartVKeyboardWindow()
 			{
 				_EndVKeyboardWindow();
 			}
-
-			SafeRelease(&pContext);
 		}
-
-		SafeRelease(&pDocumentMgr);
 	}
 }
 
@@ -676,7 +666,7 @@ void CTextService::_EndVKeyboardWindow()
 	{
 		_pVKeyboardWindow->_Destroy();
 	}
-	SafeRelease(&_pVKeyboardWindow);
+	_pVKeyboardWindow.Release();
 }
 
 void CTextService::_RedrawVKeyboardWindow()

@@ -6,14 +6,14 @@ void CTextService::_ConnectDic()
 {
 	DWORD dwMode;
 
-	if(WaitNamedPipeW(mgrpipename, NMPWAIT_USE_DEFAULT_WAIT) == 0)
+	if (WaitNamedPipeW(mgrpipename, NMPWAIT_USE_DEFAULT_WAIT) == 0)
 	{
 		return;
 	}
 
 	hPipe = CreateFileW(mgrpipename, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
 		nullptr, OPEN_EXISTING, SECURITY_SQOS_PRESENT | SECURITY_EFFECTIVE_ONLY | SECURITY_IDENTIFICATION, nullptr);
-	if(hPipe == INVALID_HANDLE_VALUE)
+	if (hPipe == INVALID_HANDLE_VALUE)
 	{
 		return;
 	}
@@ -24,7 +24,7 @@ void CTextService::_ConnectDic()
 
 void CTextService::_DisconnectDic()
 {
-	if(hPipe != INVALID_HANDLE_VALUE)
+	if (hPipe != INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(hPipe);
 		hPipe = INVALID_HANDLE_VALUE;
@@ -44,10 +44,10 @@ void CTextService::_SearchDic(WCHAR command)
 
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 
-	if(okuriidx != 0)
+	if (okuriidx != 0)
 	{
 		okurikey = kana.substr(okuriidx + 1);
-		if(okurikey.size() >= 2 &&
+		if (okurikey.size() >= 2 &&
 			IS_SURROGATE_PAIR(okurikey.c_str()[0], okurikey.c_str()[1]))
 		{
 			okurikey = okurikey.substr(0, 2);
@@ -62,7 +62,7 @@ void CTextService::_SearchDic(WCHAR command)
 		command, searchkey.c_str(), searchkeyorg.c_str(), okurikey.c_str());
 
 	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
-	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
+	if (WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
@@ -70,12 +70,12 @@ void CTextService::_SearchDic(WCHAR command)
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 
 	bytesRead = 0;
-	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
+	if (ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;
 	}
 
-	if(pipebuf[0] != REP_OK)
+	if (pipebuf[0] != REP_OK)
 	{
 		goto exit;
 	}
@@ -83,7 +83,7 @@ void CTextService::_SearchDic(WCHAR command)
 	s.assign(pipebuf);
 	r.assign(L"(.*)\t(.*)\t(.*)\t(.*)\n");
 
-	while(std::regex_search(s, m, r))
+	while (std::regex_search(s, m, r))
 	{
 		se = m.str();
 		s = m.suffix().str();
@@ -97,11 +97,11 @@ void CTextService::_SearchDic(WCHAR command)
 		fmt.assign(L"$4");
 		sar = std::regex_replace(se, r, fmt);
 
-		if(scd.empty())
+		if (scd.empty())
 		{
 			scd = scr;
 		}
-		if(sad.empty())
+		if (sad.empty())
 		{
 			sad = sar;
 		}
@@ -163,7 +163,7 @@ void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const st
 		command, key.c_str(), candidate.c_str(), okuri.c_str());
 
 	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
-	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
+	if (WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
@@ -171,12 +171,12 @@ void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const st
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 
 	bytesRead = 0;
-	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
+	if (ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;
 	}
 
-	if(pipebuf[0] != REP_OK)
+	if (pipebuf[0] != REP_OK)
 	{
 		conv.clear();
 		goto exit;
@@ -200,10 +200,10 @@ void CTextService::_AddUserDic(WCHAR command, const std::wstring &key, const std
 
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 
-	if(okuriidx != 0)
+	if (okuriidx != 0)
 	{
 		okurikey = kana.substr(okuriidx + 1);
-		if(okurikey.size() >= 2 &&
+		if (okurikey.size() >= 2 &&
 			IS_SURROGATE_PAIR(okurikey.c_str()[0], okurikey.c_str()[1]))
 		{
 			okurikey = okurikey.substr(0, 2);
@@ -218,7 +218,7 @@ void CTextService::_AddUserDic(WCHAR command, const std::wstring &key, const std
 		command, key.c_str(), candidate.c_str(), annotation.c_str(), okurikey.c_str());
 
 	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
-	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
+	if (WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
@@ -226,7 +226,7 @@ void CTextService::_AddUserDic(WCHAR command, const std::wstring &key, const std
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 
 	bytesRead = 0;
-	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
+	if (ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;
 	}
@@ -249,7 +249,7 @@ void CTextService::_DelUserDic(WCHAR command, const std::wstring &key, const std
 		command, key.c_str(), candidate.c_str());
 
 	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
-	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
+	if (WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
@@ -257,7 +257,7 @@ void CTextService::_DelUserDic(WCHAR command, const std::wstring &key, const std
 	ZeroMemory(pipebuf, sizeof(pipebuf));
 
 	bytesRead = 0;
-	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
+	if (ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;
 	}
@@ -284,13 +284,13 @@ void CTextService::_CommandDic(WCHAR command)
 	pipebuf[2] = L'\0';
 
 	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
-	if(WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
+	if (WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
 	{
 		goto exit;
 	}
 
 	bytesRead = 0;
-	if(ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
+	if (ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
 	{
 		goto exit;
 	}
@@ -304,7 +304,7 @@ exit:
 void CTextService::_StartManager()
 {
 	HANDLE hMutex = OpenMutexW(SYNCHRONIZE, FALSE, mgrmutexname);
-	if(hMutex != nullptr)
+	if (hMutex != nullptr)
 	{
 		CloseHandle(hMutex);
 		return;
@@ -316,7 +316,7 @@ void CTextService::_StartManager()
 void CTextService::_StartConfigure()
 {
 	HANDLE hMutex = OpenMutexW(SYNCHRONIZE, FALSE, cnfmutexname);
-	if(hMutex != nullptr)
+	if (hMutex != nullptr)
 	{
 		CloseHandle(hMutex);
 		return;

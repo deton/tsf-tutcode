@@ -29,7 +29,7 @@ public:
 
 		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfCandidateString))
 		{
-			*ppvObj = (ITfCandidateString *)this;
+			*ppvObj = static_cast<ITfCandidateString *>(this);
 		}
 
 		if(*ppvObj)
@@ -60,7 +60,7 @@ public:
 	// ITfCandidateString
 	STDMETHODIMP GetString(BSTR *pbstr)
 	{
-		BSTR bstr;
+		BSTR bstr = nullptr;
 
 		if(pbstr == nullptr)
 		{

@@ -31,7 +31,7 @@ public:
 
 		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IEnumTfCandidates))
 		{
-			*ppvObj = (IEnumTfCandidates *)this;
+			*ppvObj = static_cast<IEnumTfCandidates *>(this);
 		}
 
 		if(*ppvObj)
@@ -62,7 +62,7 @@ public:
 	// IEnumTfCandidates
 	STDMETHODIMP Clone(IEnumTfCandidates **ppEnum)
 	{
-		CFnEnumCandidates *pClone;
+		CFnEnumCandidates *pClone = nullptr;
 
 		if(ppEnum == nullptr)
 		{
@@ -90,7 +90,7 @@ public:
 	STDMETHODIMP Next(ULONG ulCount, ITfCandidateString **ppCand, ULONG *pcFetched)
 	{
 		ULONG cFetched = 0;
-		ITfCandidateString *pCandidateString;
+		ITfCandidateString *pCandidateString = nullptr;
 
 		if(ppCand == nullptr)
 		{

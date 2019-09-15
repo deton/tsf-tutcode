@@ -111,18 +111,18 @@ private:
 	std::vector< std::wstring > _CandStr;
 	UINT _uPageCandNum;
 
-	CTextService *_pTextService;
-	CCandidateList *_pCandidateList;
-	CCandidateWindow *_pCandidateWindow;		//子
-	CCandidateWindow *_pCandidateWindowParent;	//親
+	CComPtr<CTextService> _pTextService;
+	CComPtr<CCandidateList> _pCandidateList;
+	CComPtr<CCandidateWindow> _pCandidateWindow;		//子
+	CComPtr<CCandidateWindow> _pCandidateWindowParent;	//親
 	//cx_untilcandlist==1で、後置型交ぜ書き変換で読みを縮め/伸ばした場合に、
 	//表示中の候補ウィンドウが残ったままになるのを回避するため。
 	//_PreEnd()呼出後_End()呼出前に_CreateNext()で新たな子作成時、
 	//古い子を取っておいて、_End()では古い子を対象にする。
 	//(_PreEndReq()→_HandleKey()→_CreateNext()→_Create()→_EndReq())
-	CCandidateWindow *_pCandidateWindowOld;
-	CInputModeWindow *_pInputModeWindow;
-	CVKeyboardWindow *_pVKeyboardWindow;
+	CComPtr<CCandidateWindow> _pCandidateWindowOld;
+	CComPtr<CInputModeWindow> _pInputModeWindow;
+	CComPtr<CVKeyboardWindow> _pVKeyboardWindow;
 	HWND _hwnd;			//自分
 	HWND _hwndParent;	//親
 	BOOL _preEnd;		//親に対する終了要求
@@ -136,12 +136,12 @@ private:
 	int _dpi;
 
 	//Direct2D/DirectWrite
-	ID2D1Factory *_pD2DFactory;
-	ID2D1DCRenderTarget *_pD2DDCRT;
-	ID2D1SolidColorBrush *_pD2DBrush[DISPLAY_LIST_COLOR_NUM];
+	CComPtr<ID2D1Factory> _pD2DFactory;
+	CComPtr<ID2D1DCRenderTarget> _pD2DDCRT;
+	CComPtr<ID2D1SolidColorBrush> _pD2DBrush[DISPLAY_LIST_COLOR_NUM];
 	D2D1_DRAW_TEXT_OPTIONS _drawtext_option;
-	IDWriteFactory *_pDWFactory;
-	IDWriteTextFormat *_pDWTF;
+	CComPtr<IDWriteFactory> _pDWFactory;
+	CComPtr<IDWriteTextFormat> _pDWTF;
 
 	int _mode;		//モード
 	BOOL _ulsingle;	//UILess 辞書登録/辞書削除

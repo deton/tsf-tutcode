@@ -42,11 +42,11 @@ private:
 	void _InitFont();
 	void _UninitFont();
 
-	ITfContext *_pContext;
+	CComPtr<ITfContext> _pContext;
 
 	DWORD _dwCookieTextLayoutSink;
 
-	CTextService *_pTextService;
+	CComPtr<CTextService> _pTextService;
 	HWND _hwndParent;
 	HWND _hwnd;
 	HFONT hFont;

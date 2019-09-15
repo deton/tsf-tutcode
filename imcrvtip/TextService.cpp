@@ -1,7 +1,10 @@
 ﻿
 #include "imcrvtip.h"
 #include "TextService.h"
+#include "LanguageBar.h"
 #include "CandidateList.h"
+#include "InputModeWindow.h"
+#include "VKeyboardWindow.h"
 
 CTextService::CTextService():
 	cx_vkbdlayout(L"12345│67890\n"
@@ -37,7 +40,7 @@ CTextService::CTextService():
 
 	_pD2DFactory = nullptr;
 	_pD2DDCRT = nullptr;
-	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
+	for (int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 	{
 		_pD2DBrush[i] = nullptr;
 	}
@@ -66,71 +69,71 @@ CTextService::~CTextService()
 
 STDAPI CTextService::QueryInterface(REFIID riid, void **ppvObj)
 {
-	if(ppvObj == nullptr)
+	if (ppvObj == nullptr)
 	{
 		return E_INVALIDARG;
 	}
 
 	*ppvObj = nullptr;
 
-	if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfTextInputProcessor))
+	if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfTextInputProcessor))
 	{
-		*ppvObj = (ITfTextInputProcessor *)this;
+		*ppvObj = static_cast<ITfTextInputProcessor *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfTextInputProcessorEx))
+	else if (IsEqualIID(riid, IID_ITfTextInputProcessorEx))
 	{
-		*ppvObj = (ITfTextInputProcessorEx *)this;
+		*ppvObj = static_cast<ITfTextInputProcessorEx *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfThreadMgrEventSink))
+	else if (IsEqualIID(riid, IID_ITfThreadMgrEventSink))
 	{
-		*ppvObj = (ITfThreadMgrEventSink *)this;
+		*ppvObj = static_cast<ITfThreadMgrEventSink *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfThreadFocusSink))
+	else if (IsEqualIID(riid, IID_ITfThreadFocusSink))
 	{
-		*ppvObj = (ITfThreadFocusSink *)this;
+		*ppvObj = static_cast<ITfThreadFocusSink *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfCompartmentEventSink))
+	else if (IsEqualIID(riid, IID_ITfCompartmentEventSink))
 	{
-		*ppvObj = (ITfCompartmentEventSink *)this;
+		*ppvObj = static_cast<ITfCompartmentEventSink *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfTextEditSink))
+	else if (IsEqualIID(riid, IID_ITfTextEditSink))
 	{
-		*ppvObj = (ITfTextEditSink *)this;
+		*ppvObj = static_cast<ITfTextEditSink *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfKeyEventSink))
+	else if (IsEqualIID(riid, IID_ITfKeyEventSink))
 	{
-		*ppvObj = (ITfKeyEventSink *)this;
+		*ppvObj = static_cast<ITfKeyEventSink *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfCompositionSink))
+	else if (IsEqualIID(riid, IID_ITfCompositionSink))
 	{
-		*ppvObj = (ITfKeyEventSink *)this;
+		*ppvObj = static_cast<ITfKeyEventSink *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfDisplayAttributeProvider))
+	else if (IsEqualIID(riid, IID_ITfDisplayAttributeProvider))
 	{
-		*ppvObj = (ITfDisplayAttributeProvider *)this;
+		*ppvObj = static_cast<ITfDisplayAttributeProvider *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfFunctionProvider))
+	else if (IsEqualIID(riid, IID_ITfFunctionProvider))
 	{
-		*ppvObj = (ITfFunctionProvider *)this;
+		*ppvObj = static_cast<ITfFunctionProvider *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfFnConfigure))
+	else if (IsEqualIID(riid, IID_ITfFnConfigure))
 	{
-		*ppvObj = (ITfFnConfigure *)this;
+		*ppvObj = static_cast<ITfFnConfigure *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfFnShowHelp))
+	else if (IsEqualIID(riid, IID_ITfFnShowHelp))
 	{
-		*ppvObj = (ITfFnShowHelp *)this;
+		*ppvObj = static_cast<ITfFnShowHelp *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfFnReconversion))
+	else if (IsEqualIID(riid, IID_ITfFnReconversion))
 	{
-		*ppvObj = (ITfFnReconversion *)this;
+		*ppvObj = static_cast<ITfFnReconversion *>(this);
 	}
-	else if(IsEqualIID(riid, IID_ITfFnGetPreferredTouchKeyboardLayout))
+	else if (IsEqualIID(riid, IID_ITfFnGetPreferredTouchKeyboardLayout))
 	{
-		*ppvObj = (ITfFnGetPreferredTouchKeyboardLayout *)this;
+		*ppvObj = static_cast<ITfFnGetPreferredTouchKeyboardLayout *>(this);
 	}
 
-	if(*ppvObj)
+	if (*ppvObj)
 	{
 		AddRef();
 		return S_OK;
@@ -146,7 +149,7 @@ STDAPI_(ULONG) CTextService::AddRef()
 
 STDAPI_(ULONG) CTextService::Release()
 {
-	if(--_cRef == 0)
+	if (--_cRef == 0)
 	{
 		delete this;
 		return 0;
@@ -163,7 +166,6 @@ STDAPI CTextService::Activate(ITfThreadMgr *ptim, TfClientId tid)
 STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlags)
 {
 	_pThreadMgr = ptim;
-	_pThreadMgr->AddRef();
 	_ClientId = tid;
 
 	if (!_IsKeyboardOpen())
@@ -171,46 +173,45 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 		_KeyboardSetDefaultMode();
 	}
 
-	if(!_InitThreadMgrEventSink())
+	if (!_InitThreadMgrEventSink())
 	{
 		goto exit;
 	}
 
-	if(!_InitThreadFocusSink())
+	if (!_InitThreadFocusSink())
 	{
 		goto exit;
 	}
 
-	if(!_InitCompartmentEventSink())
+	if (!_InitCompartmentEventSink())
 	{
 		goto exit;
 	}
 
 	{
-		ITfDocumentMgr* pDocumentMgr = nullptr;
+		CComPtr<ITfDocumentMgr> pDocumentMgr;
 		if (SUCCEEDED(_pThreadMgr->GetFocus(&pDocumentMgr)) && (pDocumentMgr != nullptr))
 		{
 			_InitTextEditSink(pDocumentMgr);
-			SafeRelease(&pDocumentMgr);
 		}
 	}
 
-	if(!_InitLanguageBar())
+	if (!_InitLanguageBar())
 	{
 		goto exit;
 	}
 
-	if(!_InitKeyEventSink())
+	if (!_InitKeyEventSink())
 	{
 		goto exit;
 	}
 
-	if(!_InitDisplayAttributeGuidAtom())
+	if (!_InitDisplayAttributeGuidAtom())
 	{
 		goto exit;
 	}
 
-	if(!_InitFunctionProvider())
+	if (!_InitFunctionProvider())
 	{
 		goto exit;
 	}
@@ -226,7 +227,7 @@ exit:
 
 STDAPI CTextService::Deactivate()
 {
-	if(_pThreadMgr == nullptr)
+	if (_pThreadMgr == nullptr)
 	{
 		return S_OK;
 	}
@@ -257,8 +258,7 @@ STDAPI CTextService::Deactivate()
 
 	_UninitD2D();
 
-	SafeRelease(&_pThreadMgr);
-
+	_pThreadMgr.Release();
 	_ClientId = TF_CLIENTID_NULL;
 
 	return S_OK;
