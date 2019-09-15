@@ -15,65 +15,61 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 	_depth = depth;
 	_dwUIElementId = dwUIElementId;
 
-	if(_hwndParent != nullptr)
+	if (_hwndParent != nullptr)
 	{
 		_hwnd = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOACTIVATE,
 			CandidateWindowClass, L"", WS_POPUP,
 			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 			_hwndParent, nullptr, g_hInst, this);
 
-		if(_hwnd == nullptr)
+		if (_hwnd == nullptr)
 		{
 			return FALSE;
 		}
 
-		if(_pTextService->cx_drawapi == DRAW_API_D2D && _pTextService->_pD2DFactory != nullptr)
+		if (_pTextService->cx_drawapi == DRAW_API_D2D && _pTextService->_pD2DFactory != nullptr)
 		{
 			_drawtext_option = _pTextService->_drawtext_option;
 			_pD2DFactory = _pTextService->_pD2DFactory;
-			_pD2DFactory->AddRef();
 			_pD2DDCRT = _pTextService->_pD2DDCRT;
-			_pD2DDCRT->AddRef();
-			for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
+			for (int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 			{
 				_pD2DBrush[i] = _pTextService->_pD2DBrush[i];
-				_pD2DBrush[i]->AddRef();
 			}
 			_pDWFactory = _pTextService->_pDWFactory;
-			_pDWFactory->AddRef();
 		}
 
 		_InitFont();
 	}
 
-	if(_hwnd != nullptr && _pTextService->cx_showvkbd)
+	if (_hwnd != nullptr && _pTextService->cx_showvkbd)
 	{
 		try
 		{
 			_pTextService->_HideVKeyboardWindow();
 			_pVKeyboardWindow = new CVKeyboardWindow();
-			if(!_pVKeyboardWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
+			if (!_pVKeyboardWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
 			{
 				_pVKeyboardWindow->_Destroy();
-				SafeRelease(&_pVKeyboardWindow);
+				_pVKeyboardWindow.Release();
 			}
 		}
 		catch(...)
 		{
 		}
 	}
-	if(_hwnd != nullptr && _pTextService->_ShowInputMode)
+	if (_hwnd != nullptr && _pTextService->_ShowInputMode)
 	{
 		try
 		{
-			_pInputModeWindow = new CInputModeWindow();
-			if(!_pInputModeWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
+			_pInputModeWindow.Attach(new CInputModeWindow());
+			if (!_pInputModeWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
 			{
 				_pInputModeWindow->_Destroy();
-				SafeRelease(&_pInputModeWindow);
+				_pInputModeWindow.Release();
 			}
 		}
-		catch(...)
+		catch (...)
 		{
 		}
 	}
@@ -86,15 +82,15 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 	searchkey = _pTextService->searchkey;
 	searchkeyorg = _pTextService->searchkeyorg;
 
-	if((mode == wm_register) || (mode == wm_delete))
+	if ((mode == wm_register) || (mode == wm_delete))
 	{
-		if(_hwnd == nullptr)
+		if (_hwnd == nullptr)
 		{
 			_ulsingle = TRUE;
 		}
 	}
 
-	if(mode == wm_register)
+	if (mode == wm_register)
 	{
 		//辞書登録開始
 		_regmode = TRUE;
@@ -141,7 +137,7 @@ LRESULT CALLBACK CCandidateWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM w
 {
 	CCandidateWindow *pCandidateWindow = nullptr;
 
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_NCCREATE:
 		pCandidateWindow = (CCandidateWindow *)((LPCREATESTRUCTW)lParam)->lpCreateParams;
@@ -152,7 +148,7 @@ LRESULT CALLBACK CCandidateWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM w
 		break;
 	}
 
-	if(pCandidateWindow != nullptr)
+	if (pCandidateWindow != nullptr)
 	{
 		return pCandidateWindow->_WindowProc(hWnd, uMsg, wParam, lParam);
 	}
@@ -162,7 +158,7 @@ LRESULT CALLBACK CCandidateWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM w
 
 LRESULT CALLBACK CCandidateWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_PAINT:
 		_WindowProcPaint(hWnd, uMsg, wParam, lParam);
@@ -183,52 +179,61 @@ LRESULT CALLBACK CCandidateWindow::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
 
 void CCandidateWindow::_Destroy()
 {
-	if(_hwnd != nullptr)
+	if (_pCandidateWindow != nullptr)
+	{
+		_pCandidateWindow->_EndUIElement();
+		_pCandidateWindow->_Destroy();
+	}
+	_pCandidateWindow.Release();
+
+	if (_pInputModeWindow != nullptr)
+	{
+		_pInputModeWindow->_Destroy();
+	}
+	_pInputModeWindow.Release();
+	if (_pVKeyboardWindow != nullptr)
+	{
+		_pVKeyboardWindow->_Destroy();
+	}
+	_pVKeyboardWindow.Release();
+
+	_pCandidateWindowParent.Release();
+
+	if (_hwnd != nullptr)
 	{
 		DestroyWindow(_hwnd);
 		_hwnd = nullptr;
 	}
 
-	if(_pInputModeWindow != nullptr)
-	{
-		_pInputModeWindow->_Destroy();
-	}
-	SafeRelease(&_pInputModeWindow);
-	if(_pVKeyboardWindow != nullptr)
-	{
-		_pVKeyboardWindow->_Destroy();
-	}
-	SafeRelease(&_pVKeyboardWindow);
-
 	_UninitFont();
 
-	SafeRelease(&_pDWFactory);
-	for(int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
+	_pDWFactory.Release();
+	for (int i = 0; i < DISPLAY_LIST_COLOR_NUM; i++)
 	{
-		SafeRelease(&_pD2DBrush[i]);
+		_pD2DBrush[i].Release();
 	}
-	SafeRelease(&_pD2DDCRT);
-	SafeRelease(&_pD2DFactory);
+	_pD2DDCRT.Release();
+	_pD2DFactory.Release();
 }
 
 void CCandidateWindow::_Move(LPCRECT lpr, TfEditCookie ec, ITfContext *pContext)
 {
-	if(_hwnd != nullptr && lpr != nullptr)
+	if (_hwnd != nullptr && lpr != nullptr)
 	{
 		_rect = *lpr;
 
 		//ignore abnormal position (from CUAS ?)
-		if((_rect.top == _rect.bottom) && ((_rect.right - _rect.left) == 1))
+		if ((_rect.top == _rect.bottom) && ((_rect.right - _rect.left) == 1))
 		{
 			return;
 		}
 
-		if(ec != TF_INVALID_EDIT_COOKIE && pContext != nullptr)
+		if (ec != TF_INVALID_EDIT_COOKIE && pContext != nullptr)
 		{
 			_vertical = _pTextService->_GetVertical(ec, pContext);
 		}
 
-		if(_vertical)
+		if (_vertical)
 		{
 			LONG w = _rect.right - _rect.left;
 			_rect.right += w;
@@ -238,7 +243,7 @@ void CCandidateWindow::_Move(LPCRECT lpr, TfEditCookie ec, ITfContext *pContext)
 
 		_CalcWindowRect();
 
-		if(_pCandidateWindow != nullptr)
+		if (_pCandidateWindow != nullptr)
 		{
 #ifdef _DEBUG
 			RECT r = {};
@@ -259,28 +264,27 @@ void CCandidateWindow::_BeginUIElement()
 {
 	BOOL bShow = TRUE;
 
-	if((_mode == wm_candidate) || (_mode == wm_complement))
+	if ((_mode == wm_candidate) || (_mode == wm_complement))
 	{
 		_InitList();
 	}
 
 	_Update();
 
-	if((_hwnd == nullptr) && (_depth == 0))
+	if ((_hwnd == nullptr) && (_depth == 0))
 	{
-		ITfUIElementMgr *pUIElementMgr = nullptr;
-		if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
+		CComPtr<ITfUIElementMgr> pUIElementMgr;
+		if (SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 		{
 			pUIElementMgr->BeginUIElement(this, &bShow, &_dwUIElementId);
-			if(!bShow)
+			if (!bShow)
 			{
 				pUIElementMgr->UpdateUIElement(_dwUIElementId);
 			}
-			SafeRelease(&pUIElementMgr);
 		}
 	}
 
-	if(_hwnd == nullptr)
+	if (_hwnd == nullptr)
 	{
 		_bShow = FALSE;
 	}
@@ -289,26 +293,26 @@ void CCandidateWindow::_BeginUIElement()
 		_bShow = bShow;
 	}
 
-	if(_bShow)
+	if (_bShow)
 	{
-		if(_hwnd != nullptr)
+		if (_hwnd != nullptr)
 		{
 			SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 
-			if(_mode == wm_register)
+			if (_mode == wm_register)
 			{
-				if(_pVKeyboardWindow != nullptr)
+				if (_pVKeyboardWindow != nullptr)
 				{
 					_pVKeyboardWindow->_Show(TRUE);
 				}
-				if(_pInputModeWindow != nullptr)
+				if (_pInputModeWindow != nullptr)
 				{
 					_pInputModeWindow->_Show(TRUE);
 				}
 			}
 
-			if(_depth == 0)
+			if (_depth == 0)
 			{
 				NotifyWinEvent(EVENT_OBJECT_IME_SHOW, _hwnd, OBJID_CLIENT, CHILDID_SELF);
 			}
@@ -318,31 +322,30 @@ void CCandidateWindow::_BeginUIElement()
 
 void CCandidateWindow::_EndUIElement()
 {
-	if((_hwnd == nullptr) && (_depth == 0))
+	if ((_hwnd == nullptr) && (_depth == 0))
 	{
-		ITfUIElementMgr *pUIElementMgr = nullptr;
-		if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
+		CComPtr<ITfUIElementMgr> pUIElementMgr;
+		if (SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 		{
 			pUIElementMgr->EndUIElement(_dwUIElementId);
-			SafeRelease(&pUIElementMgr);
 		}
 	}
 
-	if(_hwnd != nullptr)
+	if (_hwnd != nullptr)
 	{
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 
-		if(_pVKeyboardWindow != nullptr)
+		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Show(FALSE);
 		}
-		if(_pInputModeWindow != nullptr)
+		if (_pInputModeWindow != nullptr)
 		{
 			_pInputModeWindow->_Show(FALSE);
 		}
 
-		if(_depth == 0)
+		if (_depth == 0)
 		{
 			NotifyWinEvent(EVENT_OBJECT_IME_HIDE, _hwnd, OBJID_CLIENT, CHILDID_SELF);
 		}
@@ -355,12 +358,11 @@ BOOL CCandidateWindow::_CanShowUIElement()
 {
 	BOOL bShow = TRUE;
 
-	ITfUIElementMgr *pUIElementMgr = nullptr;
-	if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
+	CComPtr<ITfUIElementMgr> pUIElementMgr;
+	if (SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 	{
 		pUIElementMgr->BeginUIElement(this, &bShow, &_dwUIElementId);
 		pUIElementMgr->EndUIElement(_dwUIElementId);
-		SafeRelease(&pUIElementMgr);
 	}
 
 	return bShow;
@@ -368,16 +370,16 @@ BOOL CCandidateWindow::_CanShowUIElement()
 
 void CCandidateWindow::_Redraw()
 {
-	if(_hwnd != nullptr)
+	if (_hwnd != nullptr)
 	{
 		InvalidateRect(_hwnd, nullptr, FALSE);
 		UpdateWindow(_hwnd);
 
-		if(_pVKeyboardWindow != nullptr)
+		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Redraw();
 		}
-		if(_pInputModeWindow != nullptr)
+		if (_pInputModeWindow != nullptr)
 		{
 			_pInputModeWindow->_Redraw();
 		}
@@ -388,22 +390,22 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 {
 	//CTextService -> CCandidateList -> CCandidateWindow で入力文字列をもらう
 
-	if(_pCandidateWindow != nullptr && !_preEnd)
+	if (_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_SetText(text, fixed, mode);
 		return;
 	}
 
-	if((mode == wm_candidate) || (mode == wm_register) || (mode == wm_delete))
+	if ((mode == wm_candidate) || (mode == wm_register) || (mode == wm_delete))
 	{
 		_CreateNext(mode);
 	}
 
-	if((mode == wm_candidate) || (mode == wm_register) || (mode == wm_none))
+	if ((mode == wm_candidate) || (mode == wm_register) || (mode == wm_none))
 	{
 		_regfixed = fixed;
 
-		if(fixed)
+		if (fixed)
 		{
 			_regcomp.clear();
 			_regexcpostyomi.clear();
@@ -413,7 +415,7 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 		else
 		{
 			_regcomp = text;
-			if(_regcomp.empty())
+			if (_regcomp.empty())
 			{
 				_regfixed = TRUE;
 			}
@@ -426,7 +428,7 @@ void CCandidateWindow::_SetText(const std::wstring &text, BOOL fixed, int mode)
 //辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
 void CCandidateWindow::_SetTextExcludedPostyomi(const std::wstring &text)
 {
-	if(_pCandidateWindow != nullptr && !_preEnd)
+	if (_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_SetTextExcludedPostyomi(text);
 		return;
@@ -437,7 +439,7 @@ void CCandidateWindow::_SetTextExcludedPostyomi(const std::wstring &text)
 
 void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 {
-	if(_pCandidateWindow != nullptr && !_preEnd)
+	if (_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_GetPrecedingText(text);
 		return;
@@ -447,13 +449,13 @@ void CCandidateWindow::_GetPrecedingText(std::wstring *text)
 
 void CCandidateWindow::_DeletePrecedingText(size_t delete_count)
 {
-	if(_pCandidateWindow != nullptr && !_preEnd)
+	if (_pCandidateWindow != nullptr && !_preEnd)
 	{
 		_pCandidateWindow->_DeletePrecedingText(delete_count);
 		return;
 	}
 
-	if(_regtextpos >= delete_count && _regtext.size() >= delete_count)
+	if (_regtextpos >= delete_count && _regtext.size() >= delete_count)
 	{
 		_regtext.erase(_regtextpos - delete_count, delete_count);
 		_regtextpos -= delete_count;
@@ -474,36 +476,36 @@ void CCandidateWindow::_End()
 {
 	_preEnd = FALSE;
 
-	if(_pCandidateWindowOld != nullptr)
+	if (_pCandidateWindowOld != nullptr)
 	{
 		_pCandidateWindowOld->_Destroy();
-		SafeRelease(&_pCandidateWindowOld);
+		_pCandidateWindowOld.Release();
 		return;
 	}
 
 #ifndef _DEBUG
-	if(_hwnd != nullptr)
+	if (_hwnd != nullptr)
 	{
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
 	}
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(TRUE);
 	}
-	if(_pInputModeWindow != nullptr)
+	if (_pInputModeWindow != nullptr)
 	{
 		_pInputModeWindow->_Show(TRUE);
 	}
 #endif
 
-	if(_pCandidateWindow != nullptr)
+	if (_pCandidateWindow != nullptr)
 	{
 		_pCandidateWindow->_Destroy();
 	}
-	SafeRelease(&_pCandidateWindow);
+	_pCandidateWindow.Release();
 
-	if(_hwnd == nullptr)
+	if (_hwnd == nullptr)
 	{
 		_dwFlags = TF_CLUIE_DOCUMENTMGR | TF_CLUIE_COUNT | TF_CLUIE_SELECTION |
 			TF_CLUIE_STRING | TF_CLUIE_PAGEINDEX | TF_CLUIE_CURRENTPAGE;
@@ -528,20 +530,20 @@ void CCandidateWindow::_InitList()
 {
 	UINT i;
 
-	if(_mode == wm_candidate)
+	if (_mode == wm_candidate)
 	{
 		_uPageCandNum = MAX_SELKEY;
 	}
 	else
 	{
 		_uPageCandNum = _pTextService->cx_compmultinum;
-		if(_uPageCandNum > MAX_SELKEY_C || _uPageCandNum < 1)
+		if (_uPageCandNum > MAX_SELKEY_C || _uPageCandNum < 1)
 		{
 			_uPageCandNum = MAX_SELKEY;
 		}
 	}
 
-	if(_mode == wm_candidate)
+	if (_mode == wm_candidate)
 	{
 		_uShowedCount = _pTextService->cx_untilcandlist - 1;
 	}
@@ -552,9 +554,9 @@ void CCandidateWindow::_InitList()
 	_uCount = (UINT)candidates.size() - _uShowedCount;
 
 	_CandStr.clear();
-	for(i = 0; i < _uCount; i++)
+	for (i = 0; i < _uCount; i++)
 	{
-		if(_mode == wm_candidate)
+		if (_mode == wm_candidate)
 		{
 			_CandStr.push_back(_pTextService->selkey[(i % _uPageCandNum)][0]);
 			_CandStr[i].append(markNo);
@@ -566,10 +568,10 @@ void CCandidateWindow::_InitList()
 
 		_CandStr[i].append(candidates[_uShowedCount + i].first.first);
 
-		if(_pTextService->cx_annotation &&
+		if (_pTextService->cx_annotation &&
 			!candidates[_uShowedCount + i].first.second.empty())
 		{
-			if(_mode == wm_candidate)
+			if (_mode == wm_candidate)
 			{
 				_CandStr[i].append(markAnnotation);
 			}
@@ -585,7 +587,7 @@ void CCandidateWindow::_InitList()
 
 	_PageIndex.clear();
 	_CandCount.clear();
-	for(i = 0; i < _uPageCnt; i++)
+	for (i = 0; i < _uPageCnt; i++)
 	{
 		_PageIndex.push_back(i * _uPageCandNum);
 		_CandCount.push_back((i < (_uPageCnt - 1)) ? _uPageCandNum :
@@ -600,13 +602,12 @@ void CCandidateWindow::_InitList()
 
 void CCandidateWindow::_UpdateUIElement()
 {
-	if(!_bShow)
+	if (!_bShow)
 	{
-		ITfUIElementMgr *pUIElementMgr = nullptr;
-		if(SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
+		CComPtr<ITfUIElementMgr> pUIElementMgr;
+		if (SUCCEEDED(_pTextService->_GetThreadMgr()->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
 		{
 			pUIElementMgr->UpdateUIElement(_dwUIElementId);
-			SafeRelease(&pUIElementMgr);
 		}
 	}
 }
@@ -617,11 +618,11 @@ void CCandidateWindow::_NextPage()
 
 	GetCurrentPage(&uOldPage);
 	uNewPage = uOldPage + 1;
-	if(uNewPage >= _uPageCnt)
+	if (uNewPage >= _uPageCnt)
 	{
-		if(_pCandidateList != nullptr && _pTextService->cx_fixmazecount >= 0)
+		if (_pCandidateList != nullptr && _pTextService->cx_fixmazecount >= 0)
 		{
-			if(_hwnd == nullptr)
+			if (_hwnd == nullptr)
 			{
 				_ulsingle = TRUE;
 			}
@@ -636,11 +637,11 @@ void CCandidateWindow::_NextPage()
 			_BackUpStatus();
 			_ClearStatus();
 
-			if(_pVKeyboardWindow != nullptr)
+			if (_pVKeyboardWindow != nullptr)
 			{
 				_pVKeyboardWindow->_Show(TRUE);
 			}
-			if(_pInputModeWindow != nullptr)
+			if (_pInputModeWindow != nullptr)
 			{
 				_pInputModeWindow->_Show(TRUE);
 			}
@@ -653,7 +654,7 @@ void CCandidateWindow::_NextPage()
 	_uIndex = _PageIndex[uNewPage];
 
 	_dwFlags = TF_CLUIE_SELECTION;
-	if(uNewPage != uOldPage)
+	if (uNewPage != uOldPage)
 	{
 		_dwFlags |= TF_CLUIE_CURRENTPAGE;
 	}
@@ -667,25 +668,25 @@ void CCandidateWindow::_PrevPage()
 	UINT uOldPage, uNewPage;
 
 	GetCurrentPage(&uOldPage);
-	if(uOldPage > 0)
+	if (uOldPage > 0)
 	{
 		uNewPage = uOldPage - 1;
 	}
 	else
 	{
-		if(_pCandidateList != nullptr)
+		if (_pCandidateList != nullptr)
 		{
-			if(!_regmode)
+			if (!_regmode)
 			{
-				if(_pTextService->cx_untilcandlist == 1)
+				if (_pTextService->cx_untilcandlist == 1)
 				{
-					if(_pCandidateWindowParent == nullptr)
+					if (_pCandidateWindowParent == nullptr)
 					{
 						_InvokeSfHandler(SKK_CANCEL);
 					}
 					else
 					{
-						if(_mode == wm_register)
+						if (_mode == wm_register)
 						{
 							_RestoreStatusReg();
 						}
@@ -696,14 +697,14 @@ void CCandidateWindow::_PrevPage()
 				}
 				else
 				{
-					if(_pCandidateWindowParent == nullptr)
+					if (_pCandidateWindowParent == nullptr)
 					{
 						_pTextService->candidx = _pTextService->cx_untilcandlist - 1;
 						_InvokeSfHandler(SKK_PREV_CAND);
 					}
 					else
 					{
-						if(_mode == wm_register)
+						if (_mode == wm_register)
 						{
 							_RestoreStatusReg();
 						}
@@ -716,7 +717,7 @@ void CCandidateWindow::_PrevPage()
 			}
 			else
 			{
-				if(_pTextService->cx_untilcandlist == 1)
+				if (_pTextService->cx_untilcandlist == 1)
 				{
 					_HandleKey(0, SKK_CANCEL);
 				}
@@ -736,7 +737,7 @@ void CCandidateWindow::_PrevPage()
 	_uIndex = _PageIndex[uNewPage];
 
 	_dwFlags = TF_CLUIE_SELECTION;
-	if(uNewPage != uOldPage)
+	if (uNewPage != uOldPage)
 	{
 		_dwFlags |= TF_CLUIE_CURRENTPAGE;
 	}
@@ -751,7 +752,7 @@ void CCandidateWindow::_NextComp()
 
 	GetCurrentPage(&uOldPage);
 
-	if(_uIndex + 1 >= _uCount)
+	if (_uIndex + 1 >= _uCount)
 	{
 		return;
 	}
@@ -764,7 +765,7 @@ void CCandidateWindow::_NextComp()
 	GetCurrentPage(&uNewPage);
 
 	_dwFlags = TF_CLUIE_SELECTION;
-	if(uNewPage != uOldPage)
+	if (uNewPage != uOldPage)
 	{
 		_dwFlags |= TF_CLUIE_CURRENTPAGE;
 	}
@@ -779,9 +780,9 @@ void CCandidateWindow::_PrevComp()
 
 	GetCurrentPage(&uOldPage);
 
-	if(_uIndex == 0)
+	if (_uIndex == 0)
 	{
-		if((_pTextService->cx_stacompmulti && !_pTextService->cx_dyncompmulti) ||
+		if ((_pTextService->cx_stacompmulti && !_pTextService->cx_dyncompmulti) ||
 			//closed at _DynamicComp
 			_pTextService->searchkey.empty())
 		{
@@ -792,7 +793,7 @@ void CCandidateWindow::_PrevComp()
 
 	_InvokeSfHandler(SKK_PREV_COMP);
 
-	if(_uIndex == 0)
+	if (_uIndex == 0)
 	{
 		candidx = (size_t)-1;
 		_InitList();
@@ -807,7 +808,7 @@ void CCandidateWindow::_PrevComp()
 	GetCurrentPage(&uNewPage);
 
 	_dwFlags = TF_CLUIE_SELECTION;
-	if(uNewPage != uOldPage)
+	if (uNewPage != uOldPage)
 	{
 		_dwFlags |= TF_CLUIE_CURRENTPAGE;
 	}
@@ -818,16 +819,16 @@ void CCandidateWindow::_PrevComp()
 
 void CCandidateWindow::_Update()
 {
-	if(_regmode)
+	if (_regmode)
 	{
 		disptext = _MakeRegWordString();
 	}
-	else if(_mode == wm_delete)
+	else if (_mode == wm_delete)
 	{
 		disptext = _MakeDelWordString();
 	}
 
-	if(_ulsingle)
+	if (_ulsingle)
 	{
 		_dwFlags = TF_CLUIE_COUNT | TF_CLUIE_SELECTION | TF_CLUIE_STRING |
 			TF_CLUIE_PAGEINDEX | TF_CLUIE_CURRENTPAGE;
@@ -835,7 +836,7 @@ void CCandidateWindow::_Update()
 	}
 	else
 	{
-		if(_hwnd != nullptr)
+		if (_hwnd != nullptr)
 		{
 			_CalcWindowRect();
 
@@ -913,7 +914,7 @@ void CCandidateWindow::_ClearStatusReg()
 
 void CCandidateWindow::_PreEndReq()
 {
-	if(_pCandidateWindowParent != nullptr && !_preEnd)
+	if (_pCandidateWindowParent != nullptr && !_preEnd)
 	{
 		_pCandidateWindowParent->_PreEnd();
 	}
@@ -921,7 +922,7 @@ void CCandidateWindow::_PreEndReq()
 
 void CCandidateWindow::_EndReq()
 {
-	if(_pCandidateWindowParent != nullptr && !_preEnd)
+	if (_pCandidateWindowParent != nullptr && !_preEnd)
 	{
 		_pCandidateWindowParent->_End();
 	}
@@ -929,13 +930,13 @@ void CCandidateWindow::_EndReq()
 
 void CCandidateWindow::_CreateNext(int mode)
 {
-	if(_pCandidateWindow != nullptr)
+	if (_pCandidateWindow != nullptr)
 	{
 		_pCandidateWindowOld = _pCandidateWindow;
 	}
 	try
 	{
-		_pCandidateWindow = new CCandidateWindow(_pTextService, _pCandidateList);
+		_pCandidateWindow.Attach(new CCandidateWindow(_pTextService, _pCandidateList));
 		_pCandidateWindow->_Create(_hwndParent, this, _dwUIElementId, _depth + 1, mode);
 
 #ifdef _DEBUG
@@ -952,23 +953,23 @@ void CCandidateWindow::_CreateNext(int mode)
 		_pCandidateWindow->_BeginUIElement();
 
 #ifndef _DEBUG
-		if(_hwnd != nullptr)
+		if (_hwnd != nullptr)
 		{
 			SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 		}
 
-		if(_pVKeyboardWindow != nullptr)
+		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Show(FALSE);
 		}
-		if(_pInputModeWindow != nullptr)
+		if (_pInputModeWindow != nullptr)
 		{
 			_pInputModeWindow->_Show(FALSE);
 		}
 #endif
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }

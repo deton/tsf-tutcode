@@ -9,12 +9,12 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 {
 	std::wstring strxmlval;
 
-	switch(message)
+	switch (message)
 	{
 	case WM_INITDIALOG:
 		LoadCheckButton(hDlg, IDC_CHECKBOX_DEFAULTMODE, SectionBehavior, ValueDefaultMode);
 		LoadCheckButton(hDlg, IDC_RADIO_DEFMODEASCII, SectionBehavior, ValueDefModeAscii);
-		if(!IsDlgButtonChecked(hDlg, IDC_RADIO_DEFMODEASCII))
+		if (!IsDlgButtonChecked(hDlg, IDC_RADIO_DEFMODEASCII))
 		{
 			CheckDlgButton(hDlg, IDC_RADIO_DEFMODEHIRA, BST_CHECKED);
 		}
@@ -30,13 +30,13 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SETBYDIRECT, SectionBehavior, ValueSetByDirect);
 
 		ReadValue(pathconfigxml, SectionBehavior, ValueFixMazeCount, strxmlval);
-		if(strxmlval.empty()) strxmlval = defaultFixMazeCount;
+		if (strxmlval.empty()) strxmlval = defaultFixMazeCount;
 		SetDlgItemTextW(hDlg, IDC_EDIT_FIX_MAZECOUNT, strxmlval.c_str());
 
 		return TRUE;
 
 	case WM_COMMAND:
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDC_CHECKBOX_DEFAULTMODE:
 		case IDC_RADIO_DEFMODEHIRA:
@@ -57,7 +57,7 @@ INT_PTR CALLBACK DlgProcBehavior1(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 			return TRUE;
 
 		case IDC_EDIT_FIX_MAZECOUNT:
-			switch(HIWORD(wParam))
+			switch (HIWORD(wParam))
 			{
 			case EN_CHANGE:
 				PropSheet_Changed(GetParent(hDlg), hDlg);

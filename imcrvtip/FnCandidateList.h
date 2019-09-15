@@ -14,7 +14,6 @@ public:
 		_cRef = 1;
 
 		_pTextService = pTextService;
-		_pTextService->AddRef();
 
 		_searchkey = searchkey;
 		_candidates = candidates;
@@ -22,7 +21,7 @@ public:
 
 	~CFnCandidateList()
 	{
-		SafeRelease(&_pTextService);
+		_pTextService.Release();
 
 		DllRelease();
 	}
@@ -30,19 +29,19 @@ public:
 	// IUnknown
 	STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj)
 	{
-		if(ppvObj == nullptr)
+		if (ppvObj == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppvObj = nullptr;
 
-		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfCandidateList))
+		if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfCandidateList))
 		{
-			*ppvObj = (ITfCandidateList *)this;
+			*ppvObj = static_cast<ITfCandidateList *>(this);
 		}
 
-		if(*ppvObj)
+		if (*ppvObj)
 		{
 			AddRef();
 			return S_OK;
@@ -58,7 +57,7 @@ public:
 
 	STDMETHODIMP_(ULONG) Release(void)
 	{
-		if(--_cRef == 0)
+		if (--_cRef == 0)
 		{
 			delete this;
 			return 0;
@@ -70,9 +69,9 @@ public:
 	// ITfCandidateList
 	STDMETHODIMP EnumCandidates(IEnumTfCandidates **ppEnum)
 	{
-		CFnEnumCandidates *pCandidateEnum;
+		IEnumTfCandidates *pEnumCandidates = nullptr;
 
-		if(ppEnum == nullptr)
+		if (ppEnum == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -81,47 +80,51 @@ public:
 
 		try
 		{
-			pCandidateEnum = new CFnEnumCandidates(_candidates);
+			pEnumCandidates = new CFnEnumCandidates(_candidates);
 		}
 		catch(...)
 		{
 			return E_OUTOFMEMORY;
 		}
 
-		*ppEnum = pCandidateEnum;
+		*ppEnum = pEnumCandidates;
 
 		return S_OK;
 	}
 
 	STDMETHODIMP GetCandidate(ULONG nIndex, ITfCandidateString **ppCand)
 	{
-		if(ppCand == nullptr)
+		ITfCandidateString *pCandidateString = nullptr;
+
+		if (ppCand == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppCand = nullptr;
 
-		if(nIndex >= (ULONG)_candidates.size())
+		if (nIndex >= (ULONG)_candidates.size())
 		{
 			return E_FAIL;
 		}
 
 		try
 		{
-			*ppCand = new CFnCandidateString(nIndex, _candidates[nIndex].first.first);
+			pCandidateString = new CFnCandidateString(nIndex, _candidates[nIndex].first.first);
 		}
 		catch(...)
 		{
 			return E_OUTOFMEMORY;
 		}
 
+		*ppCand = pCandidateString;
+
 		return S_OK;
 	}
 
 	STDMETHODIMP GetCandidateNum(ULONG *pnCnt)
 	{
-		if(pnCnt == nullptr)
+		if (pnCnt == nullptr)
 		{
 			return E_INVALIDARG;
 		}
@@ -134,7 +137,7 @@ public:
 	STDMETHODIMP SetResult(ULONG nIndex, TfCandidateResult imcr)
 	{
 		HRESULT hr = S_OK;
-		if(imcr == CAND_FINALIZED)
+		if (imcr == CAND_FINALIZED)
 		{
 			hr = _pTextService->_SetResult(_searchkey, _candidates, nIndex);
 		}
@@ -144,7 +147,7 @@ public:
 
 private:
 	LONG _cRef;
-	CTextService *_pTextService;
+	CComPtr<CTextService> _pTextService;
 	std::wstring _searchkey;
 	CANDIDATES _candidates;
 };

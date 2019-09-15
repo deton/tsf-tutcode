@@ -11,34 +11,31 @@ public:
 		_cRef = 1;
 
 		_pContext = pContext;
-		_pContext->AddRef();
-
 		_pTextService = pTextService;
-		_pTextService->AddRef();
 	}
 
 	virtual ~CEditSessionBase()
 	{
-		SafeRelease(&_pContext);
-		SafeRelease(&_pTextService);
+		_pContext.Release();
+		_pTextService.Release();
 	}
 
 	// IUnknown
 	STDMETHODIMP QueryInterface(REFIID riid, void **ppvObj)
 	{
-		if(ppvObj == nullptr)
+		if (ppvObj == nullptr)
 		{
 			return E_INVALIDARG;
 		}
 
 		*ppvObj = nullptr;
 
-		if(IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfEditSession))
+		if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITfEditSession))
 		{
-			*ppvObj = (ITfEditSession *)this;
+			*ppvObj = static_cast<ITfEditSession *>(this);
 		}
 
-		if(*ppvObj)
+		if (*ppvObj)
 		{
 			AddRef();
 			return S_OK;
@@ -54,7 +51,7 @@ public:
 
 	STDMETHODIMP_(ULONG) Release(void)
 	{
-		if(--_cRef == 0)
+		if (--_cRef == 0)
 		{
 			delete this;
 			return 0;
@@ -67,8 +64,8 @@ public:
 	virtual STDMETHODIMP DoEditSession(TfEditCookie ec) = 0;
 
 protected:
-	ITfContext *_pContext;
-	CTextService *_pTextService;
+	CComPtr<ITfContext> _pContext;
+	CComPtr<CTextService> _pTextService;
 
 private:
 	LONG _cRef;

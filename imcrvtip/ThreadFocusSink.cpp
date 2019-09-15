@@ -7,17 +7,17 @@
 
 STDAPI CTextService::OnSetThreadFocus()
 {
-	if(_pCandidateList != nullptr)
+	if (_pCandidateList != nullptr)
 	{
 		_pCandidateList->_Show(TRUE);
 	}
 
-	if(_pInputModeWindow != nullptr)
+	if (_pInputModeWindow != nullptr)
 	{
 		_pInputModeWindow->_Show(TRUE);
 	}
 
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(TRUE);
 	}
@@ -29,17 +29,17 @@ STDAPI CTextService::OnKillThreadFocus()
 {
 	_SaveUserDic();
 
-	if(_pCandidateList != nullptr)
+	if (_pCandidateList != nullptr)
 	{
 		_pCandidateList->_Show(FALSE);
 	}
 
-	if(_pInputModeWindow != nullptr)
+	if (_pInputModeWindow != nullptr)
 	{
 		_pInputModeWindow->_Show(FALSE);
 	}
 
-	if(_pVKeyboardWindow != nullptr)
+	if (_pVKeyboardWindow != nullptr)
 	{
 		_pVKeyboardWindow->_Show(FALSE);
 	}
@@ -51,10 +51,10 @@ BOOL CTextService::_InitThreadFocusSink()
 {
 	BOOL fRet = FALSE;
 
-	ITfSource *pSource = nullptr;
-	if(SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
+	CComPtr<ITfSource> pSource;
+	if (SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 	{
-		if(SUCCEEDED(pSource->AdviseSink(IID_IUNK_ARGS((ITfThreadFocusSink *)this), &_dwThreadFocusSinkCookie)))
+		if (SUCCEEDED(pSource->AdviseSink(IID_IUNK_ARGS(static_cast<ITfThreadFocusSink *>(this)), &_dwThreadFocusSinkCookie)))
 		{
 			fRet = TRUE;
 		}
@@ -62,7 +62,6 @@ BOOL CTextService::_InitThreadFocusSink()
 		{
 			_dwThreadFocusSinkCookie = TF_INVALID_COOKIE;
 		}
-		SafeRelease(&pSource);
 	}
 
 	return fRet;
@@ -70,10 +69,9 @@ BOOL CTextService::_InitThreadFocusSink()
 
 void CTextService::_UninitThreadFocusSink()
 {
-	ITfSource *pSource = nullptr;
-	if(SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
+	CComPtr<ITfSource> pSource;
+	if (SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pSource))) && (pSource != nullptr))
 	{
 		pSource->UnadviseSink(_dwThreadFocusSinkCookie);
-		SafeRelease(&pSource);
 	}
 }

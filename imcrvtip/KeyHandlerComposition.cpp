@@ -22,27 +22,27 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	LONG cchOkuri = 0;
 	BOOL showmodemark = cx_showmodemark;
 
-	if(pContext == nullptr)	//辞書登録用
+	if (pContext == nullptr)	//辞書登録用
 	{
 		showmodemark = TRUE;
 	}
 
-	if(showentry &&
+	if (showentry &&
 		(	(fixed && showcandlist) ||
 			(cx_untilcandlist == 0) ||
 			(candidx + 1 < cx_untilcandlist) ||
 			(candidates.size() + 1 == cx_untilcandlist)	))
 	{
-		if(!candidates.empty() && candidx < candidates.size())
+		if (!candidates.empty() && candidx < candidates.size())
 		{
-			if(!fixed && showmodemark)
+			if (!fixed && showmodemark)
 			{
 				comptext.append(markHenkan);
 			}
 
 			comptext.append(candidates[candidx].first.first);
 
-			if(okuriidx != 0)
+			if (okuriidx != 0)
 			{
 				cchOkuri = (LONG)comptext.size();
 				comptext.append(kana.substr(okuriidx + 1));
@@ -50,7 +50,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			}
 			//活用する語の語尾
 			std::wstring gobi;
-			if(postmazeContext.GetGobi(&gobi))
+			if (postmazeContext.GetGobi(&gobi))
 			{
 				cchOkuri = (LONG)comptext.size();
 				comptext.append(gobi);
@@ -58,14 +58,14 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 			cchCursor = (LONG)comptext.size();
 
-			if(!fixed)
+			if (!fixed)
 			{
-				if(cx_annotation && !cx_annotatlst && !candidates[candidx].first.second.empty())
+				if (cx_annotation && !cx_annotatlst && !candidates[candidx].first.second.empty())
 				{
 					comptext.append(markAnnotation + candidates[candidx].first.second);
 				}
 
-				if(cx_untilcandlist == 0 && cx_dispcandnum)
+				if (cx_untilcandlist == 0 && cx_dispcandnum)
 				{
 					comptext.append(L" (");
 					_snwprintf_s(candidatecount, _TRUNCATE, L"%u", (UINT)candidx + 1);
@@ -76,21 +76,21 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 					comptext.append(L")");
 				}
 
-				if(!showmodemark && comptext.empty())
+				if (!showmodemark && comptext.empty())
 				{
 					comptext.append(markSP);
 				}
 			}
 
 			//ユーザー辞書登録
-			if(fixed && !candidates[candidx].second.first.empty())
+			if (fixed && !candidates[candidx].second.first.empty())
 			{
-				if(cx_fixmazecount >= 0)
+				if (cx_fixmazecount >= 0)
 				{
 					_AddUserDic(useraddmode, ((candorgcnt <= candidx) ? searchkey : searchkeyorg),
 						candidates[candidx].second.first, candidates[candidx].second.second);
 					//先頭cx_fixmazecount数の候補順固定のため、候補を押し下げる
-					for(int i = min(cx_fixmazecount, candidates.size()) - 1; i >= 0; i--)
+					for (int i = min(cx_fixmazecount, candidates.size()) - 1; i >= 0; i--)
 					{
 						_AddUserDic(useraddmode, ((candorgcnt <= i) ? searchkey : searchkeyorg),
 							candidates[i].second.first, candidates[i].second.second);
@@ -102,11 +102,11 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 		else
 		{
 			//候補なし or 候補が尽きた
-			if(!fixed)
+			if (!fixed)
 			{
-				if(!showmodemark)
+				if (!showmodemark)
 				{
-					if(kana.empty())
+					if (kana.empty())
 					{
 						comptext.append(markSP);
 					}
@@ -117,7 +117,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				}
 			}
 
-			if(okuriidx == 0)
+			if (okuriidx == 0)
 			{
 				comptext.append(kana);
 			}
@@ -125,7 +125,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			{
 				comptext.append(kana.substr(0, okuriidx));
 				cchOkuri = (LONG)comptext.size();
-				if(!fixed && showmodemark)
+				if (!fixed && showmodemark)
 				{
 					comptext.append(markOkuri);
 				}
@@ -136,19 +136,19 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 
 			//読みを縮め/伸ばしながらの後置型交ぜ書き変換。変換可能な候補無し時
 			std::wstring yomi;
-			if(postmazeContext.Resize(&yomi))
+			if (postmazeContext.Resize(&yomi))
 			{
 				_StartConvWithYomi(ec, pContext, yomi);
 				return S_OK;
 			}
 
-			if(cx_fixmazecount < 0) //学習無しの場合は辞書登録に遷移しない
+			if (cx_fixmazecount < 0) //学習無しの場合は辞書登録に遷移しない
 			{
 				showentry = FALSE;
 				_CancelPostConv(ec, pContext);
 				return S_OK;
 			}
-			if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
+			if (pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 			{
 				_pCandidateList->_SetText(comptext, FALSE, wm_register);
 				return S_OK;
@@ -164,34 +164,34 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	else
 	{
 		std::wstring romandisp = roman;
-		if(cx_showromanjlat)
+		if (cx_showromanjlat)
 		{
 			ASCII_JLATIN_CONV ajc;
 			ajc.ascii[1] = L'\0';
-			for(size_t i = 0; i < romandisp.size(); i++)
+			for (size_t i = 0; i < romandisp.size(); i++)
 			{
 				ajc.ascii[0] = romandisp[i];
-				if(SUCCEEDED(_ConvAsciiJLatin(&ajc)))
+				if (SUCCEEDED(_ConvAsciiJLatin(&ajc)))
 				{
 					romandisp[i] = ajc.jlatin[0];
 				}
 			}
 		}
 
-		if(inputkey)
+		if (inputkey)
 		{
-			if(!fixed)
+			if (!fixed)
 			{
-				if(!showmodemark)
+				if (!showmodemark)
 				{
-					if(kana.empty() && romandisp.empty())
+					if (kana.empty() && romandisp.empty())
 					{
 						comptext.append(markSP);
 					}
 				}
 				else
 				{
-					if(showentry && (candidx + 1 == cx_untilcandlist))
+					if (showentry && (candidx + 1 == cx_untilcandlist))
 					{
 						comptext.append(markHenkan);
 					}
@@ -202,12 +202,12 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				}
 			}
 
-			if(!romandisp.empty() || !kana.empty())
+			if (!romandisp.empty() || !kana.empty())
 			{
-				if(okuriidx == 0)
+				if (okuriidx == 0)
 				{
 					comptext.append(kana);
-					if(pContext == nullptr && !fixed && cursoridx != kana.size())	//辞書登録用
+					if (pContext == nullptr && !fixed && cursoridx != kana.size())	//辞書登録用
 					{
 						comptext.insert(cursoridx + (comptext.size() - kana.size()), markCursor);
 					}
@@ -216,19 +216,19 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				{
 					comptext.append(kana.substr(0, okuriidx));
 					cchOkuri = (LONG)comptext.size();
-					if(!fixed && showmodemark && !complement)
+					if (!fixed && showmodemark && !complement)
 					{
 						comptext.append(markOkuri);
 					}
-					if(okuriidx + 1 < kana.size())
+					if (okuriidx + 1 < kana.size())
 					{
 						comptext.append(kana.substr(okuriidx + 1));
 					}
-					if(pContext == nullptr && !fixed && romandisp.empty() && cursoridx != kana.size())	//辞書登録用
+					if (pContext == nullptr && !fixed && romandisp.empty() && cursoridx != kana.size())	//辞書登録用
 					{
-						if(!showmodemark)
+						if (!showmodemark)
 						{
-							if(cursoridx < okuriidx)
+							if (cursoridx < okuriidx)
 							{
 								comptext.insert(cursoridx, markCursor);
 							}
@@ -239,7 +239,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 						}
 						else
 						{
-							if(complement && okuriidx != 0 && (okuriidx + 1 != kana.size()))
+							if (complement && okuriidx != 0 && (okuriidx + 1 != kana.size()))
 							{
 								comptext.insert(okuriidx + 1, L" [");
 								comptext.append(L"]");
@@ -248,13 +248,13 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 						}
 					}
 				}
-				if(!fixed && !romandisp.empty())
+				if (!fixed && !romandisp.empty())
 				{
-					if(!showmodemark)
+					if (!showmodemark)
 					{
-						if(okuriidx != 0 && okuriidx < cursoridx)
+						if (okuriidx != 0 && okuriidx < cursoridx)
 						{
-							if(cx_showroman)
+							if (cx_showroman)
 							{
 								comptext.insert(cursoridx - 1, romandisp);
 							}
@@ -265,7 +265,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 						}
 						else
 						{
-							if(cx_showroman)
+							if (cx_showroman)
 							{
 								comptext.insert(cursoridx, romandisp);
 							}
@@ -277,7 +277,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 					}
 					else
 					{
-						if(cx_showroman)
+						if (cx_showroman)
 						{
 							comptext.insert(cursoridx + 1, romandisp);
 						}
@@ -286,9 +286,9 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 							comptext.insert(cursoridx + 1, markSP);
 						}
 					}
-					if(okuriidx != 0 && cursoridx <= okuriidx)
+					if (okuriidx != 0 && cursoridx <= okuriidx)
 					{
-						if(cx_showroman)
+						if (cx_showroman)
 						{
 							cchOkuri += (LONG)romandisp.size();
 						}
@@ -300,22 +300,22 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 				}
 			}
 
-			if(showentry && (candidx + 1 == cx_untilcandlist))
+			if (showentry && (candidx + 1 == cx_untilcandlist))
 			{
 				cchCursor = (LONG)comptext.size();
 			}
 		}
 		else
 		{
-			if(!kana.empty())
+			if (!kana.empty())
 			{
 				comptext.append(kana);
 			}
 			else
 			{
-				if(!fixed)
+				if (!fixed)
 				{
-					if(cx_showroman)
+					if (cx_showroman)
 					{
 						comptext.append(romandisp);
 					}
@@ -328,10 +328,10 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 		}
 	}
 
-	if(fixed && back && cx_backincenter && !comptext.empty())
+	if (fixed && back && cx_backincenter && !comptext.empty())
 	{
 		// surrogate pair
-		if(comptext.size() >= 2 &&
+		if (comptext.size() >= 2 &&
 			IS_SURROGATE_PAIR(comptext[comptext.size() - 2], comptext[comptext.size() - 1]))
 		{
 			comptext.pop_back();
@@ -346,11 +346,11 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 	_EndInputModeWindow();
 	postmazeContext.EndResizing();
 
-	if(inputkey && !fixed && !showcandlist && showentry &&
+	if (inputkey && !fixed && !showcandlist && showentry &&
 		(((cx_untilcandlist != 1) && (candidx + 1 == cx_untilcandlist)) || (cx_untilcandlist == 1)) &&
 		(candidates.size() + 1 != cx_untilcandlist))
 	{
-		if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
+		if (pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 		{
 			showcandlist = TRUE;
 			candidx = 0;
@@ -367,7 +367,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 		}
 	}
 
-	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
+	if (pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
 		_SetTextExcluded(_pCandidateList, &postmazeContext, fixed);
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
@@ -382,7 +382,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 static void _SetTextExcluded(CCandidateList *_pCandidateList, CPostMazeContext *postmazeContext, BOOL fixed)
 {
 	std::wstring excluded;
-	if(postmazeContext->GetExcluded(&excluded) && fixed)
+	if (postmazeContext->GetExcluded(&excluded) && fixed)
 	{
 		//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合、
 		//読みから外した部分は確定(fixed=TRUEで_SetText())
@@ -396,15 +396,15 @@ static void _SetTextExcluded(CCandidateList *_pCandidateList, CPostMazeContext *
 
 HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std::wstring &comptext, LONG cchCursor, LONG cchOkuri, BOOL fixed)
 {
-	if(pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
+	if (pContext == nullptr && _pCandidateList != nullptr)	//辞書登録用
 	{
 		_pCandidateList->_SetText(comptext, fixed, wm_none);
 		return S_OK;
 	}
 
-	if(!_IsComposing())
+	if (!_IsComposing())
 	{
-		if(!_StartComposition(pContext))
+		if (!_StartComposition(pContext))
 		{
 			return S_FALSE;
 		}
@@ -413,12 +413,12 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 	std::wstring text(comptext);
 	//文字数指定無し後置型交ぜ書き変換で読みを縮め/伸ばした場合
 	std::wstring excluded;
-	if(postmazeContext.GetExcluded(&excluded))
+	if (postmazeContext.GetExcluded(&excluded))
 	{	//外した部分が表示されるように、textに挿入
 		text.insert(0, excluded);
 		cchCursor += (LONG)excluded.size();
 		//確定時の後始末(しないと以降の入力で常にpostyomiが付いてしまう)
-		if(fixed)
+		if (fixed)
 		{
 			postmazeContext.Deactivate();
 		}
@@ -426,27 +426,28 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 
 	TF_SELECTION tfSelection = {};
 	ULONG cFetched = 0;
-	if(FAILED(pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched)))
+	if (FAILED(pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched)))
 	{
 		return S_FALSE;
 	}
 
-	if(cFetched != 1)
+	CComPtr<ITfRange> pRangeSelection;
+	pRangeSelection.Attach(tfSelection.range);
+
+	if (cFetched != 1)
 	{
-		SafeRelease(&tfSelection.range);
 		return S_FALSE;
 	}
 
-	if(!_IsComposing())
+	if (!_IsComposing())
 	{
-		SafeRelease(&tfSelection.range);
 		return S_OK;
 	}
 
-	ITfRange *pRange = nullptr;
-	if(SUCCEEDED(_pComposition->GetRange(&pRange)) && (pRange != nullptr))
+	CComPtr<ITfRange> pRange;
+	if (SUCCEEDED(_pComposition->GetRange(&pRange)) && (pRange != nullptr))
 	{
-		if(_IsRangeCovered(ec, tfSelection.range, pRange))
+		if (_IsRangeCovered(ec, tfSelection.range, pRange))
 		{
 			LONG cch, cchRes;
 
@@ -454,10 +455,10 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 
 			// shift from end to start.
 			// shift over mathematical operators (U+2200-U+22FF) is rejected by OneNote.
-			if(cchCursor == 0)
+			if (cchCursor == 0)
 			{
 				cchRes = (LONG)cursoridx - (LONG)kana.size();
-				if((complement && okuriidx != 0) ||
+				if ((complement && okuriidx != 0) ||
 					(!cx_showmodemark && okuriidx != 0 && cursoridx <= okuriidx && cursoridx < kana.size()))
 				{
 					cchRes += 1;
@@ -466,11 +467,11 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 			else
 			{
 				cchRes = cchCursor - (LONG)text.size();
-				if(cchRes > 0)
+				if (cchRes > 0)
 				{
 					cchRes = 0;
 				}
-				else if(cchRes < -(LONG)text.size())
+				else if (cchRes < -(LONG)text.size())
 				{
 					cchRes = -(LONG)text.size();
 				}
@@ -484,43 +485,43 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 			pContext->SetSelection(ec, 1, &tfSelection);
 
 			//composition attribute
-			if(!fixed)
+			if (!fixed)
 			{
-				ITfRange *pRangeClone = nullptr;
-				if(SUCCEEDED(pRange->Clone(&pRangeClone)) && (pRangeClone != nullptr))
+				CComPtr<ITfRange> pRangeClone;
+				if (SUCCEEDED(pRange->Clone(&pRangeClone)) && (pRangeClone != nullptr))
 				{
 					pRangeClone->ShiftEndToRange(ec, pRange, TF_ANCHOR_END);
 					pRangeClone->ShiftStartToRange(ec, pRange, TF_ANCHOR_START);
 
-					if(cchCursor == 0 || !showentry)
+					if (cchCursor == 0 || !showentry)
 					{
-						if(inputkey)
+						if (inputkey)
 						{
 							_SetCompositionDisplayAttributes(ec, pContext, pRangeClone, _gaDisplayAttributeInputMark);
-							if(cx_showmodemark)
+							if (cx_showmodemark)
 							{
 								pRangeClone->ShiftStart(ec, 1, &cch, nullptr);
 							}
 						}
 
-						if(!display_attribute_series[1] || !inputkey)
+						if (!display_attribute_series[1] || !inputkey)
 						{
 							_SetCompositionDisplayAttributes(ec, pContext, pRangeClone, _gaDisplayAttributeInputText);
 						}
 
-						if(cchOkuri != 0)
+						if (cchOkuri != 0)
 						{
 							pRangeClone->ShiftStartToRange(ec, pRange, TF_ANCHOR_START);
 							pRangeClone->ShiftStart(ec, cchOkuri, &cch, nullptr);
-							if(!display_attribute_series[2])
+							if (!display_attribute_series[2])
 							{
 								_SetCompositionDisplayAttributes(ec, pContext, pRangeClone, _gaDisplayAttributeInputOkuri);
 							}
 
-							if(hintmode && text.find_first_of(CHAR_SKK_HINT) != std::wstring::npos)
+							if (hintmode && text.find_first_of(CHAR_SKK_HINT) != std::wstring::npos)
 							{
 								LONG hintpos = (LONG)text.find_first_of(CHAR_SKK_HINT);
-								if(cchOkuri < hintpos)
+								if (cchOkuri < hintpos)
 								{
 									pRangeClone->ShiftStartToRange(ec, pRange, TF_ANCHOR_START);
 									pRangeClone->ShiftStart(ec, hintpos, &cch, nullptr);
@@ -532,21 +533,21 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 					else
 					{
 						_SetCompositionDisplayAttributes(ec, pContext, pRangeClone, _gaDisplayAttributeConvMark);
-						if(cx_showmodemark)
+						if (cx_showmodemark)
 						{
 							pRangeClone->ShiftStart(ec, 1, &cch, nullptr);
 						}
 
-						if(!display_attribute_series[4])
+						if (!display_attribute_series[4])
 						{
 							_SetCompositionDisplayAttributes(ec, pContext, pRangeClone, _gaDisplayAttributeConvText);
 						}
 
-						if(cchOkuri != 0)
+						if (cchOkuri != 0)
 						{
 							pRangeClone->ShiftStartToRange(ec, pRange, TF_ANCHOR_START);
 							pRangeClone->ShiftStart(ec, cchOkuri, &cch, nullptr);
-							if(!display_attribute_series[5])
+							if (!display_attribute_series[5])
 							{
 								_SetCompositionDisplayAttributes(ec, pContext, pRangeClone, _gaDisplayAttributeConvOkuri);
 							}
@@ -554,35 +555,34 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 
 						pRangeClone->ShiftEndToRange(ec, pRange, TF_ANCHOR_END);
 						pRangeClone->ShiftStartToRange(ec, tfSelection.range, TF_ANCHOR_END);
-						if(!display_attribute_series[6])
+						if (!display_attribute_series[6])
 						{
 							_SetCompositionDisplayAttributes(ec, pContext, pRangeClone, _gaDisplayAttributeConvAnnot);
 						}
 					}
-					SafeRelease(&pRangeClone);
 				}
 			}
 
 			// for Excel's PHONETIC function
-			if(fixed && !text.empty())
+			if (fixed && !text.empty())
 			{
 				std::wstring phone(kana);
 
-				if(okuriidx == 0)
+				if (okuriidx == 0)
 				{
-					switch(inputmode)
+					switch (inputmode)
 					{
 					case im_hiragana:
 					case im_katakana:
 					case im_katakana_ank:
 						//接辞
-						if(!abbrevmode && kana.size() >= 2)
+						if (!abbrevmode && kana.size() >= 2)
 						{
-							if(kana.front() == L'>')
+							if (kana.front() == L'>')
 							{
 								phone = kana.substr(1);
 							}
-							else if(kana.back() == L'>')
+							else if (kana.back() == L'>')
 							{
 								phone = kana.substr(0, kana.size() - 1);
 							}
@@ -594,39 +594,33 @@ HRESULT CTextService::_SetText(TfEditCookie ec, ITfContext *pContext, const std:
 				}
 				else
 				{
-					if(kana.size() > (okuriidx + 1))
+					if (kana.size() > (okuriidx + 1))
 					{
 						phone = kana.substr(0, okuriidx) + kana.substr(okuriidx + 1);
 					}
-					else if(kana.size() >= okuriidx)
+					else if (kana.size() >= okuriidx)
 					{
 						phone = kana.substr(0, okuriidx);
 					}
 				}
 
-				if(!phone.empty())
+				if (!phone.empty())
 				{
-					ITfProperty *pProperty = nullptr;
-					if(SUCCEEDED(pContext->GetProperty(GUID_PROP_READING, &pProperty)) && (pProperty != nullptr))
+					CComPtr<ITfProperty> pProperty;
+					if (SUCCEEDED(pContext->GetProperty(GUID_PROP_READING, &pProperty)) && (pProperty != nullptr))
 					{
-						VARIANT var;
-						VariantInit(&var);
+						CComVariant var;
 						V_VT(&var) = VT_BSTR;
 						V_BSTR(&var) = SysAllocString(phone.c_str());
-
-						pProperty->SetValue(ec, pRange, &var);
-
-						VariantClear(&var);
+						if (V_BSTR(&var) != nullptr)
+						{
+							pProperty->SetValue(ec, pRange, &var);
+						}
 					}
-					SafeRelease(&pProperty);
 				}
 			}
 		}
-
-		SafeRelease(&pRange);
 	}
-
-	SafeRelease(&tfSelection.range);
 
 	return S_OK;
 }
@@ -637,33 +631,31 @@ HRESULT CTextService::_ShowCandidateList(TfEditCookie ec, ITfContext *pContext, 
 
 	try
 	{
-		if(_pCandidateList == nullptr)
+		if (_pCandidateList == nullptr)
 		{
-			_pCandidateList = new CCandidateList(this);
+			_pCandidateList.Attach(new CCandidateList(this));
 		}
 
-		ITfDocumentMgr *pDocumentMgr = nullptr;
-		if(SUCCEEDED(pContext->GetDocumentMgr(&pDocumentMgr)) && (pDocumentMgr != nullptr))
+		CComPtr<ITfDocumentMgr> pDocumentMgr;
+		if (SUCCEEDED(pContext->GetDocumentMgr(&pDocumentMgr)) && (pDocumentMgr != nullptr))
 		{
-			if(_IsComposing())
+			if (_IsComposing())
 			{
-				ITfRange *pRange = nullptr;
-				if(SUCCEEDED(_pComposition->GetRange(&pRange)) && (pRange != nullptr))
+				CComPtr<ITfRange> pRange;
+				if (SUCCEEDED(_pComposition->GetRange(&pRange)) && (pRange != nullptr))
 				{
 					hr = _pCandidateList->_StartCandidateList(_ClientId, pDocumentMgr, pContext, ec, pRange, mode);
-					SafeRelease(&pRange);
 				}
 			}
-			SafeRelease(&pDocumentMgr);
 		}
 
-		if(FAILED(hr))
+		if (FAILED(hr))
 		{
 			_ResetStatus();
 			_CancelComposition(ec, pContext);
 		}
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 
@@ -672,16 +664,16 @@ HRESULT CTextService::_ShowCandidateList(TfEditCookie ec, ITfContext *pContext, 
 
 void CTextService::_EndCandidateList()
 {
-	if(_pCandidateList != nullptr)
+	if (_pCandidateList != nullptr)
 	{
 		_pCandidateList->_EndCandidateList();
 	}
-	SafeRelease(&_pCandidateList);
+	_pCandidateList.Release();
 }
 
 void CTextService::_EndCompletionList(TfEditCookie ec, ITfContext *pContext)
 {
-	if(pContext != nullptr && !showcandlist)
+	if (pContext != nullptr && !showcandlist)
 	{
 		_EndCandidateList();
 	}
@@ -691,29 +683,25 @@ BOOL CTextService::_GetVertical(TfEditCookie ec, ITfContext *pContext)
 {
 	BOOL ret = FALSE;
 
-	if(pContext != nullptr)
+	if (pContext != nullptr)
 	{
-		if(_IsComposing())
+		if (_IsComposing())
 		{
-			ITfRange *pRange = nullptr;
-			if(SUCCEEDED(_pComposition->GetRange(&pRange)) && (pRange != nullptr))
+			CComPtr<ITfRange> pRange;
+			if (SUCCEEDED(_pComposition->GetRange(&pRange)) && (pRange != nullptr))
 			{
-				ITfReadOnlyProperty *pReadOnlyProperty = nullptr;
-				if(SUCCEEDED(pContext->GetAppProperty(TSATTRID_Text_VerticalWriting, &pReadOnlyProperty)) && (pReadOnlyProperty != nullptr))
+				CComPtr<ITfReadOnlyProperty> pReadOnlyProperty;
+				if (SUCCEEDED(pContext->GetAppProperty(TSATTRID_Text_VerticalWriting, &pReadOnlyProperty)) && (pReadOnlyProperty != nullptr))
 				{
-					VARIANT var;
-					VariantInit(&var);
-					if(SUCCEEDED(pReadOnlyProperty->GetValue(ec, pRange, &var)))
+					CComVariant var;
+					if (SUCCEEDED(pReadOnlyProperty->GetValue(ec, pRange, &var)))
 					{
-						if(V_VT(&var) == VT_BOOL)
+						if (V_VT(&var) == VT_BOOL)
 						{
 							ret = V_BOOL(&var);
 						}
 					}
-					VariantClear(&var);
-					SafeRelease(&pReadOnlyProperty);
 				}
-				SafeRelease(&pRange);
 			}
 		}
 	}

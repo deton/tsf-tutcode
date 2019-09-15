@@ -10,9 +10,9 @@
  */
 static BOOL _IsJISCombiningMoji(WCHAR m1, WCHAR m2)
 {
-    for(int i = 0; i < CMBCHARNUM; i++)
+    for (int i = 0; i < CMBCHARNUM; i++)
     {
-        if(m1 == euccmb[i].ucp[0] && m2 == euccmb[i].ucp[1])
+        if (m1 == euccmb[i].ucp[0] && m2 == euccmb[i].ucp[1])
         {
             return TRUE;
         }
@@ -48,18 +48,18 @@ static BOOL _IsIVS(WCHAR m1, WCHAR m2)
  */
 size_t ForwardMoji(const std::wstring &s, size_t idx, size_t count, UINT mb)
 {
-	while(count-- > 0)
+	while (count-- > 0)
 	{
-		if(idx >= s.size())
+		if (idx >= s.size())
 		{
 			idx = s.size();
 			break;
 		}
-		if(mb&MOJIMB_IVS && idx + 2 < s.size() && _IsIVS(s[idx + 1], s[idx + 2]))
+		if (mb&MOJIMB_IVS && idx + 2 < s.size() && _IsIVS(s[idx + 1], s[idx + 2]))
 		{
 			idx += 3;
 		}
-		else if(idx + 1 < s.size()
+		else if (idx + 1 < s.size()
                 && (IS_SURROGATE_PAIR(s[idx], s[idx + 1])
                     || mb&MOJIMB_JIS_COMBINING_CHAR && _IsJISCombiningMoji(s[idx], s[idx + 1])))
 		{
@@ -87,27 +87,27 @@ size_t ForwardMoji(const std::wstring &s, size_t idx, size_t count, UINT mb)
  */
 size_t BackwardMoji(const std::wstring &s, size_t idx, size_t count)
 {
-	if(idx > s.size())
+	if (idx > s.size())
 	{
 		idx = s.size();
 	}
-	while(count-- > 0)
+	while (count-- > 0)
 	{
-		if(idx == 0)
+		if (idx == 0)
 		{
 			break;
 		}
-		if(idx >= 3 && _IsIVS(s[idx - 2], s[idx - 1]))
+		if (idx >= 3 && _IsIVS(s[idx - 2], s[idx - 1]))
 		{
 			idx -= 3;
 		}
-		else if(idx >= 2
+		else if (idx >= 2
 				&& (IS_SURROGATE_PAIR(s[idx - 2], s[idx - 1])
 					|| _IsJISCombiningMoji(s[idx - 2], s[idx - 1])))
 		{
 			idx -= 2;
 		}
-		else if(idx >= 1)
+		else if (idx >= 1)
 		{
 			idx -= 1;
 		}
@@ -127,7 +127,7 @@ size_t Copy1Moji(const std::wstring &s, size_t idx, std::wstring *target)
 {
 	target->clear();
 	size_t ed = ForwardMoji(s, idx, 1);
-	if(ed == idx)
+	if (ed == idx)
 	{
 		return 0;
 	}
@@ -160,7 +160,7 @@ size_t CountMoji(const std::wstring &s, UINT mb)
 	size_t count = 0;
 	size_t previdx = 0;
 	size_t idx;
-	while((idx = ForwardMoji(s, previdx, 1, mb)) > previdx)
+	while ((idx = ForwardMoji(s, previdx, 1, mb)) > previdx)
 	{
 		count++;
 		previdx = idx;

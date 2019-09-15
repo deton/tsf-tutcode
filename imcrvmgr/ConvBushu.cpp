@@ -9,20 +9,20 @@ static std::map< std::wstring, std::wstring > userbushudic;
 std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2)
 {
 	auto userdic_itr = userbushudic.find(bushu1 + bushu2);
-	if(userdic_itr != userbushudic.end())
+	if (userdic_itr != userbushudic.end())
 	{
 		return userdic_itr->second;
 	}
 
 	userdic_itr = userbushudic.find(bushu2 + bushu1);
-	if(userdic_itr != userbushudic.end())
+	if (userdic_itr != userbushudic.end())
 	{
 		return userdic_itr->second;
 	}
 
 	std::wstring ret;
 	WCHAR r = bushudic.look(bushu1[0], bushu2[0], TC_BUSHU_ALGO_YAMANOBE);
-	if(r != 0)
+	if (r != 0)
 	{
 		ret += r;
 	}
@@ -37,7 +37,7 @@ static void AddBushuDicEntries(const std::wstring &s)
 {
 	std::wstring kanji;
 	size_t idx = Copy1Moji(s, 0, &kanji);
-	if(idx == 0)
+	if (idx == 0)
 	{
 		return;
 	}
@@ -46,13 +46,13 @@ static void AddBushuDicEntries(const std::wstring &s)
 	do {
 		std::wstring bushu1;
 		idx = Copy1Moji(s, idx, &bushu1);
-		if(idx == 0)
+		if (idx == 0)
 		{
 			return;
 		}
 		std::wstring bushu2;
 		idx = Copy1Moji(s, idx, &bushu2);
-		if(idx == 0)
+		if (idx == 0)
 		{
 			return;
 		}
@@ -79,17 +79,17 @@ BOOL LoadBushuConvUserDic()
 {
 	FILE *fp;
 	_wfopen_s(&fp, pathbushudic, RccsUTF8);
-	if(fp == nullptr)
+	if (fp == nullptr)
 	{
 		return FALSE;
 	}
 
 	WCHAR wbuf[READBUFSIZE];
 	std::wstring wsbuf;
-	while(fgetws(wbuf, _countof(wbuf), fp) != nullptr)
+	while (fgetws(wbuf, _countof(wbuf), fp) != nullptr)
 	{
 		wsbuf += wbuf;
-		if(!wsbuf.empty() && wsbuf.back() == L'\n')
+		if (!wsbuf.empty() && wsbuf.back() == L'\n')
 		{
 			std::wstring s(wsbuf);
 			std::wregex re(L"[\\x00-\\x19]");
