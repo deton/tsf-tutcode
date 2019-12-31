@@ -196,6 +196,7 @@ public:
 	BOOL _ConvN();
 	void _ConvKanaToKana(const std::wstring &src, int srcmode, std::wstring &dst, int dstmode);
 	BOOL _SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *src, int srcmode, std::wstring &dst, int dstmode);
+	void _ConvOkuriRoman();
 	void _ConvKanaToRoman(std::wstring &dst, const std::wstring &src, int srcmode);
 	BOOL _SearchRomanByKana(const ROMAN_KANA_NODE &tree, int srcmode, const WCHAR *src, std::wstring &dst);
 

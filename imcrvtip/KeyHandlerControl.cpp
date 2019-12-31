@@ -75,7 +75,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if (abbrevmode && !showentry)
 		{
 			//全英に変換
-			ASCII_JLATIN_CONV ajc;
+			ASCII_JLATIN_CONV ajc = {};
 			ajc.ascii[1] = L'\0';
 			roman = kana;
 			kana.clear();
@@ -312,18 +312,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		{
 			_ConvRoman();
 
-			if (okuriidx != 0 && okuriidx < kana.size())
-			{
-				if (kana[okuriidx] == CHAR_SKK_OKURI)
-				{
-					kana.erase(okuriidx, 1);
-					if (okuriidx < cursoridx)
-					{
-						cursoridx--;
-					}
-					okuriidx = 0;
-				}
-			}
+			_ConvOkuriRoman();
 
 			if (!kana.empty())
 			{
