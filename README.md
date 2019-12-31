@@ -20,18 +20,18 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 * Windows Vista (32-bit / 64-bit)
 
-    + Service Pack 2
-    + プラットフォーム更新プログラム ( [KB971644](https://support.microsoft.com/en-us/kb/971644) または [KB971512](https://support.microsoft.com/en-us/kb/971512) )
+    * Service Pack 2
+    * プラットフォーム更新プログラム ( [KB971644](https://support.microsoft.com/en-us/kb/971644) または [KB971512](https://support.microsoft.com/en-us/kb/971512) )
 
 * Windows 7     (32-bit / 64-bit)
 
-    + Service Pack 1
+    * Service Pack 1
 
 * Windows 8     (32-bit / 64-bit)
 
 * Windows 8.1   (32-bit / 64-bit)
 
-    + S14 Update ( [KB2919355](https://support.microsoft.com/en-us/kb/2919355) )
+    * S14 Update ( [KB2919355](https://support.microsoft.com/en-us/kb/2919355) )
 
 * Windows 10    (32-bit / 64-bit)
 
@@ -55,16 +55,16 @@ tsftutcode-X.Y.Z.exe を実行してください。 (X, Y, Z はバージョン�
 
 * 32bit 版 Windows
 
-    + %SystemRoot%\System32\IME\IMTSFTUTCODE
+    * %SystemRoot%\System32\IME\IMTSFTUTCODE
 
 * 64bit 版 Windows
 
-    + %SystemRoot%\System32\IME\IMTSFTUTCODE
-    + %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE
+    * %SystemRoot%\System32\IME\IMTSFTUTCODE
+    * %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE
 
 * 共通
 
-    + %SystemRoot%\IME\IMTSFTUTCODE
+    * %SystemRoot%\IME\IMTSFTUTCODE
 
 
 ### アンインストール
@@ -309,8 +309,6 @@ SKK辞書の詳細はこちらを参照ください。
 
 * http://openlab.ring.gr.jp/skk/skk/dic/
 
-* https://github.com/nathancorvussolis/skkdic
-
 SKK辞書ファイルの文字コードは、EUC-JIS-2004、UTF-8 (BOMなし/あり)、UTF-16 (LE, BOMあり) に対応しています。
 
 アーカイブファイルフォーマットは tar、gzip に対応しています。
@@ -319,9 +317,9 @@ SKK辞書ファイルの文字コードは、EUC-JIS-2004、UTF-8 (BOMなし/あ
 
 * 拡張子が .tar、.tar.gz、.tgz の場合、拡張子を除いたアーカイブファイル名をファイル名の末尾に含むファイルが対象となります。(ただしドットファイルは対象外)
 
-    +  zipcode.tar.gz の場合、SKK-JISYO.zipcode や SKK-JISYO.office.zipcode などが対象となり、SKK-JISYO.zipcode.orig や SKK-JISYO.office.zipcode.orig、.zipcode などは対象外となります。
+    * zipcode.tar.gz の場合、SKK-JISYO.zipcode や SKK-JISYO.office.zipcode などが対象となり、SKK-JISYO.zipcode.orig や SKK-JISYO.office.zipcode.orig、.zipcode などは対象外となります。
 
-    +  SKK-JISYO.edict.tar.gz の場合、SKK-JISYO.edict などが対象となります。
+    * SKK-JISYO.edict.tar.gz の場合、SKK-JISYO.edict などが対象となります。
 
 設定ダイアログのリストに交ぜ書き変換辞書を追加し、取込ボタンを押してください。取込済SKK辞書に変換されて使用可能となります。
 
@@ -570,22 +568,15 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 
 ローマ字、平仮名、片仮名、所謂半角片仮名、促音/撥音(ん)、待機の組み合せを指定します。
 
-「促／ん」がONのとき、仮名が決定したあとに最後の入力文字が入力状態となります。
+* 「促／ん」
+    * 「促／ん」がONのとき、仮名が決定したあとに最後の入力文字が入力状態となります。
 
-* 例） 以下のように設定したとき「w」の連続入力により草を生やすことができます。
-    +  ローマ字:「ww」、かな:「ｗ」(いわゆる全角小文字)、促／ん: ON
-    +  ローマ字:「w」、かな:「ｗ」(いわゆる全角小文字)、促／ん: OFF
+* 「待機」
+    * 「待機」がONのとき、入力した文字をローマ字仮名変換した結果 (変換出来ないときは入力した文字そのまま) がローマ字として扱われ、辞書検索開始、確定、補完開始、ローマ字に設定されていない組み合わせ、のいずれかになるまで仮名の最終的な決定が遅延されます。
+    * 「待機」機能サンプルを参照してください。[https://github.com/nathancorvussolis/corvusskk/blob/master/installer/config-sample/config - wait-sample.xml](https://github.com/nathancorvussolis/corvusskk/blob/master/installer/config-sample/config%20-%20wait-sample.xml)
 
-* 例） 以下のように設定したとき「zsssss …」と入力することで「☆」と「★」が繰り返され任意のタイミングで確定することができます。
-    +  ローマ字:「zs」、かな:「☆」、待機: ON
-    +  ローマ字:「☆s」、かな:「★」、待機: ON
-    +  ローマ字:「★s」、かな:「☆」、待機: ON
-    +  ローマ字:「☆」、かな:「☆」、待機: OFF
-    +  ローマ字:「★」、かな:「★」、待機: OFF
-
-「待機」がONのとき、入力した文字をローマ字仮名変換した結果 (変換出来ないときは入力した文字そのまま) がローマ字として扱われ、辞書検索開始、確定、補完開始、ローマ字に設定されていない組み合わせ、のいずれかになるまで仮名の最終的な決定が遅延されます。
-
-「機能」がONのとき、平仮名文字列(下表)に対応する機能を実行します。
+* 「機能」 
+    * 「機能」がONのとき、平仮名文字列(下表)に対応する機能を実行します。
 
 | 平仮名文字列 | 機能 |
 |---|---|
@@ -645,10 +636,8 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 | StoK9   | 後置型入力シーケンス→漢字変換。9文字を置換 |
 
 平仮名／片仮名変換では基本的に１文字ずつ変換されます。
-
-例外として、「う゛」(う＋濁点)は「ウ゛」(ウ＋濁点)ではなく「ヴ」と変換されます。
-
 * 例） 平仮名「きょう」を片仮名「キョウ」に変換する場合、「きょ」→「キョ」、「う」→「ウ」ではなく、「き」→「キ」、「ょ」→「ョ」、「う」→「ウ」と変換されます。
+* 例外として、「う゛」(う＋濁点)は「ウ゛」(ウ＋濁点)ではなく「ヴ」と変換されます。
 
 最大で32768行です。
 
@@ -660,19 +649,19 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 * 文字コード：UTF-16(LE,BOMあり) または UTF-8
 * 改行：CR+LF または LF
 * フォーマット：<ローマ字><\t><ひらがな><\t><カタカナ><\t><カタカナ(半角)><\t><[促/ん]|[待機]|[機能]><\r><\n>
-    +  <ローマ字>、<ひらがな>、<カタカナ>、<カタカナ(半角)>は、それぞれUTF-16換算で最大14バイトです。
-    +  [促/ん]は、ONのとき1、OFFのとき0です。
-    +  [待機]は、ONのとき2、OFFのとき0です。
-    +  [機能]は、ONのとき4、OFFのとき0です。
-    +  <[促/ん]|[待機]|[機能]>は、[機能]がONのときは[促/ん]と[待機]は無視されます。[促/ん]と[待機]の両方がONのとき3となりますが、[待機]のほうが優先されます。 (0のときは無しでも可)
-    +  空行やタブのみの行は読み飛ばされます。
-    +  <\t>、<\r>、<\n>は、それぞれタブ、改行コードに読み替えてください。
+    *  <ローマ字>、<ひらがな>、<カタカナ>、<カタカナ(半角)>は、それぞれUTF-16換算で最大14バイトです。
+    *  [促/ん]は、ONのとき1、OFFのとき0です。
+    *  [待機]は、ONのとき2、OFFのとき0です。
+    *  [機能]は、ONのとき4、OFFのとき0です。
+    *  <[促/ん]|[待機]|[機能]>は、[機能]がONのときは[促/ん]と[待機]は無視されます。[促/ん]と[待機]の両方がONのとき3となりますが、[待機]のほうが優先されます。 (0のときは無しでも可)
+    *  空行やタブのみの行は読み飛ばされます。
+    *  <\t>、<\r>、<\n>は、それぞれタブ、改行コードに読み替えてください。
 * 例１）a<\t>あ<\t>ア<\t>ｱ<\r><\n>
 * 例２）nn<\t>ん<\t>ン<\t>ﾝ<\t>0<\r><\n>
 * 例３）np<\t>ん<\t>ン<\t>ﾝ<\t>1<\r><\n>
 * 例４）ｺ<\t>こ<\t>コ<\t>ｺ<\t>2<\r><\n>
 * 例５）ald<\t>Bushu<\t>-<\t>-<\t>4<\r><\n>
-
+* サンプルを参照してください。 https://github.com/nathancorvussolis/corvusskk/blob/master/installer/config-sample/kanatable.txt
 
 ### ASCII・全英変換表
 
@@ -864,13 +853,13 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 注釈にセミコロンを含めることは出来ません。
 
 * 例１）登録する見出し語「しょへい#ねん」、登録する候補「初平#3年」、登録する注釈「後漢」の場合
-    +  「初平#3年;後漢」と入力する。
+    * 「初平#3年;後漢」と入力する。
 
 * 例２）登録する見出し語「なき」、登録する候補「(;_;)」、登録する注釈「顔文字」の場合
-    +  「(;_;);顔文字」と入力する。
+    * 「(;_;);顔文字」と入力する。
 
 * 例３）登録する見出し語「せみころん」、登録する候補「;」、登録する注釈「セミコロン」の場合
-    +  「;;セミコロン」と入力する。
+    * 「;;セミコロン」と入力する。
 
 
 ### Windows 8, 8.1, 10 のタッチキーボード
@@ -878,21 +867,25 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 タッチパネルを搭載したマシンでハードウェアキーボードに準拠したレイアウトを使用するには、以下の操作をおこなってください。
 
 * Windows 8 の場合
-    +  「PC設定」の画面 → 「全般」を選択 → 「タッチキーボード」の項目 → 「ハードウェアキーボードに準拠したレイアウトを使えるようにする」をオン
+    * 「PC設定」の画面 → 「全般」を選択 → 「タッチキーボード」の項目 → 「ハードウェアキーボードに準拠したレイアウトを使えるようにする」をオン
 
 * Windows 8.1 の場合
-    +  「PC設定」の画面 → 「PCとデバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
+    * 「PC設定」の画面 → 「PCとデバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
 
 * Windows 10 (Ver.1703 まで) の場合
-    +  「デバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
+    * 「デバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
 
 タッチパネルを搭載していないマシンでハードウェアキーボードに準拠したレイアウトを使用するには、レジストリに以下の値を設定してください。
+
+Windows 10 (Ver.1703 まで) の場合
 
     [HKEY_CURRENT_USER\SOFTWARE\Microsoft\TabletTip\1.7]
     "EnableCompatibilityKeyboard"=dword:00000001
 
-* Windows 10 (Ver.1709 から) の場合
-    +  ハードウェアキーボードに準拠したレイアウトはMS-IMEでのみ使用できるようです。
+Windows 10 (Ver.1709 から) の場合
+
+    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\TabletTip\1.7]
+    "DisableNewKeyboardExperience"=dword:00000001
 
 ### 漢直Winよりもtsf-tutcodeを選ぶ状況
 
@@ -943,13 +936,13 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2019 16.2.0
+Visual Studio Community 2019 16.3.10
 
 * Desktop development with C++
-* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.22)
-* C++ ATL for v142 build tools (x86 & x64)
+* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.23)
+* C++ ATL for latest v142 build tools (x86 & x64)
 
-WiX Toolset v3.11.1
+WiX Toolset v3.11.2
 
 pandoc 2.7.3
 

@@ -740,7 +740,7 @@ void CTextService::_ConvRoman()
 
 BOOL CTextService::_ConvShift(WCHAR ch)
 {
-	ROMAN_KANA_CONV rkc;
+	ROMAN_KANA_CONV rkc = {};
 	HRESULT ret;
 
 	if (roman.empty())
@@ -776,6 +776,8 @@ BOOL CTextService::_ConvShift(WCHAR ch)
 
 				WCHAR chO = L'\0';
 
+				// ローマ字に格納されている仮名をキーに、変換位置指定の「代替」を検索する。
+				// ヒットしたエントリの「送り」を送りローマ字とする。
 				auto va_itr = std::lower_bound(conv_point_a.begin(), conv_point_a.end(),
 					chN, [] (CONV_POINT m, WCHAR v) { return (m.ch[1] < v); });
 
@@ -786,6 +788,11 @@ BOOL CTextService::_ConvShift(WCHAR ch)
 
 				if (chO == L'\0')
 				{
+					kana.erase(okuriidx, 1);
+					if (okuriidx < cursoridx)
+					{
+						cursoridx--;
+					}
 					okuriidx = 0;
 				}
 				else
@@ -898,7 +905,7 @@ BOOL CTextService::_ConvShift(WCHAR ch)
 
 BOOL CTextService::_ConvN()
 {
-	ROMAN_KANA_CONV rkc;
+	ROMAN_KANA_CONV rkc = {};
 	HRESULT ret;
 
 	wcsncpy_s(rkc.roman, roman.c_str(), _TRUNCATE);
@@ -1009,7 +1016,7 @@ void CTextService::_ConvKanaToKana(const std::wstring &src, int srcmode, std::ws
 
 BOOL CTextService::_SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *src, int srcmode, std::wstring &dst, int dstmode)
 {
-	ROMAN_KANA_CONV rkc;
+	ROMAN_KANA_CONV rkc = {};
 	BOOL exist = FALSE;
 
 	FORWARD_ITERATION_I(v_itr, tree.nodes)
@@ -1090,6 +1097,43 @@ BOOL CTextService::_SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *s
 	}
 
 	return exist;
+}
+
+void CTextService::_ConvOkuriRoman()
+{
+	WCHAR chO = L'\0';
+
+	if (okuriidx != 0 && okuriidx + 1 < kana.size())
+	{
+		if (kana[okuriidx] == CHAR_SKK_OKURI)
+		{
+			WCHAR chN = kana[okuriidx + 1];
+
+			// 送り仮名の先頭をキーに、変換位置指定の「代替」を検索する。
+			// ヒットしたエントリの「送り」を送りローマ字とする。
+			auto va_itr = std::lower_bound(conv_point_a.begin(), conv_point_a.end(),
+				chN, [](CONV_POINT m, WCHAR v) { return (m.ch[1] < v); });
+
+			if (va_itr != conv_point_a.end() && chN == va_itr->ch[1])
+			{
+				chO = va_itr->ch[2];
+			}
+
+			if (chO == L'\0')
+			{
+				kana.erase(okuriidx, 1);
+				if (okuriidx < cursoridx)
+				{
+					cursoridx--;
+				}
+				okuriidx = 0;
+			}
+			else
+			{
+				kana.replace(okuriidx, 1, 1, chO);	//送りローマ字
+			}
+		}
+	}
 }
 
 void CTextService::_ConvKanaToRoman(std::wstring &dst, const std::wstring &src, int srcmode)
@@ -1183,4 +1227,3 @@ BOOL CTextService::_SearchRomanByKana(const ROMAN_KANA_NODE &tree, int srcmode, 
 
 	return exist;
 }
-
