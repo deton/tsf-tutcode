@@ -2,57 +2,57 @@
 #include "utf8.h"
 #include "imcrvmgr.h"
 
-//
-// request and reply commands
-//
-//search candidate
-//  request "1\n<key>\t<key(original)>\t<okuri>\n"
-//  reply   "T\n<candidate(display)>\t<candidate(register)>\t<annotation(display)>\t<annotation(register)>\n...\n":hit
-//          "F\n":nothing
-//search key for complement
-//  request "4\n<key prefix>\t<candidate max>\t\n"
-//  reply   "T\n<key>\t\t<candidates>\t\n...\n":hit
-//          "F\n":nothing
-//convert key
-//  request "5\n<key>\t\t<okuri>\n"
-//  reply   "T\n<key converted>\n...\n":hit
-//          "F\n":nothing
-//convert candidate
-//  request "6\n<key>\t<candidate>\t<okuri>\n"
-//  reply   "T\n<candidate converted>\n":hit
-//          "F\n":nothing
-//add candidate (complement off)
-//  request "A\n<key>\t<candidate>\t<annotation>\t<okuri>\n"
-//  reply   "T\n"
-//add candidate (complement on)
-//  request "B\n<key>\t<candidate>\t<annotation>\t\n"
-//  reply   "T\n"
-//delete candidate (complement off)
-//  request "C\n<key>\t<candidate>\n"
-//  reply   "T\n"
-//delete candidate (complement on)
-//  request "D\n<key>\t<candidate>\n"
-//  reply   "T\n"
-//save user dictionary
-//  request "S\n"
-//  reply   "T\n"
-//create configuration dialog process
-//  request "P\n"
-//  reply   "T\n"
-//caps lock
-//  request "I\n"
-//  reply   "T\n"
-//kana lock
-//  request "J\n"
-//  reply   "T\n"
-//bushu conversion
-//  request "b\n<bushu1>\t<bushu2>\n"
-//  reply   "T\n<candidate converted>\n":hit
-//          "F\n":nothing
-//
-
 void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 {
+	/*
+	  request and reply commands
+
+	  search candidate
+	    request "1\n<key>\t<key(original)>\t<okuri>\n"
+	    reply   "T\n<candidate(display)>\t<candidate(register)>\t<annotation(display)>\t<annotation(register)>\n...\n":hit
+	            "F\n":nothing
+	  search key for complement
+	    request "4\n<key prefix>\t<candidate max>\t\n"
+	    reply   "T\n<key>\t\t<candidates>\t\n...\n":hit
+	            "F\n":nothing
+	  convert key
+	    request "5\n<key>\t\t<okuri>\n"
+	    reply   "T\n<key converted>\n...\n":hit
+	            "F\n":nothing
+	  convert candidate
+	    request "6\n<key>\t<candidate>\t<okuri>\n"
+	    reply   "T\n<candidate converted>\n":hit
+	            "F\n":nothing
+	  add candidate (complement off)
+	    request "A\n<key>\t<candidate>\t<annotation>\t<okuri>\n"
+	    reply   "T\n"
+	  add candidate (complement on)
+	    request "B\n<key>\t<candidate>\t<annotation>\t\n"
+	    reply   "T\n"
+	  delete candidate (complement off)
+	    request "C\n<key>\t<candidate>\n"
+	    reply   "T\n"
+	  delete candidate (complement on)
+	    request "D\n<key>\t<candidate>\n"
+	    reply   "T\n"
+	  save user dictionary
+	    request "S\n"
+	    reply   "T\n"
+	  create configuration dialog process
+	    request "P\n"
+	    reply   "T\n"
+	  caps lock
+	    request "I\n"
+	    reply   "T\n"
+	  kana lock
+	    request "J\n"
+	    reply   "T\n"
+	  bushu conversion
+	    request "b\n<bushu1>\t<bushu2>\n"
+	    reply   "T\n<candidate converted>\n":hit
+	            "F\n":nothing
+	*/
+
 	SKKDICCANDIDATES sc;
 	std::wstring fmt, key, keyorg, okuri, candidate, annotation, conv;
 	std::wregex re;
@@ -122,6 +122,7 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		{
 			lua_getglobal(lua, u8"lua_skk_complement");
 			lua_pushstring(lua, WCTOU8(key));
+
 			if (lua_pcall(lua, 1, 1, 0) == LUA_OK)
 			{
 				if (lua_isstring(lua, -1))
@@ -133,8 +134,8 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 						sc_itr->first = ParseConcat(sc_itr->first);
 					}
 				}
+				lua_pop(lua, 1);
 			}
-			lua_pop(lua, 1);
 		}
 		else
 		{
@@ -194,8 +195,8 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		}
 		break;
 
-	case REQ_USER_ADD_0:
-	case REQ_USER_ADD_1:
+	case REQ_USER_ADD_A:
+	case REQ_USER_ADD_N:
 		re.assign(L"(.*)\t(.*)\t(.*)\t(.*)\n");
 		fmt.assign(L"$1");
 		key = std::regex_replace(argument, re, fmt);
@@ -206,62 +207,77 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		fmt.assign(L"$4");
 		okuri = std::regex_replace(argument, re, fmt);
 
+		result = REP_OK;
+
 		if (lua != nullptr)
 		{
 			lua_getglobal(lua, u8"lua_skk_add");
-			lua_pushboolean(lua, (command == REQ_USER_ADD_0 ? 1 : 0));
+			lua_pushboolean(lua, (command == REQ_USER_ADD_A ? 1 : 0));
 			lua_pushstring(lua, WCTOU8(key));
 			lua_pushstring(lua, WCTOU8(candidate));
 			lua_pushstring(lua, WCTOU8(annotation));
 			lua_pushstring(lua, WCTOU8(okuri));
-			lua_pcall(lua, 5, 1, 0);
+
+			if (lua_pcall(lua, 5, 0, 0) != LUA_OK)
+			{
+				result = REP_FALSE;
+			}
 		}
 		else
 		{
 			AddUserDic(command, key, candidate, annotation, okuri);
 		}
 
-		result = REP_OK;
 		result += L"\n";
 		break;
 
-	case REQ_USER_DEL_0:
-	case REQ_USER_DEL_1:
+	case REQ_USER_DEL_A:
+	case REQ_USER_DEL_N:
 		re.assign(L"(.*)\t(.*)\n");
 		fmt.assign(L"$1");
 		key = std::regex_replace(argument, re, fmt);
 		fmt.assign(L"$2");
 		candidate = std::regex_replace(argument, re, fmt);
 
+		result = REP_OK;
+
 		if (lua != nullptr)
 		{
 			lua_getglobal(lua, u8"lua_skk_delete");
-			lua_pushboolean(lua, (command == REQ_USER_DEL_0 ? 1 : 0));
+			lua_pushboolean(lua, (command == REQ_USER_DEL_A ? 1 : 0));
 			lua_pushstring(lua, WCTOU8(key));
 			lua_pushstring(lua, WCTOU8(candidate));
-			lua_pcall(lua, 3, 0, 0);
+
+			if (lua_pcall(lua, 3, 0, 0) != LUA_OK)
+			{
+				result = REP_FALSE;
+			}
 		}
 		else
 		{
 			DelUserDic(command, key, candidate);
 		}
 
-		result = REP_OK;
 		result += L"\n";
 		break;
 
 	case REQ_USER_SAVE:
+		result = REP_OK;
+
 		if (lua != nullptr)
 		{
 			lua_getglobal(lua, u8"lua_skk_save");
-			lua_pcall(lua, 0, 0, 0);
+
+			if (lua_pcall(lua, 0, 0, 0) != LUA_OK)
+			{
+				result = REP_FALSE;
+			}
 		}
 		else
 		{
 			StartSaveUserDic(TRUE);
 		}
 
-		result = REP_OK;
 		result += L"\n";
 		break;
 
@@ -287,20 +303,22 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	}
 }
 
-unsigned int __stdcall SrvThread(void *p)
+unsigned __stdcall SrvThread(void *p)
 {
 	HANDLE hPipe = (HANDLE)p;
 	DWORD bytesRead, bytesWrite;
 	BOOL bRet;
-	std::wstring wspipebuf;
 	WCHAR command;
+	std::wstring argument;
+	std::wstring wspipebuf;
+
 #ifdef _DEBUG
 	std::wstring dedit, tedit;
 	std::wregex re;
 	std::wstring fmt;
 #endif
 
-	WCHAR *pipebuf = (PWCHAR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WCHAR) * PIPEBUFSIZE);
+	PWCHAR pipebuf = (PWCHAR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WCHAR) * PIPEBUFSIZE);
 	if (pipebuf == nullptr)
 	{
 		return -1;
@@ -342,8 +360,6 @@ unsigned int __stdcall SrvThread(void *p)
 			continue;
 		}
 
-		command = pipebuf[0];
-
 #ifdef _DEBUG
 		tedit.assign(pipebuf);
 		re.assign(L"\n");
@@ -357,7 +373,12 @@ unsigned int __stdcall SrvThread(void *p)
 		SetWindowTextW(hWndEdit, dedit.c_str());
 #endif
 
-		SrvProc(command, &pipebuf[2], wspipebuf);
+		command = pipebuf[0];
+		argument.assign(&pipebuf[2]);
+		wspipebuf.clear();
+
+		SrvProc(command, argument, wspipebuf);
+
 		wcsncpy_s(pipebuf, PIPEBUFSIZE, wspipebuf.c_str(), _TRUNCATE);
 
 #ifdef _DEBUG
@@ -422,7 +443,8 @@ HANDLE SrvStart()
 
 	if (hPipe != INVALID_HANDLE_VALUE)
 	{
-		hThread = (HANDLE)_beginthreadex(nullptr, 0, SrvThread, hPipe, 0, nullptr);
+		hThread = reinterpret_cast<HANDLE>(
+			_beginthreadex(nullptr, 0, SrvThread, hPipe, 0, nullptr));
 		if (hThread == nullptr)
 		{
 			CloseHandle(hPipe);

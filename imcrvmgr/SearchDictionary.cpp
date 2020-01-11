@@ -326,7 +326,8 @@ int lua_search_skk_dictionary(lua_State *lua)
 {
 	std::wstring candidate;
 
-	if (lua_isstring(lua, 1) && lua_isstring(lua, 2))
+	if (lua_isstring(lua, 1) &&
+		lua_isstring(lua, 2))
 	{
 		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
 		std::wstring okurikey = U8TOWC(lua_tostring(lua, 2));
@@ -343,7 +344,8 @@ int lua_search_user_dictionary(lua_State *lua)
 {
 	std::wstring candidate;
 
-	if (lua_isstring(lua, 1) && lua_isstring(lua, 2))
+	if (lua_isstring(lua, 1) &&
+		lua_isstring(lua, 2))
 	{
 		std::wstring searchkey = U8TOWC(lua_tostring(lua, 1));
 		std::wstring okurikey = U8TOWC(lua_tostring(lua, 2));
@@ -476,11 +478,13 @@ int lua_complement(lua_State *lua)
 int lua_add(lua_State *lua)
 {
 	if (lua_isboolean(lua, 1) &&
-		lua_isstring(lua, 2) && lua_isstring(lua, 3) &&
-		lua_isstring(lua, 4) && lua_isstring(lua, 5))
+		lua_isstring(lua, 2) &&
+		lua_isstring(lua, 3) &&
+		lua_isstring(lua, 4) &&
+		lua_isstring(lua, 5))
 	{
 		int okuriari = lua_toboolean(lua, 1);
-		WCHAR command = (okuriari ? REQ_USER_ADD_0 : REQ_USER_ADD_1);
+		WCHAR command = (okuriari ? REQ_USER_ADD_A : REQ_USER_ADD_N);
 		std::wstring searchkey = U8TOWC(lua_tostring(lua, 2));
 		std::wstring candidate = U8TOWC(lua_tostring(lua, 3));
 		std::wstring annotation = U8TOWC(lua_tostring(lua, 4));
@@ -495,10 +499,11 @@ int lua_add(lua_State *lua)
 int lua_delete(lua_State *lua)
 {
 	if (lua_isboolean(lua, 1) &&
-		lua_isstring(lua, 2) && lua_isstring(lua, 3))
+		lua_isstring(lua, 2) &&
+		lua_isstring(lua, 3))
 	{
 		int okuriari = lua_toboolean(lua, 1);
-		WCHAR command = (okuriari ? REQ_USER_DEL_0 : REQ_USER_DEL_1);
+		WCHAR command = (okuriari ? REQ_USER_DEL_A : REQ_USER_DEL_N);
 		std::wstring searchkey = U8TOWC(lua_tostring(lua, 2));
 		std::wstring candidate = U8TOWC(lua_tostring(lua, 3));
 

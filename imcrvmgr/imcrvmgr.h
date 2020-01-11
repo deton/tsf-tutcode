@@ -7,8 +7,8 @@
 typedef struct {
 	SKKDIC userdic;
 	USEROKURI userokuri;
-	KEYORDER complements;
-	KEYORDER accompaniments;
+	KEYORDER keyorder_n;
+	KEYORDER keyorder_a;
 } USERDATA;
 
 // ConfigMgr
@@ -58,13 +58,12 @@ void BackUpUserDic();
 
 // SearchSKKServer
 std::wstring SearchSKKServer(const std::wstring &searchkey);
-void ConnectSKKServer();
+void StartConnectSKKServer();
 void DisconnectSKKServer();
+void CleanUpSKKServer();
 std::wstring GetSKKServerInfo(CHAR req);
 
 // Server
-void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result);
-unsigned int __stdcall SrvThread(void *p);
 HANDLE SrvStart();
 
 //client
@@ -80,9 +79,13 @@ HANDLE SrvStart();
 std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
 BOOL LoadBushuConvUserDic();
 
+extern CRITICAL_SECTION csUserDict;
+extern CRITICAL_SECTION csUserData;
 extern CRITICAL_SECTION csSaveUserDic;
+extern CRITICAL_SECTION csSKKSocket;
 extern BOOL bUserDicChg;
-extern FILETIME ftConfig, ftSKKDic;
+extern FILETIME ftConfig;
+extern FILETIME ftSKKDic;
 #ifdef _DEBUG
 extern HWND hWndEdit;
 extern HFONT hFont;
@@ -92,11 +95,6 @@ extern HANDLE hMutex;
 extern HANDLE hThreadSrv;
 extern BOOL bSrvThreadExit;
 extern lua_State *lua;
-
-extern SKKDIC userdic;
-extern USEROKURI userokuri;
-extern KEYORDER complements;
-extern KEYORDER accompaniments;
 
 extern LPCWSTR TextServiceDesc;
 extern LPCWSTR DictionaryManagerClass;

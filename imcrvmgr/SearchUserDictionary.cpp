@@ -7,18 +7,18 @@
 //ユーザー辞書
 SKKDIC userdic;
 USEROKURI userokuri;
-//補完あり
-KEYORDER complements;
-//補完なし
-KEYORDER accompaniments;
-
-HANDLE hThreadUserDic = INVALID_HANDLE_VALUE;
+//送りなし、補完あり
+KEYORDER keyorder_n;
+//送りあり、補完なし
+KEYORDER keyorder_a;
 
 std::wstring SearchUserDic(const std::wstring &searchkey,  const std::wstring &okuri)
 {
 	std::wstring candidate;
 	SKKDICCANDIDATES sc;
 	SKKDICCANDIDATE okuric;
+
+	EnterCriticalSection(&csUserData);	// !
 
 	auto userdic_itr = userdic.find(searchkey);
 	if (userdic_itr != userdic.end())
@@ -56,6 +56,8 @@ std::wstring SearchUserDic(const std::wstring &searchkey,  const std::wstring &o
 		}
 	}
 
+	LeaveCriticalSection(&csUserData);	// !
+
 	FORWARD_ITERATION_I(sc_itr, sc)
 	{
 		candidate.append(L"/" + sc_itr->first);
@@ -76,9 +78,11 @@ void SearchComplement(const std::wstring &searchkey, SKKDICCANDIDATES &sc)
 {
 	size_t count = 0;
 
-	if (!complements.empty())
+	EnterCriticalSection(&csUserData);	// !
+
+	if (!keyorder_n.empty())
 	{
-		REVERSE_ITERATION_I(keyorder_ritr, complements)
+		REVERSE_ITERATION_I(keyorder_ritr, keyorder_n)
 		{
 			if (count >= MAX_COMPLEMENT_RESULT)
 			{
@@ -104,6 +108,8 @@ void SearchComplement(const std::wstring &searchkey, SKKDICCANDIDATES &sc)
 			}
 		}
 	}
+
+	LeaveCriticalSection(&csUserData);	// !
 }
 
 void SearchComplementSearchCandidate(SKKDICCANDIDATES &sc, int max)
@@ -158,6 +164,8 @@ void SearchComplementSearchCandidate(SKKDICCANDIDATES &sc, int max)
 
 void DelKeyOrder(const std::wstring &searchkey, KEYORDER &keyorder)
 {
+	EnterCriticalSection(&csUserData);	// !
+
 	if (!keyorder.empty())
 	{
 		FORWARD_ITERATION_I(keyorder_itr, keyorder)
@@ -169,13 +177,19 @@ void DelKeyOrder(const std::wstring &searchkey, KEYORDER &keyorder)
 			}
 		}
 	}
+
+	LeaveCriticalSection(&csUserData);	// !
 }
 
 void AddKeyOrder(const std::wstring &searchkey, KEYORDER &keyorder)
 {
+	EnterCriticalSection(&csUserData);	// !
+
 	DelKeyOrder(searchkey, keyorder);
 
 	keyorder.push_back(searchkey);
+
+	LeaveCriticalSection(&csUserData);	// !
 }
 
 void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring &candidate, const std::wstring &annotation, const std::wstring &okuri)
@@ -194,6 +208,8 @@ void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 
 	candidate_esc = MakeConcat(candidate);
 	annotation_esc = MakeConcat(annotation);
+
+	EnterCriticalSection(&csUserData);	// !
 
 	//ユーザー辞書
 	auto userdic_itr = userdic.find(searchkey);
@@ -219,11 +235,11 @@ void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 	//見出し語順序
 	switch (command)
 	{
-	case REQ_USER_ADD_0:
-		AddKeyOrder(searchkey, accompaniments);
+	case REQ_USER_ADD_A:
+		AddKeyOrder(searchkey, keyorder_a);
 		break;
-	case REQ_USER_ADD_1:
-		AddKeyOrder(searchkey, complements);
+	case REQ_USER_ADD_N:
+		AddKeyOrder(searchkey, keyorder_n);
 		break;
 	default:
 		break;
@@ -231,7 +247,7 @@ void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 
 	//ユーザー辞書送りブロック
 	re.assign(L"[\\[\\]]"); //角括弧を含む候補を除外
-	if (command == REQ_USER_ADD_0 && !okuri.empty() && !std::regex_search(candidate_esc, re))
+	if (command == REQ_USER_ADD_A && !okuri.empty() && !std::regex_search(candidate_esc, re))
 	{
 		auto userokuri_itr = userokuri.find(searchkey);
 		if (userokuri_itr == userokuri.end())
@@ -281,11 +297,15 @@ void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 		}
 	}
 
+	LeaveCriticalSection(&csUserData);	// !
+
 	bUserDicChg = TRUE;
 }
 
 void DelUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring &candidate)
 {
+	EnterCriticalSection(&csUserData);	// !
+
 	//ユーザー辞書
 	auto userdic_itr = userdic.find(searchkey);
 	if (userdic_itr != userdic.end())
@@ -306,11 +326,11 @@ void DelUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 			//見出し語順序
 			switch (command)
 			{
-			case REQ_USER_DEL_0:
-				DelKeyOrder(searchkey, accompaniments);
+			case REQ_USER_DEL_A:
+				DelKeyOrder(searchkey, keyorder_a);
 				break;
-			case REQ_USER_DEL_1:
-				DelKeyOrder(searchkey, complements);
+			case REQ_USER_DEL_N:
+				DelKeyOrder(searchkey, keyorder_n);
 				break;
 			default:
 				break;
@@ -351,10 +371,13 @@ void DelUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 			userokuri.erase(userokuri_itr);
 		}
 	}
+
+	LeaveCriticalSection(&csUserData);	// !
 }
 
 BOOL LoadUserDic()
 {
+	BOOL ret = FALSE;
 	FILE *fp;
 	std::wstring key, empty;
 	int okuri = -1;	//-1:header / 1:okuri-ari entries. / 0:okuri-nasi entries.
@@ -362,15 +385,19 @@ BOOL LoadUserDic()
 	SKKDICOKURIBLOCKS so;
 	USEROKURIENTRY userokurientry;
 
+	EnterCriticalSection(&csUserData);	// !
+
 	userdic.clear();
 	userokuri.clear();
-	complements.clear();
-	accompaniments.clear();
+	keyorder_n.clear();
+	keyorder_a.clear();
+
+	EnterCriticalSection(&csUserDict);	// !
 
 	_wfopen_s(&fp, pathuserdic, RccsUTF8);	//UTF-8 or UTF-16LE(with BOM)
 	if (fp == nullptr)
 	{
-		return FALSE;
+		goto exit;
 	}
 
 	while (true)
@@ -392,23 +419,27 @@ BOOL LoadUserDic()
 			continue;
 		}
 
+		//見出し語順序
+		auto userdic_itr = userdic.find(key);
+		if (userdic_itr == userdic.end())
+		{
+			switch (okuri)
+			{
+			case 0:
+				keyorder_n.push_back(key);
+				break;
+			case 1:
+				keyorder_a.push_back(key);
+				break;
+			default:
+				break;
+			}
+		}
+
 		//ユーザー辞書
 		REVERSE_ITERATION_I(sc_ritr, sc)
 		{
 			AddUserDic(WCHAR_MAX, key, sc_ritr->first, sc_ritr->second, empty);
-		}
-
-		//見出し語順序
-		switch (okuri)
-		{
-		case 0:
-			complements.push_back(key);
-			break;
-		case 1:
-			accompaniments.push_back(key);
-			break;
-		default:
-			break;
 		}
 
 		if (okuri == 1)
@@ -511,10 +542,17 @@ BOOL LoadUserDic()
 	fclose(fp);
 
 	//見出し語順序 末尾を最新とする
-	std::reverse(complements.begin(), complements.end());
-	std::reverse(accompaniments.begin(), accompaniments.end());
+	std::reverse(keyorder_n.begin(), keyorder_n.end());
+	std::reverse(keyorder_a.begin(), keyorder_a.end());
 
-	return TRUE;
+	ret = TRUE;
+
+exit:
+	LeaveCriticalSection(&csUserDict);	// !
+
+	LeaveCriticalSection(&csUserData);	// !
+
+	return ret;
 }
 
 void WriteUserDicEntry(FILE *fp, const std::wstring &key, const SKKDICCANDIDATES &sc, const SKKDICOKURIBLOCKS &so)
@@ -545,18 +583,17 @@ void WriteUserDicEntry(FILE *fp, const std::wstring &key, const SKKDICCANDIDATES
 	fwprintf(fp, L"%s\n", line.c_str());
 }
 
-unsigned int __stdcall SaveUserDic(void *p)
+void SaveUserDic(USERDATA *userdata)
 {
-	USERDATA *userdata = (USERDATA *)p;
 	FILE *fp;
 	SKKDICOKURIBLOCKS so;
 
 	if (userdata == nullptr)
 	{
-		return 0;
+		return;
 	}
 
-	EnterCriticalSection(&csSaveUserDic);	// !
+	EnterCriticalSection(&csUserDict);	// !
 
 	_wfopen_s(&fp, pathuserdic, WccsUTF16);
 	if (fp == nullptr)
@@ -567,7 +604,7 @@ unsigned int __stdcall SaveUserDic(void *p)
 	//送りありエントリ
 	fwprintf(fp, L"%s", EntriesAri);
 
-	REVERSE_ITERATION_I(keyorder_ritr, userdata->accompaniments)
+	REVERSE_ITERATION_I(keyorder_ritr, userdata->keyorder_a)
 	{
 		auto userdic_itr = userdata->userdic.find(*keyorder_ritr);
 		if (userdic_itr != userdata->userdic.end())
@@ -587,7 +624,7 @@ unsigned int __stdcall SaveUserDic(void *p)
 	//送りなしエントリ
 	fwprintf(fp, L"%s", EntriesNasi);
 
-	REVERSE_ITERATION_I(keyorder_ritr, userdata->complements)
+	REVERSE_ITERATION_I(keyorder_ritr, userdata->keyorder_n)
 	{
 		auto userdic_itr = userdata->userdic.find(*keyorder_ritr);
 		if (userdic_itr != userdata->userdic.end())
@@ -599,73 +636,83 @@ unsigned int __stdcall SaveUserDic(void *p)
 	fclose(fp);
 
 exit:
-	LeaveCriticalSection(&csSaveUserDic);	// !
+	LeaveCriticalSection(&csUserDict);	// !
+}
 
-	delete userdata;
+unsigned __stdcall SaveUserDicThread(void *p)
+{
+	USERDATA *userdata = (USERDATA *)p;
+
+	if (userdata != nullptr)
+	{
+		if (TryEnterCriticalSection(&csSaveUserDic))	// !
+		{
+			SaveUserDic(userdata);
+
+			LeaveCriticalSection(&csSaveUserDic);	// !
+		}
+
+		delete userdata;
+	}
 
 	return 0;
 }
 
 void StartSaveUserDic(BOOL bThread)
 {
-	if (hThreadUserDic != INVALID_HANDLE_VALUE)
-	{
-		DWORD ws = WaitForSingleObject(hThreadUserDic, (bThread ? 0 : INFINITE));
-		switch (ws)
-		{
-		case WAIT_OBJECT_0:
-			CloseHandle(hThreadUserDic);
-			hThreadUserDic = INVALID_HANDLE_VALUE;
-			break;
-		case WAIT_TIMEOUT:
-			return;
-			break;
-		default:
-			break;
-		}
-	}
-
 	if (bUserDicChg)
 	{
 		USERDATA *userdata = nullptr;
+
+		EnterCriticalSection(&csUserData);	// !
 
 		try
 		{
 			userdata = new USERDATA();
 			userdata->userdic = userdic;
 			userdata->userokuri = userokuri;
-			userdata->complements = complements;
-			userdata->accompaniments = accompaniments;
+			userdata->keyorder_n = keyorder_n;
+			userdata->keyorder_a = keyorder_a;
 		}
 		catch (...)
 		{
 			if (userdata != nullptr)
 			{
 				delete userdata;
+				userdata = nullptr;
 			}
+		}
+
+		LeaveCriticalSection(&csUserData);	// !
+
+		if (userdata == nullptr)
+		{
 			return;
 		}
 
 		if (bThread)
 		{
-			if (hThreadUserDic == INVALID_HANDLE_VALUE)
+			HANDLE h = reinterpret_cast<HANDLE>(
+				_beginthreadex(nullptr, 0, SaveUserDicThread, userdata, 0, nullptr));
+
+			if (h != nullptr)
 			{
-				hThreadUserDic = (HANDLE)_beginthreadex(nullptr, 0, SaveUserDic, userdata, 0, nullptr);
-				if (hThreadUserDic == nullptr)
-				{
-					delete userdata;
-					hThreadUserDic = INVALID_HANDLE_VALUE;
-				}
-				else
-				{
-					bUserDicChg = FALSE;
-				}
+				CloseHandle(h);
+
+				bUserDicChg = FALSE;
+			}
+			else
+			{
+				delete userdata;
 			}
 		}
 		else
 		{
 			SaveUserDic(userdata);
+
 			bUserDicChg = FALSE;
+
+			delete userdata;
 		}
 	}
 }
@@ -675,7 +722,7 @@ void BackUpUserDic()
 	WCHAR oldpath[MAX_PATH];
 	WCHAR newpath[MAX_PATH];
 
-	EnterCriticalSection(&csSaveUserDic);	// !
+	EnterCriticalSection(&csUserDict);	// !
 
 	for (int i = BACKUP_GENS; i > 1; i--)
 	{
@@ -689,5 +736,5 @@ void BackUpUserDic()
 
 	CopyFileW(pathuserdic, newpath, FALSE);
 
-	LeaveCriticalSection(&csSaveUserDic);	// !
+	LeaveCriticalSection(&csUserDict);	// !
 }
