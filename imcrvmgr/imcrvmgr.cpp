@@ -3,9 +3,13 @@
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
+CRITICAL_SECTION csUserDict;
+CRITICAL_SECTION csUserData;
 CRITICAL_SECTION csSaveUserDic;
+CRITICAL_SECTION csSKKSocket;
 BOOL bUserDicChg;
-FILETIME ftConfig = {}, ftSKKDic = {};
+FILETIME ftConfig = {};
+FILETIME ftSKKDic = {};
 #ifdef _DEBUG
 HWND hWndEdit;
 HFONT hFont;
@@ -114,6 +118,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		CreateConfigPath();
 		UpdateConfigPath();
 
+		InitializeCriticalSection(&csUserDict);	// !
+		InitializeCriticalSection(&csUserData);	// !
+		InitializeCriticalSection(&csSaveUserDic);	// !
+		InitializeCriticalSection(&csSKKSocket);	// !
+
 		if (IsFileModified(pathconfigxml, &ftConfig))
 		{
 			LoadConfig();
@@ -126,12 +135,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		bUserDicChg = FALSE;
 		LoadUserDic();
+		LoadBushuConvUserDic();
 
 		InitLua();
-
-		InitializeCriticalSection(&csSaveUserDic);	// !
-
-		LoadBushuConvUserDic();
 
 		bSrvThreadExit = FALSE;
 		hThreadSrv = SrvStart();
@@ -149,7 +155,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 
 	case WM_POWERBROADCAST:
-		if (wParam == PBT_APMSUSPEND)
+		if (wParam == PBT_APMRESUMESUSPEND)
 		{
 			StartSaveUserDic(FALSE);
 
@@ -157,11 +163,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 
+	case WM_QUERYENDSESSION:
+		{
+			// block shutdown
+			WCHAR reason[MAX_STR_BLOCKREASON];
+			_snwprintf_s(reason, _TRUNCATE, L"A SKK user dictionary is being saved.");
+			ShutdownBlockReasonCreate(hWnd, reason);
+			return TRUE;
+		}
+		break;
+
 	case WM_DESTROY:
 	case WM_ENDSESSION:
-#ifdef _DEBUG
-		DeleteObject(hFont);
-#endif
 		bSrvThreadExit = TRUE;
 		hPipe = CreateFileW(mgrpipename, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
 			nullptr, OPEN_EXISTING, SECURITY_SQOS_PRESENT | SECURITY_EFFECTIVE_ONLY | SECURITY_IDENTIFICATION, nullptr);
@@ -173,6 +186,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		CloseHandle(hThreadSrv);
 
+		CleanUpSKKServer();
+
+		UninitLua();
+
 		StartSaveUserDic(FALSE);
 
 		if (message == WM_ENDSESSION)
@@ -180,11 +197,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			BackUpUserDic();
 		}
 
+		DeleteCriticalSection(&csSKKSocket);	// !
 		DeleteCriticalSection(&csSaveUserDic);	// !
-
-		UninitLua();
+		DeleteCriticalSection(&csUserData);	// !
+		DeleteCriticalSection(&csUserDict);	// !
 
 		WSACleanup();
+
+#ifdef _DEBUG
+		DeleteObject(hFont);
+#endif
+
+		if (message == WM_ENDSESSION)
+		{
+			// unblock shutdown
+			ShutdownBlockReasonDestroy(hWnd);
+		}
 
 		if (message == WM_DESTROY)
 		{

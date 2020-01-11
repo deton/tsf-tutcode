@@ -17,7 +17,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, BOOL fixed,
 HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstring &comptext, BOOL fixed, BOOL back)
 {
 	WCHAR candidatecount[16];
-	WCHAR useraddmode = REQ_USER_ADD_1;
+	WCHAR useraddmode = REQ_USER_ADD_N;
 	LONG cchCursor = 0;
 	LONG cchOkuri = 0;
 	BOOL showmodemark = cx_showmodemark;
@@ -46,7 +46,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 			{
 				cchOkuri = (LONG)comptext.size();
 				comptext.append(kana.substr(okuriidx + 1));
-				useraddmode = REQ_USER_ADD_0;
+				useraddmode = REQ_USER_ADD_A;
 			}
 			//活用する語の語尾
 			std::wstring gobi;

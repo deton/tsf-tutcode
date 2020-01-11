@@ -3,7 +3,7 @@
 #include "utf8.h"
 #include "imcrvmgr.h"
 
-SOCKET sock = INVALID_SOCKET;
+SOCKET skksocket = INVALID_SOCKET;
 
 std::wstring SearchSKKServer(const std::wstring &searchkey)
 {
@@ -13,8 +13,17 @@ std::wstring SearchSKKServer(const std::wstring &searchkey)
 	CHAR rbuf[RECVBUFSIZE];
 	int n;
 
-	if (!serv)
+	if (serv)
 	{
+		if (skksocket == INVALID_SOCKET)
+		{
+			StartConnectSKKServer();
+			return candidate;
+		}
+	}
+	else
+	{
+		DisconnectSKKServer();
 		return candidate;
 	}
 
@@ -49,16 +58,9 @@ std::wstring SearchSKKServer(const std::wstring &searchkey)
 	}
 	key.push_back('\x20'/*SP*/);
 
-	if (sock == INVALID_SOCKET)
+	if (send(skksocket, key.c_str(), (int)key.size(), 0) == SOCKET_ERROR)
 	{
-		ConnectSKKServer();
-	}
-
-	GetSKKServerInfo(SKK_VER);
-
-	if (send(sock, key.c_str(), (int)key.size(), 0) == SOCKET_ERROR)
-	{
-		DisconnectSKKServer();
+		StartConnectSKKServer();
 		goto end;
 	}
 
@@ -67,10 +69,10 @@ std::wstring SearchSKKServer(const std::wstring &searchkey)
 	while (true)
 	{
 		ZeroMemory(rbuf, sizeof(rbuf));
-		n = recv(sock, rbuf, sizeof(rbuf) - 1, 0);
+		n = recv(skksocket, rbuf, sizeof(rbuf) - 1, 0);
 		if (n == SOCKET_ERROR || n <= 0)
 		{
-			DisconnectSKKServer();
+			StartConnectSKKServer();
 			goto end;
 		}
 
@@ -114,6 +116,7 @@ end:
 
 void ConnectSKKServer()
 {
+	SOCKET sock;
 	ADDRINFOW *paiwResult;
 	ADDRINFOW *paiw;
 	u_long mode;
@@ -167,7 +170,7 @@ void ConnectSKKServer()
 		mode = 0;
 		ioctlsocket(sock, FIONBIO, &mode);
 
-		tv.tv_sec = timeout / 1000;
+		tv.tv_sec = (timeout - (timeout % 1000)) / 1000;
 		tv.tv_usec = (timeout % 1000) * 1000;
 
 		FD_ZERO(&fdw);
@@ -176,25 +179,73 @@ void ConnectSKKServer()
 		FD_SET(sock, &fde);
 
 		select(0, nullptr, &fdw, &fde, &tv);
+
 		if (FD_ISSET(sock, &fdw))
 		{
+			//connected
+			skksocket = sock;
 			break;
 		}
 
-		DisconnectSKKServer();
+		shutdown(sock, SD_BOTH);
+		closesocket(sock);
 	}
 
 	FreeAddrInfoW(paiwResult);
 }
 
+void CloseSKKServSocket()
+{
+	if (skksocket != INVALID_SOCKET)
+	{
+		shutdown(skksocket, SD_BOTH);
+		closesocket(skksocket);
+		skksocket = INVALID_SOCKET;
+	}
+}
+
+unsigned __stdcall ConnectSKKServerThread(void *p)
+{
+	if (TryEnterCriticalSection(&csSKKSocket))	// !
+	{
+		CloseSKKServSocket();
+
+		ConnectSKKServer();
+
+		LeaveCriticalSection(&csSKKSocket);	// !
+	}
+
+	return 0;
+}
+
+void StartConnectSKKServer()
+{
+	HANDLE h = reinterpret_cast<HANDLE>(
+		_beginthreadex(nullptr, 0, ConnectSKKServerThread, nullptr, 0, nullptr));
+
+	if (h != nullptr)
+	{
+		CloseHandle(h);
+	}
+}
+
 void DisconnectSKKServer()
 {
-	if (sock != INVALID_SOCKET)
+	if (TryEnterCriticalSection(&csSKKSocket))	// !
 	{
-		shutdown(sock, SD_BOTH);
-		closesocket(sock);
-		sock = INVALID_SOCKET;
+		CloseSKKServSocket();
+
+		LeaveCriticalSection(&csSKKSocket);	// !
 	}
+}
+
+void CleanUpSKKServer()
+{
+	EnterCriticalSection(&csSKKSocket);	// !
+
+	CloseSKKServSocket();
+
+	LeaveCriticalSection(&csSKKSocket);	// !
 }
 
 std::wstring GetSKKServerInfo(CHAR req)
@@ -205,26 +256,33 @@ std::wstring GetSKKServerInfo(CHAR req)
 	CHAR rbuf[RECVBUFSIZE];
 	int n;
 
-	if (!serv)
+	if (serv)
 	{
+		if (skksocket == INVALID_SOCKET)
+		{
+			StartConnectSKKServer();
+			return ret;
+		}
+	}
+	else
+	{
+		DisconnectSKKServer();
 		return ret;
 	}
 
-	if (send(sock, &req, 1, 0) == SOCKET_ERROR)
+	if (send(skksocket, &req, 1, 0) == SOCKET_ERROR)
 	{
-		DisconnectSKKServer();
-		ConnectSKKServer();
+		StartConnectSKKServer();
 	}
 	else
 	{
 		while (true)
 		{
 			ZeroMemory(rbuf, sizeof(rbuf));
-			n = recv(sock, rbuf, sizeof(rbuf) - 1, 0);
+			n = recv(skksocket, rbuf, sizeof(rbuf) - 1, 0);
 			if (n == SOCKET_ERROR || n <= 0)
 			{
-				DisconnectSKKServer();
-				ConnectSKKServer();
+				StartConnectSKKServer();
 				break;
 			}
 

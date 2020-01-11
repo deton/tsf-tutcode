@@ -230,8 +230,7 @@ void LoadConfig()
 
 		if (serv)
 		{
-			ConnectSKKServer();
-			GetSKKServerInfo(SKK_VER);
+			StartConnectSKKServer();
 		}
 	}
 
