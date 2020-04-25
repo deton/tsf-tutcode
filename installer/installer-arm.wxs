@@ -5,7 +5,7 @@
 
   <Product
     Id="*"
-    Name="tsf-tutcode (arm)"
+    Name="tsf-tutcode (ARM)"
     Version="$(var.version)"
     Manufacturer="KIHARA Hideto"
     Language="1033"
@@ -16,7 +16,7 @@
     <Package
       Id="*"
       Compressed="yes"
-      Description="tsf-tutcode (arm)"
+      Description="tsf-tutcode (ARM)"
       Comments="ver. $(var.version)"
       Platform="x64"
       InstallerVersion="500"
@@ -44,14 +44,6 @@
             <Directory Id="IMTSFTUTCODE_ARM32" Name="IMTSFTUTCODE" />
           </Directory>
         </Directory>
-        <Directory Id="SYSTEMWOW64" Name="SysWOW64">
-          <Directory Id="IME_X86" Name="IME">
-            <Directory Id="IMTSFTUTCODE_X86" Name="IMTSFTUTCODE" />
-          </Directory>
-        </Directory>
-        <Directory Id="IME_WIN" Name="IME">
-          <Directory Id="IMTSFTUTCODE_WIN" Name="IMTSFTUTCODE" />
-        </Directory>
       </Directory>
       <Directory Id="ProgramMenuFolder">
         <Directory Id="IMTSFTUTCODE_MENU" Name="tsf-tutcode" />
@@ -60,33 +52,38 @@
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
       <Component Id="CNF_ARM64" Guid="*" Win64="yes">
-        <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe" Source="..\ARM64\Release\imtutcnf.exe" />
+        <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe" Source="..\ARM64\Release\imtutcnf.exe" KeyPath="yes">
+          <!-- overwrite x86 shortcut -->
+          <Shortcut Id="S_imtutcnf_arm64" Name="CONFIG" Directory="IMTSFTUTCODE_MENU"
+            WorkingDirectory="IMTSFTUTCODE_WIN" Show="normal" Advertise="yes" />
+        </File>
+        <RemoveFolder Id="RF_imtutcnf_arm64" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
       <Component Id="MGR_ARM64" Guid="*" Win64="yes">
-        <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe" Source="..\ARM64\Release\imtutmgr.exe" />
+        <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe" Source="..\ARM64\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
       <Component Id="TIP_ARM64" Guid="*" Win64="yes">
-        <File Id="F_imtuttip_arm64" Name="imtuttip.dll" Source="..\ARM64\Release\imtuttip.dll" SelfRegCost="1" />
+        <File Id="F_imtuttip_arm64" Name="imtuttip.dll" Source="..\ARM64\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
       <Component Id="LUAEXE_ARM64" Guid="*" Win64="yes">
-        <File Id="F_luaexe_arm64" Name="lua.exe" Source="..\ARM64\Release\lua.exe" />
+        <File Id="F_luaexe_arm64" Name="lua.exe" Source="..\ARM64\Release\lua.exe" KeyPath="yes" />
       </Component>
       <Component Id="LUADLL_ARM64" Guid="*" Win64="yes">
-        <File Id="F_luadll_arm64" Name="lua53.dll" Source="..\ARM64\Release\lua53.dll" />
+        <File Id="F_luadll_arm64" Name="lua53.dll" Source="..\ARM64\Release\lua53.dll" KeyPath="yes" />
       </Component>
       <Component Id="ZLIBDLL_ARM64" Guid="*" Win64="yes">
-        <File Id="F_zlibdll_ARM64" Name="zlib1.dll" Source="..\ARM64\Release\zlib1.dll" />
+        <File Id="F_zlibdll_ARM64" Name="zlib1.dll" Source="..\ARM64\Release\zlib1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
       <Component Id="MSVCP140_ARM64" Guid="*" Win64="yes">
         <File Id="F_msvcp140_arm64" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\msvcp140.dll" />
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\msvcp140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_ARM64" Guid="*" Win64="yes">
         <File Id="F_vcruntime140_arm64" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\vcruntime140.dll" />
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\vcruntime140.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
@@ -94,73 +91,14 @@
     <DirectoryRef Id="IMTSFTUTCODE_ARM32">
       <Component Id="TIP_ARM32" Guid="*">
         <!-- self registration arm32 dll fails. use regsvr32 command in custom action. -->
-        <File Id="F_imtuttip_arm32" Name="imtuttip.dll" Source="..\ARM\Release\imtuttip.dll" />
-      </Component>
-    </DirectoryRef>
-
-    <DirectoryRef Id="IMTSFTUTCODE_X86">
-      <Component Id="CNF_X86" Guid="*">
-        <File Id="F_imtutcnf_x86" Name="imtutcnf.exe" Source="..\Win32\Release\imcrvcnf.exe" />
-      </Component>
-      <Component Id="MGR_X86" Guid="*">
-        <File Id="F_imtutmgr_x86" Name="imtutmgr.exe" Source="..\Win32\Release\imtutmgr.exe" />
-      </Component>
-      <Component Id="TIP_X86" Guid="*">
-        <File Id="F_imcrvtip_x86" Na*"imcrvtip.dll" Source="..\Win32\Release\imcrvtip.dll" SelfRegCost="1" />
-      </Component>
-      <Component Id="LUAEXE_X86" Guid="*">
-        <File Id="F_luaexe_x86" Name="lua.exe" Source="..\Win32\Release\lua.exe" />
-      </Component>
-      <Component Id="LUADLL_X86" Guid="*">
-        <File Id="F_luadll_x86" Name="lua53.dll" Source="..\Win32\Release\lua53.dll" />
-      </Component>
-      <Component Id="ZLIBDLL_X86" Guid="ED3222D1-7EF1-4EAD-9C57-FF0DE4C13478">
-        <File Id="F_zlibdll_X86" Name="zlib1.dll" Source="..\Win32\Release\zlib1.dll" />
-      </Component>
-    </DirectoryRef>
-
-    <DirectoryRef Id="IMTSFTUTCODE_X86">
-      <Component Id="MSVCP140_X86" Guid="*">
-        <File Id="F_msvcp140_x86" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC142.CRT\msvcp140.dll" />
-      </Component>
-      <Component Id="VCRUNTIME140_X86" Guid="*">
-        <File Id="F_vcruntime140_x86" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC142.CRT\vcruntime140.dll" />
-      </Component>
-    </DirectoryRef>
-
-    <DirectoryRef Id="IMTSFTUTCODE_WIN">
-      <Component Id="CONFIG_XML" Guid="*">
-        <File Id="F_config_xml" Name="config.xml" Source="build\config.xml" />
-      </Component>
-      <Component Id="INIT_LUA" Guid="*">
-        <File Id="F_init_lua" Name="init.lua" Source="build\init.lua" />
-      </Component>
-      <Component Id="SKKDICT_TXT" Guid="*">
-        <File Id="F_skkdict_txt" Name="skkdict.txt" Source="build\skkdict.txt" />
-      </Component>
-      <Component Id="README_HTML" Guid="*">
-        <File Id="F_readme_html" Name="README.html" Source="build\README.html" KeyPath="yes">
-          <Shortcut Id="S_readme_html" Name="README.html" Directory="IMTSFTUTCODE_MENU"
-            WorkingDirectory="IMTSFTUTCODE_WIN" Show="normal" Advertise="yes" />
-        </File>
-        <RemoveFolder Id="RF_readme_html" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
-      </Component>
-      <Component Id="LICENSE_TXT" Guid="*">
-        <File Id="F_license_txt" Name="LICENSE.txt" Source="build\LICENSE.txt" KeyPath="yes">
-          <Shortcut Id="S_license_txt" Name="LICENSE.txt" Directory="IMTSFTUTCODE_MENU"
-            WorkingDirectory="IMTSFTUTCODE_WIN" Show="normal" Advertise="yes" />
-        </File>
-        <RemoveFolder Id="RF_license_txt" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
+        <File Id="F_imtuttip_arm32" Name="imtuttip.dll" Source="..\ARM\Release\imtuttip.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <Component Id="REG_ARM64" Guid="*" Directory="TARGETDIR" Win64="yes">
-      <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
-        <RegistryValue Action="write" Type="string" Name="imtutmgr"
-          Value="&quot;[%SystemRoot]\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" />
-      </RegistryKey>
+      <RegistryValue Id="RV_run_arm64" Action="write"
+        Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+        Type="string" Name="imtutmgr" Value="&quot;[#F_imtutmgr_arm64]&quot;" KeyPath="yes" />
     </Component>
 
     <Feature Id="Default" Title="Main" Level="1">
@@ -173,24 +111,14 @@
       <ComponentRef Id="MSVCP140_ARM64" />
       <ComponentRef Id="VCRUNTIME140_ARM64" />
       <ComponentRef Id="TIP_ARM32" />
-      <ComponentRef Id="CNF_X86" />
-      <ComponentRef Id="MGR_X86" />
-      <ComponentRef Id="TIP_X86" />
-      <ComponentRef Id="LUAEXE_X86" />
-      <ComponentRef Id="LUADLL_X86" />
-      <ComponentRef Id="ZLIBDLL_X86" />
-      <ComponentRef Id="MSVCP140_X86" />
-      <ComponentRef Id="VCRUNTIME140_X86" />
-      <ComponentRef Id="CONFIG_XML" />
-      <ComponentRef Id="INIT_LUA" />
-      <ComponentRef Id="SKKDICT_TXT" />
-      <ComponentRef Id="LICENSE_TXT" />
-      <ComponentRef Id="README_HTML" />
       <ComponentRef Id="REG_ARM64" />
     </Feature>
 
     <UIRef Id="WixUI_Minimal" />
     <WixVariable Id="WixUILicenseRtf" Value="theme-bundle\license.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="theme-bundle\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="theme-bundle\dialog.bmp" />
+
     <Property Id="ARPPRODUCTICON" Value="IMTSFTUTCODE_ICO" />
     <Icon Id="IMTSFTUTCODE_ICO" SourceFile="..\imtuttip\Icon\kanchoku.ico" />
 

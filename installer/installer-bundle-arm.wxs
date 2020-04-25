@@ -6,7 +6,7 @@
   <?include installer-version.wxi ?>
 
   <Bundle
-    Name="tsf-tutcode"
+    Name="tsf-tutcode $(var.version) (ARM)"
     Version="$(var.version)"
     UpgradeCode="5853CC0A-D06E-4930-885E-C0BD8991211A"
     Manufacturer="KIHARA Hideto"
@@ -18,23 +18,36 @@
     <BootstrapperApplicationRef
       Id="WixStandardBootstrapperApplication.RtfLargeLicense">
       <bal:WixStandardBootstrapperApplication
-        ThemeFile="theme-bundle\RtfSidebarTheme.xml"
         LicenseFile="theme-bundle\license.rtf"
-        ShowVersion="yes"
+        LogoFile="theme-bundle\logo.png"
         SuppressOptionsUI="yes" />
-      <Payload
-        Name="logoside.png"
-        SourceFile="theme-bundle\logoside.png" />
     </BootstrapperApplicationRef>
 
     <Chain>
 
+      <!-- x86 modules -->
+      <MsiPackage
+        Id="X86_MSI"
+        SourceFile="build\x86.msi"
+        DisplayName="x86 modules"
+        ForcePerMachine="yes"
+        Compressed="yes"
+        InstallCondition="VersionNT">
+        <!-- enabled autorun x86 imcrvmgr.exe only on 32-bit Windows. -->
+        <MsiProperty
+          Name="PLATFORMVERSION"
+          Value="[VersionNT]" />
+      </MsiPackage>
+
       <!-- arm modules -->
       <MsiPackage
+        Id="ARM_MSI"
         SourceFile="build\arm.msi"
-        DisplayName="arm modules"
+        DisplayName="ARM modules"
         ForcePerMachine="yes"
-        Compressed="yes" />
+        Compressed="yes"
+        InstallCondition="VersionNT"
+        After="X86_MSI" />
 
     </Chain>
 

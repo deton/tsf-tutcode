@@ -13,6 +13,7 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 モード無しで後置型変換を基本とするInputMethodにすることを目指しています。
 
+
 ## インストール
 
 
@@ -185,6 +186,7 @@ IMオフ状態で打鍵してしまった文字列を、後から日本語に置
 
 ## 設定
 
+
 ### 設定ダイアログ
 
 設定ダイアログは、以下のいずれかの操作で開くことができます。
@@ -193,6 +195,7 @@ IMオフ状態で打鍵してしまった文字列を、後から日本語に置
 * 言語バーの入力モードアイコンを左クリックし、メニューから「設定」を選択する。
 * 言語バーのヘルプボタンを左クリックし、メニューから「tsf-tutcode」を選択する。
 * Windows 8 以降の通知領域の入力モードアイコンを右クリックし、メニューから「設定」を選択する。
+* スタートメニューから tsf-tutcode\CONFIG を実行する。
 * %SystemRoot%\System32\IME\IMTSFTUTCODE\imtutcnf.exe または %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE\imtutcnf.exe を直接実行する
   * コマンドライン引数またはドラッグアンドドロップで後述の設定ファイルを渡すことが可能です。
 
@@ -403,7 +406,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 | 機能 | 説明 |
 |---|---|
-| 入力モードを表示する                      | キャレットまたは辞書登録ウィンドウ付近に入力モードを表示します。<br>タイミングは、IME ON/OFF 変更、入力モード変更、IME ON/OFF キー押下、「\*無効\*」キー押下のときです。<br>表示する秒数として1〜60秒を設定してください。デフォルト値は3秒です。 |
+| 入力モードを表示する                      | キャレットまたは辞書登録ウィンドウ付近に入力モードを表示します。<br>タイミングは、IME ON/OFF 変更、入力モード変更、IME ON/OFF キー押下、「\*無効\*」キー押下のときです。<br>表示する秒数として1〜60000ミリ秒を設定してください。デフォルト値は3000ミリ秒です。 |
 | 入力モードの色                            | 入力モード表示の色を指定します。 |
 
 
@@ -938,15 +941,15 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2019 16.4.2
+Visual Studio Community 2019 16.5.4
 
 * Desktop development with C++
-* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.24)
+* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.25)
 * C++ ATL for latest v142 build tools (x86 & x64)
 
 WiX Toolset v3.11.2
 
-pandoc 2.9.1
+pandoc 2.9.2.1
 
 ### ビルド手順
 
@@ -1050,7 +1053,7 @@ https://github.com/deton/tsf-tutcode
 
 以下CorvusSKKのCopyright:
 
-Copyright (C) 2011-2019 SASAKI Nobuyuki
+Copyright (C) 2011-2020 SASAKI Nobuyuki
 
 nathancorvussolis@gmail.com
 
