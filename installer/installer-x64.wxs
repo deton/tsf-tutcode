@@ -23,55 +23,65 @@
 
     <Media Id="1" Cabinet="x64.cab" CompressionLevel="high" EmbedCab="yes" />
 
+    <!-- disable advertised shortcuts -->
+    <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
+
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="System64Folder" Name="System64">
         <Directory Id="IME_X64" Name="IME">
           <Directory Id="IMTSFTUTCODE_X64" Name="IMTSFTUTCODE" />
         </Directory>
       </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="IMTSFTUTCODE_MENU" Name="tsf-tutcode" />
+      </Directory>
     </Directory>
 
     <DirectoryRef Id="IMTSFTUTCODE_X64">
       <Component Id="CNF_X64" Guid="*" Win64="yes">
-        <File Id="F_imtutcnf_x64" Name="imtutcnf.exe" Source="..\x64\Release\imtutcnf.exe" />
+        <File Id="F_imtutcnf_x64" Name="imtutcnf.exe" Source="..\x64\Release\imtutcnf.exe" KeyPath="yes">
+          <!-- overwrite x86 shortcut -->
+          <Shortcut Id="S_imtutcnf_x64" Name="CONFIG" Directory="IMTSFTUTCODE_MENU"
+            WorkingDirectory="IMTSFTUTCODE_WIN" Show="normal" Advertise="yes" />
+        </File>
+        <RemoveFolder Id="RF_imtutcnf_x64" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
       <Component Id="MGR_X64" Guid="*" Win64="yes">
-        <File Id="F_imtutmgr_x64" Name="imtutmgr.exe" Source="..\x64\Release\imtutmgr.exe" />
+        <File Id="F_imtutmgr_x64" Name="imtutmgr.exe" Source="..\x64\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
       <Component Id="TIP_X64" Guid="*" Win64="yes">
-        <File Id="F_imtuttip_x64" Name="imtuttip.dll" Source="..\x64\Release\imtuttip.dll" SelfRegCost="1" />
+        <File Id="F_imtuttip_x64" Name="imtuttip.dll" Source="..\x64\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
       <Component Id="LUAEXE_X64" Guid="*" Win64="yes">
-        <File Id="F_luaexe_x64" Name="lua.exe" Source="..\x64\Release\lua.exe" />
+        <File Id="F_luaexe_x64" Name="lua.exe" Source="..\x64\Release\lua.exe" KeyPath="yes" />
       </Component>
       <Component Id="LUADLL_X64" Guid="*" Win64="yes">
-        <File Id="F_luadll_x64" Name="lua53.dll" Source="..\x64\Release\lua53.dll" />
+        <File Id="F_luadll_x64" Name="lua53.dll" Source="..\x64\Release\lua53.dll" KeyPath="yes" />
       </Component>
       <Component Id="ZLIBDLL_X64" Guid="*" Win64="yes">
-        <File Id="F_zlibdll_x64" Name="zlib1.dll" Source="..\x64\Release\zlib1.dll" />
+        <File Id="F_zlibdll_x64" Name="zlib1.dll" Source="..\x64\Release\zlib1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_X64">
       <Component Id="MSVCP140_X64" Guid="*" Win64="yes">
         <File Id="F_msvcp140_x64" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\msvcp140.dll" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\msvcp140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_X64" Guid="*" Win64="yes">
         <File Id="F_vcruntime140_x64" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\vcruntime140.dll" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\vcruntime140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_1_X64" Guid="360E0C73-7555-413C-AE3D-2E943CF1A382" Win64="yes">
         <File Id="F_vcruntime140_1_x64" Name="vcruntime140_1.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\vcruntime140_1.dll" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\vcruntime140_1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <Component Id="REG_X64" Guid="*" Directory="TARGETDIR" Win64="yes">
-      <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
-        <RegistryValue Action="write" Type="string" Name="imtutmgr"
-          Value="&quot;[%SystemRoot]\System32\IME\IMTSFTUTCODE\imtutmgr.exe&quot;" />
-      </RegistryKey>
+      <RegistryValue Id="RV_run_x64" Action="write"
+        Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+        Type="string" Name="imtutmgr" Value="&quot;[#F_imtutmgr_x64]&quot;" KeyPath="yes" />
     </Component>
 
     <Feature Id="Default" Title="Main" Level="1">
@@ -89,6 +99,9 @@
 
     <UIRef Id="WixUI_Minimal" />
     <WixVariable Id="WixUILicenseRtf" Value="theme-bundle\license.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="theme-bundle\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="theme-bundle\dialog.bmp" />
+
     <Property Id="ARPPRODUCTICON" Value="IMTSFTUTCODE_ICO" />
     <Icon Id="IMTSFTUTCODE_ICO" SourceFile="..\imcrvtip\Icon\kanchoku.ico" />
 
