@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,7 @@
 
 #define _ATL_NO_AUTOMATIC_NAMESPACE
 #define _WTL_NO_AUTOMATIC_NAMESPACE
-// Workaround against KB813540
-#include <atlbase_mozc.h>
+#include <atlbase.h>
 #include <atlcom.h>
 
 #include <limits>
@@ -101,7 +100,7 @@ HRESULT TipRangeUtil::GetDefaultSelection(
 }
 
 HRESULT TipRangeUtil::GetText(
-    ITfRange *range, TfEditCookie edit_cookie, wstring *text) {
+    ITfRange *range, TfEditCookie edit_cookie, std::wstring *text) {
   if (range == nullptr) {
     return E_INVALIDARG;
   }
@@ -160,7 +159,7 @@ HRESULT TipRangeUtil::GetText(
 
 HRESULT TipRangeUtil::GetInputScopes(ITfRange *range,
                                      TfEditCookie read_cookie,
-                                     vector<InputScope> *input_scopes) {
+                                     std::vector<InputScope> *input_scopes) {
   if (input_scopes == nullptr) {
     return E_FAIL;
   }
@@ -253,7 +252,7 @@ HRESULT TipRangeUtil::GetTextExt(ITfContextView *context_view,
     // This is why we should carefully choose parameters passed to
     // ITfContextView::GetRangeFromPoint here.
     const POINT dummy_point = {
-       numeric_limits<LONG>::min(), numeric_limits<LONG>::min()
+       std::numeric_limits<LONG>::min(), std::numeric_limits<LONG>::min()
     };
     CComPtr<ITfRange> dummy_range;
     const HRESULT next_hr = context_view->GetRangeFromPoint(

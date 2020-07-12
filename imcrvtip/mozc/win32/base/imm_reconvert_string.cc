@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -74,13 +74,13 @@ char32 SurrogatePairToUCS4(wchar_t high, wchar_t low) {
   return (((high - 0xD800) & 0x3FF) << 10) +
          ((low - 0xDC00) & 0x3FF) + 0x10000;
 }
-}  // anonymous namespace
+}  // namespace
 
-bool ReconvertString::Compose(const wstring &preceding_text,
-                              const wstring &preceding_composition,
-                              const wstring &target,
-                              const wstring &following_composition,
-                              const wstring &following_text,
+bool ReconvertString::Compose(const std::wstring &preceding_text,
+                              const std::wstring &preceding_composition,
+                              const std::wstring &target,
+                              const std::wstring &following_composition,
+                              const std::wstring &following_text,
                               RECONVERTSTRING *reconvert_string) {
   if (reconvert_string == nullptr) {
     return false;
@@ -209,11 +209,11 @@ bool ReconvertString::Compose(const wstring &preceding_text,
 }
 
 bool ReconvertString::Decompose(const RECONVERTSTRING *reconvert_string,
-                                wstring *preceding_text,
-                                wstring *preceding_composition,
-                                wstring *target,
-                                wstring *following_composition,
-                                wstring *following_text) {
+                                std::wstring *preceding_text,
+                                std::wstring *preceding_composition,
+                                std::wstring *target,
+                                std::wstring *following_composition,
+                                std::wstring *following_text) {
   if (reconvert_string == nullptr) {
     return false;
   }
@@ -350,11 +350,11 @@ bool ReconvertString::Validate(const RECONVERTSTRING *reconvert_string) {
 #ifndef IMCRVTIP_EXPORTS
 bool ReconvertString::EnsureCompositionIsNotEmpty(
     RECONVERTSTRING *reconvert_string) {
-  wstring preceding_text;
-  wstring preceding_composition;
-  wstring target;
-  wstring following_composition;
-  wstring following_text;
+  std::wstring preceding_text;
+  std::wstring preceding_composition;
+  std::wstring target;
+  std::wstring following_composition;
+  std::wstring following_text;
   if (!ReconvertString::Decompose(
           reconvert_string, &preceding_text, &preceding_composition,
           &target, &following_composition, &following_text)) {

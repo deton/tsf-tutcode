@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,6 @@
 #include <vector>
 
 #include "base/port.h"
-#ifdef IMCRVTIP_EXPORTS
-#include "base/namespace.h"
-#endif
 
 namespace mozc {
 namespace win32 {
@@ -64,13 +61,13 @@ class TipRangeUtil {
   // Retrieves the text from |range| into |text|.
   // Returns the general result code.
   static HRESULT GetText(
-      ITfRange *range, TfEditCookie edit_cookie, wstring *text);
+      ITfRange *range, TfEditCookie edit_cookie, std::wstring *text);
 
   // Retrieves the input scopes from |range| into |input_scopes|.
   // Returns the general result code.
   static HRESULT GetInputScopes(ITfRange *range,
                                 TfEditCookie read_cookie,
-                                vector<InputScope> *input_scopes);
+                                std::vector<InputScope> *input_scopes);
 
   // Checks whether or not |range_test| becomes a subset of |range_cover|.
   static bool IsRangeCovered(TfEditCookie edit_cookie,

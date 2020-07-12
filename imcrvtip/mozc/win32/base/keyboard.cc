@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -205,7 +205,7 @@ class DefaultKeyboardInterface : public Win32KeyboardInterface {
   }
 
   // [Overrides]
-  virtual UINT SendInput(const vector<INPUT> &inputs) {
+  virtual UINT SendInput(const std::vector<INPUT> &inputs) {
     if (inputs.size() < 1) {
       return 0;
     }
@@ -1443,7 +1443,7 @@ const wchar_t *kCharTableMenuActive[] = {
   kNoCharGenKey,
   kNoCharGenKey,
 };
-}  // anonymous namespace
+}  // namespace
 
 wchar_t JapaneseKeyboardLayoutEmulator::GetCharacterForKeyDown(
     BYTE virtual_key,

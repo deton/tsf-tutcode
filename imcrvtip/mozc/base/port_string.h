@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef MOZC_BASE_NAMESPACE_H_
-#define MOZC_BASE_NAMESPACE_H_
-#ifdef __cplusplus
-namespace std {}
-using namespace std;
-#endif  // __cplusplus
-#endif  // MOZC_BASE_NAMESPACE_H_
+#ifndef MOZC_BASE_PORT_STRING_H_
+#define MOZC_BASE_PORT_STRING_H_
+
+#include <string>
+
+#ifndef HAS_GLOBAL_STRING
+using std::string;
+#endif  // HAS_GLOBAL_STRING
+
+#endif  // MOZC_BASE_PORT_STRING_H_

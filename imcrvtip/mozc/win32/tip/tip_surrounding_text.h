@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@ struct ITfContext;
 struct ITfEditSession;
 
 #ifdef IMCRVTIP_EXPORTS
-#include "base/namespace.h" // std:: for wstring
 class CTextService;
 #endif
 
@@ -58,9 +57,9 @@ class TipTextService;
 struct TipSurroundingTextInfo {
   TipSurroundingTextInfo();
 
-  wstring preceding_text;
-  wstring selected_text;
-  wstring following_text;
+  std::wstring preceding_text;
+  std::wstring selected_text;
+  std::wstring following_text;
   bool has_preceding_text;
   bool has_selected_text;
   bool has_following_text;
@@ -128,7 +127,7 @@ class TipSurroundingTextUtil {
   // Returns true if |text| has more than |characters_in_ucs4| characters.
   // When succeeds, the last |*characters_in_utf16| characters in |text|
   // can be measured as |characters_in_ucs4| in the unit of UCS4.
-  static bool MeasureCharactersBackward(const wstring &text,
+  static bool MeasureCharactersBackward(const std::wstring &text,
                                         size_t characters_in_ucs4,
                                         size_t *characters_in_utf16);
 };

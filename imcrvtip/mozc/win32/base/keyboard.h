@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,17 +27,14 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef MOZC_WIN32_IME_IME_KEYBOARD_
-#define MOZC_WIN32_IME_IME_KEYBOARD_
+#ifndef MOZC_WIN32_BASE_KEYBOARD_H_
+#define MOZC_WIN32_BASE_KEYBOARD_H_
 
 #include <windows.h>
 
 #include <vector>
 
 #include "base/port.h"
-#ifdef IMCRVTIP_EXPORTS
-#include "base/namespace.h"
-#endif
 
 namespace mozc {
 namespace win32 {
@@ -135,7 +132,7 @@ class Win32KeyboardInterface {
     __in UINT wFlags) = 0;
 
   // Injection point for SendInput API.
-  virtual UINT SendInput(const vector<INPUT> &inputs) = 0;
+  virtual UINT SendInput(const std::vector<INPUT> &inputs) = 0;
 
   static Win32KeyboardInterface *CreateDefault();
 };
@@ -166,4 +163,4 @@ class JapaneseKeyboardLayoutEmulator {
 };
 }  // namespace win32
 }  // namespace mozc
-#endif  // MOZC_WIN32_IME_IME_KEYBOARD_
+#endif  // MOZC_WIN32_BASE_KEYBOARD_H_

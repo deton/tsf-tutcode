@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 #include <iostream>
 #include <string>
 
-#include "base/namespace.h"
+#include "base/flags.h"
 #include "base/port.h"
 
 namespace mozc {
@@ -76,16 +76,22 @@ class NullLogStream;
 
 class Logging {
  public:
-  // Initializes log stream. argv0 is the program name commonly
-  // storead as argv[0].
-  // The default log file is <USER_PROFILE>/<program_name>.log
-  static void           InitLogStream(const char *argv0 = "UNKNOWN");
+  // Initializes log stream with the output file path and --logtostderr.
+  static void InitLogStream(const string &log_file_path);
 
   // Closes the logging stream
   static void           CloseLogStream();
 
-  // Gets logging stream. The log message can be written to the stream
-  static ostream       &GetLogStream();
+  // Gets working log stream. The log message can be written to the stream.
+  // The stream must be finalized by FinalizeWorkingLogStream().
+  static std::ostream &GetWorkingLogStream();
+
+  // Finalizes the working stream.
+  // - Appends std::endl to working stream.
+  // - Writes the content to real backing logging stream, which is initialized
+  //     by InitLogStream().
+  // - Deletes the working stream object.
+  static void FinalizeWorkingLogStream(LogSeverity, std::ostream*);
 
   // Gets NullLogStream for NO_LOGGING mode
   static NullLogStream &GetNullLogStream();
@@ -116,15 +122,21 @@ class Logging {
   DISALLOW_IMPLICIT_CONSTRUCTORS(Logging);
 };
 
+// Finalizer to flush/delete working log stream.
+// Finalizer takes woking log stream instance through operator&()
+// and finalizes it in destructor.
 class LogFinalizer {
  public:
   explicit LogFinalizer(LogSeverity severity);
   ~LogFinalizer();
 
-  void operator&(ostream&);
+  // Google's C++ style guide requires reference argument to be const.
+  // Here we need non-const reference in order to delete working stream object.
+  void operator&(std::ostream&);
 
  private:
   const LogSeverity  severity_;
+  std::ostream *working_stream_;
 };
 
 // When using NullLogStream, all debug message will be stripped
@@ -134,7 +146,7 @@ class NullLogStream {
   NullLogStream& operator<<(const T &value) {
     return *this;
   }
-  NullLogStream& operator<<(ostream& (*pfunc)(ostream&) ) {
+  NullLogStream& operator<<(std::ostream& (*pfunc)(std::ostream&) ) {
     return *this;
   }
 };
@@ -191,7 +203,8 @@ class NullLogFinalizer {
 #else   // NO_LOGGING
 
 #define LOG(severity) \
-  mozc::LogFinalizer(mozc::LOG_##severity) & mozc::Logging::GetLogStream() \
+  mozc::LogFinalizer(mozc::LOG_##severity) & \
+  mozc::Logging::GetWorkingLogStream() \
   << mozc::Logging::GetLogMessageHeader() << " " \
   << __FILE__ << "(" << __LINE__ << ") " \
   << mozc::Logging::GetBeginColorEscapeSequence(mozc::LOG_##severity) \
@@ -200,7 +213,8 @@ class NullLogFinalizer {
 
 #define LOG_IF(severity, condition) \
   (!(condition)) ? (void) 0 : \
-  mozc::LogFinalizer(mozc::LOG_##severity) & mozc::Logging::GetLogStream() \
+  mozc::LogFinalizer(mozc::LOG_##severity) & \
+  mozc::Logging::GetWorkingLogStream() \
   << mozc::Logging::GetLogMessageHeader() << " " \
   << __FILE__ << "(" << __LINE__ << ") " \
   << mozc::Logging::GetBeginColorEscapeSequence(mozc::LOG_##severity) \
@@ -211,7 +225,8 @@ class NullLogFinalizer {
 #define CHECK(condition) \
   (condition) ? (void) 0 : \
   mozc::LogFinalizer(mozc::LOG_FATAL) & \
-  mozc::Logging::GetLogStream() << mozc::Logging::GetLogMessageHeader() << " " \
+  mozc::Logging::GetWorkingLogStream() \
+  << mozc::Logging::GetLogMessageHeader() << " " \
   << __FILE__ << "(" << __LINE__ << ") " \
   << mozc::Logging::GetBeginColorEscapeSequence(mozc::LOG_FATAL) \
   << "CHECK" \
@@ -270,8 +285,12 @@ class NullLogFinalizer {
 
 #define DVLOG(verboselevel) DLOG_IF(INFO, VLOG_IS_ON(verboselevel))
 
+DECLARE_bool(logtostderr);
 
+
+#ifndef DVLOG_IF
 #define DVLOG_IF(verboselevel, condition) \
   DLOG_IF(INFO, (condition) && VLOG_IS_ON(verboselevel))
+#endif
 
 #endif  // MOZC_BASE_LOGGING_H_
