@@ -9,7 +9,7 @@ static bool isextendedkey(UINT vk)
 	return vk >= VK_PRIOR && vk <= VK_DELETE || vk >= VK_LWIN && vk <= VK_APPS;
 }
 
-static void _QueueKey(vector<INPUT> *inputs, UINT vk, int count = 1)
+static void _QueueKey(std::vector<INPUT> *inputs, UINT vk, int count = 1)
 {
 	const KEYBDINPUT keyboard_input = {vk, 0, 0, 0, 0};
 	INPUT keydown = {};
@@ -33,7 +33,7 @@ static void _QueueKey(vector<INPUT> *inputs, UINT vk, int count = 1)
 	}
 }
 
-static void _QueueKeyForModifier(vector<INPUT> *inputs, UINT vk, BOOL up, BOOL front = FALSE)
+static void _QueueKeyForModifier(std::vector<INPUT> *inputs, UINT vk, BOOL up, BOOL front = FALSE)
 {
 	const KEYBDINPUT keyboard_input = {vk, 0, 0, 0, 0};
 	INPUT keydown = {};
@@ -67,7 +67,7 @@ static void _QueueKeyForModifier(vector<INPUT> *inputs, UINT vk, BOOL up, BOOL f
 	}
 }
 
-static void _SendInputs(vector<INPUT> *inputs)
+static void _SendInputs(std::vector<INPUT> *inputs)
 {
 	std::unique_ptr<mozc::win32::Win32KeyboardInterface> keyboard_(
 			mozc::win32::Win32KeyboardInterface::CreateDefault());
@@ -107,7 +107,7 @@ static void _SendInputs(vector<INPUT> *inputs)
 
 HRESULT KeySender::OtherIme()
 {
-	vector<INPUT> inputs;
+	std::vector<INPUT> inputs;
 
 	if (IsWindowsVersion62OrLater()) // Win+Space (Windows 8)
 	{

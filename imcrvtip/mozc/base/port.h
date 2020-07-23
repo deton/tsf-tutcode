@@ -1,4 +1,4 @@
-// Copyright 2010-2014, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,74 @@
 #ifndef MOZC_BASE_PORT_H_
 #define MOZC_BASE_PORT_H_
 
+#include "base/port_string.h"
 
-#include <sys/types.h>
-#include <cstddef>
+// Check duplicate OS_XXX definition.
 
-// basic macros
-typedef signed char         int8;
-typedef short               int16;
-typedef int                 int32;
-typedef unsigned char      uint8;
-typedef unsigned short     uint16;
-typedef unsigned int       uint32;
-typedef unsigned int       char32;
 #ifdef OS_WIN
-typedef unsigned __int64   uint64;
-typedef __int64             int64;
-#else
-typedef unsigned long long uint64;
-typedef long long           int64;
+#define MOZC_OS_DEFINED
 #endif  // OS_WIN
 
-#define atoi32 atoi
-#define strto32 strtol
-#define strto64 strtoll
+#ifdef OS_MACOSX
+#define MOZC_OS_DEFINED
+#endif  // OS_MACOSX
 
-#include <stdint.h>
+#ifdef OS_ANDROID
+#define MOZC_OS_DEFINED
+#endif  // OS_ANDROID
 
-#ifdef _MSC_VER
-#define snprintf _snprintf_s
-#define strtoull _strtoui64
-#define strtoll  _strtoi64
+#ifdef OS_NACL
+#define MOZC_OS_DEFINED
+#endif  // OS_NACL
+
+#ifdef OS_LINUX
+// TODO(matsuzakit): Remove following guard.
+// Currently OS_LINUX and (OS_ANDROID or OS_NACL) are defined at the same time.
+#if !defined(OS_ANDROID) && !defined(OS_NACL)
+#define MOZC_OS_DEFINED
+#endif  // !OS_ANDROID && !OS_NACL
+#endif  // OS_LINUX
+
+
+#ifndef MOZC_OS_DEFINED
+#error "OS_XXX (e.g., OS_WIN) must be defined."
+#endif  // !MOZC_OS_DEFINED
+
+#undef MOZC_OS_DEFINED
+
+
+
+#ifndef _MSC_VER
+#if !defined(__STDC_FORMAT_MACROS)
+#define __STDC_FORMAT_MACROS
+#endif  // !__STDC_FORMAT_MACROS
+#include <inttypes.h>
 #endif  // _MSC_VER
+#include <sys/types.h>
+#include <stdint.h>
+#include <cstddef>
+
+// Integral types.
+#ifdef OS_WIN
+using int8 = __int8;
+using int16 = __int16;
+using int32 = __int32;
+using int64 = __int64;
+using uint8 = unsigned __int8;
+using uint16 = unsigned __int16;
+using uint32 = unsigned __int32;
+using uint64 = unsigned __int64;
+#else  // OS_WIN
+using int8 = int8_t;
+using int16 = int16_t;
+using int32 = int32_t;
+using int64 = int64_t;
+using uint8 = uint8_t;
+using uint16 = uint16_t;
+using uint32 = uint32_t;
+using uint64 = uint64_t;
+#endif  // OS_WIN
+using char32 = uint32;
 
 template <typename T, size_t N>
 char (&ArraySizeHelper(T (&array)[N]))[N];
@@ -75,13 +112,19 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 #define GG_LONGLONG(x) x##LL
 #define GG_ULONGLONG(x) x##ULL
 
+// Print format strings for 64-bit integers.
 #ifdef _MSC_VER
-// Length modifier in printf format string for int64's (e.g. within %d)
-#define GG_LL_FORMAT "I64"  // As in printf("%I64d", ...)
-#define GG_LL_FORMAT_W L"I64"
-#else
-#define GG_LL_FORMAT "ll"  // As in "%lld". Note that "q" is poor form also.
-#define GG_LL_FORMAT_W L"ll"
+#define MOZC_PRId64 "I64d"
+#define MOZC_PRIo64 "I64o"
+#define MOZC_PRIu64 "I64u"
+#define MOZC_PRIx64 "I64x"
+#define MOZC_PRIX64 "I64X"
+#else  // _MSC_VER
+#define MOZC_PRId64 PRId64
+#define MOZC_PRIo64 PRIo64
+#define MOZC_PRIu64 PRIu64
+#define MOZC_PRIx64 PRIx64
+#define MOZC_PRIX64 PRIX64
 #endif  // _MSC_VER
 
 // INT_MIN, INT_MAX, UINT_MAX family at Google
@@ -99,11 +142,11 @@ static const  int64 kint64min  = (( int64) GG_LONGLONG(0x8000000000000000));
 static const  int64 kint64max  = (( int64) GG_LONGLONG(0x7FFFFFFFFFFFFFFF));
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
-    TypeName(const TypeName&);             \
-    void operator=(const TypeName&)
+    TypeName(const TypeName&) = delete;       \
+    void operator=(const TypeName&) = delete
 
 #define DISALLOW_IMPLICIT_CONSTRUCTORS(TypeName) \
-    TypeName();                                  \
+    TypeName() = delete;                          \
     DISALLOW_COPY_AND_ASSIGN(TypeName)
 
 // Macro for annotating implicit fall-through
@@ -118,20 +161,16 @@ static const  int64 kint64max  = (( int64) GG_LONGLONG(0x7FFFFFFFFFFFFFFF));
 // N.B.: As the GCC manual states, "[s]ince non-static C++ methods
 // have an implicit 'this' argument, the arguments of such methods
 // should be counted from two, not one."
-#define PRINTF_ATTRIBUTE(string_index, first_to_check) \
-    __attribute__((__format__ (__printf__, string_index, first_to_check)))
-#define SCANF_ATTRIBUTE(string_index, first_to_check) \
-    __attribute__((__format__ (__scanf__, string_index, first_to_check)))
+#define ABSL_PRINTF_ATTRIBUTE(string_index, first_to_check) \
+  __attribute__((__format__(__printf__, string_index, first_to_check)))
+#define ABSL_SCANF_ATTRIBUTE(string_index, first_to_check) \
+  __attribute__((__format__(__scanf__, string_index, first_to_check)))
 #else
-#define PRINTF_ATTRIBUTE(string_index, first_to_check)
-#define SCANF_ATTRIBUTE(string_index, first_to_check)
+#define ABSL_PRINTF_ATTRIBUTE(string_index, first_to_check)
+#define ABSL_SCANF_ATTRIBUTE(string_index, first_to_check)
 #endif  // __GNUC__ || __clang__
 
 #define AS_STRING(x)   AS_STRING_INTERNAL(x)
 #define AS_STRING_INTERNAL(x)   #x
-
-
-// TODO(yukawa): Simplify following includes
-#include "base/flags.h"
 
 #endif  // MOZC_BASE_PORT_H_
