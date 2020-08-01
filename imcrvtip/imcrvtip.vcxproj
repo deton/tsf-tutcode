@@ -257,7 +257,7 @@ ver &gt; nul</Command>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>imcrvtip.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>input.dll;d2d1.dll;dwrite.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -289,7 +289,7 @@ ver &gt; nul</Command>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>imcrvtip.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>input.dll;d2d1.dll;dwrite.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -319,6 +319,7 @@ ver &gt; nul</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -351,6 +352,7 @@ ver &gt; nul</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -383,12 +385,13 @@ ver &gt; nul</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ConformanceMode>true</ConformanceMode>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>imcrvtip.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>input.dll;d2d1.dll;dwrite.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
@@ -415,12 +418,13 @@ ver &gt; nul</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>input.lib;d2d1.lib;dwrite.lib;delayimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>imcrvtip.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>input.dll;d2d1.dll;dwrite.dll;%(DelayLoadDLLs)</DelayLoadDLLs>

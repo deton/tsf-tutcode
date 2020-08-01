@@ -197,7 +197,7 @@ IMオフ状態で打鍵してしまった文字列を、後から日本語に置
 * Windows 8 以降の通知領域の入力モードアイコンを右クリックし、メニューから「設定」を選択する。
 * スタートメニューから tsf-tutcode\CONFIG を実行する。
 * %SystemRoot%\System32\IME\IMTSFTUTCODE\imtutcnf.exe または %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE\imtutcnf.exe を直接実行する
-  * コマンドライン引数またはドラッグアンドドロップで後述の設定ファイルを渡すことが可能です。
+  * コマンドライン引数、または実行ファイルやショートカットへのドラッグアンドドロップで、後述の設定ファイルを渡すことが可能です。
 
 設定ダイアログで保存した後は、IME OFF → ON で新しい設定が反映されます。
 
@@ -212,6 +212,8 @@ IME ON/OFF のキーのみ、IME ON → OFF のときにも反映されます。
 |---|---|
 | config.xml  | 各種設定 |
 | skkdict.txt | 取込済SKK辞書 |
+
+* デフォルト https://github.com/deton/tsf-tutcode/tree/master/installer/config-share
 
 各種設定の config.xml ファイルは、UTF-8 の XML フォーマットのテキストファイルとなっています。
 
@@ -707,9 +709,9 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.3.5です。
+現在使用しているLuaのバージョンは5.4.0です。
 
-詳細はこちらを参照ください。https://www.lua.org/manual/5.3/manual.html
+詳細はこちらを参照ください。https://www.lua.org/manual/5.4/manual.html
 
 Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsAPIとCランタイム関数を呼ぶようにパッチを当てています。
 
@@ -941,15 +943,15 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2019 16.5.4
+Visual Studio Community 2019 16.6.5
 
 * Desktop development with C++
-* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.25)
+* MSVC v142 - VS 2019 C++ x64/x86 build tools (v14.26)
 * C++ ATL for latest v142 build tools (x86 & x64)
 
 WiX Toolset v3.11.2
 
-pandoc 2.9.2.1
+pandoc 2.10.1
 
 ### ビルド手順
 
