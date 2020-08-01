@@ -14,7 +14,7 @@
 #define E_MAKESKKDIC_UNGZIP		MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 4)
 #define E_MAKESKKDIC_UNTAR		MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 5)
 
-#define GZBUFSIZE		16384
+#define GZBUFSIZE		65536
 #define TARBLOCKSIZE	512
 
 BOOL IsMakeSKKDicCanceled(HANDLE hCancelEvent)
@@ -502,6 +502,8 @@ HRESULT UnGzip(LPCWSTR gzpath, LPWSTR path, size_t len)
 	{
 		return E_MAKESKKDIC_UNGZIP;
 	}
+
+	gzbuffer(gzf, GZBUFSIZE);
 
 	_snwprintf_s(path, len, _TRUNCATE, L"%s\\%s", tempdir, fname);
 
