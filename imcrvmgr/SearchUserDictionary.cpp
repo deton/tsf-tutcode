@@ -206,7 +206,8 @@ void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 		return;
 	}
 
-	candidate_esc = MakeConcat(candidate);
+	candidate_esc = MakeConcat(EscapeGadgetString(candidate));
+
 	annotation_esc = MakeConcat(annotation);
 
 	EnterCriticalSection(&csUserData);	// !

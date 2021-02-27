@@ -37,21 +37,6 @@
 */
 
 /*
-@@ LUAI_MAXCSTACK defines the maximum depth for nested calls and
-** also limits the maximum depth of other recursive algorithms in
-** the implementation, such as syntactic analysis. A value too
-** large may allow the interpreter to crash (C-stack overflow).
-** The default value seems ok for regular machines, but may be
-** too high for restricted hardware.
-** The test file 'cstack.lua' may help finding a good limit.
-** (It will crash with a limit too high.)
-*/
-#if !defined(LUAI_MAXCSTACK)
-#define LUAI_MAXCSTACK		2000
-#endif
-
-
-/*
 @@ LUA_USE_C89 controls the use of non-ISO-C89 features.
 ** Define it if you want Lua to avoid the use of a few C99 features
 ** or Windows-specific features on Windows.
@@ -770,6 +755,15 @@
 
 
 #include "lu8w.h"
+
+
+/* strftime function options for Visual Studio 2019 */
+#define LUA_STRFTIMEOPTIONS \
+    "aAbBcCdDeFgGhHIjmMnprRStTuUVwWxXyYzZ%" \
+    "||" "#a#A#b#B#g#G#h#n#p#t#u#w#X#z#Z#%" \
+      "#c" \
+      "#x" \
+      "#d#D#e#F#H#I#j#m#M#r#R#S#T#U#V#W#y#Y"
 
 
 #endif
