@@ -107,9 +107,9 @@ extern WCHAR pathskkdic[MAX_PATH];		//取込SKK辞書
 extern WCHAR pathinitlua[MAX_PATH];		//init.lua
 extern WCHAR pathbushudic[MAX_PATH];	//部首合成変換ユーザー辞書
 
-extern WCHAR krnlobjsddl[MAX_KRNLOBJNAME];	//SDDL
-extern WCHAR mgrpipename[MAX_KRNLOBJNAME];	//名前付きパイプ
-extern WCHAR mgrmutexname[MAX_KRNLOBJNAME];	//ミューテックス
+extern WCHAR krnlobjsddl[MAX_SECURITYDESC];	//SDDL
+extern WCHAR mgrpipename[MAX_PIPENAME];		//名前付きパイプ
+extern WCHAR mgrmutexname[MAX_PATH];		//ミューテックス
 
 // 辞書サーバー設定
 extern BOOL serv;		//SKK辞書サーバーを使用する
