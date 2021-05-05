@@ -77,8 +77,8 @@ static void AddBushuDicEntries(const std::wstring &s)
 
 BOOL LoadBushuConvUserDic()
 {
-	FILE *fp;
-	_wfopen_s(&fp, pathbushudic, RccsUTF8);
+	FILE *fp = nullptr;
+	_wfopen_s(&fp, pathbushudic, modeRccsUTF8);
 	if (fp == nullptr)
 	{
 		return FALSE;
