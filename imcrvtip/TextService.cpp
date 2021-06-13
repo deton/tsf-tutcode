@@ -3,6 +3,7 @@
 #include "TextService.h"
 #include "LanguageBar.h"
 #include "CandidateList.h"
+#include "CandidateWindow.h"
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
 
@@ -168,6 +169,19 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 	_pThreadMgr = ptim;
 	_ClientId = tid;
 
+	if (!CCandidateWindow::_InitClass())
+	{
+		goto exit;
+	}
+	if (!CInputModeWindow::_InitClass())
+	{
+		goto exit;
+	}
+	if (!CVKeyboardWindow::_InitClass())
+	{
+		goto exit;
+	}
+
 	if (!_IsKeyboardOpen())
 	{
 		_KeyboardSetDefaultMode();
@@ -257,6 +271,10 @@ STDAPI CTextService::Deactivate()
 	_UninitThreadMgrEventSink();
 
 	_UninitD2D();
+
+	CCandidateWindow::_UninitClass();
+	CInputModeWindow::_UninitClass();
+	CVKeyboardWindow::_UninitClass();
 
 	_pThreadMgr.Release();
 	_ClientId = TF_CLIENTID_NULL;

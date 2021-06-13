@@ -63,7 +63,8 @@
         <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe" Source="..\ARM64\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
       <Component Id="TIP_ARM64" Guid="*" Win64="yes">
-        <File Id="F_imtuttip_arm64" Name="imtuttip.dll" Source="..\ARM64\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
+        <!-- ARM64EC -->
+        <File Id="F_imcrvtip_arm64" Name="imcrvtip.dll" Source="..\ARM64EC\Release\imcrvtip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
       <Component Id="LUAEXE_ARM64" Guid="*" Win64="yes">
         <File Id="F_luaexe_arm64" Name="lua.exe" Source="..\ARM64\Release\lua.exe" KeyPath="yes" />
@@ -84,6 +85,10 @@
       <Component Id="VCRUNTIME140_ARM64" Guid="*" Win64="yes">
         <File Id="F_vcruntime140_arm64" Name="vcruntime140.dll"
           Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\vcruntime140.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="VCRUNTIME140_1_ARM64" Guid="607AA8F2-0D79-4E95-892E-4A1C22588A0F" Win64="yes">
+        <File Id="F_vcruntime140_1_arm64" Name="vcruntime140_1.dll"
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\vcruntime140_1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
@@ -110,6 +115,7 @@
       <ComponentRef Id="ZLIBDLL_ARM64" />
       <ComponentRef Id="MSVCP140_ARM64" />
       <ComponentRef Id="VCRUNTIME140_ARM64" />
+      <ComponentRef Id="VCRUNTIME140_1_ARM64" />
       <ComponentRef Id="TIP_ARM32" />
       <ComponentRef Id="REG_ARM64" />
     </Feature>

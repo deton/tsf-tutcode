@@ -33,6 +33,12 @@ msbuild "..\tsf-tutcode.sln" ^
 /nologo /maxcpucount /verbosity:normal /target:Build ^
 /property:Configuration=Release,Platform=ARM64
 
+rem ARM64EC
+
+msbuild "..\imcrvskk.sln" ^
+/nologo /maxcpucount /verbosity:normal /target:Build ^
+/property:Configuration=Release,Platform=ARM64EC
+
 )
 
 popd
