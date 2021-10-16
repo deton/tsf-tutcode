@@ -36,6 +36,8 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 * Windows 10    (32-bit / 64-bit)
 
+* Windows 11    (32-bit / 64-bit)
+
 ### ダウンロード
 
 #### リリース版
@@ -952,17 +954,16 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2019 16.10.0
+Visual Studio Community 2019 16.11.4
 
 * Desktop development with C++
 * MSVC v142 - VS 2019 C++ x64/x86 build tools (Latest)
 * C++ ATL for latest v142 build tools (x86 & x64)
-
-Windows 10 SDK version 2104 (10.0.20348.0)
+* Windows 11 SDK (10.0.22000.0)
 
 WiX Toolset v3.11.2
 
-pandoc 2.14.0.1
+pandoc 2.14.2
 
 ### ビルド手順
 
