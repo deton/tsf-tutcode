@@ -5,6 +5,7 @@
 #include "CandidateWindow.h"
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
+#include "HelpWindow.h"
 
 #define NEXT_MARGIN_Y 4
 
@@ -42,6 +43,22 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 		_InitFont();
 	}
 
+	if (_hwnd != nullptr && _pTextService->cx_showhelp)
+	{
+		try
+		{
+			_pTextService->_HideHelpWindow();
+			_pHelpWindow = new CHelpWindow();
+			if (!_pHelpWindow->_Create(_pTextService, nullptr, TRUE, _hwnd))
+			{
+				_pHelpWindow->_Destroy();
+				_pHelpWindow.Release();
+			}
+		}
+		catch(...)
+		{
+		}
+	}
 	if (_hwnd != nullptr && _pTextService->cx_showvkbd)
 	{
 		try
@@ -196,6 +213,11 @@ void CCandidateWindow::_Destroy()
 		_pVKeyboardWindow->_Destroy();
 	}
 	_pVKeyboardWindow.Release();
+	if (_pHelpWindow != nullptr)
+	{
+		_pHelpWindow->_Destroy();
+	}
+	_pHelpWindow.Release();
 
 	_pCandidateWindowParent.Release();
 
@@ -302,6 +324,10 @@ void CCandidateWindow::_BeginUIElement()
 
 			if (_mode == wm_register)
 			{
+				if (_pHelpWindow != nullptr)
+				{
+					_pHelpWindow->_Show(TRUE);
+				}
 				if (_pVKeyboardWindow != nullptr)
 				{
 					_pVKeyboardWindow->_Show(TRUE);
@@ -336,6 +362,10 @@ void CCandidateWindow::_EndUIElement()
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 
+		if (_pHelpWindow != nullptr)
+		{
+			_pHelpWindow->_Show(FALSE);
+		}
 		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Show(FALSE);
@@ -375,6 +405,10 @@ void CCandidateWindow::_Redraw()
 		InvalidateRect(_hwnd, nullptr, FALSE);
 		UpdateWindow(_hwnd);
 
+		if (_pHelpWindow != nullptr)
+		{
+			_pHelpWindow->_Redraw();
+		}
 		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Redraw();
@@ -488,6 +522,10 @@ void CCandidateWindow::_End()
 	{
 		SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW);
+	}
+	if (_pHelpWindow != nullptr)
+	{
+		_pHelpWindow->_Show(TRUE);
 	}
 	if (_pVKeyboardWindow != nullptr)
 	{
@@ -637,6 +675,10 @@ void CCandidateWindow::_NextPage()
 			_BackUpStatus();
 			_ClearStatus();
 
+			if (_pHelpWindow != nullptr)
+			{
+				_pHelpWindow->_Show(TRUE);
+			}
 			if (_pVKeyboardWindow != nullptr)
 			{
 				_pVKeyboardWindow->_Show(TRUE);
@@ -959,6 +1001,10 @@ void CCandidateWindow::_CreateNext(int mode)
 				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_HIDEWINDOW);
 		}
 
+		if (_pHelpWindow != nullptr)
+		{
+			_pHelpWindow->_Show(FALSE);
+		}
 		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Show(FALSE);

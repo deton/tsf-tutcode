@@ -11,6 +11,7 @@ class CLangBarItemButton;
 class CCandidateList;
 class CInputModeWindow;
 class CVKeyboardWindow;
+class CHelpWindow;
 
 class CTextService :
 	public ITfTextInputProcessorEx,
@@ -274,6 +275,12 @@ public:
 	std::wstring _MakeVkbTable();
 	BOOL _IsRomanKanaStatus();
 
+	// HelpWindow
+	HRESULT _StartHelpWindow(const std::wstring &kanji);
+	void _EndHelpWindow();
+	void _HideHelpWindow();
+	std::wstring _MakeHelpTable(const std::wstring &kanji);
+
 private:
 	LONG _cRef;
 
@@ -324,6 +331,7 @@ private:
 
 	CComPtr<CInputModeWindow> _pInputModeWindow;
 	CComPtr<CVKeyboardWindow> _pVKeyboardWindow;
+	CComPtr<CHelpWindow> _pHelpWindow;
 
 	TfGuidAtom _gaDisplayAttributeInputMark;
 	TfGuidAtom _gaDisplayAttributeInputText;
@@ -411,6 +419,8 @@ public:
 	BOOL cx_showvkbd;			//入力途中に仮想鍵盤を表示する
 	std::wstring cx_vkbdlayout;	//仮想鍵盤のレイアウト(dvorak等)
 	std::wstring cx_vkbdtop;	//初期状態の仮想鍵盤に表示する内容
+	BOOL cx_showhelp;			//打鍵ヘルプを表示する
+	BOOL cx_showhelpkanjihyo;	//打鍵ヘルプを表示する(FALSE:漢索窓/TRUE:漢字表)
 
 	BOOL cx_showmodeinl;		//入力モードを表示する
 	UINT cx_showmodeinltm;		//入力モードの表示ミリ秒数

@@ -6,6 +6,7 @@
 #include "CandidateWindow.h"
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
+#include "HelpWindow.h"
 
 CTextService::CTextService():
 	cx_vkbdlayout(L"12345│67890\n"
@@ -181,6 +182,10 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 	{
 		goto exit;
 	}
+	if (!CHelpWindow::_InitClass())
+	{
+		goto exit;
+	}
 
 	if (!_IsKeyboardOpen())
 	{
@@ -252,6 +257,7 @@ STDAPI CTextService::Deactivate()
 
 	_EndInputModeWindow();
 	_EndVKeyboardWindow();
+	_EndHelpWindow();
 
 	_UninitFunctionProvider();
 
@@ -275,6 +281,7 @@ STDAPI CTextService::Deactivate()
 	CCandidateWindow::_UninitClass();
 	CInputModeWindow::_UninitClass();
 	CVKeyboardWindow::_UninitClass();
+	CHelpWindow::_UninitClass();
 
 	_pThreadMgr.Release();
 	_ClientId = TF_CLIENTID_NULL;

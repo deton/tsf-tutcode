@@ -87,9 +87,6 @@
 #define IDC_RADIO_SHOWROMANASCII                2039
 #define IDC_RADIO_SHOWROMANJLATIN               2040
 #define IDC_CHECKBOX_SHOWROMANCOMP              2041
-#define IDC_CHECKBOX_SHOWVKBD                   2042
-#define IDC_EDIT_VKBDLAYOUT                     2043
-#define IDC_EDIT_VKBDTOP                        2044
 
 #define IDC_CHECKBOX_SHOWMODEINL                2101
 #define IDC_EDIT_SHOWMODEINLTM                  2102
@@ -101,6 +98,12 @@
 #define IDC_COL_MODE_JL                         2108
 #define IDC_COL_MODE_AC                         2109
 #define IDC_COL_MODE_DR                         2110
+#define IDC_CHECKBOX_SHOWVKBD                   2111
+#define IDC_EDIT_VKBDLAYOUT                     2112
+#define IDC_EDIT_VKBDTOP                        2113
+#define IDC_CHECKBOX_SHOWHELP                   2114
+#define IDC_RADIO_SHOWHELPKANSAKU               2115
+#define IDC_RADIO_SHOWHELPKANJIHYO              2116
 
 #define IDC_CHECKBOX_SERIES_MARK                2201
 #define IDC_CHECKBOX_SERIES_TEXT                2202

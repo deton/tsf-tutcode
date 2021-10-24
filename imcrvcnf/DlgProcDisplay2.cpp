@@ -3,6 +3,8 @@
 #include "imcrvcnf.h"
 #include "resource.h"
 
+#define MAX_VKBDTOP 256 // (5*2(surrogate)+1(│)+5*2+2('\\','n')=23)*4
+
 static struct {
 	int id;
 	LPCWSTR value;
@@ -24,6 +26,7 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	HDC hdc;
 	PAINTSTRUCT ps;
 	WCHAR num[16];
+	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	int count;
 	std::wstring strxmlval;
 	CHOOSECOLORW cc = {};
@@ -66,6 +69,26 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			}
 		}
 
+		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, SectionDisplay, ValueShowVkbd, L"0");
+
+		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval,
+			L"12345│67890\\n"
+			 "qwert│yuiop\\n"
+			 "asdfg│hjkl;\\n"
+			 "zxcvb│nm,./");
+		wcsncpy_s(vkbdlayout, strxmlval.c_str(), _TRUNCATE);
+		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout);
+		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval);
+		wcsncpy_s(vkbdtop, strxmlval.c_str(), _TRUNCATE);
+		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop);
+
+		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWHELP, SectionDisplay, ValueShowHelp, L"0");
+		LoadCheckButton(hDlg, IDC_RADIO_SHOWHELPKANJIHYO, SectionDisplay, ValueShowHelpKanjihyo, L"1");
+		if (!IsDlgButtonChecked(hDlg, IDC_RADIO_SHOWHELPKANJIHYO))
+		{
+			CheckDlgButton(hDlg, IDC_RADIO_SHOWHELPKANSAKU, BST_CHECKED);
+		}
+
 		return TRUE;
 
 	case WM_DPICHANGED_AFTERPARENT:
@@ -76,6 +99,8 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		switch (LOWORD(wParam))
 		{
 		case IDC_EDIT_SHOWMODEINLTM:
+		case IDC_EDIT_VKBDLAYOUT:
+		case IDC_EDIT_VKBDTOP:
 			switch (HIWORD(wParam))
 			{
 			case EN_CHANGE:
@@ -87,6 +112,10 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			break;
 
 		case IDC_CHECKBOX_SHOWMODEINL:
+		case IDC_CHECKBOX_SHOWVKBD:
+		case IDC_CHECKBOX_SHOWHELP:
+		case IDC_RADIO_SHOWHELPKANSAKU:
+		case IDC_RADIO_SHOWHELPKANJIHYO:
 			PropSheet_Changed(GetParent(hDlg), hDlg);
 			return TRUE;
 
@@ -160,6 +189,7 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 {
 	WCHAR num[16];
+	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	int count;
 
 	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWMODEINL, ValueShowModeInl);
@@ -178,4 +208,12 @@ void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 		_snwprintf_s(num, _TRUNCATE, L"0x%06X", displayModeColor[i].color);
 		WriterKey(pWriter, displayModeColor[i].value, num);
 	}
+
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
+	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout, _countof(vkbdlayout));
+	WriterKey(pWriter, ValueVkbdLayout, vkbdlayout);
+	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
+	WriterKey(pWriter, ValueVkbdTop, vkbdtop);
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWHELP, ValueShowHelp);
+	SaveCheckButton(pWriter, hDlg, IDC_RADIO_SHOWHELPKANJIHYO, ValueShowHelpKanjihyo);
 }

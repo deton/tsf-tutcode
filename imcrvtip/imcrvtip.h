@@ -129,6 +129,7 @@ extern LPCWSTR LangbarItemDesc;
 extern LPCWSTR CandidateWindowClass;
 extern LPCWSTR InputModeWindowClass;
 extern LPCWSTR VKeyboardWindowClass;
+extern LPCWSTR HelpWindowClass;
 
 extern HINSTANCE g_hInst;
 

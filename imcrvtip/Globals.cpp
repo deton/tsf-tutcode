@@ -11,6 +11,7 @@ LPCWSTR LangbarItemDesc = L"ver. " TEXTSERVICE_VER;
 LPCWSTR CandidateWindowClass = TEXTSERVICE_NAME L"CandidateWindow";
 LPCWSTR InputModeWindowClass = TEXTSERVICE_NAME L"InputModeWindow";
 LPCWSTR VKeyboardWindowClass = TEXTSERVICE_NAME L"VKeyboardWindow";
+LPCWSTR HelpWindowClass = TEXTSERVICE_NAME L"HelpWindow";
 
 #ifndef _DEBUG
 

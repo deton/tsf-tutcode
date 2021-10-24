@@ -631,6 +631,10 @@ void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 	{
 		_StartVKeyboardWindow();
 	}
+	if (cx_showhelp)
+	{
+		_EndHelpWindow();
+	}
 }
 
 void CTextService::_GetIcon(HICON *phIcon, INT size)
