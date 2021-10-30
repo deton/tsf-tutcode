@@ -467,7 +467,7 @@ void CHelpWindow::_CalcWindowRect(LPRECT lpRect)
 
 	RECT r = {};
 	//TODO:表示文字列に応じてウィンドウサイズを計算する
-	DrawTextW(hdc, L"廊 wgm", -1, &r, DT_CALCRECT);
+	DrawTextW(hdc, L"並態両乗専│興口洋船久", -1, &r, DT_CALCRECT);
 	lpRect->right = IM_MARGIN_X * 2 + r.right;
 
 	SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, lpRect->right, lpRect->bottom, SWP_NOMOVE | SWP_NOACTIVATE);
@@ -690,11 +690,95 @@ std::wstring CTextService::_MakeHelpTable(const std::wstring &kanji)
 	{
 		std::wstring seq;
 		_ConvKanaToRoman(seq, k1, im_hiragana);
-		seqlist.append(k1);
-		seqlist.append(L" ");
-		seqlist.append(seq);
-		seqlist.append(L"\n");
 		//TODO: 入力シーケンスが無い文字(seq==k1)に対しては部首合成方法を示す
+		if (seq == k1)
+		{
+			continue;
+		}
+
+		std::wstring vkb;
+		FORWARD_ITERATION_I(itr, cx_vkbdlayout)
+		{
+			if (*itr == L'\n')
+			{
+				vkb.append(L"\n");
+			}
+			else if (*itr == L'│') //左手ブロックと右手ブロックの区切り
+			{
+				vkb.append(L"│");
+			}
+			else
+			{
+				vkb.append(L"・");
+			}
+		}
+		bool needX = false;
+		for (size_t th = 0; th < seq.size(); th++)
+		{
+			size_t k = cx_vkbdlayout.find(seq[th]);
+			if (k == std::wstring::npos)
+			{
+				continue;
+			}
+			switch (th)
+			{
+			case 0:                 // 1st stroke
+				vkb[k] = L'●';
+				break;
+
+			case 1:                 // 2nd stroke
+				if (vkb[k] != L'・')
+				{
+					vkb[k] = L'◎'; // 二重打鍵
+					needX = true;
+				}
+				else
+				{
+					vkb[k] = L'○';
+				}
+				break;
+
+			case 2:                 // 3rd stroke
+				if (vkb[k] != L'・')
+				{
+					if (needX)
+					{
+						vkb[k] = L'☆'; // 二重打鍵 (その 2)
+					}
+					else
+					{
+						vkb[k] = L'◎'; // 二重打鍵
+						needX = true;
+					}
+				}
+				else
+				{
+					vkb[k] = L'△';
+				}
+				break;
+
+			default:                // forth stroke(s)
+				if (vkb[k] != L'・')
+				{
+					if (needX)
+					{
+						vkb[k] = L'☆'; // 二重打鍵 (その 2)
+					}
+					else
+					{
+						vkb[k] = L'◎'; // 二重打鍵
+						needX = true;
+					}
+				}
+				else
+				{
+					vkb[k] = L'◇';
+				}
+				break;
+			}
+		}
+		//TODO: 漢字2文字以上への対応
+		seqlist.append(vkb);
 	}
 	//TODO: tcvimeの自動ヘルプ同様の漢字表作成
 	return seqlist;
