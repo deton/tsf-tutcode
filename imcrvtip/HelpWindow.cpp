@@ -429,6 +429,8 @@ void CHelpWindow::_Redraw()
 	if (_hwnd != nullptr)
 	{
 		_pTextService->_MakeHelpTable(_kanji, &_helptables);
+		RECT rw = {};
+		_CalcWindowRect(&rw);
 		if (_helptables.empty())
 		{
 			ShowWindow(_hwnd, SW_HIDE);
@@ -472,7 +474,7 @@ void CHelpWindow::_CalcWindowRect(LPRECT lpRect)
 	lpRect->bottom = IM_MARGIN_Y * nmargins_y + _fontHeight * nrows * ntables;
 
 	RECT r = {};
-	//TODO:表示文字列に応じてウィンドウサイズを計算する
+	//XXX:漢字は固定幅と想定
 	DrawTextW(hdc, L"並態両乗専│興口洋船久　漢", -1, &r, DT_CALCRECT);
 	lpRect->right = IM_MARGIN_X * 2 + r.right;
 
@@ -552,8 +554,11 @@ void CHelpWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			}
 			//ドット表の間に、区切り線を引く
 			POINT ptmw[2] = { {0, y}, {r.right, y} };
-			Polyline(hmemdc, ptmw, 2);
 			y += IM_MARGIN_Y;
+			if (y < r.bottom) //表の間でなくbottomの場合は引かない
+			{
+				Polyline(hmemdc, ptmw, 2);
+			}
 		}
 	}
 
@@ -711,17 +716,14 @@ void CTextService::_MakeHelpTable(const std::wstring &kanji, HELPTABLES *helptab
 		std::wstring vkb;
 		FORWARD_ITERATION_I(itr, cx_vkbdlayout)
 		{
-			if (*itr == L'\n')
+			//改行 || 左手ブロックと右手ブロックの区切り
+			if (*itr == L'\n' || *itr == L'│')
 			{
-				vkb.append(L"\n");
-			}
-			else if (*itr == L'│') //左手ブロックと右手ブロックの区切り
-			{
-				vkb.append(L"│");
+				vkb += *itr;
 			}
 			else
 			{
-				vkb.append(L"・");
+				vkb += L'・';
 			}
 		}
 		bool needX = false;
