@@ -728,7 +728,7 @@ HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pC
 	pending.maze = startMaze ? true : false;
 	_ResetStatus();
 	_HandleCharReturn(ec, pContext);
-	deleter.BeginDeletion(delete_count, pending, dummy);
+	deleter.BeginDeletion((int)delete_count, pending, dummy);
 	return E_PENDING;
 }
 
@@ -741,23 +741,16 @@ HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstrin
 	}
 
 	std::wstring str;
-	//ヘルプ表示不要(読みとして入力した文字/重複する文字)かどうか
-	class skiphelp
+	//ヘルプ表示不要(読みとして入力した文字/重複する文字)な文字を除く
+	FORWARD_ITERATION_I(itr, kanji)
 	{
-		const std::wstring _yomi;
-		const std::wstring _helpstr;
-	public:
-		skiphelp(const std::wstring& yomi, const std::wstring& helpstr):
-			_yomi(yomi), _helpstr(helpstr)
+		if (yomi.find(*itr) != std::wstring::npos
+				|| str.find(*itr) != std::wstring::npos)
 		{
+			continue;
 		}
-		bool operator()(wchar_t c)
-		{
-			return _yomi.find(c) != std::wstring::npos
-				|| _helpstr.find(c) != std::wstring::npos;
-		}
-	};
-	remove_copy_if (kanji.begin(), kanji.end(), back_inserter(str), skiphelp(yomi, str));
+		str += *itr;
+	}
 
 	if (cx_showhelpkanjihyo)
 	{
