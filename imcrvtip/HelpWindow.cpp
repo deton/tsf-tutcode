@@ -258,7 +258,7 @@ BOOL CHelpWindow::_Create(CTextService *pTextService, ITfContext *pContext, BOOL
 	}
 
 	_pTextService = pTextService;
-	_help = _pTextService->_MakeHelpTable(_kanji);
+	_pTextService->_MakeHelpTable(_kanji, &_helptables);
 
 	if (bCandidateWindow)
 	{
@@ -411,7 +411,7 @@ void CHelpWindow::_Show(BOOL bShow)
 
 	if (_hwnd != nullptr)
 	{
-		if (bShow && _help.empty())
+		if (bShow && _helptables.empty())
 		{
 			bShow = FALSE;
 		}
@@ -428,8 +428,8 @@ void CHelpWindow::_Redraw()
 	}
 	if (_hwnd != nullptr)
 	{
-		_help = _pTextService->_MakeHelpTable(_kanji);
-		if (_help.empty())
+		_pTextService->_MakeHelpTable(_kanji, &_helptables);
+		if (_helptables.empty())
 		{
 			ShowWindow(_hwnd, SW_HIDE);
 		}
@@ -463,11 +463,17 @@ void CHelpWindow::_CalcWindowRect(LPRECT lpRect)
 	TEXTMETRICW tm = {};
 	GetTextMetricsW(hdc, &tm);
 	_fontHeight = tm.tmHeight;
-	lpRect->bottom = IM_MARGIN_Y * 2 + _fontHeight * 4;
+	//number of rows in one table
+	LONG nrows = (LONG)std::count(
+			_pTextService->cx_vkbdlayout.begin(),
+			_pTextService->cx_vkbdlayout.end(), L'\n') + 1;
+	LONG ntables = (LONG)_helptables.size();
+	LONG nmargins_y = 2 + ntables - 1; //top, bottom, between tables
+	lpRect->bottom = IM_MARGIN_Y * nmargins_y + _fontHeight * nrows * ntables;
 
 	RECT r = {};
 	//TODO:表示文字列に応じてウィンドウサイズを計算する
-	DrawTextW(hdc, L"並態両乗専│興口洋船久", -1, &r, DT_CALCRECT);
+	DrawTextW(hdc, L"並態両乗専│興口洋船久　漢", -1, &r, DT_CALCRECT);
 	lpRect->right = IM_MARGIN_X * 2 + r.right;
 
 	SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, lpRect->right, lpRect->bottom, SWP_NOMOVE | SWP_NOACTIVATE);
@@ -533,15 +539,21 @@ void CHelpWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 	Rectangle(hmemdc, 0, 0, r.right, r.bottom);
 
 	font = (HFONT)SelectObject(hmemdc, hFont);
-	if (!_help.empty())
+	if (!_helptables.empty())
 	{
-		int i = 0;
-		std::wistringstream iss(_help);
-		for (std::wstring s; getline(iss, s);)
+		int y = IM_MARGIN_Y;
+		FORWARD_ITERATION_I(itr, _helptables)
 		{
-			int y = IM_MARGIN_Y + i * _fontHeight;
-			TextOut(hmemdc, IM_MARGIN_X, y, s.c_str(), s.size());
-			i++;
+			std::wistringstream iss(*itr);
+			for (std::wstring s; getline(iss, s);)
+			{
+				TextOutW(hmemdc, IM_MARGIN_X, y, s.c_str(), (int)s.size());
+				y += _fontHeight;
+			}
+			//ドット表の間に、区切り線を引く
+			POINT ptmw[2] = { {0, y}, {r.right, y} };
+			Polyline(hmemdc, ptmw, 2);
+			y += IM_MARGIN_Y;
 		}
 	}
 
@@ -680,10 +692,10 @@ void CTextService::_EndHelpWindow()
 	_pHelpWindow.Release();
 }
 
-std::wstring CTextService::_MakeHelpTable(const std::wstring &kanji)
+void CTextService::_MakeHelpTable(const std::wstring &kanji, HELPTABLES *helptables)
 {
-	//漢字を1文字ずつ入力シーケンスに変換して、改行で連結
-	std::wstring seqlist;
+	helptables->clear();
+	//漢字を1文字ずつ入力シーケンスに変換
 	std::wstring k1;
 	size_t idx = 0;
 	while ((idx = Copy1Moji(kanji, idx, &k1)) != 0)
@@ -777,9 +789,13 @@ std::wstring CTextService::_MakeHelpTable(const std::wstring &kanji)
 				break;
 			}
 		}
-		//TODO: 漢字2文字以上への対応
-		seqlist.append(vkb);
+		//ドット表に対応する漢字
+		size_t nl = vkb.find(L'\n');
+		if (nl != std::wstring::npos)
+		{
+			vkb.insert(nl, L"　" + k1);
+		}
+		helptables->push_back(vkb);
 	}
 	//TODO: tcvimeの自動ヘルプ同様の漢字表作成
-	return seqlist;
 }

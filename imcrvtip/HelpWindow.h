@@ -55,7 +55,7 @@ private:
 	int _dpi;
 
 	std::wstring _kanji;
-	std::wstring _help;
+	HELPTABLES _helptables;
 	LONG _fontHeight;
 	BOOL _bHide;
 };
