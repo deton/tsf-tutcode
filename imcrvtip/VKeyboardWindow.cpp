@@ -463,7 +463,11 @@ void CVKeyboardWindow::_CalcWindowRect(LPRECT lpRect)
 	TEXTMETRICW tm = {};
 	GetTextMetricsW(hdc, &tm);
 	_fontHeight = tm.tmHeight;
-	lpRect->bottom = IM_MARGIN_Y * 2 + _fontHeight * 4;
+	//XXX:設定画面でcx_vkbdlayoutを変更しても一度他IMEに切替ないと反映されない
+	LONG nrows = (LONG)std::count(
+			_pTextService->cx_vkbdlayout.begin(),
+			_pTextService->cx_vkbdlayout.end(), L'\n') + 1;
+	lpRect->bottom = IM_MARGIN_Y * 2 + _fontHeight * nrows;
 
 	RECT r = {};
 	//XXX:漢字は固定幅と想定。表示文字列ごとに計算するのは面倒なので
@@ -535,13 +539,12 @@ void CVKeyboardWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 	font = (HFONT)SelectObject(hmemdc, hFont);
 	if (!_vkb.empty())
 	{
-		int i = 0;
+		int y = IM_MARGIN_Y;
 		std::wistringstream iss(_vkb);
 		for (std::wstring s; getline(iss, s);)
 		{
-			int y = IM_MARGIN_Y + i * _fontHeight;
-			TextOut(hmemdc, IM_MARGIN_X, y, s.c_str(), s.size());
-			i++;
+			TextOutW(hmemdc, IM_MARGIN_X, y, s.c_str(), (int)s.size());
+			y += _fontHeight;
 		}
 	}
 
