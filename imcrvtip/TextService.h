@@ -226,7 +226,7 @@ public:
 	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, const std::wstring &delstr, const std::wstring &replstr, PostConvContext postconvctx, const std::wstring &abortedRomanForPostConv, BOOL startMaze = false);
 	void _StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, const std::wstring &yomi);
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, size_t delete_count, const std::wstring &replstr, BOOL startMaze = false);
-	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi, bool force = false);
+	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
 	void _CommitStr(TfEditCookie ec, ITfContext *pContext, const std::wstring &s, PostConvContext postconvctx);
 	bool _CancelPostConv(TfEditCookie ec, ITfContext *pContext);
 
@@ -423,7 +423,7 @@ public:
 	std::wstring cx_vkbdtop;	//初期状態の仮想鍵盤に表示する内容
 	enum AutoHelp				//自動打鍵ヘルプの表示
 	{
-		AH_OFF = 0,				//無し
+		AH_OFF = 0,				//なし
 		AH_KANSAKU,				//漢索窓
 		AH_DOTHYO,				//ドット表
 		AH_KANJIHYO,			//漢字表

@@ -562,11 +562,11 @@ HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, Pos
 			size_t st = BackwardMoji(text, size, count);
 			if (st < size)
 			{
-				_ShowAutoHelp(text.substr(st), L"", true);
+				_ShowAutoHelp(text.substr(st), L"");
 				return S_OK;
 			}
 		}
-		_ShowAutoHelp(text, L"", true);
+		_ShowAutoHelp(text, L"");
 	}
 	return S_OK;
 }
@@ -733,9 +733,9 @@ HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pC
 }
 
 //打鍵ヘルプ表示
-HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi, bool force)
+HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi)
 {
-	if (!cx_autohelp && !force)
+	if (!cx_autohelp)
 	{
 		return E_FAIL;
 	}
