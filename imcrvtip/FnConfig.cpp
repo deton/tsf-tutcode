@@ -90,6 +90,11 @@ static const struct {
 
 LPCWSTR sectionpreservedkeyonoff[PRESERVEDKEY_NUM] = {SectionPreservedKeyON, SectionPreservedKeyOFF};
 
+static const LPCWSTR cbAutoHelpValue[] =
+{
+	ValueAutoHelpOff, ValueAutoHelpKansaku, ValueAutoHelpDotHyo, ValueAutoHelpKanjiHyo
+};
+
 void CTextService::_CreateConfigPath()
 {
 	PWSTR knownfolderpath = nullptr;
@@ -295,8 +300,14 @@ void CTextService::_LoadBehavior()
 	cx_vkbdlayout = std::regex_replace(strxmlval, re, fmt);
 	ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval, L"");
 	cx_vkbdtop = std::regex_replace(strxmlval, re, fmt);
-	_ReadBoolValue(SectionDisplay, ValueShowHelp, cx_showhelp, FALSE);
-	_ReadBoolValue(SectionDisplay, ValueShowHelpKanjihyo, cx_showhelpkanjihyo, TRUE);
+	ReadValue(pathconfigxml, SectionDisplay, ValueAutoHelp, strxmlval, ValueAutoHelpOff);
+	for (int i = 0; i < _countof(cbAutoHelpValue); i++)
+	{
+		if (wcscmp(cbAutoHelpValue[i], strxmlval.c_str()) == 0)
+		{
+			cx_autohelp = (AutoHelp)i;
+		}
+	}
 
 	for (int i = 0; i < _countof(cx_mode_colors); i++)
 	{

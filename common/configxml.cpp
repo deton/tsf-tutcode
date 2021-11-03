@@ -131,8 +131,11 @@ LPCWSTR ValueColorDR = L"colordr";
 LPCWSTR ValueShowVkbd = L"showvkbd";
 LPCWSTR ValueVkbdLayout = L"vkbdlayout";
 LPCWSTR ValueVkbdTop = L"vkbdtop";
-LPCWSTR ValueShowHelp = L"showhelp";
-LPCWSTR ValueShowHelpKanjihyo = L"showhelpkanjihyo";
+LPCWSTR ValueAutoHelp = L"autohelp";
+LPCWSTR ValueAutoHelpOff = L"off";
+LPCWSTR ValueAutoHelpKansaku = L"kansaku";
+LPCWSTR ValueAutoHelpDotHyo = L"dothyo";
+LPCWSTR ValueAutoHelpKanjiHyo = L"kanjihyo";
 
 //displayattr section
 

@@ -226,7 +226,7 @@ public:
 	HRESULT _ReplacePrecedingText(TfEditCookie ec, ITfContext *pContext, const std::wstring &delstr, const std::wstring &replstr, PostConvContext postconvctx, const std::wstring &abortedRomanForPostConv, BOOL startMaze = false);
 	void _StartConvWithYomi(TfEditCookie ec, ITfContext *pContext, const std::wstring &yomi);
 	HRESULT _ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pContext, size_t delete_count, const std::wstring &replstr, BOOL startMaze = false);
-	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi);
+	HRESULT _ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi, bool force = false);
 	void _CommitStr(TfEditCookie ec, ITfContext *pContext, const std::wstring &s, PostConvContext postconvctx);
 	bool _CancelPostConv(TfEditCookie ec, ITfContext *pContext);
 
@@ -421,8 +421,14 @@ public:
 	BOOL cx_showvkbd;			//入力途中に仮想鍵盤を表示する
 	std::wstring cx_vkbdlayout;	//仮想鍵盤のレイアウト(dvorak等)
 	std::wstring cx_vkbdtop;	//初期状態の仮想鍵盤に表示する内容
-	BOOL cx_showhelp;			//打鍵ヘルプを表示する
-	BOOL cx_showhelpkanjihyo;	//打鍵ヘルプを表示する(FALSE:漢索窓/TRUE:漢字表)
+	enum AutoHelp				//自動打鍵ヘルプの表示
+	{
+		AH_OFF = 0,				//無し
+		AH_KANSAKU,				//漢索窓
+		AH_DOTHYO,				//ドット表
+		AH_KANJIHYO,			//漢字表
+	};
+	AutoHelp cx_autohelp;		//自動打鍵ヘルプの表示
 
 	BOOL cx_showmodeinl;		//入力モードを表示する
 	UINT cx_showmodeinltm;		//入力モードの表示ミリ秒数

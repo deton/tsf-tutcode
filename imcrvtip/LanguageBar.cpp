@@ -631,7 +631,7 @@ void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 	{
 		_StartVKeyboardWindow();
 	}
-	if (cx_showhelp)
+	if (cx_autohelp)
 	{
 		_EndHelpWindow();
 	}

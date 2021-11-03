@@ -126,8 +126,11 @@ extern LPCWSTR ValueColorDR;
 extern LPCWSTR ValueShowVkbd;
 extern LPCWSTR ValueVkbdLayout;
 extern LPCWSTR ValueVkbdTop;
-extern LPCWSTR ValueShowHelp;
-extern LPCWSTR ValueShowHelpKanjihyo;
+extern LPCWSTR ValueAutoHelp;
+extern LPCWSTR ValueAutoHelpOff;
+extern LPCWSTR ValueAutoHelpKansaku;
+extern LPCWSTR ValueAutoHelpDotHyo;
+extern LPCWSTR ValueAutoHelpKanjiHyo;
 
 //displayattr section
 

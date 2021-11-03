@@ -43,7 +43,7 @@ BOOL CCandidateWindow::_Create(HWND hwndParent, CCandidateWindow *pCandidateWind
 		_InitFont();
 	}
 
-	if (_hwnd != nullptr && _pTextService->cx_showhelp)
+	if (_hwnd != nullptr && _pTextService->cx_autohelp)
 	{
 		try
 		{

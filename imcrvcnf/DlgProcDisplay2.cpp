@@ -21,6 +21,16 @@ static struct {
 	{IDC_COL_MODE_DR, ValueColorDR, RGB(0x80, 0x80, 0x80)}
 };
 
+static const LPCWSTR cbAutoHelpText[] =
+{
+	L"なし", L"漢索窓", L"ドット表", L"漢字表"
+};
+
+static const LPCWSTR cbAutoHelpValue[] =
+{
+	ValueAutoHelpOff, ValueAutoHelpKansaku, ValueAutoHelpDotHyo, ValueAutoHelpKanjiHyo
+};
+
 INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
@@ -31,6 +41,8 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	std::wstring strxmlval;
 	CHOOSECOLORW cc = {};
 	static COLORREF customColor[16];
+	HWND hCombo;
+	int sel;
 
 	switch (message)
 	{
@@ -82,12 +94,25 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		wcsncpy_s(vkbdtop, strxmlval.c_str(), _TRUNCATE);
 		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop);
 
-		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWHELP, SectionDisplay, ValueShowHelp, L"0");
-		LoadCheckButton(hDlg, IDC_RADIO_SHOWHELPKANJIHYO, SectionDisplay, ValueShowHelpKanjihyo, L"1");
-		if (!IsDlgButtonChecked(hDlg, IDC_RADIO_SHOWHELPKANJIHYO))
+		hCombo = GetDlgItem(hDlg, IDC_COMBO_AUTOHELP);
+		for (int i = 0; i < _countof(cbAutoHelpText); i++)
 		{
-			CheckDlgButton(hDlg, IDC_RADIO_SHOWHELPKANSAKU, BST_CHECKED);
+			SendMessageW(hCombo, CB_ADDSTRING, 0, (LPARAM)cbAutoHelpText[i]);
 		}
+		ReadValue(pathconfigxml, SectionDisplay, ValueAutoHelp, strxmlval);
+		sel = 0;
+		if (!strxmlval.empty())
+		{
+			for (int i = 0; i < _countof(cbAutoHelpValue); i++)
+			{
+				if (wcscmp(cbAutoHelpValue[i], strxmlval.c_str()) == 0)
+				{
+					sel = i;
+					break;
+				}
+			}
+		}
+		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)sel, 0);
 
 		return TRUE;
 
@@ -111,11 +136,19 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			}
 			break;
 
+		case IDC_COMBO_AUTOHELP:
+			switch (HIWORD(wParam))
+			{
+			case CBN_SELCHANGE:
+				PropSheet_Changed(GetParent(hDlg), hDlg);
+				return TRUE;
+			default:
+				break;
+			}
+			break;
+
 		case IDC_CHECKBOX_SHOWMODEINL:
 		case IDC_CHECKBOX_SHOWVKBD:
-		case IDC_CHECKBOX_SHOWHELP:
-		case IDC_RADIO_SHOWHELPKANSAKU:
-		case IDC_RADIO_SHOWHELPKANJIHYO:
 			PropSheet_Changed(GetParent(hDlg), hDlg);
 			return TRUE;
 
@@ -214,6 +247,8 @@ void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 	WriterKey(pWriter, ValueVkbdLayout, vkbdlayout);
 	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
 	WriterKey(pWriter, ValueVkbdTop, vkbdtop);
-	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWHELP, ValueShowHelp);
-	SaveCheckButton(pWriter, hDlg, IDC_RADIO_SHOWHELPKANJIHYO, ValueShowHelpKanjihyo);
+
+	HWND hwnd = GetDlgItem(hDlg, IDC_COMBO_AUTOHELP);
+	int sel = (int)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
+	WriterKey(pWriter, ValueAutoHelp, cbAutoHelpValue[sel]);
 }

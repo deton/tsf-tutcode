@@ -562,11 +562,11 @@ HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, Pos
 			size_t st = BackwardMoji(text, size, count);
 			if (st < size)
 			{
-				_ShowAutoHelp(text.substr(st), L"");
+				_ShowAutoHelp(text.substr(st), L"", true);
 				return S_OK;
 			}
 		}
-		_ShowAutoHelp(text, L"");
+		_ShowAutoHelp(text, L"", true);
 	}
 	return S_OK;
 }
@@ -733,9 +733,9 @@ HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pC
 }
 
 //打鍵ヘルプ表示
-HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi)
+HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi, bool force)
 {
-	if (!cx_showhelp)
+	if (!cx_autohelp && !force)
 	{
 		return E_FAIL;
 	}
@@ -752,47 +752,52 @@ HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstrin
 		str += *itr;
 	}
 
-	if (cx_showhelpkanjihyo)
+	if (cx_autohelp == AH_DOTHYO || cx_autohelp == AH_KANJIHYO)
 	{
+		//TODO:漢字表対応
 		return _StartHelpWindow(str);
 	}
-	//漢索窓が起動されていれば、そこに表示
-	HWND hwnd = FindWindow(L"kansaku", NULL);
-	if (hwnd == NULL)
+	if (cx_autohelp == AH_KANSAKU)
 	{
-		return E_FAIL;
-	}
-	//XXX:クリップボード内容を上書きされるのはユーザにはうれしくない
-	if (!OpenClipboard(NULL))
-	{
-		return E_FAIL;
-	}
-	size_t len = str.size() + 1;
-	size_t size = len * sizeof(WCHAR);
-	HGLOBAL hMem = GlobalAlloc(GMEM_FIXED, size);
-	if (hMem == NULL)
-	{
+		//漢索窓が起動されていれば、そこに表示
+		HWND hwnd = FindWindow(L"kansaku", NULL);
+		if (hwnd == NULL)
+		{
+			return E_FAIL;
+		}
+		//XXX:クリップボード内容を上書きされるのはユーザにはうれしくない
+		if (!OpenClipboard(NULL))
+		{
+			return E_FAIL;
+		}
+		size_t len = str.size() + 1;
+		size_t size = len * sizeof(WCHAR);
+		HGLOBAL hMem = GlobalAlloc(GMEM_FIXED, size);
+		if (hMem == NULL)
+		{
+			CloseClipboard();
+			return E_FAIL;
+		}
+		LPWSTR pMem = (LPWSTR)hMem;
+		wcsncpy_s(pMem, len, str.c_str(), _TRUNCATE);
+		EmptyClipboard();
+		SetClipboardData(CF_UNICODETEXT, hMem);
 		CloseClipboard();
-		return E_FAIL;
+		PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
+		//漢索窓を最前面に表示させる
+		HWND foreWin = GetForegroundWindow();
+		DWORD foreThread = GetWindowThreadProcessId(foreWin, NULL);
+		DWORD selfThread = GetCurrentThreadId();
+		AttachThreadInput(selfThread, foreThread, TRUE);
+		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_ASYNCWINDOWPOS);
+		//最前面に出たままになって邪魔にならないように
+		SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
+		AttachThreadInput(selfThread, foreThread, FALSE);
+		return S_OK;
 	}
-	LPWSTR pMem = (LPWSTR)hMem;
-	wcsncpy_s(pMem, len, str.c_str(), _TRUNCATE);
-	EmptyClipboard();
-	SetClipboardData(CF_UNICODETEXT, hMem);
-	CloseClipboard();
-	PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
-	//漢索窓を最前面に表示させる
-	HWND foreWin = GetForegroundWindow();
-	DWORD foreThread = GetWindowThreadProcessId(foreWin, NULL);
-	DWORD selfThread = GetCurrentThreadId();
-	AttachThreadInput(selfThread, foreThread, TRUE);
-	SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
-		SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_ASYNCWINDOWPOS);
-	//最前面に出たままになって邪魔にならないように
-	SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
-		SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
-	AttachThreadInput(selfThread, foreThread, FALSE);
-	return S_OK;
+	return E_FAIL;
 }
 
 //指定した文字列を確定する
