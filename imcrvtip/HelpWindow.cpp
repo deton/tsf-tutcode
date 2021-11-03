@@ -465,13 +465,14 @@ void CHelpWindow::_CalcWindowRect(LPRECT lpRect)
 	TEXTMETRICW tm = {};
 	GetTextMetricsW(hdc, &tm);
 	_fontHeight = tm.tmHeight;
-	//number of rows in one table
-	LONG nrows = (LONG)std::count(
-			_pTextService->cx_vkbdlayout.begin(),
-			_pTextService->cx_vkbdlayout.end(), L'\n') + 1;
+	LONG nallrows = 0;
+	FORWARD_ITERATION_I(itr, _helptables)
+	{
+		nallrows += (LONG)std::count((*itr).begin(), (*itr).end(), L'\n') + 1;
+	}
 	LONG ntables = (LONG)_helptables.size();
 	LONG nmargins_y = 2 + ntables - 1; //top, bottom, between tables
-	lpRect->bottom = IM_MARGIN_Y * nmargins_y + _fontHeight * nrows * ntables;
+	lpRect->bottom = IM_MARGIN_Y * nmargins_y + _fontHeight * nallrows;
 
 	RECT r = {};
 	//XXX:漢字は固定幅と想定
@@ -705,11 +706,22 @@ void CTextService::_MakeHelpTable(const std::wstring &kanji, HELPTABLES *helptab
 	size_t idx = 0;
 	while ((idx = Copy1Moji(kanji, idx, &k1)) != 0)
 	{
+		if (k1[0] < 0x7F) //直接入力できる文字はヘルプ表示しない
+		{
+			continue;
+		}
 		std::wstring seq;
 		_ConvKanaToRoman(seq, k1, im_hiragana);
-		//TODO: 入力シーケンスが無い文字(seq==k1)に対しては部首合成方法を示す
+		//入力シーケンスが無い文字(seq==k1)に対しては部首合成方法を示す
 		if (seq == k1)
 		{
+			std::wstring bushuhelp;
+			_BushuHelp(k1, &bushuhelp);
+			if (!bushuhelp.empty())
+			{
+				bushuhelp.insert(0, k1);
+				helptables->push_back(bushuhelp);
+			}
 			continue;
 		}
 

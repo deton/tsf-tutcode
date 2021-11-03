@@ -29,6 +29,83 @@ std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2)
 	return ret;
 }
 
+//逆順の部首1と部首2があるか調べる
+static size_t HasReverseCompose(const std::wstring &dec, const std::wstring bushu1, const std::wstring bushu2)
+{
+	if (bushu2 == bushu1)
+	{
+		return std::wstring::npos;
+	}
+	size_t idx = 0;
+	while ((idx = dec.find(bushu2, idx)) != std::wstring::npos)
+	{
+		std::wstring nextch;
+		idx = ForwardMoji(dec, idx, 1); // skip bushu2
+		idx = Copy1Moji(dec, idx, &nextch);
+		if (nextch == bushu1)
+		{
+			return idx;
+		}
+	}
+	return idx;
+}
+
+//漢字を部首合成変換で入力する方法を示すヘルプ表示用文字列を返す。
+// \return "<部首1><部首2>[*][ ][部首1][部首2][*][ ][部首1][部首2][*]..."
+std::wstring BushuHelp(const std::wstring &kanji)
+{
+	std::wstring ret;
+	FORWARD_ITERATION_I(itr, userbushudic)
+	{
+		if (itr->second != kanji)
+		{
+			continue;
+		}
+		std::wstring bushu1;
+		size_t idx = Copy1Moji(itr->first, 0, &bushu1);
+		if (idx == 0)
+		{
+			continue;
+		}
+		std::wstring bushu2;
+		idx = Copy1Moji(itr->first, idx, &bushu2);
+		if (idx == 0)
+		{
+			continue;
+		}
+
+		//逆順の部首1と部首2がある場合は"*"を付けたものだけにする
+		idx = HasReverseCompose(ret, bushu1, bushu2);
+		if (idx == std::wstring::npos)
+		{
+			if (!ret.empty())
+			{
+				ret += L" ";
+			}
+			ret += bushu1;
+			ret += bushu2;
+		}
+		else
+		{
+			ret.insert(idx, L"*");
+		}
+	}
+	if (!ret.empty())
+	{
+		return ret;
+	}
+
+	WCHAR b1, b2;
+	bushudic.decompose(kanji[0], b1, b2);
+	if (b1 == MOJI_BUSHU_NL || b2 == MOJI_BUSHU_NL)
+	{
+		return ret;
+	}
+	ret += b1;
+	ret += b2;
+	return ret;
+}
+
 //部首合成変換ユーザー辞書の行を解析して辞書に追加する。
 //部首合成変換ユーザー辞書の各行の形式は、
 //<漢字><部首1><部首2>[*][ ][部首1][部首2][*][ ][部首1][部首2][*]...

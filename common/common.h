@@ -36,6 +36,7 @@
 #define REQ_CAPS_LOCK		L'I'	//Caps Lock
 #define REQ_KANA_LOCK		L'J'	//Kana Lock
 #define REQ_BUSHU			L'b'	//部首合成変換
+#define REQ_BUSHUHELP		L'h'	//部首への分解(入力ヘルプ表示用)
 //reply
 #define REP_OK				L'T'	//hit
 #define REP_FALSE			L'F'	//nothing

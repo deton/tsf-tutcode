@@ -49,7 +49,11 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	    reply   "T\n"
 	  bushu conversion
 	    request "b\n<bushu1>\t<bushu2>\n"
-	    reply   "T\n<candidate converted>\n":hit
+	    reply   "T\n<kanji>\n":hit
+	            "F\n":nothing
+	  bushu decompositon for help
+	    request "h\n<kanji>\n"
+	    reply   "T\n<bushu11><bushu12>* <bushu21><bushu22> ...\n":hit
 	            "F\n":nothing
 	*/
 
@@ -98,6 +102,24 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		fmt.assign(L"$2");
 		keyorg = std::regex_replace(argument, re, fmt);
 		conv = ConvBushu(key, keyorg);
+		if (!conv.empty())
+		{
+			result = REP_OK;
+			result += L"\n";
+			result += conv + L"\n";
+		}
+		else
+		{
+			result = REP_FALSE;
+			result += L"\n";
+		}
+		break;
+
+	case REQ_BUSHUHELP:
+		re.assign(L"(.*)\n");
+		fmt.assign(L"$1");
+		key = std::regex_replace(argument, re, fmt);
+		conv = BushuHelp(key);
 		if (!conv.empty())
 		{
 			result = REP_OK;

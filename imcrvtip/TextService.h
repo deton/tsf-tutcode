@@ -235,6 +235,7 @@ public:
 	void _DisconnectDic();
 	void _SearchDic(WCHAR command);
 	void _SearchBushuDic(const std::wstring &bushu1, const std::wstring &bushu2, std::wstring *kanji);
+	void _BushuHelp(const std::wstring &kanji, std::wstring *help);
 	void _ConvertWord(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &okuri, std::wstring &conv);
 	void _AddUserDic(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &annotation);
 	void _DelUserDic(WCHAR command, const std::wstring &key, const std::wstring &candidate);
