@@ -12,7 +12,6 @@ class CCandidateList;
 class CInputModeWindow;
 class CVKeyboardWindow;
 class CHelpWindow;
-typedef std::vector< std::wstring > HELPTABLES;
 
 class CTextService :
 	public ITfTextInputProcessorEx,
@@ -282,6 +281,8 @@ public:
 	void _EndHelpWindow();
 	void _HideHelpWindow();
 	void _MakeHelpTable(const std::wstring &kanji, HELPTABLES *helptables);
+	std::wstring _MakeHelpTableDotHyo(const std::wstring &seq);
+	std::wstring _MakeHelpTableKanjiHyo(const std::wstring &baseseq);
 
 private:
 	LONG _cRef;

@@ -468,7 +468,8 @@ void CHelpWindow::_CalcWindowRect(LPRECT lpRect)
 	LONG nallrows = 0;
 	FORWARD_ITERATION_I(itr, _helptables)
 	{
-		nallrows += (LONG)std::count((*itr).begin(), (*itr).end(), L'\n') + 1;
+		std::wstring tbl = (*itr).showtable;
+		nallrows += (LONG)std::count(tbl.begin(), tbl.end(), L'\n') + 1;
 	}
 	LONG ntables = (LONG)_helptables.size();
 	LONG nmargins_y = 2 + ntables - 1; //top, bottom, between tables
@@ -478,6 +479,7 @@ void CHelpWindow::_CalcWindowRect(LPRECT lpRect)
 	//XXX:漢字は固定幅と想定
 	DrawTextW(hdc, L"並態両乗専│興口洋船久　漢", -1, &r, DT_CALCRECT);
 	lpRect->right = IM_MARGIN_X * 2 + r.right;
+	_fontWidth = r.right / 13;
 
 	SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, lpRect->right, lpRect->bottom, SWP_NOMOVE | SWP_NOACTIVATE);
 
@@ -542,24 +544,80 @@ void CHelpWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 	Rectangle(hmemdc, 0, 0, r.right, r.bottom);
 
 	font = (HFONT)SelectObject(hmemdc, hFont);
-	if (!_helptables.empty())
+	int y = IM_MARGIN_Y;
+	FORWARD_ITERATION_I(itr, _helptables)
 	{
-		int y = IM_MARGIN_Y;
-		FORWARD_ITERATION_I(itr, _helptables)
+		if ((*itr).colormarker.empty()) //部首合成ヘルプ
 		{
-			std::wistringstream iss(*itr);
-			for (std::wstring s; getline(iss, s);)
+			std::wstring s = (*itr).showtable;
+			SetBkMode(hmemdc, TRANSPARENT);
+			TextOutW(hmemdc, IM_MARGIN_X, y, s.c_str(), (int)s.size());
+			y += _fontHeight;
+		}
+		else //打鍵ヘルプ表(ドット表または漢字表)
+		{
+			bool firstline = true;
+			std::wistringstream iss((*itr).showtable);
+			std::wistringstream issbkcol((*itr).colormarker); //背景色特定用
+			for (std::wstring s, bk; getline(iss, s) && getline(issbkcol, bk);)
 			{
-				TextOutW(hmemdc, IM_MARGIN_X, y, s.c_str(), (int)s.size());
+				int x = IM_MARGIN_X;
+				std::wstring::iterator itxbk = bk.begin();
+				for (std::wstring::iterator itx = s.begin(); itx != s.end(); ++itx)
+				{
+					SetBkMode(hmemdc, OPAQUE);
+					switch (*itxbk)
+					{
+					case L'●':	//第1打鍵
+						SetBkColor(hmemdc, PALETTERGB(0xff, 0xc0, 0xc0));//red
+						break;
+					case L'○':	//第2打鍵
+						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xff, 0xc0));//green
+						break;
+					case L'△':	//第3打鍵
+						SetBkColor(hmemdc, PALETTERGB(0xff, 0xff, 0xc0));//yellow
+						break;
+					case L'◇':	//第4打鍵以降
+						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xc0, 0xc0));//gray
+						break;
+					case L'◎':	//二重打鍵
+						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xc0, 0xff));//blue
+						break;
+					case L'☆':	//二重打鍵(その2)
+						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xff, 0xff));//cyan
+						break;
+					default:
+						SetBkMode(hmemdc, TRANSPARENT);
+						break;
+					}
+					WCHAR ch[2];
+					ch[0] = *itx;
+					ch[1] = L'\0';
+					if (ch[0] == L'・') //特に表示内容が無ければ'△'等に置換
+					{
+						ch[0] = *itxbk;
+					}
+					TextOutW(hmemdc, x, y, ch, 1);
+					x += _fontWidth;
+					++itxbk;
+				}
+				//1行目に間隔をあけてヘルプ対象の漢字を表示
+				if (firstline)
+				{
+					x += _fontWidth;
+					std::wstring k = (*itr).kanji;
+					TextOutW(hmemdc, x, y, k.c_str(), (int)k.size());
+					firstline = false;
+				}
 				y += _fontHeight;
 			}
-			//ドット表の間に、区切り線を引く
-			POINT ptmw[2] = { {0, y}, {r.right, y} };
-			y += IM_MARGIN_Y;
-			if (y < r.bottom) //表の間でなくbottomの場合は引かない
-			{
-				Polyline(hmemdc, ptmw, 2);
-			}
+		}
+		//ドット表の間に、区切り線を引く
+		POINT ptmw[2] = { {0, y}, {r.right, y} };
+		y += IM_MARGIN_Y;
+		if (y < r.bottom) //表の間でなくbottomの場合は引かない
+		{
+			Polyline(hmemdc, ptmw, 2);
 		}
 	}
 
@@ -720,96 +778,145 @@ void CTextService::_MakeHelpTable(const std::wstring &kanji, HELPTABLES *helptab
 			if (!bushuhelp.empty())
 			{
 				bushuhelp.insert(0, k1);
-				helptables->push_back(bushuhelp);
+				HELPTABLE tbl = {k1, bushuhelp, L""};
+				helptables->push_back(tbl);
 			}
 			continue;
 		}
 
-		std::wstring vkb;
-		FORWARD_ITERATION_I(itr, cx_vkbdlayout)
+		std::wstring dothyo = _MakeHelpTableDotHyo(seq);
+		HELPTABLE tbl = {k1, dothyo, dothyo};
+		if (cx_autohelp == AH_KANJIHYO)
 		{
-			//改行 || 左手ブロックと右手ブロックの区切り
-			if (*itr == L'\n' || *itr == L'│')
+			std::wstring kanjihyo = _MakeHelpTableKanjiHyo(seq);
+			tbl.showtable = kanjihyo;
+		}
+		helptables->push_back(tbl);
+	}
+}
+
+std::wstring CTextService::_MakeHelpTableDotHyo(const std::wstring &seq)
+{
+	std::wstring vkb;
+	FORWARD_ITERATION_I(itr, cx_vkbdlayout)
+	{
+		//改行 || 左手ブロックと右手ブロックの区切り
+		if (*itr == L'\n' || *itr == L'│')
+		{
+			vkb += *itr;
+		}
+		else
+		{
+			vkb += L'・';
+		}
+	}
+	bool needX = false;
+	for (size_t th = 0; th < seq.size(); th++)
+	{
+		size_t k = cx_vkbdlayout.find(seq[th]);
+		if (k == std::wstring::npos)
+		{
+			continue;
+		}
+		switch (th)
+		{
+		case 0:                 // 1st stroke
+			vkb[k] = L'●';
+			break;
+
+		case 1:                 // 2nd stroke
+			if (vkb[k] != L'・')
 			{
-				vkb += *itr;
+				vkb[k] = L'◎'; // 二重打鍵
+				needX = true;
 			}
 			else
 			{
-				vkb += L'・';
+				vkb[k] = L'○';
 			}
-		}
-		bool needX = false;
-		for (size_t th = 0; th < seq.size(); th++)
-		{
-			size_t k = cx_vkbdlayout.find(seq[th]);
-			if (k == std::wstring::npos)
-			{
-				continue;
-			}
-			switch (th)
-			{
-			case 0:                 // 1st stroke
-				vkb[k] = L'●';
-				break;
+			break;
 
-			case 1:                 // 2nd stroke
-				if (vkb[k] != L'・')
+		case 2:                 // 3rd stroke
+			if (vkb[k] != L'・')
+			{
+				if (needX)
+				{
+					vkb[k] = L'☆'; // 二重打鍵 (その 2)
+				}
+				else
 				{
 					vkb[k] = L'◎'; // 二重打鍵
 					needX = true;
 				}
+			}
+			else
+			{
+				vkb[k] = L'△';
+			}
+			break;
+
+		default:                // forth stroke(s)
+			if (vkb[k] != L'・')
+			{
+				if (needX)
+				{
+					vkb[k] = L'☆'; // 二重打鍵 (その 2)
+				}
 				else
 				{
-					vkb[k] = L'○';
+					vkb[k] = L'◎'; // 二重打鍵
+					needX = true;
+				}
+			}
+			else
+			{
+				vkb[k] = L'◇';
+			}
+			break;
+		}
+	}
+	return vkb;
+}
+
+//tcvimeの自動ヘルプ同様の漢字表作成
+std::wstring CTextService::_MakeHelpTableKanjiHyo(const std::wstring &baseseq)
+{
+	std::wstring vkb;
+	FORWARD_ITERATION_I(itr, cx_vkbdlayout)
+	{
+		//改行 || 左手ブロックと右手ブロックの区切り
+		if (*itr == L'\n' || *itr == L'│')
+		{
+			vkb += *itr;
+		}
+		else
+		{
+			//*itrで始まりseqの末尾で終わる各入力シーケンスを漢字に変換
+			ROMAN_KANA_CONV rkc; //_ConvRomanKana()で変更されるので呼出毎に生成
+			wcsncpy_s(rkc.roman, baseseq.c_str(), _TRUNCATE);
+			rkc.roman[0] = *itr; //シーケンス最初をvkbdlayoutの各キーで上書き
+			HRESULT ret = _ConvRomanKana(&rkc);
+			switch (ret)
+			{
+			case S_OK:	//一致
+				if (rkc.func)
+				{
+					vkb += L'＠';
+				}
+				else
+				{
+					vkb += Get1Moji(rkc.hiragana, 0);
 				}
 				break;
-
-			case 2:                 // 3rd stroke
-				if (vkb[k] != L'・')
-				{
-					if (needX)
-					{
-						vkb[k] = L'☆'; // 二重打鍵 (その 2)
-					}
-					else
-					{
-						vkb[k] = L'◎'; // 二重打鍵
-						needX = true;
-					}
-				}
-				else
-				{
-					vkb[k] = L'△';
-				}
+			case E_PENDING:	//途中まで一致。(rkcは変更されている)
+				vkb += L'□';
 				break;
-
-			default:                // forth stroke(s)
-				if (vkb[k] != L'・')
-				{
-					if (needX)
-					{
-						vkb[k] = L'☆'; // 二重打鍵 (その 2)
-					}
-					else
-					{
-						vkb[k] = L'◎'; // 二重打鍵
-						needX = true;
-					}
-				}
-				else
-				{
-					vkb[k] = L'◇';
-				}
+			case E_ABORT:	//一致する可能性なし
+			default:
+				vkb += L'・';
 				break;
 			}
 		}
-		//ドット表に対応する漢字
-		size_t nl = vkb.find(L'\n');
-		if (nl != std::wstring::npos)
-		{
-			vkb.insert(nl, L"　" + k1);
-		}
-		helptables->push_back(vkb);
 	}
-	//TODO: tcvimeの自動ヘルプ同様の漢字表作成
+	return vkb;
 }

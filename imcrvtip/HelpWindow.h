@@ -57,5 +57,6 @@ private:
 	std::wstring _kanji;
 	HELPTABLES _helptables;
 	LONG _fontHeight;
+	LONG _fontWidth;
 	BOOL _bHide;
 };

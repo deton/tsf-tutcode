@@ -754,7 +754,6 @@ HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstrin
 
 	if (cx_autohelp == AH_DOTHYO || cx_autohelp == AH_KANJIHYO)
 	{
-		//TODO:漢字表対応
 		return _StartHelpWindow(str);
 	}
 	if (cx_autohelp == AH_KANSAKU)
