@@ -58,6 +58,8 @@ static const TF_PRESERVEDKEY configpreservedkey[PRESERVEDKEY_NUM][MAX_PRESERVEDK
 	}
 };
 
+static const TF_PRESERVEDKEY configprivatemodekey = {VK_F10, TF_MOD_CONTROL | TF_MOD_SHIFT};
+
 static const struct {
 	LPCWSTR value;
 	COLORREF color;
@@ -90,13 +92,19 @@ static const struct {
 
 LPCWSTR sectionpreservedkeyonoff[PRESERVEDKEY_NUM] = {SectionPreservedKeyON, SectionPreservedKeyOFF};
 
+LPCWSTR keyprivatemodekeyonoff[PRIVATEMODEKEY_NUM][2] =
+{
+	{ValuePrivateOnVKey, ValuePrivateOnMKey},
+	{ValuePrivateOffVKey, ValuePrivateOffMKey}
+};
+
 void CTextService::_CreateConfigPath()
 {
 	PWSTR knownfolderpath = nullptr;
 
 	ZeroMemory(pathconfigxml, sizeof(pathconfigxml));
 
-	//%AppData%\\CorvusSKK\\config.xml
+	//%APPDATA%\\CorvusSKK\\config.xml
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
 		_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnconfigxml);
@@ -121,7 +129,7 @@ void CTextService::_CreateConfigPath()
 		//%SystemRoot%\\IME\\IMCRVSKK\\config.xml
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 		{
-			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fnconfigxml);
+			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fnconfigxml);
 
 			CoTaskMemFree(knownfolderpath);
 		}
@@ -159,6 +167,31 @@ void CTextService::_ReadBoolValue(LPCWSTR section, LPCWSTR key, BOOL &value, BOO
 	}
 }
 
+void CTextService::_LoadUserDict()
+{
+	std::wstring strxmlval;
+
+	//UserDict
+
+	for (int i = 0; i < PRIVATEMODEKEY_NUM; i++)
+	{
+		ReadValue(pathconfigxml, SectionUserDict, keyprivatemodekeyonoff[i][0], strxmlval);
+		privatemodekey[i].uVKey =
+			(strxmlval.empty() ? configprivatemodekey.uVKey : (BYTE)wcstoul(strxmlval.c_str(), nullptr, 0));
+
+		ReadValue(pathconfigxml, SectionUserDict, keyprivatemodekeyonoff[i][1], strxmlval);
+		privatemodekey[i].uModifiers =
+			(strxmlval.empty() ? configprivatemodekey.uModifiers :
+				(wcstoul(strxmlval.c_str(), nullptr, 0) & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT)));
+		if ((privatemodekey[i].uModifiers & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT)) == 0)
+		{
+			privatemodekey[i].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
+		}
+	}
+
+	_ReadBoolValue(SectionUserDict, ValuePrivateModeAuto, cx_privatemodeauto, TRUE);
+}
+
 void CTextService::_LoadBehavior()
 {
 	std::wstring strxmlval;
@@ -188,6 +221,11 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionBehavior, ValueDynamicComp, cx_dynamiccomp, FALSE);
 	_ReadBoolValue(SectionBehavior, ValueDynCompMulti, cx_dyncompmulti, FALSE);
 	_ReadBoolValue(SectionBehavior, ValueCompUserDic, cx_compuserdic, FALSE);
+}
+
+void CTextService::_LoadDisplay()
+{
+	std::wstring strxmlval;
 
 	//Font
 
@@ -313,6 +351,8 @@ void CTextService::_LoadDisplayAttr()
 	BOOL se;
 	TF_DISPLAYATTRIBUTE da;
 
+	//DisplayAttr
+
 	for (int i = 0; i < DISPLAYATTRIBUTE_INFO_NUM; i++)
 	{
 		display_attribute_series[i] = c_gdDisplayAttributeInfo[i].se;
@@ -375,12 +415,12 @@ void CTextService::_SetPreservedKeyONOFF(int onoff, const APPDATAXMLLIST &list)
 			{
 				if (r_itr->first == AttributeVKey)
 				{
-					preservedkey[onoff][i].uVKey = wcstoul(r_itr->second.c_str(), nullptr, 0);
+					preservedkey[onoff][i].uVKey = (BYTE)wcstoul(r_itr->second.c_str(), nullptr, 0);
 				}
 				else if (r_itr->first == AttributeMKey)
 				{
 					preservedkey[onoff][i].uModifiers =
-						wcstoul(r_itr->second.c_str(), nullptr, 0) & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT);
+						(wcstoul(r_itr->second.c_str(), nullptr, 0) & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT));
 					if ((preservedkey[onoff][i].uModifiers & (TF_MOD_ALT | TF_MOD_CONTROL | TF_MOD_SHIFT)) == 0)
 					{
 						preservedkey[onoff][i].uModifiers = TF_MOD_IGNORE_ALL_MODIFIER;
@@ -797,9 +837,6 @@ void CTextService::_LoadKana()
 {
 	APPDATAXMLLIST list;
 
-	std::wregex re(L"[\\x00-\\x19]");
-	std::wstring fmt(L"");
-
 	roman_kana_tree = ROMAN_KANA_NODE{};
 	ZeroMemory(isroman_tbl, sizeof(isroman_tbl));
 
@@ -851,7 +888,8 @@ void CTextService::_LoadKana()
 
 				if (pszb != nullptr)
 				{
-					wcsncpy_s(pszb, blen, std::regex_replace(r_itr->second, re, fmt).c_str(), _TRUNCATE);
+					static const std::wregex rectrl(L"[\\x00-\\x19]");
+					wcsncpy_s(pszb, blen, std::regex_replace(r_itr->second, rectrl, L"").c_str(), _TRUNCATE);
 				}
 			}
 
@@ -971,9 +1009,6 @@ void CTextService::_LoadJLatin()
 {
 	APPDATAXMLLIST list;
 
-	std::wregex re(L"[\\x00-\\x19]");
-	std::wstring fmt(L"");
-
 	ascii_jlatin_conv.clear();
 	ascii_jlatin_conv.shrink_to_fit();
 
@@ -1009,7 +1044,8 @@ void CTextService::_LoadJLatin()
 
 				if (pszb != nullptr)
 				{
-					wcsncpy_s(pszb, blen, std::regex_replace(r_itr->second, re, fmt).c_str(), _TRUNCATE);
+					static const std::wregex rectrl(L"[\\x00-\\x19]");
+					wcsncpy_s(pszb, blen, std::regex_replace(r_itr->second, rectrl, L"").c_str(), _TRUNCATE);
 				}
 			}
 

@@ -52,10 +52,15 @@ CTextService::CTextService():
 	_ImmersiveMode = FALSE;
 	_UILessMode = FALSE;
 	_ShowInputMode = FALSE;
+	_AppPrivateMode = FALSE;
+	_UserPrivateMode = E_FAIL;
 
 	hPipe = INVALID_HANDLE_VALUE;
 
 	inputmode = im_direct;
+
+	ZeroMemory(preservedkey, sizeof(preservedkey));
+	ZeroMemory(&privatemodekey, sizeof(privatemodekey));
 
 	_ResetStatus();
 
@@ -169,19 +174,6 @@ STDAPI CTextService::ActivateEx(ITfThreadMgr *ptim, TfClientId tid, DWORD dwFlag
 	_pThreadMgr = ptim;
 	_ClientId = tid;
 
-	if (!CCandidateWindow::_InitClass())
-	{
-		goto exit;
-	}
-	if (!CInputModeWindow::_InitClass())
-	{
-		goto exit;
-	}
-	if (!CVKeyboardWindow::_InitClass())
-	{
-		goto exit;
-	}
-
 	if (!_IsKeyboardOpen())
 	{
 		_KeyboardSetDefaultMode();
@@ -257,6 +249,8 @@ STDAPI CTextService::Deactivate()
 
 	_UninitPreservedKey(0);
 	_UninitPreservedKey(1);
+	_UninitPrivateModeKey(0);
+	_UninitPrivateModeKey(1);
 
 	_UninitKeyEventSink();
 
@@ -271,10 +265,6 @@ STDAPI CTextService::Deactivate()
 	_UninitThreadMgrEventSink();
 
 	_UninitD2D();
-
-	CCandidateWindow::_UninitClass();
-	CInputModeWindow::_UninitClass();
-	CVKeyboardWindow::_UninitClass();
 
 	_pThreadMgr.Release();
 	_ClientId = TF_CLIENTID_NULL;

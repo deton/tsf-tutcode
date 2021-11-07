@@ -19,8 +19,11 @@
 #define MAX_SELKEY			7		//候補一覧選択キー数
 #define PRESERVEDKEY_NUM	2		//キー設定ON/OFF
 #define MAX_PRESERVEDKEY	8		//キー設定ON/OFF最大数
+#define PRIVATEMODEKEY_NUM	2		//プライベートモードON/OFF
 #define MAX_KEYRE			256		//キー１/２ 読み込みバッファ
 #define MAX_CONV_POINT		256		//変換位置指定最大数
+#define DEF_BACKUPGENS		7		//ユーザー辞書バックアップ世代デフォルト
+#define MAX_BACKUPGENS		255		//ユーザー辞書バックアップ世代最大
 
 //request
 #define REQ_SEARCH			L'1'	//辞書検索
@@ -35,10 +38,14 @@
 #define REQ_EXEC_CNF		L'P'	//設定ダイアログ起動
 #define REQ_CAPS_LOCK		L'I'	//Caps Lock
 #define REQ_KANA_LOCK		L'J'	//Kana Lock
+#define REQ_BACKUP			L'R'	//バックアップ
+#define REQ_EXIT			L'X'	//終了
 #define REQ_BUSHU			L'b'	//部首合成変換
 //reply
 #define REP_OK				L'T'	//hit
 #define REP_FALSE			L'F'	//nothing
+
+#define SYSTEMROOT_IME_DIR	L"IME"
 
 #define IMCRVMGREXE			L"imtutmgr.exe"
 #define IMCRVCNFEXE			L"imtutcnf.exe"
@@ -63,7 +70,6 @@ extern LPCWSTR modeWB;
 
 extern LPCWSTR fnconfigxml;	//設定
 extern LPCWSTR fnuserdic;	//ユーザー辞書
-extern LPCWSTR fnuserbak;	//ユーザー辞書バックアッププレフィックス
 extern LPCWSTR fnskkdic;	//取込SKK辞書
 extern LPCWSTR fninitlua;	//init.lua
 extern LPCWSTR fnbushudic;	//部首合成変換ユーザー辞書

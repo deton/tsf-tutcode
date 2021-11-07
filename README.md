@@ -36,7 +36,7 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 * Windows 10    (32-bit / 64-bit)
 
-* Windows 11    (32-bit / 64-bit)
+* Windows 11    (64-bit)
 
 ### ダウンロード
 
@@ -186,6 +186,188 @@ IMオフ状態で打鍵してしまった文字列を、後から日本語に置
 #### 指定した文字数を漢字に置換
 
 
+## ファイル
+
+### 設定ファイル
+
+設定ファイルは、ディレクトリ %APPDATA%\tsf-tutcode に保存されます。
+
+| ファイル名 | 説明 |
+| --- | --- |
+| config.xml  | 各種設定 |
+
+* デフォルト https://github.com/deton/tsf-tutcode/tree/master/installer/config-share
+
+UTF-8 の XML フォーマットのテキストファイルとなっています。
+
+設定ダイアログで OK ボタンまたは適用ボタンを押すと config.xml ファイルが保存されます。
+
+テキストエディタなどでも編集可能です。変更した後は、IME OFF → ON で新しい設定が反映されます。
+
+下記のディレクトリの優先順位で各ファイルが読み込まれます。
+
+1. %APPDATA%\tsf-tutcode
+2. %SystemRoot%\IME\IMTSFTUTCODE (インストーラーによりインストール済み)
+
+> **開発者向け**
+>
+> デバッグビルドでは、ディレクトリ %APPDATA%\tsf-tutcode_DEBUG に保存されます。
+>
+> デバッグビルドでは、下記のディレクトリの優先順位で各ファイルが読み込まれます。
+>
+> 1. %APPDATA%\tsf-tutcode_DEBUG
+> 2. 実行ファイルと同じディレクトリ (ビルドするとディレクトリ installer\config-share から上書きコピーされます)
+
+
+### SKK辞書ファイル
+
+後述の[SKK辞書](#skk辞書)の項も合わせて参照してください。
+
+取込済SKK辞書は、ディレクトリ %APPDATA%\tsf-tutcode に保存されます。
+
+| ファイル名 | 説明 |
+| --- | --- |
+| skkdict.txt | 取込済SKK辞書 |
+
+UTF-16 (LE, BOMあり) のSKK辞書フォーマットとなっています。
+
+設定ダイアログのリストにSKK辞書を追加して取込ボタンを押すと取込済SKK辞書に変換されます。
+
+ディレクトリ %SystemRoot%\IME\IMTSFTUTCODE に 漢直Winの kwmaze.dic をベースとした簡易的な交ぜ書き辞書が標準でインストール済みとなっています。取込済SKK辞書が存在しないときはこのSKK辞書が使用されます。
+
+SKK辞書サーバーを使用するなどでローカルのSKK辞書を使用したくないときは、設定ダイアログのSKK辞書のリストが空またはチェック無しの状態で取込処理をおこなってください。空の取込済SKK辞書が生成されます。
+
+下記のディレクトリの優先順位で各ファイルが読み込まれます。
+
+1. %APPDATA%\tsf-tutcode
+2. %SystemRoot%\IME\IMTSFTUTCODE (インストーラーによりインストール済み)
+
+> **開発者向け**
+>
+> デバッグビルドでは、ディレクトリ %APPDATA%\tsf-tutcode_DEBUG の各ファイルに保存されます。
+>
+> デバッグビルドでは、下記のディレクトリの優先順位で各ファイルが読み込まれます。
+>
+> 1. %APPDATA%\tsf-tutcode_DEBUG
+> 2. 実行ファイルと同じディレクトリ (ビルドするとディレクトリ installer\config-share から上書きコピーされます)
+
+
+### ユーザー辞書ファイル
+
+後述の[ユーザー辞書](#ユーザー辞書)の項も合わせて参照してください。
+
+ユーザー辞書は、ディレクトリ %APPDATA%\tsf-tutcode の各ファイルに保存されます。
+
+| ファイル名 | 説明 |
+| --- | --- |
+| userdict.txt | ユーザー辞書 |
+
+ユーザー辞書バックアップは、任意のディレクトリの各ファイルに保存されます。
+
+デフォルトは %APPDATA%\tsf-tutcode で、設定ダイアログの「辞書２」タブのユーザー辞書バックアップディレクトリで設定可能です。
+
+| ファイル名 | 説明 |
+| --- | --- |
+| userdict.txt.<u>*YYYYMMDDThhmmssZ*</u>.bak | ユーザー辞書バックアップ (最大255世代まで)<br><u>*YYYYMMDDThhmmssZ*</u> : バックアップされた日時 ISO8601 (UTC) |
+
+UTF-16 (LE, BOMあり) のSKKユーザー辞書フォーマットで書き込まれます。
+
+ユーザー辞書を直接編集する際は、ログオンユーザー権限で動作している辞書管理プロセス (imtutmgr.exe) を終了させた状態でおこなってください。
+
+* 設定ダイアログの「辞書２」タブの「辞書管理プロセス」で「終了」ボタンを押す。
+* タスクマネージャで 「tsf-tutcode Dictionary Manager」 (imtutmgr.exe) を終了する。
+* コマンドプロンプトなどで「taskkill /im imtutmgr.exe」などと実行する。
+
+編集後、以下のいずれかの操作をおこなうと辞書管理プロセスが自動的に起動します。
+
+* 設定ダイアログの「辞書２」タブの「辞書管理プロセス」で「実行」ボタンを押す。
+* IME OFF → ON
+* 仮名漢字変換開始
+* 補完開始
+
+辞書管理プロセス (imtutmgr.exe) を直接実行することも可能です。
+
+ユーザー辞書は、辞書管理プロセスの起動時にメモリ上に読み込まれ、候補の確定、登録、削除があったとき、かつ、以下のいずれかのときに上書きされます。
+
+* IME ON → OFF のとき
+* IME ON 状態のアプリケーションが終了するとき
+* IME ON 状態で別の IME に切り替えるとき
+* アプリケーションがフォーカスを失うとき
+* 辞書管理プロセスが終了するとき
+* スリープ、休止状態から復帰したとき
+* 設定ダイアログの「辞書２」タブの「ユーザー辞書バックアップ」で手動バックアップを実行したとき
+
+ユーザー辞書バックアップは辞書管理プロセスによって以下のいずれかのときに作成されます。
+
+* ログオフ、シャットダウン、再起動するとき
+* スリープ、休止状態から復帰したとき
+* 設定ダイアログの「辞書２」タブの「ユーザー辞書バックアップ」で手動バックアップを実行したとき
+
+
+
+## 入力モード
+
+
+### 入力モードアイコン
+
+| ノーマルモード | プライベートモード | 説明 |
+| :---: | :---: | --- |
+| ![](installer/resource-md/00_input_mode_default.png)   | ![](installer/resource-md/00_input_mode_default.png)     | IME OFF |
+| ![](installer/resource-md/00_input_mode_hiragana.png)  | ![](installer/resource-md/00_input_mode_p_hiragana.png)  | ひらがなモード |
+| ![](installer/resource-md/00_input_mode_katakana.png)  | ![](installer/resource-md/00_input_mode_p_katakana.png)  | カタカナモード |
+| ![](installer/resource-md/00_input_mode_katakana1.png) | ![](installer/resource-md/00_input_mode_p_katakana1.png) | 半角カタカナモード |
+| ![](installer/resource-md/00_input_mode_jlatin.png)    | ![](installer/resource-md/00_input_mode_p_jlatin.png)    | 全角英数字モード |
+| ![](installer/resource-md/00_input_mode_ascii.png)     | ![](installer/resource-md/00_input_mode_p_ascii.png)     | ASCIIモード |
+
+通知領域の入力モードアイコンを左クリックすると、IME ON/OFF を切り替えます。
+
+
+### メニュー
+
+有効な項目にはチェックが入ります。
+
+| 言語バーから表示 | 通知領域から表示 |
+| :---: | :---: |
+| ![](installer/resource-md/01_input_menu_0.png) | ![](installer/resource-md/01_input_menu_1.png) |
+| 言語バーの入力モードアイコンを左クリック | 通知領域の入力モードアイコンを右クリック |
+
+| メニュー項目 | 説明 |
+| --- | --- |
+| CAPS | Caps Lock をトグルします。 |
+| KANA | カナキーロックをトグルします。 |
+| Private | プライベートモードをトグルします。 |
+| [かな] | ひらがなモードに遷移します。 |
+| [カナ] | カタカナモードに遷移します。 |
+| [－ｶﾅ] | 半角カタカナモードに遷移します。 |
+| [全英] | 全角英数字モードに遷移します。 |
+| [SKK] | ASCIIモードに遷移します。 |
+| [－－] | IME OFF |
+| 設定 | 設定ダイアログを表示します。 |
+| キャンセル | メニューを閉じます。 |
+
+
+### デフォルトキー設定と入力モード遷移図
+
+![](installer/resource-md/02_key_and_mode.png)
+
+
+### 半角カタカナモード
+
+半角カタカナモードでは、ローマ字仮名変換のみ可能です。
+
+ひらがな/カタカナへの変換、仮名漢字変換は出来ません。
+
+
+### プライベートモード
+
+プライベートモードでは、通常の仮名漢字変換は可能ですが、ユーザー辞書の更新と削除をおこないません。
+
+また、辞書登録ウィンドウでの入力による確定も可能ですが、ユーザー辞書に登録されません。
+
+後述の[ユーザー辞書](#ユーザー辞書)の項を参照してください。
+
+
+
 ## 設定
 
 
@@ -206,78 +388,11 @@ IMオフ状態で打鍵してしまった文字列を、後から日本語に置
 IME ON/OFF のキーのみ、IME ON → OFF のときにも反映されます。
 
 
-### 設定ファイル、SKK辞書
+### 仮想キーコード
 
-各種設定及び取込済SKK辞書は、ディレクトリ %AppData%\tsf-tutcode の各ファイルに保存されます。
+仮想キーコードの詳細はこちらを参照してください。 https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
-| ファイル名 | 説明 |
-|---|---|
-| config.xml  | 各種設定 |
-| skkdict.txt | 取込済SKK辞書 |
-
-* デフォルト https://github.com/deton/tsf-tutcode/tree/master/installer/config-share
-
-各種設定の config.xml ファイルは、UTF-8 の XML フォーマットのテキストファイルとなっています。
-
-設定ダイアログで OK ボタンまたは適用ボタンを押すと config.xml ファイルが保存されます。テキストエディタなどでも編集可能です。変更した後は、IME OFF → ON で新しい設定が反映されます。
-
-取込済SKK辞書の skkdict.txt ファイルは、UTF-16 (LE, BOMあり) のSKK辞書フォーマットとなっています。
-
-設定ダイアログのリストにSKK辞書を追加して取込ボタンを押すと取込済SKK辞書に変換されます。後述の[SKK辞書](#skk辞書)の項を参照してください。
-
-ディレクトリ %SystemRoot%\IME\IMTSFTUTCODE に 漢直Winの kwmaze.dic をベースとした簡易的な交ぜ書き辞書が標準でインストール済みとなっています。取込済SKK辞書が存在しないときはこのSKK辞書が使用されます。
-
-SKK辞書サーバーを使用するなどでローカルのSKK辞書を使用したくないときは、設定ダイアログのSKK辞書のリストが空またはチェック無しの状態で取込処理をおこなってください。空の取込済SKK辞書が生成されます。
-
-下記のディレクトリの優先順位で各ファイルが読み込まれます。
-
-1. %AppData%\tsf-tutcode
-2. %SystemRoot%\IME\IMTSFTUTCODE (インストーラーによりインストール済み)
-
-> **開発者向け**
->
-> デバッグビルドでは、ディレクトリ %AppData%\tsf-tutcode_DEBUG の各ファイルに保存されます。
->
-> デバッグビルドでは、下記のディレクトリの優先順位で各ファイルが読み込まれます。
->
-> 1. %AppData%\tsf-tutcode_DEBUG
-> 2. 実行ファイルと同じディレクトリ (ビルドするとディレクトリ installer\config-share から上書きコピーされます)
-
-
-### ユーザー辞書
-
-ユーザー辞書は、ディレクトリ %AppData%\tsf-tutcode の各ファイルに保存されます。
-
-| ファイル名 | 説明 |
-|---|---|
-| userdict.txt | ユーザー辞書 |
-| userdict.bk1<br>userdict.bk2<br>userdict.bk3 | ユーザー辞書バックアップ (3世代まで) |
-
-UTF-16 (LE, BOMあり) のSKKユーザー辞書フォーマットで書き込まれます。
-
-ユーザー辞書を直接編集する際は、ログオンユーザー権限で動作している辞書管理プロセス (imtutmgr.exe) をタスクマネージャなどで終了させた状態でおこなってください。
-
-編集後、以下のいずれかの操作をおこなうと辞書管理プロセスが自動的に起動します。
-
-* IME OFF → ON
-* 仮名漢字変換開始
-* 補完開始
-
-辞書管理プロセスを直接実行することも可能です。
-
-ユーザー辞書は、辞書管理プロセスの起動時にメモリ上に読み込まれ、候補の確定、登録、削除があったとき、かつ、以下のいずれかのときに上書きされます。
-
-* IME ON → OFF のとき
-* IME ON 状態のアプリケーションが終了するとき
-* IME ON 状態で別の IME に切り替えるとき
-* アプリケーションがフォーカスを失うとき
-* 辞書管理プロセスが終了するとき
-* スリープ、休止状態から復帰するとき
-
-ユーザー辞書バックアップは辞書管理プロセスによって以下のいずれかのときに作成されます。
-
-* シャットダウン、再起動するとき
-* ログオフ、スリープ、休止状態から復帰するとき
+設定ダイアログのタブ「[辞書２](#ユーザー辞書)」「[キー０](#キー設定onoff)」「[キー２](#キー設定文字キー設定仮想キー)」のそれぞれ右上にある「仮想ｷｰﾃｽﾄ」エディットボックスにフォーカスがある状態でキー入力すると仮想キーコードを表示します。
 
 
 ### 部首合成変換ユーザー辞書
@@ -304,9 +419,9 @@ tsf-tutcodeは、部首合成変換ユーザー辞書を読み込むだけで書
 
 ### SKK辞書
 
-![](installer/resource-md/01_dictionary.png)
+![](installer/resource-md/101_dictionary_1.png)
 
-SKK辞書の詳細はこちらを参照ください。
+SKK辞書の詳細はこちらを参照してください。
 
 * https://skk-dev.github.io/dict/
 
@@ -360,12 +475,44 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 サーバーコンプリーション機能は未実装です。
 
 
-### 動作
+### ユーザー辞書
 
-![](installer/resource-md/02_behavior_1.png)
+![](installer/resource-md/102_dictionary_2.png)
 
 | 機能 | 説明 |
-|---|---|
+| --- | --- |
+| 辞書管理プロセス                     | 辞書管理プロセスを終了または開始します。 |
+| ユーザーディレクトリ                 | ディレクトリ %APPDATA%\tsf-tutcode をシェルで開きます。 |
+| システムディレクトリ                 | ディレクトリ %SystemRoot%\IME\IMTSFTUTCODE をシェルで開きます。 |
+| ユーザー辞書バックアップ             | ユーザー辞書バックアップのディレクトリと世代数を指定します。<br>また、そのディレクトリをシェルで開きます。<br>手動でバックアップを実行します。 |
+| プライベートモード                   | プライベートモードの任意切替のキーと自動切替を指定します。 |
+
+ユーザー辞書バックアップ
+
+* ディレクトリの指定には環境変数を使用することが可能です。
+* 存在しないディレクトリを指定した場合すぐにはシェルで開けません。
+  すぐに開くには、適用ボタンを押して設定を保存した後、辞書管理プロセスを終了→実行し、手動バックアップを実行してください。
+  辞書管理プロセスがバックアップファイルを作成するときにディレクトリも作成します。
+* ディレクトリをWindowsネットワークの共有フォルダーにした場合、ログオフ/シャットダウン/再起動するときや、スリープ/休止状態から復帰したときに正常に保存されない可能性があります。
+* 手動バックアップを実行できる条件
+    * 辞書管理プロセスが実行中。
+    * ユーザー辞書バックアップのディレクトリと世代数が未編集、または編集した後に適用して保存済み。
+
+プライベートモード
+
+* 任意切替のデフォルトのキーは、Ctrl + Shift + F10 です。
+* 自動切替をONに設定すると、Edge の InPrivate ウィンドウ, Chrome のシークレットウィンドウ, Firefox のプライベートウィンドウなどで自動的にプライベートモードに切り替えられます。InputScope が IS_PRIVATE に設定されている入力が対象です。
+* 自動切替をOFFに設定すると、InputScope が IS_PRIVATE に設定されている入力でも自動的にプライベートモードになりません。
+
+「仮想ｷｰﾃｽﾄ」エディットボックスにフォーカスがある状態でキー入力すると仮想キーコードを表示します。
+
+
+### 動作
+
+![](installer/resource-md/103_behavior_1.png)
+
+| 機能 | 説明 |
+| --- | --- |
 | 初期入力モード                       | プログラム起動時の入力モードを指定します。 |
 | 送り仮名が決定したとき変換を開始する | 送り仮名を入力したとき自動的に変換を開始します。接頭辞も同様です。 |
 | 送り仮名が一致した候補を優先する     | 送り仮名ブロックの送り仮名が一致する候補を優先して出力します。 |
@@ -379,10 +526,10 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 | キー設定「直接入力」を確定入力で使用する | 確定入力のとき、キー設定の「直接入力」で設定された文字で始まるローマ字を仮名変換しません。<br>(ひらがな/カタカナ/半角カタカナモードのとき) |
 | 交ぜ書き変換の学習から除外する候補数(-1は学習無し) | 先頭数個の候補順を変えない使い方ができるように |
 
-![](installer/resource-md/03_behavior_2.png)
+![](installer/resource-md/104_behavior_2.png)
 
 | 機能 | 説明 |
-|---|---|
+| --- | --- |
 | 複数補完/複数動的補完の表示数        | 複数補完、複数動的補完での1ページあたりの候補数を指定します。 |
 | 複数補完を使用する                   | 通常の補完のとき、ユーザー辞書から補完された見出し語を一覧で表示します。<br>補完対象は「候補一覧の色」の「選択」、補完部分は「候補」の色が使用されます。 |
 | 動的補完を使用する                   | 見出し語が入力されたとき、ユーザー辞書から補完された見出し語を表示します。 |
@@ -393,10 +540,10 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### 表示
 
-![](installer/resource-md/04_display1.png)
+![](installer/resource-md/105_display_1.png)
 
 | 機能 | 説明 |
-|---|---|
+| --- | --- |
 | 候補一覧のフォント                        | 候補一覧に表示するフォントの種類、スタイル、サイズを指定します。 |
 | 候補一覧の最大幅                          | 候補一覧の最大幅のサイズを指定します。 |
 | 候補一覧の色                              | 候補一覧の色を指定します。 |
@@ -412,19 +559,19 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 | 鍵盤レイアウト                            | 仮想鍵盤上に表示する各文字の位置に対応するキーボードレイアウト<br>右手と左手ブロックの間は縦罫線│を想定しています。<br>行の区切りは`\n`<br>キーシーケンス内の各文字が指定された位置にあるとみなしてレイアウトします。<br>デフォルト値:`12345│67890\nqwert│yuiop\nasdfg│hjkl;\nzxcvb│nm,./` |
 | 初期表示内容                              | 何もキーが入力されていない時に表示する仮想鍵盤の内容。<br>右手と左手ブロックの間は縦罫線│を想定しています。<br>行の区切りは`\n`<br>TUT-Codeの例: `　　　　　│　　　　　\nやまかあは│歳度校銀転\nわさたなら│化下回歴係\n若記委入実│論値路装働` |
 
-![](installer/resource-md/05_display2.png)
+![](installer/resource-md/106_display_2.png)
 
 | 機能 | 説明 |
-|---|---|
+| --- | --- |
 | 入力モードを表示する                      | キャレットまたは辞書登録ウィンドウ付近に入力モードを表示します。<br>タイミングは、IME ON/OFF 変更、入力モード変更、IME ON/OFF キー押下、「\*無効\*」キー押下のときです。<br>表示する秒数として1〜60000ミリ秒を設定してください。デフォルト値は3000ミリ秒です。 |
 | 入力モードの色                            | 入力モード表示の色を指定します。 |
 
 
 ### 表示属性
 
-![](installer/resource-md/06_display_attribute_1.png)
+![](installer/resource-md/107_display_attribute_1.png)
 
-![](installer/resource-md/07_display_attribute_2.png)
+![](installer/resource-md/108_display_attribute_2.png)
 
 入力中文字列の表示属性を設定します。
 
@@ -435,7 +582,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### 候補一覧選択キー
 
-![](installer/resource-md/08_select_key.png)
+![](installer/resource-md/109_select_key.png)
 
 候補一覧での確定は、デフォルトで 1〜7 と ASDFJKL と asdfjkl を使用します。
 
@@ -444,7 +591,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 候補一覧が表示されているとき、KANAキーロックは無視されます。
 
 | 機能 | 説明 |
-|---|---|
+| --- | --- |
 | 数字 | 選択キー (1〜9で固定) |
 | 表示 | 選択キー (必須、候補一覧の表示にも使用) |
 | 予備1,2 | 選択キー (空でもOK) |
@@ -452,15 +599,11 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ### キー設定（ON/OFF）
 
-![](installer/resource-md/09_on_off_key.png)
+![](installer/resource-md/110_on_off_key.png)
 
 IME ON/OFF のキーをそれぞれ指定します。
 
 仮想キーコード、Alt、Control、Shift の組合せを設定してください。
-
-「仮想ｷｰ表示」エディットボックスにフォーカスがある状態でキー入力すると仮想キーコードを表示します。
-
-仮想キーコードの詳細はこちらを参照ください。 https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
 最大で ON/OFF それぞれ8行ずつです。
 
@@ -469,17 +612,20 @@ IME ON/OFF のキーをそれぞれ指定します。
 IME ONにCtrlとの組合せを使う場合は、Windows側の設定で、キーボードレイアウトの切り替えのショートカットをCtrl+Shiftにしない方が良いです。
 IME OFFにして大文字入力直後にIME ONにしようとした時に、意図せずにCtrl+Shiftを押してしまうことがあるので。
 
+「仮想ｷｰﾃｽﾄ」エディットボックスにフォーカスがある状態でキー入力すると仮想キーコードを表示します。
+
+
 ### キー設定（文字）、キー設定（仮想キー）
 
-![](installer/resource-md/10_key1_character.png)
+![](installer/resource-md/111_key1_character.png)
 
-![](installer/resource-md/11_key2_virtual_key.png)
+![](installer/resource-md/112_key2_virtual_key.png)
 
 各機能に対してキーを正規表現で設定してください。
 
 Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用しています。
 
-正規表現の詳細はこちらを参照ください。 https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=msvc-160
+正規表現の詳細はこちらを参照してください。 https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=msvc-160
 
 無効な正規表現で設定するとその機能は無効となります。警告等は表示されません。
 
@@ -491,13 +637,15 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 
 例えば、Shift+Tabであれば「S\x09」、Ctrl+Returnであれば「C\x0D」と記述します。
 
+「仮想ｷｰﾃｽﾄ」エディットボックスにフォーカスがある状態でキー入力すると仮想キーコードを表示します。
+
 
 ### キー設定デフォルト
 
 キー設定 ON/OFF
 
 | ON | OFF | キー | 仮想キーコード |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | &check; | &check; | Alt + \`                            | 0xC0 + Alt |
 | &check; | &check; | 漢字<br>Alt + 半角/全角<br>Alt + \` | 0x19 |
 | &check; | &check; | 半角/全角<br>Ctrl + \`              | 0xF3, 0xF4 |
@@ -507,7 +655,7 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 キー設定（文字）
 
 | 機能 | キー | 説明 |
-|---|---|---|
+| --- | --- | --- |
 | かな／カナ |                               | ひらがな／カタカナモード、かなカナ変換 |
 | ｶﾅ全英変換 |                               | ひらがな／半角カタカナモード<br>ひらがなカタカナ→半角カタカナ変換<br>abbrev→全角英数字変換 |
 | 全英       |                               | 全英モード |
@@ -540,7 +688,7 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
   キー設定（仮想キー）
 
 | 機能 | キー | 説明 |
-|---|---|---|
+| --- | --- | --- |
 | かな／カナ |                               | ひらがな／カタカナモード、かなカナ変換 |
 | ｶﾅ全英変換 |                               | ひらがな／半角カタカナモード<br>ひらがなカタカナ→半角カタカナ変換<br>abbrev→全角英数字変換 |
 | 全英       |                               | 全英モード |
@@ -571,16 +719,9 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 | Vi Esc     |                               | アスキーモードにするとともに指定キーをアプリにも渡す |
 
 
-### 半角カタカナモード
-
-半角カタカナモードでは、ローマ字仮名変換のみ可能です。
-
-ひらがな/カタカナへの変換、仮名漢字変換は出来ません。
-
-
 ### ローマ字・仮名変換表
 
-![](installer/resource-md/13_kana.png)
+![](installer/resource-md/114_kana.png)
 
 ローマ字、平仮名、片仮名、所謂半角片仮名、促音/撥音(ん)、待機の組み合せを指定します。
 
@@ -678,10 +819,11 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 * 例４）ｺ<\t>こ<\t>コ<\t>ｺ<\t>2<\r><\n>
 * 例５）ald<\t>Bushu<\t>-<\t>-<\t>4<\r><\n>
 * サンプルを参照してください。 https://github.com/nathancorvussolis/corvusskk/blob/master/installer/config-sample/kanatable.txt
+https://github.com/deton/tsf-tutcode/tree/master/installer/config-sample/
 
 ### ASCII・全英変換表
 
-![](installer/resource-md/14_full_width_latin.png)
+![](installer/resource-md/115_full_width_latin.png)
 
 ASCII、全英文字の組み合せを指定します。最大で128行です。
 
@@ -720,34 +862,34 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 現在使用しているLuaのバージョンは5.4.3です。
 
-詳細はこちらを参照ください。https://www.lua.org/manual/5.4/manual.html
+詳細はこちらを参照してください。https://www.lua.org/manual/5.4/manual.html
 
 Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsAPIとCランタイム関数を呼ぶようにパッチを当てています。
 
 スクリプトファイルの文字コードはUTF-8のみに対応しています。
 
-辞書管理プロセスのカレントディレクトリは %AppData%\tsf-tutcode になっています。
+辞書管理プロセスのカレントディレクトリは %APPDATA%\tsf-tutcode になっています。
 
 コンソールプログラムのlua.exeが %SystemRoot%\System32\IME\IMTSFTUTCODE と %SystemRoot%\SysWOW64\IME\IMTSFTUTCODE にあるので、カスタマイズする際のデバッグ用に使ってください。
 
 辞書管理プロセスの起動時にスクリプトファイル (init.lua) が下記の優先順位で読み込まれます。
 
-1. %AppData%\tsf-tutcode\init.lua
+1. %APPDATA%\tsf-tutcode\init.lua
 2. %SystemRoot%\IME\IMTSFTUTCODE\init.lua (インストーラーによりインストール済み)
 
 > **開発者向け**
 >
-> デバッグビルドでは、辞書管理プロセスのカレントディレクトリは %AppData%\tsf-tutcode_DEBUG になっています。
+> デバッグビルドでは、辞書管理プロセスのカレントディレクトリは %APPDATA%\tsf-tutcode_DEBUG になっています。
 >
 > デバッグビルドでは、下記の優先順位でスクリプトファイルが読み込まれます。
 >
-> 1. %AppData%\tsf-tutcode_DEBUG\init.lua
+> 1. %APPDATA%\tsf-tutcode_DEBUG\init.lua
 > 2. 実行ファイルと同じディレクトリのinit.lua (ビルドするとディレクトリ installer\config-lua から上書きコピーされます)
 
 
 ### プログラム実行変換もどき
 
-![](installer/resource-md/21_convert_program.png)
+![](installer/resource-md/201_convert_program.png)
 
 Emacs Lispのプログラム実行変換に対応していますが、あくまで「もどき」なのでご了承ください。
 
@@ -756,7 +898,7 @@ Emacs Lisp 辞書ファイル (SKK-JISYO.lisp) などが必要です。 https://
 以下のシンボルに大体対応しています。
 
 | 名称 | 説明 |
-|---|---|
+| --- | --- |
 | nil |  |
 | t |  |
 | lambda |  |
@@ -803,7 +945,7 @@ strftime 関数 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference
 
 ### 数値変換
 
-![](installer/resource-md/22_convert_number.png)
+![](installer/resource-md/202_convert_number.png)
 
 タイプ0〜3,5,8,9に対応しています。
 
@@ -814,7 +956,7 @@ strftime 関数 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference
 見出し語として # (ナンバーサイン)を含み、候補として # と数字を含むエントリが辞書に存在する必要があります。(例:「めいじ#ねん /明治#3年/」)
 
 | 候補 | 説明 | 例 |
-|---|---|---|
+| --- | --- | --- |
 | #0 | タイプ０ 無変換            |「1234567890」→「1234567890」 |
 | #1 | タイプ１ 全角              |「1234567890」→「１２３４５６７８９０」 |
 | #2 | タイプ２ 漢数字 位取りあり |「1234567890」→「一二三四五六七八九〇」 |
@@ -827,7 +969,7 @@ strftime 関数 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference
 
 ### Unicodeコードポイント変換
 
-![](installer/resource-md/23_convert_unicode_codepoint.png)
+![](installer/resource-md/203_convert_unicode_codepoint.png)
 
 「U+XXXXXX」( コードポイント XXXXXX : 0000-FFFF または 10000-10FFFF ) または「uxxxxxx」( コードポイント xxxxxx : 0000-ffff または 10000-10ffff ) のフォーマットで変換してください。
 
@@ -837,7 +979,7 @@ strftime 関数 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference
 
 ### JIS X 0213面区点番号、JIS X 0208区点番号変換
 
-![](installer/resource-md/24_convert_unicode_jisx0213.png)
+![](installer/resource-md/204_convert_unicode_jisx0213.png)
 
 JIS X 0213では「X-YY-ZZ」( 面 X : 1-2、 区 YY : 01-94、点 ZZ: 01-94 )、JIS X 0208では「YY-ZZ」( 区 YY : 01-94、点 ZZ: 01-94 ) のフォーマットで変換してください。Unicodeコードポイントが注釈として付加されます。
 
@@ -847,7 +989,7 @@ JIS X 0213では「X-YY-ZZ」( 面 X : 1-2、 区 YY : 01-94、点 ZZ: 01-94 )�
 
 ### 文字コード表記変換
 
-![](installer/resource-md/25_convert_character_display.png)
+![](installer/resource-md/205_convert_character_display.png)
 
 「?X」( X : 任意の1文字以上の文字列 ) のフォーマットで変換してください。
 
@@ -862,7 +1004,7 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
 
 ### 注釈の登録
 
-![](installer/resource-md/26_register_annotation.png)
+![](installer/resource-md/206_register_annotation.png)
 
 辞書登録のとき、登録する候補の入力と同時におこないます。
 
@@ -900,7 +1042,7 @@ Windows 10 (Ver.1703 まで) の場合
     [HKEY_CURRENT_USER\SOFTWARE\Microsoft\TabletTip\1.7]
     "EnableCompatibilityKeyboard"=dword:00000001
 
-Windows 10 (Ver.1709 から) の場合
+Windows 10 (Ver.1709 から)、Windows 11 の場合
 
     [HKEY_CURRENT_USER\SOFTWARE\Microsoft\TabletTip\1.7]
     "DisableNewKeyboardExperience"=dword:00000001
@@ -954,7 +1096,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2019 16.11.4
+Visual Studio Community 2019 16.11.5
 
 * Desktop development with C++
 * MSVC v142 - VS 2019 C++ x64/x86 build tools (Latest)
@@ -963,7 +1105,7 @@ Visual Studio Community 2019 16.11.4
 
 WiX Toolset v3.11.2
 
-pandoc 2.14.2
+pandoc 2.16.1
 
 ### ビルド手順
 
@@ -975,10 +1117,10 @@ pandoc 2.14.2
 ビルド ＆ 署名 ＆ 検証
 
     > installer\_solution_build.cmd
-    > installer\_sign.cmd <SHA-1 hash> <URL>
+    > installer\_sign.cmd <SHA-1> <URL>
 
-        * <SHA-1 hash> : SHA-1 hash of certificate for SHA-256 file digest algorithm
-        * <URL> : SHA-256 RFC-3161 timestamp server
+        * <SHA-1> : SHA-1 thumbprint of certificate
+        * <URL> : RFC-3161 timestamp server
 
     > installer\_verify.cmd
 

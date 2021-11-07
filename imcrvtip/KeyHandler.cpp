@@ -46,7 +46,7 @@ HRESULT CTextService::_InvokeKeyHandler(ITfContext *pContext, WPARAM wParam, LPA
 		CComPtr<ITfEditSession> pEditSession;
 		pEditSession.Attach(
 			new CKeyHandlerEditSession(this, pContext, wParam, bSf));
-		pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_SYNC | TF_ES_READWRITE, &hr);
+		pContext->RequestEditSession(_ClientId, pEditSession, TF_ES_ASYNCDONTCARE | TF_ES_READWRITE, &hr);
 	}
 	catch (...)
 	{
@@ -375,15 +375,33 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 
 		_CreateConfigPath();
 
-		_LoadDisplayAttr();
+		{
+			_UninitPrivateModeKey(0);	//ON
+			_UninitPrivateModeKey(1);	//OFF
+
+			_LoadUserDict();
+
+			_GetAppPrivateMode();
+
+			BOOL p = _IsPrivateMode();
+			_InitPrivateModeKey(p ? 1 : 0);		//OFF or ON
+			_InitPrivateModeKey(p ? 0 : 1);		//ON or OFF 未使用だがキーは拾う 重複するキーは上書きされない
+		}
+
 		_LoadBehavior();
+		_LoadDisplay();
+		_LoadDisplayAttr();
 		_LoadSelKey();
 
-		_UninitPreservedKey(0);	//ON
-		_UninitPreservedKey(1);	//OFF
-		_LoadPreservedKey();
-		_InitPreservedKey(1);	//OFF
-		_InitPreservedKey(0);	//ON 未使用だがキーは拾う 重複するキーは上書きされない
+		{
+			_UninitPreservedKey(0);	//ON
+			_UninitPreservedKey(1);	//OFF
+
+			_LoadPreservedKey();
+
+			_InitPreservedKey(1);	//OFF
+			_InitPreservedKey(0);	//ON 未使用だがキーは拾う 重複するキーは上書きされない
+		}
 
 		_LoadCKeyMap();
 		_LoadVKeyMap();
@@ -417,21 +435,21 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 
 		_ResetStatus();
 		_ClearComposition();
+		postbuf.clear();
 
 		_UninitD2D();
 
 		_CreateConfigPath();
 
-		_UninitPreservedKey(1);	//OFF
-		_UninitPreservedKey(0);	//ON
-		_LoadPreservedKey();
-		_InitPreservedKey(0);	//ON
-		_InitPreservedKey(1);	//OFF 未使用だがキーは拾う 重複するキーは上書きされない
+		{
+			_UninitPreservedKey(1);	//OFF
+			_UninitPreservedKey(0);	//ON
 
-		_ResetStatus();
+			_LoadPreservedKey();
 
-		_ClearComposition();
-		postbuf.clear();
+			_InitPreservedKey(0);	//ON
+			_InitPreservedKey(1);	//OFF 未使用だがキーは拾う 重複するキーは上書きされない
+		}
 	}
 
 	_UpdateLanguageBar(showinputmode);

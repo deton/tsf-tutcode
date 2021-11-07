@@ -47,6 +47,20 @@ extern LPCWSTR ValueServerPort;
 extern LPCWSTR ValueServerEncoding;
 extern LPCWSTR ValueServerTimeOut;
 
+//userdict section
+
+extern LPCWSTR SectionUserDict;
+
+//userdict keys
+
+extern LPCWSTR ValueBackupDir;
+extern LPCWSTR ValueBackupGen;
+extern LPCWSTR ValuePrivateOnVKey;
+extern LPCWSTR ValuePrivateOnMKey;
+extern LPCWSTR ValuePrivateOffVKey;
+extern LPCWSTR ValuePrivateOffMKey;
+extern LPCWSTR ValuePrivateModeAuto;
+
 //behavior section
 
 extern LPCWSTR SectionBehavior;

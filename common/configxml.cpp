@@ -52,6 +52,20 @@ LPCWSTR ValueServerPort = L"port";
 LPCWSTR ValueServerEncoding = L"encoding";
 LPCWSTR ValueServerTimeOut = L"timeout";
 
+//userdict section
+
+LPCWSTR SectionUserDict = L"userdict";
+
+//userdict keys
+
+LPCWSTR ValueBackupDir = L"backupdir";
+LPCWSTR ValueBackupGen = L"backupgen";
+LPCWSTR ValuePrivateOnVKey = L"privateonvkey";
+LPCWSTR ValuePrivateOnMKey = L"privateonmkey";
+LPCWSTR ValuePrivateOffVKey = L"privateoffvkey";
+LPCWSTR ValuePrivateOffMKey = L"privateoffmkey";
+LPCWSTR ValuePrivateModeAuto = L"privatemodeauto";
+
 //behavior section
 
 LPCWSTR SectionBehavior = L"behavior";
