@@ -49,12 +49,11 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	PAINTSTRUCT ps;
 	WCHAR num[16];
 	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
-	int count;
+	int n;
 	std::wstring strxmlval;
 	CHOOSECOLORW cc = {};
 	static COLORREF customColor[16];
 	HWND hCombo;
-	int sel;
 
 	switch (message)
 	{
@@ -63,20 +62,20 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		ReadValue(pathconfigxml, SectionDisplay, ValueShowModeInlTm, strxmlval);
 		if (!strxmlval.empty())
 		{
-			count = _wtoi(strxmlval.c_str());
+			n = _wtoi(strxmlval.c_str());
 		}
 		else
 		{
 			//for compatibility
 			ReadValue(pathconfigxml, SectionDisplay, ValueShowModeSec, strxmlval);
-			count = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str()) * 1000;
+			n = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str()) * 1000;
 		}
 
-		if (count > 60000 || count <= 0)
+		if (n > 60000 || n <= 0)
 		{
-			count = SHOWMODEINLTM_DEF;
+			n = SHOWMODEINLTM_DEF;
 		}
-		_snwprintf_s(num, _TRUNCATE, L"%d", count);
+		_snwprintf_s(num, _TRUNCATE, L"%d", n);
 		SetDlgItemTextW(hDlg, IDC_EDIT_SHOWMODEINLTM, num);
 
 		for (int i = 0; i < _countof(customColor); i++)
@@ -112,19 +111,19 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			SendMessageW(hCombo, CB_ADDSTRING, 0, (LPARAM)cbAutoHelpText[i]);
 		}
 		ReadValue(pathconfigxml, SectionDisplay, ValueAutoHelp, strxmlval);
-		sel = 0;
+		n = 0;
 		if (!strxmlval.empty())
 		{
 			for (int i = 0; i < _countof(cbAutoHelpValue); i++)
 			{
 				if (wcscmp(cbAutoHelpValue[i], strxmlval.c_str()) == 0)
 				{
-					sel = i;
+					n = i;
 					break;
 				}
 			}
 		}
-		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)sel, 0);
+		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)n, 0);
 
 		hCombo = GetDlgItem(hDlg, IDC_COMBO_SHOWHELP);
 		for (int i = 0; i < _countof(cbShowHelpText); i++)
@@ -132,19 +131,19 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			SendMessageW(hCombo, CB_ADDSTRING, 0, (LPARAM)cbShowHelpText[i]);
 		}
 		ReadValue(pathconfigxml, SectionDisplay, ValueShowHelp, strxmlval);
-		sel = 1;
+		n = 1;
 		if (!strxmlval.empty())
 		{
 			for (int i = 0; i < _countof(cbShowHelpValue); i++)
 			{
 				if (wcscmp(cbShowHelpValue[i], strxmlval.c_str()) == 0)
 				{
-					sel = i;
+					n = i;
 					break;
 				}
 			}
 		}
-		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)sel, 0);
+		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)n, 0);
 
 		return TRUE;
 

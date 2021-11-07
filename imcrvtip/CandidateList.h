@@ -34,6 +34,7 @@ public:
 	void _InvokeKeyHandler(WPARAM key);
 	void _InvokeSfHandler(BYTE sf);
 	void _Show(BOOL bShow);
+	void _Redraw();
 	void _SetText(const std::wstring &text, BOOL fixed, int mode);
 	//辞書登録時後置型交ぜ書き変換で読みから外した部分をセット。表示用
 	void _SetTextExcludedPostyomi(const std::wstring &text);

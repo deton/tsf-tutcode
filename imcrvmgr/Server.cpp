@@ -4,75 +4,27 @@
 
 void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 {
-	/*
-	  request and reply commands
-
-	  search candidate
-	    request "1\n<key>\t<key(original)>\t<okuri>\n"
-	    reply   "T\n<candidate(display)>\t<candidate(register)>\t<annotation(display)>\t<annotation(register)>\n...\n":hit
-	            "F\n":nothing
-	  search key for complement
-	    request "4\n<key prefix>\t<candidate max>\t\n"
-	    reply   "T\n<key>\t\t<candidates>\t\n...\n":hit
-	            "F\n":nothing
-	  convert key
-	    request "5\n<key>\t\t<okuri>\n"
-	    reply   "T\n<key converted>\n...\n":hit
-	            "F\n":nothing
-	  convert candidate
-	    request "6\n<key>\t<candidate>\t<okuri>\n"
-	    reply   "T\n<candidate converted>\n":hit
-	            "F\n":nothing
-	  add candidate (complement off)
-	    request "A\n<key>\t<candidate>\t<annotation>\t<okuri>\n"
-	    reply   "T\n"
-	  add candidate (complement on)
-	    request "B\n<key>\t<candidate>\t<annotation>\t\n"
-	    reply   "T\n"
-	  delete candidate (complement off)
-	    request "C\n<key>\t<candidate>\n"
-	    reply   "T\n"
-	  delete candidate (complement on)
-	    request "D\n<key>\t<candidate>\n"
-	    reply   "T\n"
-	  save user dictionary
-	    request "S\n"
-	    reply   "T\n"
-	  create configuration dialog process
-	    request "P\n"
-	    reply   "T\n"
-	  caps lock
-	    request "I\n"
-	    reply   "T\n"
-	  kana lock
-	    request "J\n"
-	    reply   "T\n"
-	  bushu conversion
-	    request "b\n<bushu1>\t<bushu2>\n"
-	    reply   "T\n<kanji>\n":hit
-	            "F\n":nothing
-	  bushu decompositon for help
-	    request "h\n<kanji>\n"
-	    reply   "T\n<bushu11><bushu12>* <bushu21><bushu22> ...\n":hit
-	            "F\n":nothing
-	*/
-
 	SKKDICCANDIDATES sc;
-	std::wstring fmt, key, keyorg, okuri, candidate, annotation, conv;
-	std::wregex re;
+	std::wstring key, keyorg, okuri, candidate, annotation, conv;
+
+	// search, complement, convert key, convert candidate
+	static const std::wregex research(L"(.*)\t(.*)\t(.*)\n");
+	// add candidate
+	static const std::wregex readd(L"(.*)\t(.*)\t(.*)\t(.*)\n");
+	// delete candidate
+	static const std::wregex redel(L"(.*)\t(.*)\n");
+	static const std::wregex re1(L"(.*)\n");
 
 	result.clear();
 
 	switch (command)
 	{
 	case REQ_SEARCH:
-		re.assign(L"(.*)\t(.*)\t(.*)\n");
-		fmt.assign(L"$1");
-		key = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$2");
-		keyorg = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$3");
-		okuri = std::regex_replace(argument, re, fmt);
+		if (!std::regex_match(argument, research)) break;
+
+		key = std::regex_replace(argument, research, L"$1");
+		keyorg = std::regex_replace(argument, research, L"$2");
+		okuri = std::regex_replace(argument, research, L"$3");
 
 		SearchDictionary(key, okuri, sc);
 
@@ -96,11 +48,10 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		break;
 
 	case REQ_BUSHU:
-		re.assign(L"(.*)\t(.*)\n");
-		fmt.assign(L"$1");
-		key = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$2");
-		keyorg = std::regex_replace(argument, re, fmt);
+		if (!std::regex_match(argument, redel)) break;
+
+		key = std::regex_replace(argument, redel, L"$1");
+		keyorg = std::regex_replace(argument, redel, L"$2");
 		conv = ConvBushu(key, keyorg);
 		if (!conv.empty())
 		{
@@ -116,9 +67,9 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		break;
 
 	case REQ_BUSHUHELP:
-		re.assign(L"(.*)\n");
-		fmt.assign(L"$1");
-		key = std::regex_replace(argument, re, fmt);
+		if (!std::regex_match(argument, re1)) break;
+
+		key = std::regex_replace(argument, re1, L"$1");
 		conv = BushuHelp(key);
 		if (!conv.empty())
 		{
@@ -134,11 +85,10 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		break;
 
 	case REQ_COMPLEMENT:
-		re.assign(L"(.*)\t(.*)\t(.*)\n");
-		fmt.assign(L"$1");
-		key = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$2");
-		keyorg = std::regex_replace(argument, re, fmt);
+		if (!std::regex_match(argument, research)) break;
+
+		key = std::regex_replace(argument, research, L"$1");
+		keyorg = std::regex_replace(argument, research, L"$2");
 
 		if (lua != nullptr)
 		{
@@ -184,13 +134,11 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 
 	case REQ_CONVERTKEY:
 	case REQ_CONVERTCND:
-		re.assign(L"(.*)\t(.*)\t(.*)\n");
-		fmt.assign(L"$1");
-		key = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$2");
-		candidate = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$3");
-		okuri = std::regex_replace(argument, re, fmt);
+		if (!std::regex_match(argument, research)) break;
+
+		key = std::regex_replace(argument, research, L"$1");
+		candidate = std::regex_replace(argument, research, L"$2");
+		okuri = std::regex_replace(argument, research, L"$3");
 
 		switch (command)
 		{
@@ -219,15 +167,12 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 
 	case REQ_USER_ADD_A:
 	case REQ_USER_ADD_N:
-		re.assign(L"(.*)\t(.*)\t(.*)\t(.*)\n");
-		fmt.assign(L"$1");
-		key = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$2");
-		candidate = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$3");
-		annotation = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$4");
-		okuri = std::regex_replace(argument, re, fmt);
+		if (!std::regex_match(argument, readd)) break;
+
+		key = std::regex_replace(argument, readd, L"$1");
+		candidate = std::regex_replace(argument, readd, L"$2");
+		annotation = std::regex_replace(argument, readd, L"$3");
+		okuri = std::regex_replace(argument, readd, L"$4");
 
 		result = REP_OK;
 
@@ -255,11 +200,10 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 
 	case REQ_USER_DEL_A:
 	case REQ_USER_DEL_N:
-		re.assign(L"(.*)\t(.*)\n");
-		fmt.assign(L"$1");
-		key = std::regex_replace(argument, re, fmt);
-		fmt.assign(L"$2");
-		candidate = std::regex_replace(argument, re, fmt);
+		if (!std::regex_match(argument, redel)) break;
+
+		key = std::regex_replace(argument, redel, L"$1");
+		candidate = std::regex_replace(argument, redel, L"$2");
 
 		result = REP_OK;
 
@@ -313,6 +257,21 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	case REQ_CAPS_LOCK:
 	case REQ_KANA_LOCK:
 		SendKeyboardInput(command);
+
+		result = REP_OK;
+		result += L"\n";
+		break;
+
+	case REQ_BACKUP:
+		StartSaveUserDic(FALSE);
+		BackUpUserDic();
+
+		result = REP_OK;
+		result += L"\n";
+		break;
+
+	case REQ_EXIT:
+		SendMessageW(hWndMgr, WM_CLOSE, 0, 0);
 
 		result = REP_OK;
 		result += L"\n";
@@ -375,7 +334,7 @@ unsigned __stdcall SrvThread(void *p)
 		ZeroMemory(pipebuf, sizeof(WCHAR) * PIPEBUFSIZE);
 
 		bytesRead = 0;
-		bRet = ReadFile(hPipe, pipebuf, sizeof(WCHAR) * PIPEBUFSIZE, &bytesRead, nullptr);
+		bRet = ReadFile(hPipe, pipebuf, sizeof(WCHAR) * (PIPEBUFSIZE - 1), &bytesRead, nullptr);
 		if (bRet == FALSE || bytesRead == 0)
 		{
 			DisconnectNamedPipe(hPipe);
@@ -396,7 +355,9 @@ unsigned __stdcall SrvThread(void *p)
 #endif
 
 		command = pipebuf[0];
+		if (pipebuf[1] != L'\n') command = L'\0';
 		argument.assign(&pipebuf[2]);
+
 		wspipebuf.clear();
 
 		SrvProc(command, argument, wspipebuf);
@@ -475,3 +436,108 @@ HANDLE SrvStart()
 
 	return hThread;
 }
+
+/*
+	request and reply commands
+
+	search candidate
+		request
+			"1\n<key>\t<key(original)>\t<okuri>\n"
+		reply
+			"T\n<candidate(display)>\t<candidate(register)>\t<annotation(display)>\t<annotation(register)>\n...\n":hit
+			"F\n":nothing
+
+	search key for complement
+		request
+			"4\n<key prefix>\t<candidate max>\t\n"
+		reply
+			"T\n<key>\t\t<candidates>\t\n...\n":hit
+			"F\n":nothing
+
+	convert key
+		request
+			"5\n<key>\t\t<okuri>\n"
+		reply
+			"T\n<key converted>\n...\n":hit
+			"F\n":nothing
+
+	convert candidate
+		request
+			"6\n<key>\t<candidate>\t<okuri>\n"
+		reply
+			"T\n<candidate converted>\n":hit
+			"F\n":nothing
+
+	add candidate (complement off)
+		request
+			"A\n<key>\t<candidate>\t<annotation>\t<okuri>\n"
+		reply
+			"T\n"
+
+	add candidate (complement on)
+		request
+			"B\n<key>\t<candidate>\t<annotation>\t\n"
+		reply
+			"T\n"
+
+	delete candidate (complement off)
+		request
+			"C\n<key>\t<candidate>\n"
+		reply
+			"T\n"
+
+	delete candidate (complement on)
+		request
+			"D\n<key>\t<candidate>\n"
+		reply
+			"T\n"
+
+	save user dictionary
+		request
+			"S\n"
+		reply
+			"T\n"
+
+	create configuration dialog process
+		request
+			"P\n"
+		reply
+			"T\n"
+
+	caps lock
+		request
+			"I\n"
+		reply
+			"T\n"
+
+	kana lock
+		request
+			"J\n"
+		reply
+			"T\n"
+
+	backup
+		request
+			"R\n"
+		reply
+			"T\n"
+
+	exit
+		request
+			"X\n"
+		reply
+			"T\n"
+
+	bushu conversion
+		request
+			"b\n<bushu1>\t<bushu2>\n"
+		reply
+			"T\n<kanji>\n":hit
+			"F\n":nothing
+	bushu decompositon for help
+		request
+			"h\n<kanji>\n"
+		reply
+			"T\n<bushu11><bushu12>* <bushu21><bushu22> ...\n":hit
+			"F\n":nothing
+*/

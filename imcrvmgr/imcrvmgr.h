@@ -15,7 +15,7 @@ typedef struct {
 void CreateConfigPath();
 void UpdateConfigPath();
 void CreateIpcName();
-void LoadConfig();
+void LoadConfig(BOOL sysexit = FALSE);
 BOOL IsFileModified(LPCWSTR path, FILETIME *ft);
 void InitLua();
 void UninitLua();
@@ -63,6 +63,11 @@ void DisconnectSKKServer();
 void CleanUpSKKServer();
 std::wstring GetSKKServerInfo(CHAR req);
 
+// ConvBushu
+std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
+std::wstring BushuHelp(const std::wstring &kanji);
+BOOL LoadBushuConvUserDic();
+
 // Server
 HANDLE SrvStart();
 
@@ -73,13 +78,6 @@ HANDLE SrvStart();
 //server
 #define SKK_HIT		'1'
 
-#define BACKUP_GENS		3
-
-// ConvBushu
-std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
-std::wstring BushuHelp(const std::wstring &kanji);
-BOOL LoadBushuConvUserDic();
-
 extern CRITICAL_SECTION csUserDict;
 extern CRITICAL_SECTION csUserData;
 extern CRITICAL_SECTION csSaveUserDic;
@@ -87,6 +85,7 @@ extern CRITICAL_SECTION csSKKSocket;
 extern BOOL bUserDicChg;
 extern FILETIME ftConfig;
 extern FILETIME ftSKKDic;
+extern HWND hWndMgr;
 #ifdef _DEBUG
 extern HWND hWndEdit;
 extern HFONT hFont;
@@ -103,9 +102,9 @@ extern LPCWSTR DictionaryManagerClass;
 // ファイルパス
 extern WCHAR pathconfigxml[MAX_PATH];	//設定
 extern WCHAR pathuserdic[MAX_PATH];		//ユーザー辞書
-extern WCHAR pathuserbak[MAX_PATH];		//ユーザー辞書バックアッププレフィックス
 extern WCHAR pathskkdic[MAX_PATH];		//取込SKK辞書
 extern WCHAR pathinitlua[MAX_PATH];		//init.lua
+extern WCHAR pathbackup[MAX_PATH];		//ユーザー辞書バックアップレフィックス
 extern WCHAR pathbushudic[MAX_PATH];	//部首合成変換ユーザー辞書
 
 extern WCHAR krnlobjsddl[MAX_SECURITYDESC];	//SDDL
@@ -118,6 +117,8 @@ extern WCHAR host[MAX_SKKSERVER_HOST];	//ホスト
 extern WCHAR port[MAX_SKKSERVER_PORT];	//ポート
 extern DWORD encoding;	//エンコーディング
 extern DWORD timeout;	//タイムアウト
+
+extern INT generation;		//ユーザー辞書バックアップ世代数
 
 extern BOOL precedeokuri;	//送り仮名が一致した候補を優先する
 extern BOOL compincback;	//前方一致と後方一致で補完する
