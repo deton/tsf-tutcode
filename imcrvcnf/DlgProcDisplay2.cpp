@@ -21,14 +21,26 @@ static struct {
 	{IDC_COL_MODE_DR, ValueColorDR, RGB(0x80, 0x80, 0x80)}
 };
 
+//打鍵ヘルプ表示タイミング
 static const LPCWSTR cbAutoHelpText[] =
 {
-	L"なし", L"漢索窓", L"ドット表", L"漢字表"
+	L"なし", L"Help機能キー入力時", L"変換確定時も"
 };
 
 static const LPCWSTR cbAutoHelpValue[] =
 {
-	ValueAutoHelpOff, ValueAutoHelpKansaku, ValueAutoHelpDotHyo, ValueAutoHelpKanjiHyo
+	ValueAutoHelpOff, ValueAutoHelpOnKey, ValueAutoHelpOnConv
+};
+
+//打鍵ヘルプ表示方法
+static const LPCWSTR cbShowHelpText[] =
+{
+	L"漢索窓", L"ドット表", L"漢字表"
+};
+
+static const LPCWSTR cbShowHelpValue[] =
+{
+	ValueShowHelpKansaku, ValueShowHelpDotHyo, ValueShowHelpKanjiHyo
 };
 
 INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -106,6 +118,26 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			for (int i = 0; i < _countof(cbAutoHelpValue); i++)
 			{
 				if (wcscmp(cbAutoHelpValue[i], strxmlval.c_str()) == 0)
+				{
+					sel = i;
+					break;
+				}
+			}
+		}
+		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)sel, 0);
+
+		hCombo = GetDlgItem(hDlg, IDC_COMBO_SHOWHELP);
+		for (int i = 0; i < _countof(cbShowHelpText); i++)
+		{
+			SendMessageW(hCombo, CB_ADDSTRING, 0, (LPARAM)cbShowHelpText[i]);
+		}
+		ReadValue(pathconfigxml, SectionDisplay, ValueShowHelp, strxmlval);
+		sel = 1;
+		if (!strxmlval.empty())
+		{
+			for (int i = 0; i < _countof(cbShowHelpValue); i++)
+			{
+				if (wcscmp(cbShowHelpValue[i], strxmlval.c_str()) == 0)
 				{
 					sel = i;
 					break;
@@ -224,6 +256,8 @@ void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 	WCHAR num[16];
 	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	int count;
+	HWND hwnd;
+	int sel;
 
 	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWMODEINL, ValueShowModeInl);
 	GetDlgItemTextW(hDlg, IDC_EDIT_SHOWMODEINLTM, num, _countof(num));
@@ -248,7 +282,11 @@ void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
 	WriterKey(pWriter, ValueVkbdTop, vkbdtop);
 
-	HWND hwnd = GetDlgItem(hDlg, IDC_COMBO_AUTOHELP);
-	int sel = (int)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
+	hwnd = GetDlgItem(hDlg, IDC_COMBO_AUTOHELP);
+	sel = (int)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
 	WriterKey(pWriter, ValueAutoHelp, cbAutoHelpValue[sel]);
+
+	hwnd = GetDlgItem(hDlg, IDC_COMBO_SHOWHELP);
+	sel = (int)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
+	WriterKey(pWriter, ValueShowHelp, cbShowHelpValue[sel]);
 }

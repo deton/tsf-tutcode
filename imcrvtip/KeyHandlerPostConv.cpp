@@ -562,11 +562,11 @@ HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, Pos
 			size_t st = BackwardMoji(text, size, count);
 			if (st < size)
 			{
-				_ShowAutoHelp(text.substr(st), L"");
+				_ShowAutoHelp(text.substr(st), L"", true);
 				return S_OK;
 			}
 		}
-		_ShowAutoHelp(text, L"");
+		_ShowAutoHelp(text, L"", true);
 	}
 	return S_OK;
 }
@@ -733,9 +733,13 @@ HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pC
 }
 
 //打鍵ヘルプ表示
-HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi)
+HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi, bool onkey)
 {
-	if (!cx_autohelp)
+	if (cx_autohelp == AH_OFF)
+	{
+		return E_FAIL;
+	}
+	if (cx_autohelp == AH_ONKEY && !onkey)
 	{
 		return E_FAIL;
 	}
@@ -752,11 +756,11 @@ HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstrin
 		str += *itr;
 	}
 
-	if (cx_autohelp == AH_DOTHYO || cx_autohelp == AH_KANJIHYO)
+	if (cx_showhelp == SH_DOTHYO || cx_showhelp == SH_KANJIHYO)
 	{
 		return _StartHelpWindow(str);
 	}
-	if (cx_autohelp == AH_KANSAKU)
+	if (cx_showhelp == SH_KANSAKU)
 	{
 		//漢索窓が起動されていれば、そこに表示
 		HWND hwnd = FindWindow(L"kansaku", NULL);

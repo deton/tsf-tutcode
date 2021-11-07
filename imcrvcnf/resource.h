@@ -102,6 +102,7 @@
 #define IDC_EDIT_VKBDLAYOUT                     2112
 #define IDC_EDIT_VKBDTOP                        2113
 #define IDC_COMBO_AUTOHELP                      2114
+#define IDC_COMBO_SHOWHELP                      2115
 
 #define IDC_CHECKBOX_SERIES_MARK                2201
 #define IDC_CHECKBOX_SERIES_TEXT                2202

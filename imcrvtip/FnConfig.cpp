@@ -92,7 +92,12 @@ LPCWSTR sectionpreservedkeyonoff[PRESERVEDKEY_NUM] = {SectionPreservedKeyON, Sec
 
 static const LPCWSTR cbAutoHelpValue[] =
 {
-	ValueAutoHelpOff, ValueAutoHelpKansaku, ValueAutoHelpDotHyo, ValueAutoHelpKanjiHyo
+	ValueAutoHelpOff, ValueAutoHelpOnKey, ValueAutoHelpOnConv
+};
+
+static const LPCWSTR cbShowHelpValue[] =
+{
+	ValueShowHelpKansaku, ValueShowHelpDotHyo, ValueShowHelpKanjiHyo
 };
 
 void CTextService::_CreateConfigPath()
@@ -306,6 +311,14 @@ void CTextService::_LoadBehavior()
 		if (wcscmp(cbAutoHelpValue[i], strxmlval.c_str()) == 0)
 		{
 			cx_autohelp = (AutoHelp)i;
+		}
+	}
+	ReadValue(pathconfigxml, SectionDisplay, ValueShowHelp, strxmlval, ValueShowHelpDotHyo);
+	for (int i = 0; i < _countof(cbShowHelpValue); i++)
+	{
+		if (wcscmp(cbShowHelpValue[i], strxmlval.c_str()) == 0)
+		{
+			cx_showhelp = (ShowHelp)i;
 		}
 	}
 

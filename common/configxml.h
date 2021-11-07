@@ -128,9 +128,12 @@ extern LPCWSTR ValueVkbdLayout;
 extern LPCWSTR ValueVkbdTop;
 extern LPCWSTR ValueAutoHelp;
 extern LPCWSTR ValueAutoHelpOff;
-extern LPCWSTR ValueAutoHelpKansaku;
-extern LPCWSTR ValueAutoHelpDotHyo;
-extern LPCWSTR ValueAutoHelpKanjiHyo;
+extern LPCWSTR ValueAutoHelpOnKey;
+extern LPCWSTR ValueAutoHelpOnConv;
+extern LPCWSTR ValueShowHelp;
+extern LPCWSTR ValueShowHelpKansaku;
+extern LPCWSTR ValueShowHelpDotHyo;
+extern LPCWSTR ValueShowHelpKanjiHyo;
 
 //displayattr section
 

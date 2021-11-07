@@ -23,6 +23,7 @@
     <key name="addcandktkn" value="0" />
     <key name="entogglekana" value="1" />
     <key name="setbydirect" value="0" />
+    <key name="fixmazecount" value="0" />
     <key name="compmultinum" value="3" />
     <key name="stacompmulti" value="0" />
     <key name="dynamiccomp" value="0" />
@@ -67,6 +68,11 @@
     <key name="colorjl" value="0xC00000" />
     <key name="colorac" value="0xC08000" />
     <key name="colordr" value="0x808080" />
+    <key name="showvkbd" value="0" />
+    <key name="vkbdlayout" value="12345│67890\nqwert│yuiop\nasdfg│hjkl;\nzxcvb│nm,./" />
+    <key name="vkbdtop" value="" />
+    <key name="autohelp" value="off" />
+    <key name="showhelp" value="dothyo" />
   </section>
   <section name="displayattr">
     <key name="inputmark" value="0,0,0x000000,0,0xFFFFFF,2,0,0,0x000000,0" />
@@ -119,7 +125,7 @@
     <key name="purgedic" value="\cx" />
     <key name="nextcomp" value="\ci" />
     <key name="prevcomp" value="\cu" />
-    <key name="compcand" value="\cc" />
+    <key name="compcand" value="" />
     <key name="hint" value="" />
     <key name="convpoint" value="" />
     <key name="direct" value="" />

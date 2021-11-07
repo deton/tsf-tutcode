@@ -133,9 +133,12 @@ LPCWSTR ValueVkbdLayout = L"vkbdlayout";
 LPCWSTR ValueVkbdTop = L"vkbdtop";
 LPCWSTR ValueAutoHelp = L"autohelp";
 LPCWSTR ValueAutoHelpOff = L"off";
-LPCWSTR ValueAutoHelpKansaku = L"kansaku";
-LPCWSTR ValueAutoHelpDotHyo = L"dothyo";
-LPCWSTR ValueAutoHelpKanjiHyo = L"kanjihyo";
+LPCWSTR ValueAutoHelpOnKey = L"onkey";
+LPCWSTR ValueAutoHelpOnConv = L"onconv";
+LPCWSTR ValueShowHelp = L"showhelp";
+LPCWSTR ValueShowHelpKansaku = L"kansaku";
+LPCWSTR ValueShowHelpDotHyo = L"dothyo";
+LPCWSTR ValueShowHelpKanjiHyo = L"kanjihyo";
 
 //displayattr section
 

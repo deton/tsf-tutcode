@@ -631,7 +631,7 @@ void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 	{
 		_StartVKeyboardWindow();
 	}
-	if (cx_autohelp == AH_DOTHYO || cx_autohelp == AH_KANJIHYO)
+	if (cx_autohelp != AH_OFF && cx_showhelp != SH_KANSAKU)
 	{
 		_EndHelpWindow();
 	}

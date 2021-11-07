@@ -479,7 +479,7 @@ void CHelpWindow::_CalcWindowRect(LPRECT lpRect)
 	//XXX:漢字は固定幅と想定
 	DrawTextW(hdc, L"並態両乗専│興口洋船久　漢", -1, &r, DT_CALCRECT);
 	lpRect->right = IM_MARGIN_X * 2 + r.right;
-	_fontWidth = r.right / 13;
+	_fontWidth = (LONG)ceil(r.right / 13);
 
 	SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, lpRect->right, lpRect->bottom, SWP_NOMOVE | SWP_NOACTIVATE);
 
@@ -562,44 +562,54 @@ void CHelpWindow::_WindowProcPaint(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			for (std::wstring s, bk; getline(iss, s) && getline(issbkcol, bk);)
 			{
 				int x = IM_MARGIN_X;
-				std::wstring::iterator itxbk = bk.begin();
-				for (std::wstring::iterator itx = s.begin(); itx != s.end(); ++itx)
+				std::wstring m;
+				std::wstring mbk;
+				size_t idx = 0;
+				size_t idxbk = 0;
+				while ((idx = Copy1Moji(s, idx, &m)) != 0)
 				{
-					SetBkMode(hmemdc, OPAQUE);
-					switch (*itxbk)
+					//何打鍵目かを示す背景色を付ける
+					idxbk = Copy1Moji(bk, idxbk, &mbk);
+					if (mbk.empty())
 					{
-					case L'●':	//第1打鍵
-						SetBkColor(hmemdc, PALETTERGB(0xff, 0xc0, 0xc0));//red
-						break;
-					case L'○':	//第2打鍵
-						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xff, 0xc0));//green
-						break;
-					case L'△':	//第3打鍵
-						SetBkColor(hmemdc, PALETTERGB(0xff, 0xff, 0xc0));//yellow
-						break;
-					case L'◇':	//第4打鍵以降
-						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xc0, 0xc0));//gray
-						break;
-					case L'◎':	//二重打鍵
-						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xc0, 0xff));//blue
-						break;
-					case L'☆':	//二重打鍵(その2)
-						SetBkColor(hmemdc, PALETTERGB(0xc0, 0xff, 0xff));//cyan
-						break;
-					default:
 						SetBkMode(hmemdc, TRANSPARENT);
-						break;
+						idxbk = idx; //idxbk=0になってるので最初に戻るのを回避
 					}
-					WCHAR ch[2];
-					ch[0] = *itx;
-					ch[1] = L'\0';
-					if (ch[0] == L'・') //特に表示内容が無ければ'△'等に置換
+					else
 					{
-						ch[0] = *itxbk;
+						int bkmode = OPAQUE;
+						switch (mbk[0])
+						{
+						case L'●':	//第1打鍵
+							SetBkColor(hmemdc, RGB(0xff, 0xc0, 0xc0));//red
+							break;
+						case L'○':	//第2打鍵
+							SetBkColor(hmemdc, RGB(0xc0, 0xff, 0xc0));//green
+							break;
+						case L'△':	//第3打鍵
+							SetBkColor(hmemdc, RGB(0xff, 0xff, 0xc0));//yellow
+							break;
+						case L'◇':	//第4打鍵以降
+							SetBkColor(hmemdc, RGB(0xc0, 0xc0, 0xc0));//gray
+							break;
+						case L'◎':	//二重打鍵
+							SetBkColor(hmemdc, RGB(0xc0, 0xc0, 0xff));//blue
+							break;
+						case L'☆':	//二重打鍵(その2)
+							SetBkColor(hmemdc, RGB(0xc0, 0xff, 0xff));//cyan
+							break;
+						default:
+							bkmode = TRANSPARENT;
+							break;
+						}
+						SetBkMode(hmemdc, bkmode);
+						if (m == L"・") //特に表示内容が無ければ'△'等に置換
+						{
+							m = mbk;
+						}
 					}
-					TextOutW(hmemdc, x, y, ch, 1);
+					TextOutW(hmemdc, x, y, m.c_str(), (int)m.size());
 					x += _fontWidth;
-					++itxbk;
 				}
 				//1行目に間隔をあけてヘルプ対象の漢字を表示
 				if (firstline)
@@ -764,7 +774,7 @@ void CTextService::_MakeHelpTable(const std::wstring &kanji, HELPTABLES *helptab
 	size_t idx = 0;
 	while ((idx = Copy1Moji(kanji, idx, &k1)) != 0)
 	{
-		if (k1[0] < 0x7F) //直接入力できる文字はヘルプ表示しない
+		if (iswascii(k1[0])) //直接入力できる文字はヘルプ表示しない
 		{
 			continue;
 		}
@@ -786,7 +796,7 @@ void CTextService::_MakeHelpTable(const std::wstring &kanji, HELPTABLES *helptab
 
 		std::wstring dothyo = _MakeHelpTableDotHyo(seq);
 		HELPTABLE tbl = {k1, dothyo, dothyo};
-		if (cx_autohelp == AH_KANJIHYO)
+		if (cx_showhelp == SH_KANJIHYO)
 		{
 			std::wstring kanjihyo = _MakeHelpTableKanjiHyo(seq);
 			tbl.showtable = kanjihyo;
@@ -800,8 +810,8 @@ std::wstring CTextService::_MakeHelpTableDotHyo(const std::wstring &seq)
 	std::wstring vkb;
 	FORWARD_ITERATION_I(itr, cx_vkbdlayout)
 	{
-		//改行 || 左手ブロックと右手ブロックの区切り
-		if (*itr == L'\n' || *itr == L'│')
+		//改行 || 直接キー入力できない文字(左右ブロック区切り'│'等)
+		if (*itr == L'\n' || !iswascii(*itr))
 		{
 			vkb += *itr;
 		}
@@ -823,55 +833,42 @@ std::wstring CTextService::_MakeHelpTableDotHyo(const std::wstring &seq)
 		case 0:                 // 1st stroke
 			vkb[k] = L'●';
 			break;
-
 		case 1:                 // 2nd stroke
-			if (vkb[k] != L'・')
+			if (vkb[k] == L'・')
+			{
+				vkb[k] = L'○';
+				break;
+			}
+			vkb[k] = L'◎'; // 二重打鍵
+			needX = true;
+			break;
+		case 2:                 // 3rd stroke
+			if (vkb[k] == L'・')
+			{
+				vkb[k] = L'△';
+				break;
+			}
+			if (!needX)
 			{
 				vkb[k] = L'◎'; // 二重打鍵
 				needX = true;
+				break;
 			}
-			else
-			{
-				vkb[k] = L'○';
-			}
+			vkb[k] = L'☆'; // 二重打鍵 (その 2)
 			break;
-
-		case 2:                 // 3rd stroke
-			if (vkb[k] != L'・')
-			{
-				if (needX)
-				{
-					vkb[k] = L'☆'; // 二重打鍵 (その 2)
-				}
-				else
-				{
-					vkb[k] = L'◎'; // 二重打鍵
-					needX = true;
-				}
-			}
-			else
-			{
-				vkb[k] = L'△';
-			}
-			break;
-
 		default:                // forth stroke(s)
-			if (vkb[k] != L'・')
-			{
-				if (needX)
-				{
-					vkb[k] = L'☆'; // 二重打鍵 (その 2)
-				}
-				else
-				{
-					vkb[k] = L'◎'; // 二重打鍵
-					needX = true;
-				}
-			}
-			else
+			if (vkb[k] == L'・')
 			{
 				vkb[k] = L'◇';
+				break;
 			}
+			if (!needX)
+			{
+				vkb[k] = L'◎'; // 二重打鍵
+				needX = true;
+				break;
+			}
+			vkb[k] = L'☆'; // 二重打鍵 (その 2)
 			break;
 		}
 	}
@@ -884,8 +881,8 @@ std::wstring CTextService::_MakeHelpTableKanjiHyo(const std::wstring &baseseq)
 	std::wstring vkb;
 	FORWARD_ITERATION_I(itr, cx_vkbdlayout)
 	{
-		//改行 || 左手ブロックと右手ブロックの区切り
-		if (*itr == L'\n' || *itr == L'│')
+		//改行 || 直接キー入力できない文字(左右ブロック区切り'│'等)
+		if (*itr == L'\n' || !iswascii(*itr))
 		{
 			vkb += *itr;
 		}
@@ -905,10 +902,11 @@ std::wstring CTextService::_MakeHelpTableKanjiHyo(const std::wstring &baseseq)
 				}
 				else
 				{
+					//XXX:複数文字は未対応。ほとんどの場合は1文字なので
 					vkb += Get1Moji(rkc.hiragana, 0);
 				}
 				break;
-			case E_PENDING:	//途中まで一致。(rkcは変更されている)
+			case E_PENDING:	//途中まで一致
 				vkb += L'□';
 				break;
 			case E_ABORT:	//一致する可能性なし

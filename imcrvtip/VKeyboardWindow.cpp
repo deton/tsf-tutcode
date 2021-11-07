@@ -716,18 +716,14 @@ std::wstring CTextService::_MakeVkbTable()
 	std::wstring vkb;
 	FORWARD_ITERATION_I(itr, cx_vkbdlayout)
 	{
-		if (*itr == L'\n')
+		//改行 || 直接キー入力できない文字(左右ブロック区切り'│'等)
+		if (*itr == L'\n' || !iswascii(*itr))
 		{
-			vkb.append(L"\n");
-			continue;
-		}
-		if (*itr == L'│') //左手ブロックと右手ブロックの区切り
-		{
-			vkb.append(L"│");
+			vkb += *itr;
 			continue;
 		}
 		std::wstring seq(roman);
-		seq.push_back(*itr);
+		seq += *itr;
 		ROMAN_KANA_CONV rkc;
 		wcsncpy_s(rkc.roman, seq.c_str(), _TRUNCATE);
 		HRESULT ret = _ConvRomanKana(&rkc);
@@ -736,7 +732,7 @@ std::wstring CTextService::_MakeVkbTable()
 		case S_OK:	//一致
 			if (rkc.func)
 			{
-				vkb.append(L"・");
+				vkb += L'・';
 			}
 			else
 			{
@@ -753,15 +749,15 @@ std::wstring CTextService::_MakeVkbTable()
 					break;
 				}
 				//XXX:「じぇ」等、複数文字は未対応。ほとんどの場合は1文字なので
-				vkb.append(Get1Moji(s, 0));
+				vkb += Get1Moji(s, 0);
 			}
 			break;
 		case E_PENDING:	//途中まで一致
-			vkb.append(L"□");
+			vkb += L'□';
 			break;
 		case E_ABORT:	//一致する可能性なし
 		default:
-			vkb.append(L"　");
+			vkb += L'　';
 			break;
 		}
 	}
