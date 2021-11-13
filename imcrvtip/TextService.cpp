@@ -8,10 +8,10 @@
 #include "VKeyboardWindow.h"
 
 CTextService::CTextService():
-	cx_vkbdlayout(L"12345│67890\n"
-				   "qwert│yuiop\n"
-				   "asdfg│hjkl;\n"
-				   "zxcvb│nm,./")
+	cx_vkbdlayout(L"12345｜67890\n"
+				   "qwert｜yuiop\n"
+				   "asdfg｜hjkl;\n"
+				   "zxcvb｜nm,./")
 {
 	DllAddRef();
 

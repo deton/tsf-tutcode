@@ -467,7 +467,7 @@ void CVKeyboardWindow::_CalcWindowRect(LPRECT lpRect)
 
 	RECT r = {};
 	//XXX:漢字は固定幅と想定。表示文字列ごとに計算するのは面倒なので
-	DrawTextW(hdc, L"並態両乗専│興口洋船久", -1, &r, DT_CALCRECT);
+	DrawTextW(hdc, L"並態両乗専｜興口洋船久", -1, &r, DT_CALCRECT);
 	lpRect->right = IM_MARGIN_X * 2 + r.right;
 
 	SetWindowPos(_hwnd, HWND_TOPMOST, 0, 0, lpRect->right, lpRect->bottom, SWP_NOMOVE | SWP_NOACTIVATE);
@@ -718,9 +718,9 @@ std::wstring CTextService::_MakeVkbTable()
 			vkb.append(L"\n");
 			continue;
 		}
-		if (*itr == L'│') //左手ブロックと右手ブロックの区切り
+		if (*itr == L'｜') //左手ブロックと右手ブロックの区切り
 		{
-			vkb.append(L"│");
+			vkb.append(L"｜");
 			continue;
 		}
 		std::wstring seq(roman);

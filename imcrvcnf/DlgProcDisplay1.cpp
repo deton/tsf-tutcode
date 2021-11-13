@@ -4,7 +4,7 @@
 #include "resource.h"
 
 #define DISPLAY_FONTSIZE 10
-#define MAX_VKBDTOP 256 // (5*2(surrogate)+1(│)+5*2+2('\\','n')=23)*4
+#define MAX_VKBDTOP 256 // (5*2(surrogate)+1(｜)+5*2+2('\\','n')=23)*4
 
 static struct {
 	int id;
@@ -147,10 +147,10 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, SectionDisplay, ValueShowVkbd, L"0");
 
 		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval,
-			L"12345│67890\\n"
-			 "qwert│yuiop\\n"
-			 "asdfg│hjkl;\\n"
-			 "zxcvb│nm,./");
+			L"12345｜67890\\n"
+			 "qwert｜yuiop\\n"
+			 "asdfg｜hjkl;\\n"
+			 "zxcvb｜nm,./");
 		wcsncpy_s(vkbdlayout, strxmlval.c_str(), _TRUNCATE);
 		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout);
 		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval);

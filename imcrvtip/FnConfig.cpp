@@ -286,10 +286,10 @@ void CTextService::_LoadBehavior()
 	_ReadBoolValue(SectionDisplay, ValueShowRomanComp, cx_showromancomp, FALSE);
 	_ReadBoolValue(SectionDisplay, ValueShowVkbd, cx_showvkbd, FALSE);
 	ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval,
-			L"12345│67890\\n"
-			 "qwert│yuiop\\n"
-			 "asdfg│hjkl;\\n"
-			 "zxcvb│nm,./");
+			L"12345｜67890\\n"
+			 "qwert｜yuiop\\n"
+			 "asdfg｜hjkl;\\n"
+			 "zxcvb｜nm,./");
 	std::wregex re(L"\\\\n");
 	std::wstring fmt(L"\n");
 	cx_vkbdlayout = std::regex_replace(strxmlval, re, fmt);
