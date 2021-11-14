@@ -9,9 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: microsoft/setup-msbuild@v1
       - run: |
-          Set-WinSystemLocale ja-JP
-          Start-Sleep -s 10
-          Restart-Computer
+          chcp 932
           installer/_solution_build.cmd
       - uses: r-lib/actions/setup-pandoc@v1
         with:
