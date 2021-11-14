@@ -361,6 +361,17 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 			}
 		}
 	}
+	else if (!iscomp && !cx_showromancomp && !roman.empty())
+	{
+		//入力中キーシーケンスが非表示、かつ、入力シーケンスが途中の状態。
+		//Ctrl-V等を無視すると、何が起こってるかわからず繰り返し実行してみたり
+		//することになるので、ひとまず確定する。
+		//(_IsKeyEaten()で入力シーケンス以外のキーの場合は途中シーケンスを
+		//確定(またはキャンセル)してIMで食べないようにする方が良いかも)
+		_ConvRoman();
+		_HandleCharReturn(ec, pContext);
+		_Update(ec, pContext);
+	}
 
 	return S_OK;
 }
