@@ -98,6 +98,16 @@ LPCWSTR keyprivatemodekeyonoff[PRIVATEMODEKEY_NUM][2] =
 	{ValuePrivateOffVKey, ValuePrivateOffMKey}
 };
 
+static const LPCWSTR cbAutoHelpValue[] =
+{
+	ValueAutoHelpOff, ValueAutoHelpOnKey, ValueAutoHelpOnConv
+};
+
+static const LPCWSTR cbShowHelpValue[] =
+{
+	ValueShowHelpKansaku, ValueShowHelpDotHyo, ValueShowHelpKanjiHyo
+};
+
 void CTextService::_CreateConfigPath()
 {
 	PWSTR knownfolderpath = nullptr;
@@ -323,16 +333,30 @@ void CTextService::_LoadDisplay()
 	_ReadBoolValue(SectionDisplay, ValueShowRoman, cx_showroman, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueShowRomanComp, cx_showromancomp, FALSE);
 	_ReadBoolValue(SectionDisplay, ValueShowVkbd, cx_showvkbd, FALSE);
-	ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval,
-			L"12345│67890\\n"
-			 "qwert│yuiop\\n"
-			 "asdfg│hjkl;\\n"
-			 "zxcvb│nm,./");
-	std::wregex re(L"\\\\n");
-	std::wstring fmt(L"\n");
-	cx_vkbdlayout = std::regex_replace(strxmlval, re, fmt);
+	ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval, L"");
+	static const std::wregex reescnl(L"\\\\n");
+	if (!strxmlval.empty())
+	{
+		cx_vkbdlayout = std::regex_replace(strxmlval, reescnl, L"\n");
+	}
 	ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval, L"");
-	cx_vkbdtop = std::regex_replace(strxmlval, re, fmt);
+	cx_vkbdtop = std::regex_replace(strxmlval, reescnl, L"\n");
+	ReadValue(pathconfigxml, SectionDisplay, ValueAutoHelp, strxmlval, ValueAutoHelpOff);
+	for (int i = 0; i < _countof(cbAutoHelpValue); i++)
+	{
+		if (wcscmp(cbAutoHelpValue[i], strxmlval.c_str()) == 0)
+		{
+			cx_autohelp = (AutoHelp)i;
+		}
+	}
+	ReadValue(pathconfigxml, SectionDisplay, ValueShowHelp, strxmlval, ValueShowHelpDotHyo);
+	for (int i = 0; i < _countof(cbShowHelpValue); i++)
+	{
+		if (wcscmp(cbShowHelpValue[i], strxmlval.c_str()) == 0)
+		{
+			cx_showhelp = (ShowHelp)i;
+		}
+	}
 
 	for (int i = 0; i < _countof(cx_mode_colors); i++)
 	{

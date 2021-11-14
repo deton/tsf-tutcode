@@ -28,6 +28,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		{
 			return FALSE;
 		}
+
+		CHelpWindow::_UninitClass();
+		if (!CHelpWindow::_InitClass())
+		{
+			return FALSE;
+		}
 		break;
 
 	case DLL_THREAD_ATTACH:
@@ -40,6 +46,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		CCandidateWindow::_UninitClass();
 		CInputModeWindow::_UninitClass();
 		CVKeyboardWindow::_UninitClass();
+		CHelpWindow::_UninitClass();
 		break;
 
 	default:

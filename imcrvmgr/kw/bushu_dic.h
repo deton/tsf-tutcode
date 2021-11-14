@@ -51,8 +51,8 @@ public:
     void readFile(ifstream *);
     MOJI look(MOJI, MOJI);
     MOJI look(MOJI, MOJI, int);
-private:
     int decompose(MOJI, MOJI &, MOJI &);
+private:
     MOJI alternative(MOJI);
     MOJI lookSub(MOJI, MOJI);
 };

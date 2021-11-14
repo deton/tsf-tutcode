@@ -11,7 +11,7 @@ static bool isextendedkey(UINT vk)
 
 static void _QueueKey(std::vector<INPUT> *inputs, UINT vk, int count = 1)
 {
-	const KEYBDINPUT keyboard_input = {vk, 0, 0, 0, 0};
+	const KEYBDINPUT keyboard_input = {(WORD)vk, 0, 0, 0, 0};
 	INPUT keydown = {};
 	keydown.type = INPUT_KEYBOARD;
 	keydown.ki = keyboard_input;
@@ -35,7 +35,7 @@ static void _QueueKey(std::vector<INPUT> *inputs, UINT vk, int count = 1)
 
 static void _QueueKeyForModifier(std::vector<INPUT> *inputs, UINT vk, BOOL up, BOOL front = FALSE)
 {
-	const KEYBDINPUT keyboard_input = {vk, 0, 0, 0, 0};
+	const KEYBDINPUT keyboard_input = {(WORD)vk, 0, 0, 0, 0};
 	INPUT keydown = {};
 	keydown.type = INPUT_KEYBOARD;
 	keydown.ki = keyboard_input;

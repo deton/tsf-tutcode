@@ -3,6 +3,8 @@
 #include "imcrvcnf.h"
 #include "resource.h"
 
+#define MAX_VKBDTOP 256 // (5*2(surrogate)+1(│)+5*2+2('\\','n')=23)*4
+
 static struct {
 	int id;
 	LPCWSTR value;
@@ -19,15 +21,44 @@ static struct {
 	{IDC_COL_MODE_DR, ValueColorDR, RGB(0x80, 0x80, 0x80)}
 };
 
+//打鍵ヘルプ表示タイミング
+static const LPCWSTR cbAutoHelpText[] =
+{
+	L"なし", L"Help機能キー入力時", L"変換確定時も"
+};
+
+static const LPCWSTR cbAutoHelpValue[] =
+{
+	ValueAutoHelpOff, ValueAutoHelpOnKey, ValueAutoHelpOnConv
+};
+
+//打鍵ヘルプ表示方法
+static const LPCWSTR cbShowHelpText[] =
+{
+	L"漢索窓", L"ドット表", L"漢字表"
+};
+
+static const LPCWSTR cbShowHelpValue[] =
+{
+	ValueShowHelpKansaku, ValueShowHelpDotHyo, ValueShowHelpKanjiHyo
+};
+
 INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
 	WCHAR num[16];
+	WCHAR vkbdlayout[MAX_VKBDTOP] =
+		L"12345│67890\\n"
+		 "qwert│yuiop\\n"
+		 "asdfg│hjkl;\\n"
+		 "zxcvb│nm,./";
+	WCHAR vkbdtop[MAX_VKBDTOP];
 	int n;
 	std::wstring strxmlval;
 	CHOOSECOLORW cc = {};
 	static COLORREF customColor[16];
+	HWND hCombo;
 
 	switch (message)
 	{
@@ -66,6 +97,58 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			}
 		}
 
+		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, SectionDisplay, ValueShowVkbd, L"0");
+
+		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval, L"");
+		if (!strxmlval.empty())
+		{
+			wcsncpy_s(vkbdlayout, strxmlval.c_str(), _TRUNCATE);
+		}
+		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout);
+		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval);
+		wcsncpy_s(vkbdtop, strxmlval.c_str(), _TRUNCATE);
+		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop);
+
+		hCombo = GetDlgItem(hDlg, IDC_COMBO_AUTOHELP);
+		for (int i = 0; i < _countof(cbAutoHelpText); i++)
+		{
+			SendMessageW(hCombo, CB_ADDSTRING, 0, (LPARAM)cbAutoHelpText[i]);
+		}
+		ReadValue(pathconfigxml, SectionDisplay, ValueAutoHelp, strxmlval);
+		n = 0;
+		if (!strxmlval.empty())
+		{
+			for (int i = 0; i < _countof(cbAutoHelpValue); i++)
+			{
+				if (wcscmp(cbAutoHelpValue[i], strxmlval.c_str()) == 0)
+				{
+					n = i;
+					break;
+				}
+			}
+		}
+		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)n, 0);
+
+		hCombo = GetDlgItem(hDlg, IDC_COMBO_SHOWHELP);
+		for (int i = 0; i < _countof(cbShowHelpText); i++)
+		{
+			SendMessageW(hCombo, CB_ADDSTRING, 0, (LPARAM)cbShowHelpText[i]);
+		}
+		ReadValue(pathconfigxml, SectionDisplay, ValueShowHelp, strxmlval);
+		n = 1;
+		if (!strxmlval.empty())
+		{
+			for (int i = 0; i < _countof(cbShowHelpValue); i++)
+			{
+				if (wcscmp(cbShowHelpValue[i], strxmlval.c_str()) == 0)
+				{
+					n = i;
+					break;
+				}
+			}
+		}
+		SendMessageW(hCombo, CB_SETCURSEL, (WPARAM)n, 0);
+
 		return TRUE;
 
 	case WM_DPICHANGED_AFTERPARENT:
@@ -76,6 +159,8 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		switch (LOWORD(wParam))
 		{
 		case IDC_EDIT_SHOWMODEINLTM:
+		case IDC_EDIT_VKBDLAYOUT:
+		case IDC_EDIT_VKBDTOP:
 			switch (HIWORD(wParam))
 			{
 			case EN_CHANGE:
@@ -86,7 +171,19 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			}
 			break;
 
+		case IDC_COMBO_AUTOHELP:
+			switch (HIWORD(wParam))
+			{
+			case CBN_SELCHANGE:
+				PropSheet_Changed(GetParent(hDlg), hDlg);
+				return TRUE;
+			default:
+				break;
+			}
+			break;
+
 		case IDC_CHECKBOX_SHOWMODEINL:
+		case IDC_CHECKBOX_SHOWVKBD:
 			PropSheet_Changed(GetParent(hDlg), hDlg);
 			return TRUE;
 
@@ -160,7 +257,10 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 {
 	WCHAR num[16];
+	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	int count;
+	HWND hwnd;
+	int sel;
 
 	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWMODEINL, ValueShowModeInl);
 	GetDlgItemTextW(hDlg, IDC_EDIT_SHOWMODEINLTM, num, _countof(num));
@@ -178,4 +278,18 @@ void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 		_snwprintf_s(num, _TRUNCATE, L"0x%06X", displayModeColor[i].color);
 		WriterKey(pWriter, displayModeColor[i].value, num);
 	}
+
+	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
+	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout, _countof(vkbdlayout));
+	WriterKey(pWriter, ValueVkbdLayout, vkbdlayout);
+	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
+	WriterKey(pWriter, ValueVkbdTop, vkbdtop);
+
+	hwnd = GetDlgItem(hDlg, IDC_COMBO_AUTOHELP);
+	sel = (int)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
+	WriterKey(pWriter, ValueAutoHelp, cbAutoHelpValue[sel]);
+
+	hwnd = GetDlgItem(hDlg, IDC_COMBO_SHOWHELP);
+	sel = (int)SendMessageW(hwnd, CB_GETCURSEL, 0, 0);
+	WriterKey(pWriter, ValueShowHelp, cbShowHelpValue[sel]);
 }

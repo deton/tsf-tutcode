@@ -125,9 +125,6 @@ extern LPCWSTR ValueShowModeMark;
 extern LPCWSTR ValueShowRoman;
 extern LPCWSTR ValueShowRomanJLat;
 extern LPCWSTR ValueShowRomanComp;
-extern LPCWSTR ValueShowVkbd;
-extern LPCWSTR ValueVkbdLayout;
-extern LPCWSTR ValueVkbdTop;
 
 extern LPCWSTR ValueShowModeInl;
 extern LPCWSTR ValueShowModeSec;	//for compatibility
@@ -140,6 +137,17 @@ extern LPCWSTR ValueColorKA;
 extern LPCWSTR ValueColorJL;
 extern LPCWSTR ValueColorAC;
 extern LPCWSTR ValueColorDR;
+extern LPCWSTR ValueShowVkbd;
+extern LPCWSTR ValueVkbdLayout;
+extern LPCWSTR ValueVkbdTop;
+extern LPCWSTR ValueAutoHelp;
+extern LPCWSTR ValueAutoHelpOff;
+extern LPCWSTR ValueAutoHelpOnKey;
+extern LPCWSTR ValueAutoHelpOnConv;
+extern LPCWSTR ValueShowHelp;
+extern LPCWSTR ValueShowHelpKansaku;
+extern LPCWSTR ValueShowHelpDotHyo;
+extern LPCWSTR ValueShowHelpKanjiHyo;
 
 //displayattr section
 

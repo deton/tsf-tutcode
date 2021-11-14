@@ -89,6 +89,14 @@ typedef struct ROMAN_KANA_NODE {
 
 #define ISROMAN_TBL_SIZE	128
 
+//HelpWindowでの打鍵ヘルプ作成・表示用
+typedef struct {
+	std::wstring kanji;			//ヘルプ対象の漢字
+	std::wstring showtable;		//表示用文字列
+	std::wstring colormarker;	//背景色特定用。showtableと対応
+} HELPTABLE;
+typedef std::vector< HELPTABLE > HELPTABLES;
+
 //候補一覧の色 cx_colors のインデックス
 #define CL_COLOR_BG		0	//背景
 #define CL_COLOR_FR		1	//枠
@@ -127,6 +135,7 @@ extern LPCWSTR LangbarItemDesc;
 extern LPCWSTR CandidateWindowClass;
 extern LPCWSTR InputModeWindowClass;
 extern LPCWSTR VKeyboardWindowClass;
+extern LPCWSTR HelpWindowClass;
 
 extern HINSTANCE g_hInst;
 

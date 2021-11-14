@@ -590,6 +590,7 @@ if exist "$(OutDir)$(TargetName).exp" del "$(OutDir)$(TargetName).exp"
     <ClInclude Include="pch.h" />
     <ClInclude Include="TextService.h" />
     <ClInclude Include="VKeyboardWindow.h" />
+    <ClInclude Include="HelpWindow.h" />
     <ClInclude Include="PostMazeContext.h" />
   </ItemGroup>
   <ItemGroup>
@@ -650,6 +651,7 @@ if exist "$(OutDir)$(TargetName).exp" del "$(OutDir)$(TargetName).exp"
     <ClCompile Include="ThreadFocusSink.cpp" />
     <ClCompile Include="ThreadMgrEventSink.cpp" />
     <ClCompile Include="VKeyboardWindow.cpp" />
+    <ClCompile Include="HelpWindow.cpp" />
     <ClCompile Include="PostMazeContext.cpp" />
   </ItemGroup>
   <ItemGroup>

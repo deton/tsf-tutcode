@@ -41,6 +41,7 @@
 #define REQ_BACKUP			L'R'	//バックアップ
 #define REQ_EXIT			L'X'	//終了
 #define REQ_BUSHU			L'b'	//部首合成変換
+#define REQ_BUSHUHELP		L'h'	//部首への分解(入力ヘルプ表示用)
 //reply
 #define REP_OK				L'T'	//hit
 #define REP_FALSE			L'F'	//nothing

@@ -5,6 +5,7 @@
 #include "CandidateWindow.h"
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
+#include "HelpWindow.h"
 
 HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 {
@@ -250,6 +251,10 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 		_HandleKey((WPARAM)uVKey, SKK_NULL);
 		_Update();
 
+		if (_pHelpWindow != nullptr)
+		{
+			_pHelpWindow->_Redraw();
+		}
 		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Redraw();
@@ -265,6 +270,10 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 	{
 		_pTextService->_UpdateLanguageBar();
 
+		if (_pHelpWindow != nullptr)
+		{
+			_pHelpWindow->_Redraw();
+		}
 		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Redraw();
@@ -307,6 +316,10 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 
 			if (_mode == wm_candidate)
 			{
+				if (_pHelpWindow != nullptr)
+				{
+					_pHelpWindow->_Show(FALSE);
+				}
 				if (_pVKeyboardWindow != nullptr)
 				{
 					_pVKeyboardWindow->_Show(FALSE);
@@ -435,6 +448,10 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 
 		if (_mode == wm_candidate)
 		{
+			if (_pHelpWindow != nullptr)
+			{
+				_pHelpWindow->_Show(FALSE);
+			}
 			if (_pVKeyboardWindow != nullptr)
 			{
 				_pVKeyboardWindow->_Show(FALSE);
@@ -594,6 +611,10 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 	default:
 		_HandleKey((WPARAM)uVKey, SKK_NULL);
 
+		if (_pHelpWindow != nullptr)
+		{
+			_pHelpWindow->_Redraw();
+		}
 		if (_pVKeyboardWindow != nullptr)
 		{
 			_pVKeyboardWindow->_Redraw();

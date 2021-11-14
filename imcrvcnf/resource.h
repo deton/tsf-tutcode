@@ -114,9 +114,6 @@
 #define IDC_RADIO_SHOWROMANASCII                3039
 #define IDC_RADIO_SHOWROMANJLATIN               3040
 #define IDC_CHECKBOX_SHOWROMANCOMP              3041
-#define IDC_CHECKBOX_SHOWVKBD                   3042
-#define IDC_EDIT_VKBDLAYOUT                     3043
-#define IDC_EDIT_VKBDTOP                        3044
 
 #define IDC_CHECKBOX_SHOWMODEINL                3101
 #define IDC_EDIT_SHOWMODEINLTM                  3102
@@ -128,6 +125,11 @@
 #define IDC_COL_MODE_JL                         3108
 #define IDC_COL_MODE_AC                         3109
 #define IDC_COL_MODE_DR                         3110
+#define IDC_CHECKBOX_SHOWVKBD                   3111
+#define IDC_EDIT_VKBDLAYOUT                     3112
+#define IDC_EDIT_VKBDTOP                        3113
+#define IDC_COMBO_AUTOHELP                      3114
+#define IDC_COMBO_SHOWHELP                      3115
 
 #define IDC_CHECKBOX_SERIES_MARK                3201
 #define IDC_CHECKBOX_SERIES_TEXT                3202

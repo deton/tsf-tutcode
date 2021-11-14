@@ -33,7 +33,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		is_key_down = key_info.IsKeyDownInImeProcessKey();
 	}
 	const mozc::win32::VKBackBasedDeleter::ClientAction vk_back_action =
-		deleter.OnKeyEvent(wParam, is_key_down, isTest);
+		deleter.OnKeyEvent((UINT)wParam, is_key_down, isTest);
 
 	switch (vk_back_action)
 	{

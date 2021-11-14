@@ -13,6 +13,7 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	static const std::wregex readd(L"(.*)\t(.*)\t(.*)\t(.*)\n");
 	// delete candidate
 	static const std::wregex redel(L"(.*)\t(.*)\n");
+	static const std::wregex re1(L"(.*)\n");
 
 	result.clear();
 
@@ -52,6 +53,24 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		key = std::regex_replace(argument, redel, L"$1");
 		keyorg = std::regex_replace(argument, redel, L"$2");
 		conv = ConvBushu(key, keyorg);
+		if (!conv.empty())
+		{
+			result = REP_OK;
+			result += L"\n";
+			result += conv + L"\n";
+		}
+		else
+		{
+			result = REP_FALSE;
+			result += L"\n";
+		}
+		break;
+
+	case REQ_BUSHUHELP:
+		if (!std::regex_match(argument, re1)) break;
+
+		key = std::regex_replace(argument, re1, L"$1");
+		conv = BushuHelp(key);
 		if (!conv.empty())
 		{
 			result = REP_OK;
@@ -513,6 +532,12 @@ HANDLE SrvStart()
 		request
 			"b\n<bushu1>\t<bushu2>\n"
 		reply
-			"T\n<candidate converted>\n":hit
+			"T\n<kanji>\n":hit
+			"F\n":nothing
+	bushu decompositon for help
+		request
+			"h\n<kanji>\n"
+		reply
+			"T\n<bushu11><bushu12>* <bushu21><bushu22> ...\n":hit
 			"F\n":nothing
 */

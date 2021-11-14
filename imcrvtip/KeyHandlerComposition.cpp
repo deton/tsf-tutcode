@@ -90,7 +90,7 @@ HRESULT CTextService::_Update(TfEditCookie ec, ITfContext *pContext, std::wstrin
 					_AddUserDic(useraddmode, ((candorgcnt <= candidx) ? searchkey : searchkeyorg),
 						candidates[candidx].second.first, candidates[candidx].second.second);
 					//先頭cx_fixmazecount数の候補順固定のため、候補を押し下げる
-					for (int i = min(cx_fixmazecount, candidates.size()) - 1; i >= 0; i--)
+					for (int i = min(cx_fixmazecount, (int)candidates.size()) - 1; i >= 0; i--)
 					{
 						_AddUserDic(useraddmode, ((candorgcnt <= i) ? searchkey : searchkeyorg),
 							candidates[i].second.first, candidates[i].second.second);

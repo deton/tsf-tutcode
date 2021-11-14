@@ -562,11 +562,11 @@ HRESULT CTextService::_HandlePostHelp(TfEditCookie ec, ITfContext *pContext, Pos
 			size_t st = BackwardMoji(text, size, count);
 			if (st < size)
 			{
-				_ShowAutoHelp(text.substr(st), L"");
+				_ShowAutoHelp(text.substr(st), L"", true);
 				return S_OK;
 			}
 		}
-		_ShowAutoHelp(text, L"");
+		_ShowAutoHelp(text, L"", true);
 	}
 	return S_OK;
 }
@@ -728,69 +728,79 @@ HRESULT CTextService::_ReplacePrecedingTextIMM32(TfEditCookie ec, ITfContext *pC
 	pending.maze = startMaze ? true : false;
 	_ResetStatus();
 	_HandleCharReturn(ec, pContext);
-	deleter.BeginDeletion(delete_count, pending, dummy);
+	deleter.BeginDeletion((int)delete_count, pending, dummy);
 	return E_PENDING;
 }
 
-//打鍵ヘルプ表示: 漢索窓が起動されていれば、そこに表示
-HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi)
+//打鍵ヘルプ表示
+HRESULT CTextService::_ShowAutoHelp(const std::wstring &kanji, const std::wstring &yomi, bool onkey)
 {
-	HWND hwnd = FindWindow(L"kansaku", NULL);
-	if (hwnd == NULL)
+	if (cx_autohelp == AH_OFF)
+	{
+		return E_FAIL;
+	}
+	if (cx_autohelp == AH_ONKEY && !onkey)
 	{
 		return E_FAIL;
 	}
 
 	std::wstring str;
-	//ヘルプ表示不要(読みとして入力した文字/重複する文字)かどうか
-	class skiphelp
+	//ヘルプ表示不要(読みとして入力した文字/重複する文字)な文字を除く
+	FORWARD_ITERATION_I(itr, kanji)
 	{
-		const std::wstring _yomi;
-		const std::wstring _helpstr;
-	public:
-		skiphelp(const std::wstring& yomi, const std::wstring& helpstr):
-			_yomi(yomi), _helpstr(helpstr)
+		if (yomi.find(*itr) != std::wstring::npos
+				|| str.find(*itr) != std::wstring::npos)
 		{
+			continue;
 		}
-		bool operator()(wchar_t c)
-		{
-			return _yomi.find(c) != std::wstring::npos
-				|| _helpstr.find(c) != std::wstring::npos;
-		}
-	};
-	remove_copy_if (kanji.begin(), kanji.end(), back_inserter(str), skiphelp(yomi, str));
+		str += *itr;
+	}
 
-	//XXX:クリップボード内容を上書きされるのはユーザにはうれしくない
-	if (OpenClipboard(NULL))
+	if (cx_showhelp == SH_DOTHYO || cx_showhelp == SH_KANJIHYO)
 	{
+		return _StartHelpWindow(str);
+	}
+	if (cx_showhelp == SH_KANSAKU)
+	{
+		//漢索窓が起動されていれば、そこに表示
+		HWND hwnd = FindWindow(L"kansaku", NULL);
+		if (hwnd == NULL)
+		{
+			return E_FAIL;
+		}
+		//XXX:クリップボード内容を上書きされるのはユーザにはうれしくない
+		if (!OpenClipboard(NULL))
+		{
+			return E_FAIL;
+		}
 		size_t len = str.size() + 1;
 		size_t size = len * sizeof(WCHAR);
 		HGLOBAL hMem = GlobalAlloc(GMEM_FIXED, size);
-		if (hMem != NULL)
+		if (hMem == NULL)
 		{
-			LPWSTR pMem = (LPWSTR)hMem;
-			wcsncpy_s(pMem, len, str.c_str(), _TRUNCATE);
-			EmptyClipboard();
-			SetClipboardData(CF_UNICODETEXT, hMem);
+			CloseClipboard();
+			return E_FAIL;
 		}
+		LPWSTR pMem = (LPWSTR)hMem;
+		wcsncpy_s(pMem, len, str.c_str(), _TRUNCATE);
+		EmptyClipboard();
+		SetClipboardData(CF_UNICODETEXT, hMem);
 		CloseClipboard();
-		if (hMem != NULL)
-		{
-			PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
-			//漢索窓を最前面に表示させる
-			HWND foreWin = GetForegroundWindow();
-			DWORD foreThread = GetWindowThreadProcessId(foreWin, NULL);
-			DWORD selfThread = GetCurrentThreadId();
-			AttachThreadInput(selfThread, foreThread, TRUE);
-			SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_ASYNCWINDOWPOS);
-			//最前面に出たままになって邪魔にならないように
-			SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
-				SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
-			AttachThreadInput(selfThread, foreThread, FALSE);
-		}
+		PostMessage(hwnd, WM_LBUTTONDBLCLK, 0, 0);
+		//漢索窓を最前面に表示させる
+		HWND foreWin = GetForegroundWindow();
+		DWORD foreThread = GetWindowThreadProcessId(foreWin, NULL);
+		DWORD selfThread = GetCurrentThreadId();
+		AttachThreadInput(selfThread, foreThread, TRUE);
+		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_ASYNCWINDOWPOS);
+		//最前面に出たままになって邪魔にならないように
+		SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
+		AttachThreadInput(selfThread, foreThread, FALSE);
+		return S_OK;
 	}
-	return S_OK;
+	return E_FAIL;
 }
 
 //指定した文字列を確定する

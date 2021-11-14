@@ -680,6 +680,10 @@ void CTextService::_UpdateLanguageBar(BOOL showinputmode)
 	{
 		_StartVKeyboardWindow();
 	}
+	if (cx_autohelp != AH_OFF && cx_showhelp != SH_KANSAKU)
+	{
+		_EndHelpWindow();
+	}
 }
 
 void CTextService::_GetIcon(HICON *phIcon, INT size)

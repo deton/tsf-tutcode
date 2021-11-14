@@ -4,6 +4,7 @@
 #include "CandidateList.h"
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
+#include "HelpWindow.h"
 
 class CCandidateWindow : public ITfCandidateListUIElementBehavior
 {
@@ -123,6 +124,7 @@ private:
 	CComPtr<CCandidateWindow> _pCandidateWindowOld;
 	CComPtr<CInputModeWindow> _pInputModeWindow;
 	CComPtr<CVKeyboardWindow> _pVKeyboardWindow;
+	CComPtr<CHelpWindow> _pHelpWindow;
 	HWND _hwnd;			//自分
 	HWND _hwndParent;	//親
 	BOOL _preEnd;		//親に対する終了要求

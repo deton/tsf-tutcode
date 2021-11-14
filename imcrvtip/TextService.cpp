@@ -6,6 +6,7 @@
 #include "CandidateWindow.h"
 #include "InputModeWindow.h"
 #include "VKeyboardWindow.h"
+#include "HelpWindow.h"
 
 CTextService::CTextService():
 	cx_vkbdlayout(L"12345│67890\n"
@@ -244,6 +245,7 @@ STDAPI CTextService::Deactivate()
 
 	_EndInputModeWindow();
 	_EndVKeyboardWindow();
+	_EndHelpWindow();
 
 	_UninitFunctionProvider();
 

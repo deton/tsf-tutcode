@@ -149,6 +149,38 @@ exit:
 	_DisconnectDic();
 }
 
+void CTextService::_BushuHelp(const std::wstring &kanji, std::wstring *help)
+{
+	DWORD bytesWrite, bytesRead;
+
+	help->clear();
+	_StartManager();
+	_ConnectDic();
+	ZeroMemory(pipebuf, sizeof(pipebuf));
+	_snwprintf_s(pipebuf, _TRUNCATE, L"%c\n%s\n", REQ_BUSHUHELP, kanji.c_str());
+	bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
+	if (WriteFile(hPipe, pipebuf, bytesWrite, &bytesWrite, nullptr) == FALSE)
+	{
+		goto exit;
+	}
+
+	ZeroMemory(pipebuf, sizeof(pipebuf));
+	if (ReadFile(hPipe, pipebuf, sizeof(pipebuf), &bytesRead, nullptr) == FALSE)
+	{
+		goto exit;
+	}
+	if (pipebuf[0] != REP_OK)
+	{
+		goto exit;
+	}
+	pipebuf[wcslen(pipebuf) - 1] = L'\0';
+	help->assign(&pipebuf[2]);
+
+exit:
+	ZeroMemory(pipebuf, sizeof(pipebuf));
+	_DisconnectDic();
+}
+
 void CTextService::_ConvertWord(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &okuri, std::wstring &conv)
 {
 	DWORD bytesWrite, bytesRead;

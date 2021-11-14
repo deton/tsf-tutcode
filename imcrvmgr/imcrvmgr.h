@@ -65,6 +65,7 @@ std::wstring GetSKKServerInfo(CHAR req);
 
 // ConvBushu
 std::wstring ConvBushu(const std::wstring &bushu1, const std::wstring &bushu2);
+std::wstring BushuHelp(const std::wstring &kanji);
 BOOL LoadBushuConvUserDic();
 
 // Server

@@ -4,7 +4,6 @@
 #include "resource.h"
 
 #define DISPLAY_FONTSIZE 10
-#define MAX_VKBDTOP 256 // (5*2(surrogate)+1(│)+5*2+2('\\','n')=23)*4
 
 static struct {
 	int id;
@@ -29,7 +28,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	PAINTSTRUCT ps;
 	WCHAR num[16];
 	WCHAR fontname[LF_FACESIZE];
-	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	INT fontpoint, fontweight, count;
 	BOOL fontitalic;
 	CHOOSEFONTW cf = {};
@@ -144,18 +142,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			CheckDlgButton(hDlg, IDC_RADIO_SHOWROMANASCII, BST_CHECKED);
 		}
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWROMANCOMP, SectionDisplay, ValueShowRomanComp, L"0");
-		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, SectionDisplay, ValueShowVkbd, L"0");
-
-		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval,
-			L"12345│67890\\n"
-			 "qwert│yuiop\\n"
-			 "asdfg│hjkl;\\n"
-			 "zxcvb│nm,./");
-		wcsncpy_s(vkbdlayout, strxmlval.c_str(), _TRUNCATE);
-		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout);
-		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval);
-		wcsncpy_s(vkbdtop, strxmlval.c_str(), _TRUNCATE);
-		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop);
 
 		return TRUE;
 
@@ -196,8 +182,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 			return TRUE;
 
 		case IDC_EDIT_MAXWIDTH:
-		case IDC_EDIT_VKBDLAYOUT:
-		case IDC_EDIT_VKBDTOP:
 			switch (HIWORD(wParam))
 			{
 			case EN_CHANGE:
@@ -285,7 +269,6 @@ INT_PTR CALLBACK DlgProcDisplay1(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 		case IDC_RADIO_SHOWROMANASCII:
 		case IDC_RADIO_SHOWROMANJLATIN:
 		case IDC_CHECKBOX_SHOWROMANCOMP:
-		case IDC_CHECKBOX_SHOWVKBD:
 			PropSheet_Changed(GetParent(hDlg), hDlg);
 			return TRUE;
 
@@ -339,7 +322,6 @@ void SaveFont(IXmlWriter *pWriter, HWND hDlg)
 void SaveDisplay1(IXmlWriter *pWriter, HWND hDlg)
 {
 	WCHAR num[16];
-	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
 	LONG w;
 	HWND hwnd;
 	int count;
@@ -382,10 +364,5 @@ void SaveDisplay1(IXmlWriter *pWriter, HWND hDlg)
 	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWROMAN, ValueShowRoman);
 	SaveCheckButton(pWriter, hDlg, IDC_RADIO_SHOWROMANJLATIN, ValueShowRomanJLat);
 	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWROMANCOMP, ValueShowRomanComp);
-	SaveCheckButton(pWriter, hDlg, IDC_CHECKBOX_SHOWVKBD, ValueShowVkbd);
 
-	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout, _countof(vkbdlayout));
-	WriterKey(pWriter, ValueVkbdLayout, vkbdlayout);
-	GetDlgItemTextW(hDlg, IDC_EDIT_VKBDTOP, vkbdtop, _countof(vkbdtop));
-	WriterKey(pWriter, ValueVkbdTop, vkbdtop);
 }

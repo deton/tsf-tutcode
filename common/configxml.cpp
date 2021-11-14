@@ -130,9 +130,6 @@ LPCWSTR ValueShowModeMark = L"showmodemark";
 LPCWSTR ValueShowRoman = L"showroman";
 LPCWSTR ValueShowRomanJLat = L"showromanjlat";
 LPCWSTR ValueShowRomanComp = L"showromancomp";
-LPCWSTR ValueShowVkbd = L"showvkbd";
-LPCWSTR ValueVkbdLayout = L"vkbdlayout";
-LPCWSTR ValueVkbdTop = L"vkbdtop";
 
 LPCWSTR ValueShowModeInl = L"showmodeinl";
 LPCWSTR ValueShowModeSec = L"showmodesec";	//for compatibility
@@ -145,6 +142,17 @@ LPCWSTR ValueColorKA = L"colorka";
 LPCWSTR ValueColorJL = L"colorjl";
 LPCWSTR ValueColorAC = L"colorac";
 LPCWSTR ValueColorDR = L"colordr";
+LPCWSTR ValueShowVkbd = L"showvkbd";
+LPCWSTR ValueVkbdLayout = L"vkbdlayout";
+LPCWSTR ValueVkbdTop = L"vkbdtop";
+LPCWSTR ValueAutoHelp = L"autohelp";
+LPCWSTR ValueAutoHelpOff = L"off";
+LPCWSTR ValueAutoHelpOnKey = L"onkey";
+LPCWSTR ValueAutoHelpOnConv = L"onconv";
+LPCWSTR ValueShowHelp = L"showhelp";
+LPCWSTR ValueShowHelpKansaku = L"kansaku";
+LPCWSTR ValueShowHelpDotHyo = L"dothyo";
+LPCWSTR ValueShowHelpKanjiHyo = L"kanjihyo";
 
 //displayattr section
 
