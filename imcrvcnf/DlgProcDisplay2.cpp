@@ -48,7 +48,12 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	HDC hdc;
 	PAINTSTRUCT ps;
 	WCHAR num[16];
-	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
+	WCHAR vkbdlayout[MAX_VKBDTOP] =
+		L"12345│67890\\n"
+		 "qwert│yuiop\\n"
+		 "asdfg│hjkl;\\n"
+		 "zxcvb│nm,./";
+	WCHAR vkbdtop[MAX_VKBDTOP];
 	int n;
 	std::wstring strxmlval;
 	CHOOSECOLORW cc = {};
@@ -94,12 +99,11 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 
 		LoadCheckButton(hDlg, IDC_CHECKBOX_SHOWVKBD, SectionDisplay, ValueShowVkbd, L"0");
 
-		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval,
-			L"12345│67890\\n"
-			 "qwert│yuiop\\n"
-			 "asdfg│hjkl;\\n"
-			 "zxcvb│nm,./");
-		wcsncpy_s(vkbdlayout, strxmlval.c_str(), _TRUNCATE);
+		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdLayout, strxmlval, L"");
+		if (!strxmlval.empty())
+		{
+			wcsncpy_s(vkbdlayout, strxmlval.c_str(), _TRUNCATE);
+		}
 		SetDlgItemTextW(hDlg, IDC_EDIT_VKBDLAYOUT, vkbdlayout);
 		ReadValue(pathconfigxml, SectionDisplay, ValueVkbdTop, strxmlval);
 		wcsncpy_s(vkbdtop, strxmlval.c_str(), _TRUNCATE);
