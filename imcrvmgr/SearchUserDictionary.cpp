@@ -12,7 +12,7 @@ KEYORDER keyorder_n;
 //送りあり、補完なし
 KEYORDER keyorder_a;
 
-std::wstring SearchUserDic(const std::wstring &searchkey,  const std::wstring &okuri)
+std::wstring SearchUserDic(const std::wstring &searchkey, const std::wstring &okuri)
 {
 	std::wstring candidate;
 	SKKDICCANDIDATES sc;
@@ -115,8 +115,6 @@ void SearchComplement(const std::wstring &searchkey, SKKDICCANDIDATES &sc)
 void SearchComplementSearchCandidate(SKKDICCANDIDATES &sc, int max)
 {
 	std::wstring candidate, conv;
-	std::wregex re(L"[\\x00-\\x19]");
-	std::wstring fmt(L"");
 	SKKDICCANDIDATES scc;
 
 	if (max >= 9 || max <= 0)
@@ -128,7 +126,8 @@ void SearchComplementSearchCandidate(SKKDICCANDIDATES &sc, int max)
 	{
 		candidate = SearchUserDic(sc_itr->first, L"");
 
-		candidate = std::regex_replace(candidate, re, fmt);
+		static const std::wregex rectrl(L"[\\x00-\\x19]");
+		candidate = std::regex_replace(candidate, rectrl, L"");
 
 		scc.clear();
 
@@ -195,7 +194,6 @@ void AddKeyOrder(const std::wstring &searchkey, KEYORDER &keyorder)
 void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring &candidate, const std::wstring &annotation, const std::wstring &okuri)
 {
 	SKKDICENTRY userdicentry;
-	std::wregex re;
 	std::wstring candidate_esc;
 	std::wstring annotation_esc;
 	USEROKURIENTRY userokurientry;
@@ -247,8 +245,8 @@ void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring
 	}
 
 	//ユーザー辞書送りブロック
-	re.assign(L"[\\[\\]]"); //角括弧を含む候補を除外
-	if (command == REQ_USER_ADD_A && !okuri.empty() && !std::regex_search(candidate_esc, re))
+	static const std::wregex reblock(L"[\\[\\]]"); //角括弧を含む候補を除外
+	if (command == REQ_USER_ADD_A && !okuri.empty() && !std::regex_search(candidate_esc, reblock))
 	{
 		auto userokuri_itr = userokuri.find(searchkey);
 		if (userokuri_itr == userokuri.end())
@@ -720,22 +718,63 @@ void StartSaveUserDic(BOOL bThread)
 
 void BackUpUserDic()
 {
-	WCHAR oldpath[MAX_PATH];
-	WCHAR newpath[MAX_PATH];
+	WCHAR path[MAX_PATH];
+	LPCWSTR ext = L"bak";
 
 	EnterCriticalSection(&csUserDict);	// !
 
-	for (int i = BACKUP_GENS; i > 1; i--)
-	{
-		_snwprintf_s(oldpath, _TRUNCATE, L"%s%d", pathuserbak, i - 1);
-		_snwprintf_s(newpath, _TRUNCATE, L"%s%d", pathuserbak, i);
+	// バックアップディレクトリ作成
 
-		MoveFileExW(oldpath, newpath, MOVEFILE_REPLACE_EXISTING);
+	WCHAR drive[_MAX_DRIVE];
+	WCHAR dir[_MAX_DIR];
+	_wsplitpath_s(pathbackup, drive, _countof(drive), dir, _countof(dir), nullptr, 0, nullptr, 0);
+	_wmakepath_s(path, drive, dir, nullptr, nullptr);
+	SHCreateDirectoryExW(nullptr, path, nullptr);
+
+	// バックアップ
+
+	SYSTEMTIME st = {};
+	GetSystemTime(&st);
+
+	_snwprintf_s(path, _TRUNCATE, L"%s.%04d%02d%02dT%02d%02d%02dZ.%s",
+		pathbackup,
+		st.wYear, st.wMonth, st.wDay,
+		st.wHour, st.wMinute, st.wSecond,
+		ext);
+
+	CopyFileW(pathuserdic, path, FALSE);
+
+	// バックアップファイル検索
+
+	std::vector<std::wstring> filenames;
+	WIN32_FIND_DATAW fd;
+
+	_snwprintf_s(path, _TRUNCATE, L"%s.*.%s", pathbackup, ext);
+
+	HANDLE hFind = FindFirstFileW(path, &fd);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		filenames.push_back(fd.cFileName);
+
+		while (FindNextFileW(hFind, &fd))
+		{
+			filenames.push_back(fd.cFileName);
+		}
+
+		FindClose(hFind);
 	}
 
-	_snwprintf_s(newpath, _TRUNCATE, L"%s%d", pathuserbak, 1);
+	// 昇順ソート
+	std::sort(filenames.begin(), filenames.end());
 
-	CopyFileW(pathuserdic, newpath, FALSE);
+	// 古いバックアップファイルを削除
+	int len = (int)filenames.size() - generation;
+	for (int i = 0; i < len; i++)
+	{
+		_wmakepath_s(path, drive, dir, filenames[i].c_str(), nullptr);
+
+		DeleteFileW(path);
+	}
 
 	LeaveCriticalSection(&csUserDict);	// !
 }

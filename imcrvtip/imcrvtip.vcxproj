@@ -630,6 +630,7 @@ if exist "$(OutDir)$(TargetName).exp" del "$(OutDir)$(TargetName).exp"
     <ClCompile Include="mozc\win32\tip\tip_ref_count.cc" />
     <ClCompile Include="mozc\win32\tip\tip_surrounding_text.cc" />
     <ClCompile Include="mozc\win32\tip\tip_transitory_extension.cc" />
+    <ClCompile Include="Property.cpp" />
     <ClCompile Include="Register.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="pch.cpp">
@@ -660,6 +661,16 @@ if exist "$(OutDir)$(TargetName).exp" del "$(OutDir)$(TargetName).exp"
   <ItemGroup>
     <Image Include="Icon\kanchoku.ico" />
     <Image Include="Icon\imdebug.ico" />
+    <Image Include="Icon\pxAscii.ico" />
+    <Image Include="Icon\pxHiragana.ico" />
+    <Image Include="Icon\pxJLatin.ico" />
+    <Image Include="Icon\pxKatakana.ico" />
+    <Image Include="Icon\pxKatakana1.ico" />
+    <Image Include="Icon\pzAscii.ico" />
+    <Image Include="Icon\pzHiragana.ico" />
+    <Image Include="Icon\pzJLatin.ico" />
+    <Image Include="Icon\pzKatakana.ico" />
+    <Image Include="Icon\pzKatakana1.ico" />
     <Image Include="Icon\xAscii.ico" />
     <Image Include="Icon\xDefault.ico" />
     <Image Include="Icon\xHiragana.ico" />

@@ -9,9 +9,9 @@ LPCWSTR DictionaryManagerClass = TEXTSERVICE_NAME L"DictionaryManager";
 // ファイルパス
 WCHAR pathconfigxml[MAX_PATH];	//設定
 WCHAR pathuserdic[MAX_PATH];	//ユーザー辞書
-WCHAR pathuserbak[MAX_PATH];	//ユーザー辞書バックアッププレフィックス
 WCHAR pathskkdic[MAX_PATH];		//取込SKK辞書
 WCHAR pathinitlua[MAX_PATH];	//init.lua
+WCHAR pathbackup[MAX_PATH];		//ユーザー辞書バックアップレフィックス
 WCHAR pathbushudic[MAX_PATH];	//部首合成変換ユーザー辞書
 
 WCHAR krnlobjsddl[MAX_SECURITYDESC];	//SDDL
@@ -24,6 +24,8 @@ WCHAR host[MAX_SKKSERVER_HOST] = {};	//ホスト
 WCHAR port[MAX_SKKSERVER_PORT] = {};	//ポート
 DWORD encoding = 0;		//エンコーディング
 DWORD timeout = 1000;	//タイムアウト
+
+INT generation = 0;		//ユーザー辞書バックアップ世代数
 
 BOOL precedeokuri = FALSE;	//送り仮名が一致した候補を優先する
 BOOL compincback = FALSE;	//前方一致と後方一致で補完する
@@ -51,7 +53,6 @@ void CreateConfigPath()
 
 	ZeroMemory(pathconfigxml, sizeof(pathconfigxml));
 	ZeroMemory(pathuserdic, sizeof(pathuserdic));
-	ZeroMemory(pathuserbak, sizeof(pathuserbak));
 	ZeroMemory(pathskkdic, sizeof(pathskkdic));
 	ZeroMemory(pathinitlua, sizeof(pathinitlua));
 	ZeroMemory(pathbushudic, sizeof(pathbushudic));
@@ -69,7 +70,6 @@ void CreateConfigPath()
 
 		_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s", appdir, fnconfigxml);
 		_snwprintf_s(pathuserdic, _TRUNCATE, L"%s\\%s", appdir, fnuserdic);
-		_snwprintf_s(pathuserbak, _TRUNCATE, L"%s\\%s", appdir, fnuserbak);
 		_snwprintf_s(pathskkdic, _TRUNCATE, L"%s\\%s", appdir, fnskkdic);
 		_snwprintf_s(pathinitlua, _TRUNCATE, L"%s\\%s", appdir, fninitlua);
 		_snwprintf_s(pathbushudic, _TRUNCATE, L"%s\\%s", appdir, fnbushudic);
@@ -90,8 +90,8 @@ void UpdateConfigPath()
 {
 	PWSTR knownfolderpath = nullptr;
 
-	//%AppData%\\CorvusSKK\\config.xml
-	//%AppData%\\CorvusSKK\\skkdict.txt
+	//%APPDATA%\\CorvusSKK\\config.xml
+	//%APPDATA%\\CorvusSKK\\skkdict.txt
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
 		_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnconfigxml);
@@ -117,7 +117,7 @@ void UpdateConfigPath()
 		//%SystemRoot%\\IME\\IMCRVSKK\\config.xml
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 		{
-			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fnconfigxml);
+			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fnconfigxml);
 
 			CoTaskMemFree(knownfolderpath);
 		}
@@ -141,7 +141,7 @@ void UpdateConfigPath()
 		//%SystemRoot%\\IME\\IMCRVSKK\\skkdict.txt
 		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 		{
-			_snwprintf_s(pathskkdic, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fnskkdic);
+			_snwprintf_s(pathskkdic, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fnskkdic);
 
 			CoTaskMemFree(knownfolderpath);
 		}
@@ -180,8 +180,9 @@ void CreateIpcName()
 	}
 }
 
-void LoadConfig()
+void LoadConfig(BOOL sysexit)
 {
+	WCHAR path[MAX_PATH];
 	BOOL servtmp;
 	WCHAR hosttmp[MAX_SKKSERVER_HOST];	//ホスト
 	WCHAR porttmp[MAX_SKKSERVER_PORT];	//ポート
@@ -217,22 +218,53 @@ void LoadConfig()
 	}
 
 	//変更があったら接続し直す
-	if (servtmp != serv || wcscmp(hosttmp, host) != 0 || wcscmp(porttmp, port) != 0 ||
-		encodingtmp != encoding || timeouttmp != timeout)
+	if (sysexit == FALSE)
 	{
-		serv = servtmp;
-		wcsncpy_s(host, hosttmp, _TRUNCATE);
-		wcsncpy_s(port, porttmp, _TRUNCATE);
-		encoding = encodingtmp;
-		timeout = timeouttmp;
-
-		DisconnectSKKServer();
-
-		if (serv)
+		if (servtmp != serv || wcscmp(hosttmp, host) != 0 || wcscmp(porttmp, port) != 0 ||
+			encodingtmp != encoding || timeouttmp != timeout)
 		{
-			StartConnectSKKServer();
+			serv = servtmp;
+			wcsncpy_s(host, hosttmp, _TRUNCATE);
+			wcsncpy_s(port, porttmp, _TRUNCATE);
+			encoding = encodingtmp;
+			timeout = timeouttmp;
+
+			DisconnectSKKServer();
+
+			if (serv)
+			{
+				StartConnectSKKServer();
+			}
 		}
 	}
+
+	ReadValue(pathconfigxml, SectionUserDict, ValueBackupDir, strxmlval);
+	if (strxmlval.empty())
+	{
+		strxmlval = L"%APPDATA%\\" TEXTSERVICE_DESC;
+	}
+	ExpandEnvironmentStringsW(strxmlval.c_str(), path, _countof(path));
+	for (int i = 0; i < _countof(path) && path[i] != L'\0'; i++)
+	{
+		UINT type = PathGetCharTypeW(path[i]);
+		if ((type & (GCT_LFNCHAR | GCT_SHORTCHAR | GCT_SEPARATOR)) == 0)
+		{
+			path[i] = L'_';
+		}
+	}
+	_snwprintf_s(pathbackup, _TRUNCATE, L"%s\\%s", path, fnuserdic);
+
+	ReadValue(pathconfigxml, SectionUserDict, ValueBackupGen, strxmlval);
+	INT n = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str());
+	if (n < 0)
+	{
+		n = DEF_BACKUPGENS;
+	}
+	else if (n > MAX_BACKUPGENS)
+	{
+		n = MAX_BACKUPGENS;
+	}
+	generation = n;
 
 	ReadValue(pathconfigxml, SectionBehavior, ValuePrecedeOkuri, strxmlval);
 	precedeokuri = _wtoi(strxmlval.c_str());
@@ -295,7 +327,7 @@ void InitLua()
 	lua_pushstring(lua, version);
 	lua_setglobal(lua, u8"SKK_VERSION");
 
-	//%AppData%\\CorvusSKK\\init.lua
+	//%APPDATA%\\CorvusSKK\\init.lua
 	if (luaL_dofile(lua, WCTOU8(pathinitlua)) == LUA_OK)
 	{
 		return;
@@ -320,7 +352,7 @@ void InitLua()
 	//%SystemRoot%\\IME\\IMCRVSKK\\init.lua
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
-		_snwprintf_s(pathinitlua, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, L"IME", TEXTSERVICE_DIR, fninitlua);
+		_snwprintf_s(pathinitlua, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fninitlua);
 
 		CoTaskMemFree(knownfolderpath);
 	}
