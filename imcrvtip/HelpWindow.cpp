@@ -404,7 +404,7 @@ void CHelpWindow::_Show(BOOL bShow)
 
 	//辞書登録時用のヘルプを表示しようとしてる場合、大元のヘルプは非表示に。
 	//再帰的な辞書登録をキャンセルした時の、2重のヘルプ表示を回避するため
-	if (bShow && _pContext == nullptr)
+	if (bShow && _pContext == nullptr && _pTextService != nullptr)
 	{
 		_pTextService->_HideHelpWindow();
 	}
