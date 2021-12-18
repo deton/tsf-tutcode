@@ -98,13 +98,13 @@
     <ClCompile Include="Composition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigTip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="DisplayAttributeProvider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DllMain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FnConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FunctionProvider.cpp">
@@ -122,7 +122,7 @@
     <ClCompile Include="KeyHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KeyHandlerChar.cpp">
+    <ClCompile Include="KeyHandlerCharacter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyHandlerComposition.cpp">
@@ -131,7 +131,7 @@
     <ClCompile Include="KeyHandlerControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KeyHandlerConv.cpp">
+    <ClCompile Include="KeyHandlerConversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyHandlerDictionary.cpp">

@@ -47,13 +47,13 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 {
 	HDC hdc;
 	PAINTSTRUCT ps;
-	WCHAR num[16];
+	WCHAR num[16] = {};
 	WCHAR vkbdlayout[MAX_VKBDTOP] =
 		L"12345│67890\\n"
 		 "qwert│yuiop\\n"
 		 "asdfg│hjkl;\\n"
 		 "zxcvb│nm,./";
-	WCHAR vkbdtop[MAX_VKBDTOP];
+	WCHAR vkbdtop[MAX_VKBDTOP] = {};
 	int n;
 	std::wstring strxmlval;
 	CHOOSECOLORW cc = {};
@@ -256,8 +256,8 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 
 void SaveDisplay2(IXmlWriter *pWriter, HWND hDlg)
 {
-	WCHAR num[16];
-	WCHAR vkbdlayout[MAX_VKBDTOP], vkbdtop[MAX_VKBDTOP];
+	WCHAR num[16] = {};
+	WCHAR vkbdlayout[MAX_VKBDTOP] = {}, vkbdtop[MAX_VKBDTOP] = {};
 	int count;
 	HWND hwnd;
 	int sel;

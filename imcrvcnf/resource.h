@@ -104,16 +104,17 @@
 #define IDC_RADIO_API_D2D                       3022
 #define IDC_CHECKBOX_COLOR_FONT                 3023
 #define IDC_COMBO_UNTILCANDLIST                 3031
-#define IDC_CHECKBOX_DISPCANDNO                 3032
-#define IDC_CHECKBOX_VERTICALCAND               3033
-#define IDC_CHECKBOX_ANNOTATION                 3034
-#define IDC_RADIO_ANNOTATALL                    3035
-#define IDC_RADIO_ANNOTATLST                    3036
-#define IDC_CHECKBOX_SHOWMODEMARK               3037
-#define IDC_CHECKBOX_SHOWROMAN                  3038
-#define IDC_RADIO_SHOWROMANASCII                3039
-#define IDC_RADIO_SHOWROMANJLATIN               3040
-#define IDC_CHECKBOX_SHOWROMANCOMP              3041
+#define IDC_COMBO_PAGECANDNUM                   3032
+#define IDC_CHECKBOX_DISPCANDNO                 3033
+#define IDC_CHECKBOX_VERTICALCAND               3034
+#define IDC_CHECKBOX_ANNOTATION                 3035
+#define IDC_RADIO_ANNOTATALL                    3036
+#define IDC_RADIO_ANNOTATLST                    3037
+#define IDC_CHECKBOX_SHOWMODEMARK               3038
+#define IDC_CHECKBOX_SHOWROMAN                  3039
+#define IDC_RADIO_SHOWROMANASCII                3040
+#define IDC_RADIO_SHOWROMANJLATIN               3041
+#define IDC_CHECKBOX_SHOWROMANCOMP              3042
 
 #define IDC_CHECKBOX_SHOWMODEINL                3101
 #define IDC_EDIT_SHOWMODEINLTM                  3102
@@ -230,8 +231,9 @@
 #define IDC_EDIT_RIGHT                          4230
 #define IDC_EDIT_DOWN                           4231
 #define IDC_EDIT_PASTE                          4232
-#define IDC_EDIT_OTHERIME                       4233
-#define IDC_EDIT_VIESC                          4234
+#define IDC_EDIT_RECONVERT                      4233
+#define IDC_EDIT_OTHERIME                       4234
+#define IDC_EDIT_VIESC                          4235
 #define IDC_EDIT_KEYMAP_TEST_VKEY               4299
 
 #define IDC_LIST_CONVPOINT                      5001

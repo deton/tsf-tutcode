@@ -59,6 +59,7 @@
     <key name="drawapi" value="1" />
     <key name="colorfont" value="1" />
     <key name="untilcandlist" value="5" />
+    <key name="pagecandnum" value="7" />
     <key name="dispcandno" value="0" />
     <key name="verticalcand" value="1" />
     <key name="annotation" value="1" />
@@ -148,6 +149,7 @@
     <key name="right" value="\cf" />
     <key name="down" value="\ce" />
     <key name="paste" value="\cy|\cv" />
+    <key name="reconvert" value="" />
     <key name="otherime" value="" />
     <key name="viesc" value="" />
   </section>
@@ -178,6 +180,7 @@
     <key name="right" value="\x27" />
     <key name="down" value="\x28" />
     <key name="paste" value="" />
+    <key name="reconvert" value="" />
     <key name="otherime" value="" />
     <key name="viesc" value="" />
   </section>

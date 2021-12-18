@@ -10,7 +10,7 @@
     Version="$(var.version)"
     UpgradeCode="6EFC7861-51C4-4BCF-88E6-67687FABFAE5"
     Manufacturer="KIHARA Hideto"
-    Copyright="© 2016 KIHARA Hideto"
+    Copyright="© 2021 KIHARA Hideto"
     AboutUrl="https://github.com/deton/tsf-tutcode"
     DisableModify="button"
     Condition="VersionNT >= v6.0">
@@ -26,7 +26,7 @@
     <!-- v6.0 Service Pack 2 -->
     <bal:Condition
       Message="This application requires Service Pack 2 for Windows Vista / Server 2008.">
-      <![CDATA[NOT (VersionNT = v6.0 AND ServicePackLevel < 2)]]>
+      <![CDATA[NOT ((VersionNT = v6.0) AND (ServicePackLevel < 2))]]>
     </bal:Condition>
 
     <!-- d2d1.dll exists -->
@@ -43,13 +43,13 @@
     <!-- v6.0 KB971644 or KB971512 -->
     <bal:Condition
       Message="This application requires KB971644 or KB971512 for Windows Vista / Server 2008.">
-      <![CDATA[NOT (VersionNT = v6.0 AND (NOT D2D1 OR NOT DWRITE))]]>
+      <![CDATA[NOT ((VersionNT = v6.0) AND (NOT D2D1 OR NOT DWRITE))]]>
     </bal:Condition>
 
     <!-- v6.1 Service Pack 1 -->
     <bal:Condition
       Message="This application requires Service Pack 1 for Windows 7 / Server 2008 R2.">
-      <![CDATA[NOT (VersionNT = v6.1 AND ServicePackLevel < 1)]]>
+      <![CDATA[NOT ((VersionNT = v6.1) AND (ServicePackLevel < 1))]]>
     </bal:Condition>
 
     <!-- v6.3 KB2919355 -->
@@ -60,7 +60,7 @@
       Condition="VersionNT = v6.3" />
     <bal:Condition
       Message="This application requires S14 Update (KB2919355) for Windows 8.1 / Server 2012 R2.">
-      <![CDATA[NOT (VersionNT = v6.3 AND NT603HALVER < v6.3.9600.17031)]]>
+      <![CDATA[NOT ((VersionNT = v6.3) AND (NT603HALVER < v6.3.9600.17031))]]>
     </bal:Condition>
 
     <!-- ucrtbase.dll version -->
@@ -74,6 +74,15 @@
       Name="UCRTVER"
       Type="version"
       Value="10.0.10240.0" />
+
+    <!-- processor architecture -->
+    <util:RegistrySearch
+      Id="REG_ARCH"
+      Root="HKLM"
+      Key="SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+      Value="PROCESSOR_ARCHITECTURE"
+      Result="value"
+      Variable="ARCH_NAME" />
 
     <Chain>
 
@@ -100,7 +109,7 @@
         DisplayName="x64 modules"
         ForcePerMachine="yes"
         Compressed="yes"
-        InstallCondition="VersionNT64"
+        InstallCondition="(VersionNT64) AND NOT (ARCH_NAME = &quot;ARM64&quot;)"
         After="X86_MSI" />
 
     </Chain>

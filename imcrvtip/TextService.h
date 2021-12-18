@@ -155,7 +155,7 @@ public:
 	void _InitD2D();
 	void _UninitD2D();
 
-	// KeyHandlerChar
+	// KeyHandlerCharacter
 	HRESULT _HandleChar(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, WCHAR ch, WCHAR chO);
 	HRESULT _HandleCharReturn(TfEditCookie ec, ITfContext *pContext, BOOL back = FALSE);
 	HRESULT _HandleCharShift(TfEditCookie ec, ITfContext *pContext);
@@ -183,7 +183,7 @@ public:
 	PostConvContext _PrepareForFunc(TfEditCookie ec, ITfContext *pContext);
 	void _HandleVkbdToggle(TfEditCookie ec, ITfContext *pContext, int n);
 
-	// KeyHandlerConv
+	// KeyHandlerConversion
 	WCHAR _GetCh(BYTE vk, BYTE vkoff = 0);
 	BYTE _GetSf(BYTE vk, WCHAR ch);
 	WORD _GetModifiers();
@@ -204,6 +204,7 @@ public:
 	void _ConvKanaToKana(const std::wstring &src, int srcmode, std::wstring &dst, int dstmode);
 	BOOL _SearchKanaByKana(const ROMAN_KANA_NODE &tree, const WCHAR *src, int srcmode, std::wstring &dst, int dstmode);
 	void _ConvOkuriRoman();
+	void _Reconv(TfEditCookie ec, ITfContext *pContext);
 	void _ConvKanaToRoman(std::wstring &dst, const std::wstring &src, int srcmode);
 	BOOL _SearchRomanByKana(const ROMAN_KANA_NODE &tree, int srcmode, const WCHAR *src, std::wstring &dst);
 
@@ -241,7 +242,7 @@ public:
 	void _SearchDic(WCHAR command);
 	void _SearchBushuDic(const std::wstring &bushu1, const std::wstring &bushu2, std::wstring *kanji);
 	void _BushuHelp(const std::wstring &kanji, std::wstring *help);
-	void _ConvertWord(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &okuri, std::wstring &conv);
+	void _ConvertWord(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &okuri);
 	void _AddUserDic(WCHAR command, const std::wstring &key, const std::wstring &candidate, const std::wstring &annotation);
 	void _DelUserDic(WCHAR command, const std::wstring &key, const std::wstring &candidate);
 	void _SaveUserDic();
@@ -249,7 +250,7 @@ public:
 	void _StartManager();
 	void _StartConfigure();
 
-	// FnConfig
+	// ConfigTip
 	void _CreateConfigPath();
 	void _CreateIpcName();
 	void _ReadBoolValue(LPCWSTR section, LPCWSTR key, BOOL &value, BOOL defval);
@@ -376,7 +377,7 @@ private:
 	VKEYMAP vkeymap_shift;	//仮想キー(+Shift)
 	VKEYMAP vkeymap_ctrl;	//仮想キー(+Ctrl)
 
-	//変換位置指定(0:開始,1:代替,2:送り)
+	//変換位置指定
 	std::vector<CONV_POINT> conv_point_s;	//開始で昇順ソート
 	std::vector<CONV_POINT> conv_point_a;	//代替で昇順ソート
 
@@ -425,6 +426,7 @@ public:
 	UINT cx_drawapi;			//候補一覧の描画API(0:GDI/1:Direct2D)
 	BOOL cx_colorfont;			//候補一覧の描画API 彩色(Direct2Dのときカラーフォントにする)
 	UINT cx_untilcandlist;		//候補一覧表示に要する変換回数(0:表示なし/1:1回目...)
+	UINT cx_pagecandnum;		//候補一覧表示に表示する候補数
 	BOOL cx_verticalcand;		//候補一覧を縦に表示する
 	BOOL cx_dispcandnum;		//候補一覧表示なしのとき候補数を表示する
 	BOOL cx_annotation;			//注釈を表示する
@@ -478,7 +480,7 @@ public:
 	std::wstring roman;		//ローマ字
 	std::wstring kana;		//仮名
 	size_t okuriidx;		//送り仮名インデックス
-	std::wstring reconvsrc;	//再変換元
+	std::wstring reconvtext;	//再変換元
 
 	//検索用見出し語
 	std::wstring searchkey;		//数値変換で数値→#
@@ -488,6 +490,7 @@ public:
 	CANDIDATES candidates;	//候補
 	size_t candidx;			//候補インデックス
 	size_t candorgcnt;		//オリジナル見出し語の候補数
+	std::wstring convword;	//見出し語/候補変換
 
 	size_t cursoridx;		//カーソルインデックス
 
@@ -497,7 +500,7 @@ public:
 	CPostMazeContext postmazeContext; //後置型交ぜ書き変換状態
 
 	//候補一覧選択キー
-	WCHAR selkey[MAX_SELKEY_C][3][2];
+	SELKEY selkey[MAX_SELKEY_C];
 
 	//preserved key
 	TF_PRESERVEDKEY preservedkey[PRESERVEDKEY_NUM][MAX_PRESERVEDKEY];

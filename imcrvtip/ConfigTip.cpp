@@ -35,6 +35,7 @@ static const struct {
 	{SKK_RIGHT,		ValueKeyMapRight},
 	{SKK_DOWN,		ValueKeyMapDown},
 	{SKK_PASTE,		ValueKeyMapPaste},
+	{SKK_RECONVERT,	ValueKeyMapReconvert},
 	{SKK_OTHERIME,	ValueKeyMapOtherIme},
 	{SKK_VIESC,		ValueKeyMapViEsc},
 	{SKK_NULL,		L""}
@@ -302,6 +303,13 @@ void CTextService::_LoadDisplay()
 		cx_untilcandlist = UNTILCANDLIST_DEF;
 	}
 
+	ReadValue(pathconfigxml, SectionDisplay, ValuePageCandNum, strxmlval);
+	cx_pagecandnum = strxmlval.empty() ? -1 : _wtoi(strxmlval.c_str());
+	if (cx_pagecandnum > MAX_SELKEY_C || cx_pagecandnum < 1)
+	{
+		cx_pagecandnum = MAX_SELKEY;
+	}
+
 	_ReadBoolValue(SectionDisplay, ValueDispCandNo, cx_dispcandnum, FALSE);
 	_ReadBoolValue(SectionDisplay, ValueVerticalCand, cx_verticalcand, TRUE);
 	_ReadBoolValue(SectionDisplay, ValueAnnotation, cx_annotation, TRUE);
@@ -398,8 +406,8 @@ void CTextService::_LoadDisplayAttr()
 
 void CTextService::_LoadSelKey()
 {
-	WCHAR num[2];
-	WCHAR key[4];
+	WCHAR num[2 + 1];
+	WCHAR key[4 + 1];
 	std::wstring strxmlval;
 
 	ZeroMemory(selkey, sizeof(selkey));
@@ -409,10 +417,15 @@ void CTextService::_LoadSelKey()
 		num[0] = L'0' + i + 1;
 		num[1] = L'\0';
 		ReadValue(pathconfigxml, SectionSelKey, num, strxmlval);
+		ZeroMemory(key, sizeof(key));
 		wcsncpy_s(key, strxmlval.c_str(), _TRUNCATE);
-		selkey[i][0][0] = key[0];
-		selkey[i][1][0] = key[1];
-		selkey[i][2][0] = key[2];
+
+		int sp = IS_SURROGATE_PAIR(key[0], key[1]) ? 1 : 0;
+
+		selkey[i].disp[0] = key[0];
+		selkey[i].disp[0 + sp] = key[0 + sp];
+		selkey[i].spare1 = key[1 + sp];
+		selkey[i].spare2 = key[2 + sp];
 	}
 }
 
@@ -527,6 +540,7 @@ void CTextService::_LoadCKeyMap()
 		case SKK_RIGHT:
 		case SKK_DOWN:
 		case SKK_PASTE:
+		case SKK_RECONVERT:
 		case SKK_OTHERIME:
 		case SKK_VIESC:
 			for (WCHAR ch = 0x01; ch < CKEYMAPNUM; ch++)
@@ -652,6 +666,7 @@ void CTextService::_LoadVKeyMap()
 		case SKK_RIGHT:
 		case SKK_DOWN:
 		case SKK_PASTE:
+		case SKK_RECONVERT:
 		case SKK_OTHERIME:
 		case SKK_VIESC:
 			for (int j = 0; j < _countof(pkeymaps); j++)
@@ -824,30 +839,30 @@ void CTextService::_LoadConvPoint()
 			{
 				if (r_itr->first == AttributeCPStart)
 				{
-					cp.ch[0] = r_itr->second.c_str()[0];
+					cp.st = r_itr->second.c_str()[0];
 				}
 				else if (r_itr->first == AttributeCPAlter)
 				{
-					cp.ch[1] = r_itr->second.c_str()[0];
+					cp.al = r_itr->second.c_str()[0];
 				}
 				else if (r_itr->first == AttributeCPOkuri)
 				{
-					cp.ch[2] = r_itr->second.c_str()[0];
+					cp.ok = r_itr->second.c_str()[0];
 				}
 			}
 
 			auto vs_itr = std::lower_bound(conv_point_s.begin(), conv_point_s.end(),
-				cp.ch[0], [] (CONV_POINT m, WCHAR v) { return (m.ch[0] < v); });
+				cp.st, [] (const CONV_POINT &m, const WCHAR &v) { return (m.st < v); });
 
-			if (vs_itr == conv_point_s.end() || cp.ch[0] != vs_itr->ch[0])
+			if (vs_itr == conv_point_s.end() || cp.st != vs_itr->st)
 			{
 				conv_point_s.insert(vs_itr, cp);
 			}
 
 			auto va_itr = std::lower_bound(conv_point_a.begin(), conv_point_a.end(),
-				cp.ch[1], [] (CONV_POINT m, WCHAR v) { return (m.ch[1] < v); });
+				cp.al, [] (const CONV_POINT &m, const WCHAR &v) { return (m.al < v); });
 
-			if (va_itr == conv_point_a.end() || cp.ch[1] != va_itr->ch[1])
+			if (va_itr == conv_point_a.end() || cp.al != va_itr->al)
 			{
 				conv_point_a.insert(va_itr, cp);
 			}
@@ -970,7 +985,7 @@ BOOL CTextService::_AddKanaTree(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, int 
 	}
 
 	auto v_itr = std::lower_bound(tree.nodes.begin(), tree.nodes.end(),
-		rkc.roman[depth], [] (ROMAN_KANA_NODE m, WCHAR v) { return (m.ch < v); });
+		rkc.roman[depth], [] (const ROMAN_KANA_NODE &m, const WCHAR &v) { return (m.ch < v); });
 
 	if (v_itr != tree.nodes.end() && v_itr->ch == rkc.roman[depth])
 	{
@@ -1012,7 +1027,7 @@ void CTextService::_AddKanaTreeItem(ROMAN_KANA_NODE &tree, ROMAN_KANA_CONV rkc, 
 	rkn.ch = rkc.roman[depth];
 
 	auto v_itr = std::lower_bound(tree.nodes.begin(), tree.nodes.end(),
-		rkn.ch, [] (ROMAN_KANA_NODE m, WCHAR v) { return (m.ch < v); });
+		rkn.ch, [] (const ROMAN_KANA_NODE &m, const WCHAR &v) { return (m.ch < v); });
 
 	if (rkc.roman[depth + 1] == L'\0')
 	{
@@ -1074,7 +1089,7 @@ void CTextService::_LoadJLatin()
 			}
 
 			auto v_itr = std::lower_bound(ascii_jlatin_conv.begin(), ascii_jlatin_conv.end(),
-				ajc.ascii[0], [] (ASCII_JLATIN_CONV m, WCHAR v) { return (m.ascii[0] < v); });
+				ajc.ascii[0], [] (const ASCII_JLATIN_CONV &m, const WCHAR &v) { return (m.ascii[0] < v); });
 
 			if (v_itr == ascii_jlatin_conv.end() || ajc.ascii[0] != v_itr->ascii[0])
 			{

@@ -24,6 +24,10 @@
 				candidate : 候補 string
 				okuri : 送り仮名 string
 				戻り値 : 変換済み文字列 string
+		逆検索
+			lua_skk_reverse(candidate)
+				candidate : 候補 string
+				戻り値 : 見出し語 string
 		辞書追加
 			lua_skk_add(okuriari, key, candidate, annotation, okuri)
 				okuriari : boolean (送りあり:true/送りなし:false)
@@ -83,6 +87,10 @@
 			crvmgr.complement(key)
 				key : 見出し語 string
 				戻り値 : "/<K1>/<K2>/.../<Kn>/\n" or "" string
+		逆検索
+			crvmgr.reverse(candidate)
+				candidate : 候補 string
+				戻り値 : 見出し語 string
 		辞書追加
 			crvmgr.add(okuriari, key, candidate, annotation, okuri)
 				okuriari : boolean (送りあり:true/送りなし:false)
@@ -300,6 +308,28 @@ local function skk_num_type_3(num, len)
 	return ret
 end
 
+-- 数値変換タイプ4 (数値再変換)
+local function skk_num_type_4(num, len)
+	local ret = ""
+
+	-- ユーザー辞書検索
+	ret = ret .. crvmgr.search_user_dictionary(num, "")
+
+	-- SKK辞書検索
+	ret = ret .. crvmgr.search_skk_dictionary(num, "")
+
+	-- SKK辞書サーバー検索
+	ret = ret .. crvmgr.search_skk_server(num)
+
+	-- 余計な"/\n"を削除
+	ret = string.gsub(ret, "/\n/", "/")
+
+	-- 先頭の候補のみ
+	ret = string.match(ret, "^/([^;/]+)")
+
+	return ret
+end
+
 -- 数値変換タイプ5 (漢数字、大字)
 local function skk_num_type_5(num, len)
 	local ret = ""
@@ -363,7 +393,7 @@ local skk_num_type_func_table = {
 	skk_num_type_1,
 	skk_num_type_2,
 	skk_num_type_3,
-	skk_num_type_n,
+	skk_num_type_4,
 	skk_num_type_5,
 	skk_num_type_6,
 	skk_num_type_n,
@@ -1174,6 +1204,11 @@ end
 -- 候補変換
 function lua_skk_convert_candidate(key, candidate, okuri)
 	return skk_convert_candidate(key, candidate, okuri)
+end
+
+-- 逆検索
+function lua_skk_reverse(candidate)
+	return crvmgr.reverse(candidate)
 end
 
 -- 辞書追加

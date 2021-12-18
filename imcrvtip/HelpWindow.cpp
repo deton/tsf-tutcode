@@ -336,15 +336,19 @@ void CHelpWindow::_UninitClass()
 LRESULT CALLBACK CHelpWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	CHelpWindow *pHelpWindow = nullptr;
+	LPCREATESTRUCTW pCreate;
+	LONG_PTR ptr;
 
 	switch (uMsg)
 	{
 	case WM_NCCREATE:
-		pHelpWindow = (CHelpWindow *)((LPCREATESTRUCTW)lParam)->lpCreateParams;
+		pCreate = reinterpret_cast<LPCREATESTRUCTW>(lParam);
+		pHelpWindow = reinterpret_cast<CHelpWindow *>(pCreate->lpCreateParams);
 		SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)pHelpWindow);
 		break;
 	default:
-		pHelpWindow = (CHelpWindow *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		ptr = GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		pHelpWindow = reinterpret_cast<CHelpWindow *>(ptr);
 		break;
 	}
 

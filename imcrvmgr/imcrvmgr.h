@@ -4,13 +4,6 @@
 #include "parseskkdic.h"
 #include "lua.hpp"
 
-typedef struct {
-	SKKDIC userdic;
-	USEROKURI userokuri;
-	KEYORDER keyorder_n;
-	KEYORDER keyorder_a;
-} USERDATA;
-
 // ConfigMgr
 void CreateConfigPath();
 void UpdateConfigPath();
@@ -19,6 +12,21 @@ void LoadConfig(BOOL sysexit = FALSE);
 BOOL IsFileModified(LPCWSTR path, FILETIME *ft);
 void InitLua();
 void UninitLua();
+
+// lcrvmgr
+int lua_search_skk_dictionary(lua_State *lua);
+int lua_search_user_dictionary(lua_State *lua);
+int lua_search_skk_server(lua_State *lua);
+int lua_search_skk_server_info(lua_State *lua);
+int lua_search_unicode(lua_State *lua);
+int lua_search_jisx0213(lua_State *lua);
+int lua_search_jisx0208(lua_State *lua);
+int lua_search_character_code(lua_State *lua);
+int lua_complement(lua_State *lua);
+int lua_reverse(lua_State *lua);
+int lua_add(lua_State *lua);
+int lua_delete(lua_State *lua);
+int lua_save(lua_State *lua);
 
 // SearchCharacter
 std::wstring SearchUnicode(const std::wstring &searchkey);
@@ -33,23 +41,12 @@ std::wstring SearchSKKDic(const std::wstring &searchkey, const std::wstring &oku
 void MakeSKKDicPos();
 std::wstring ConvertKey(const std::wstring &searchkey, const std::wstring &okuri);
 std::wstring ConvertCandidate(const std::wstring &searchkey, const std::wstring &candidate, const std::wstring &okuri);
-int lua_search_skk_dictionary(lua_State *lua);
-int lua_search_user_dictionary(lua_State *lua);
-int lua_search_skk_server(lua_State *lua);
-int lua_search_skk_server_info(lua_State *lua);
-int lua_search_unicode(lua_State *lua);
-int lua_search_jisx0213(lua_State *lua);
-int lua_search_jisx0208(lua_State *lua);
-int lua_search_character_code(lua_State *lua);
-int lua_complement(lua_State *lua);
-int lua_add(lua_State *lua);
-int lua_delete(lua_State *lua);
-int lua_save(lua_State *lua);
 
 // SearchUserDictionary
 std::wstring SearchUserDic(const std::wstring &searchkey, const std::wstring &okuri);
 void SearchComplement(const std::wstring &searchkey, SKKDICCANDIDATES &sc);
 void SearchComplementSearchCandidate(SKKDICCANDIDATES &sc, int max);
+void SearchReverse(const std::wstring &candidate, std::wstring &key);
 void AddUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring &candidate, const std::wstring &annotation, const std::wstring &okuri);
 void DelUserDic(WCHAR command, const std::wstring &searchkey, const std::wstring &candidate);
 BOOL LoadUserDic();
@@ -87,6 +84,8 @@ extern FILETIME ftConfig;
 extern FILETIME ftSKKDic;
 extern HWND hWndMgr;
 #ifdef _DEBUG
+#define WM_USER_SETTEXT (WM_USER + 1)
+extern CRITICAL_SECTION csEdit;
 extern HWND hWndEdit;
 extern HFONT hFont;
 #endif
@@ -106,6 +105,13 @@ extern WCHAR pathskkdic[MAX_PATH];		//取込SKK辞書
 extern WCHAR pathinitlua[MAX_PATH];		//init.lua
 extern WCHAR pathbackup[MAX_PATH];		//ユーザー辞書バックアップレフィックス
 extern WCHAR pathbushudic[MAX_PATH];	//部首合成変換ユーザー辞書
+
+extern WCHAR radconfigxml[MAX_PATH];	//設定 FOLDERID_RoamingAppData
+extern WCHAR sysconfigxml[MAX_PATH];	//設定 FOLDERID_Windows\IME
+extern INT csidlconfigxml;				//設定 CSIDL_APPDATA/CSIDL_WINDOWS
+extern WCHAR radskkdic[MAX_PATH];		//取込SKK辞書 FOLDERID_RoamingAppData
+extern WCHAR sysskkdic[MAX_PATH];		//取込SKK辞書 FOLDERID_Windows\IME
+extern INT csidlskkdic;					//取込SKK辞書 CSIDL_APPDATA/CSIDL_WINDOWS
 
 extern WCHAR krnlobjsddl[MAX_SECURITYDESC];	//SDDL
 extern WCHAR mgrpipename[MAX_PIPENAME];		//名前付きパイプ

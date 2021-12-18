@@ -27,7 +27,7 @@
     <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="SystemFolder" Name="System32">
+      <Directory Id="SystemFolder" Name="System">
         <Directory Id="IME_X86" Name="IME">
           <Directory Id="IMTSFTUTCODE_X86" Name="IMTSFTUTCODE" />
         </Directory>
@@ -70,11 +70,11 @@
     <DirectoryRef Id="IMTSFTUTCODE_X86">
       <Component Id="MSVCP140_X86" Guid="*">
         <File Id="F_msvcp140_x86" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC142.CRT\msvcp140.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC143.CRT\msvcp140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_X86" Guid="*">
         <File Id="F_vcruntime140_x86" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC142.CRT\vcruntime140.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC143.CRT\vcruntime140.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 

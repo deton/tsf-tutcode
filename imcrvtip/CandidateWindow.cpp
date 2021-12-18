@@ -153,15 +153,19 @@ void CCandidateWindow::_UninitClass()
 LRESULT CALLBACK CCandidateWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	CCandidateWindow *pCandidateWindow = nullptr;
+	LPCREATESTRUCTW pCreate;
+	LONG_PTR ptr;
 
 	switch (uMsg)
 	{
 	case WM_NCCREATE:
-		pCandidateWindow = (CCandidateWindow *)((LPCREATESTRUCTW)lParam)->lpCreateParams;
+		pCreate = reinterpret_cast<LPCREATESTRUCTW>(lParam);
+		pCandidateWindow = reinterpret_cast<CCandidateWindow *>(pCreate->lpCreateParams);
 		SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)pCandidateWindow);
 		break;
 	default:
-		pCandidateWindow = (CCandidateWindow *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		ptr = GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		pCandidateWindow = reinterpret_cast<CCandidateWindow *>(ptr);
 		break;
 	}
 
@@ -570,14 +574,18 @@ void CCandidateWindow::_InitList()
 
 	if (_mode == wm_candidate)
 	{
-		_uPageCandNum = MAX_SELKEY;
+		_uPageCandNum = _pTextService->cx_pagecandnum;
+		if (_uPageCandNum > MAX_SELKEY_C || _uPageCandNum < 1)
+		{
+			_uPageCandNum = MAX_SELKEY;
+		}
 	}
 	else
 	{
 		_uPageCandNum = _pTextService->cx_compmultinum;
 		if (_uPageCandNum > MAX_SELKEY_C || _uPageCandNum < 1)
 		{
-			_uPageCandNum = MAX_SELKEY;
+			_uPageCandNum = COMPMULTIDISP_DEF;
 		}
 	}
 
@@ -596,7 +604,7 @@ void CCandidateWindow::_InitList()
 	{
 		if (_mode == wm_candidate)
 		{
-			_CandStr.push_back(_pTextService->selkey[(i % _uPageCandNum)][0]);
+			_CandStr.push_back(_pTextService->selkey[(i % _uPageCandNum)].disp);
 			_CandStr[i].append(markNo);
 		}
 		else
@@ -621,7 +629,7 @@ void CCandidateWindow::_InitList()
 		}
 	}
 
-	_uPageCnt = ((_uCount - (_uCount % _uPageCandNum)) / _uPageCandNum) + ((_uCount % _uPageCandNum) == 0 ? 0 : 1);
+	_uPageCnt = ((_uCount - (_uCount % _uPageCandNum)) / _uPageCandNum) + (((_uCount % _uPageCandNum) == 0) ? 0 : 1);
 
 	_PageIndex.clear();
 	_CandCount.clear();
@@ -650,7 +658,7 @@ void CCandidateWindow::_UpdateUIElement()
 	}
 }
 
-void CCandidateWindow::_NextPage()
+void CCandidateWindow::_NextConvPage()
 {
 	UINT uOldPage, uNewPage;
 
@@ -705,7 +713,7 @@ void CCandidateWindow::_NextPage()
 	_UpdateUIElement();
 }
 
-void CCandidateWindow::_PrevPage()
+void CCandidateWindow::_PrevConvPage()
 {
 	UINT uOldPage, uNewPage;
 
@@ -788,7 +796,7 @@ void CCandidateWindow::_PrevPage()
 	_UpdateUIElement();
 }
 
-void CCandidateWindow::_NextComp()
+void CCandidateWindow::_NextCompPage()
 {
 	UINT uOldPage, uNewPage;
 
@@ -816,7 +824,7 @@ void CCandidateWindow::_NextComp()
 	_UpdateUIElement();
 }
 
-void CCandidateWindow::_PrevComp()
+void CCandidateWindow::_PrevCompPage()
 {
 	UINT uOldPage, uNewPage;
 
@@ -899,6 +907,8 @@ void CCandidateWindow::_BackUpStatus()
 	candidates_bak = _pTextService->candidates;
 	candidx_bak = _pTextService->candidx;
 	candorgcnt_bak = _pTextService->candorgcnt;
+	reconversion_bak = _pTextService->reconversion;
+	reconvtext_bak = _pTextService->reconvtext;
 	postmazeContext_bak = _pTextService->postmazeContext;
 }
 
@@ -914,7 +924,10 @@ void CCandidateWindow::_ClearStatus()
 	_pTextService->candidates.clear();
 	_pTextService->candidx = 0;
 	_pTextService->candorgcnt = 0;
+	_pTextService->reconversion = FALSE;
+	_pTextService->reconvtext.clear();
 	_pTextService->postmazeContext.Deactivate();
+
 	_pTextService->showcandlist = FALSE;
 	_pTextService->showentry = FALSE;
 	_pTextService->inputkey = FALSE;
@@ -933,7 +946,10 @@ void CCandidateWindow::_RestoreStatusReg()
 	_pTextService->candidates = candidates_bak;
 	_pTextService->candidx = candidx_bak;
 	_pTextService->candorgcnt = candorgcnt_bak;
+	_pTextService->reconversion = reconversion_bak;
+	_pTextService->reconvtext = reconvtext_bak;
 	_pTextService->postmazeContext = postmazeContext_bak;
+
 	_pTextService->showcandlist = TRUE;
 	_pTextService->showentry = TRUE;
 	_pTextService->inputkey = TRUE;
@@ -951,6 +967,8 @@ void CCandidateWindow::_ClearStatusReg()
 	candidates_bak.clear();
 	candidx_bak = 0;
 	candorgcnt_bak = 0;
+	reconversion_bak = FALSE;
+	reconvtext_bak.clear();
 	postmazeContext_bak.Deactivate();
 }
 

@@ -22,9 +22,9 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 	ROMAN_KANA_CONV rkc;
 	ROMAN_KANA_CONV rkcBak;
 	WCHAR soku[2];
-	NMLISTVIEW *pListView;
+	LPNMLISTVIEW pListView;
 	OPENFILENAMEW ofn = {};
-	WCHAR path[MAX_PATH];
+	WCHAR path[MAX_PATH] = {};
 	WCHAR text[16] = {};
 
 	switch (message)
@@ -289,7 +289,7 @@ INT_PTR CALLBACK DlgProcKana(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPar
 		switch (((LPNMHDR)lParam)->code)
 		{
 		case LVN_ITEMCHANGED:
-			pListView = (NMLISTVIEW*)((LPNMHDR)lParam);
+			pListView = (LPNMLISTVIEW)((LPNMHDR)lParam);
 			if (pListView->uChanged & LVIF_STATE)
 			{
 				hWndListView = ((LPNMHDR)lParam)->hwndFrom;

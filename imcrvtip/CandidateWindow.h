@@ -66,10 +66,10 @@ private:
 
 	void _InitList();
 	void _UpdateUIElement();
-	void _NextPage();
-	void _PrevPage();
-	void _NextComp();
-	void _PrevComp();
+	void _NextConvPage();
+	void _PrevConvPage();
+	void _NextCompPage();
+	void _PrevCompPage();
 	void _Update();
 	void _BackUpStatus();
 	void _ClearStatus();
@@ -173,5 +173,7 @@ private:
 	CANDIDATES candidates_bak;
 	size_t candidx_bak;
 	size_t candorgcnt_bak;
+	BOOL reconversion_bak;
+	std::wstring reconvtext_bak;
 	CPostMazeContext postmazeContext_bak;
 };

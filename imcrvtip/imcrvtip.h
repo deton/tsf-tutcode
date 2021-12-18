@@ -48,6 +48,7 @@ enum InputMode
 #define SKK_RIGHT		0x06	// 右移動		c-f	VK_RIGHT
 #define SKK_DOWN		0x05	// 末尾移動		c-e	VK_DOWN
 #define SKK_PASTE		0x19	// 貼付			c-y	(c-v)
+#define SKK_RECONVERT	0x1C	// 再変換		VK_CONVERT
 #define SKK_OTHERIME	0xF1	// 他IME切替
 #define SKK_VIESC		0x1B	// Vi Esc
 #define SKK_AFTER_DELETER		0xFE	// Deleterによる直前文字列削除後
@@ -64,9 +65,17 @@ typedef struct {	//キー設定(仮想キー)
 	BYTE keyvoid[VKEYMAPNUM];	//無効
 } VKEYMAP;
 
-typedef struct {	//変換位置指定(0:開始,1:代替,2:送り)
-	WCHAR ch[3];
+typedef struct {	//変換位置指定
+	WCHAR st;	//開始
+	WCHAR al;	//代替
+	WCHAR ok;	//送り
 } CONV_POINT;
+
+typedef struct {	//選択キー
+	WCHAR disp[2 + 1];	//表示
+	WCHAR spare1;	//予備1
+	WCHAR spare2;	//予備2
+} SELKEY;
 
 //ローマ字仮名ノード
 typedef struct ROMAN_KANA_NODE {

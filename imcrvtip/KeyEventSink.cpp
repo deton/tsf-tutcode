@@ -102,6 +102,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		switch (sf)
 		{
 		case SKK_JMODE:
+		case SKK_RECONVERT:
 		case SKK_OTHERIME:
 			return TRUE;
 			break;
@@ -119,6 +120,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		case SKK_JLATIN:
 		case SKK_ASCII:
 		case SKK_ABBREV:
+		case SKK_RECONVERT:
 		case SKK_OTHERIME:
 			return TRUE;
 			break;
@@ -145,6 +147,7 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		case SKK_CONV_CHAR:
 		case SKK_JLATIN:
 		case SKK_ASCII:
+		case SKK_RECONVERT:
 		case SKK_OTHERIME:
 			return TRUE;
 			break;

@@ -22,9 +22,9 @@ INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPA
 	LV_COLUMNW lvc;
 	LVITEMW item;
 	int index, count;
-	WCHAR key[8];
-	WCHAR keyBak[8];
-	NMLISTVIEW *pListView;
+	WCHAR key[8] = {};
+	WCHAR keyBak[8] = {};
+	LPNMLISTVIEW pListView;
 	WCHAR text[16] = {};
 
 	switch (message)
@@ -277,7 +277,7 @@ INT_PTR CALLBACK DlgProcPreservedKey(HWND hDlg, UINT message, WPARAM wParam, LPA
 			break;
 
 		case LVN_ITEMCHANGED:
-			pListView = (NMLISTVIEW*)((LPNMHDR)lParam);
+			pListView = (LPNMLISTVIEW)((LPNMHDR)lParam);
 			if (pListView->uChanged & LVIF_STATE)
 			{
 				index = ListView_GetNextItem(hWndListView, -1, LVNI_SELECTED);
@@ -454,7 +454,7 @@ void SavePreservedKey(IXmlWriter *pWriter, HWND hDlg, int no)
 	APPDATAXMLLIST list;
 	APPDATAXMLROW row;
 	APPDATAXMLATTR attr;
-	WCHAR key[8];
+	WCHAR key[8] = {};
 
 	list.clear();
 

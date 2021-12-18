@@ -336,15 +336,19 @@ void CVKeyboardWindow::_UninitClass()
 LRESULT CALLBACK CVKeyboardWindow::_WindowPreProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	CVKeyboardWindow *pVKeyboardWindow = nullptr;
+	LPCREATESTRUCTW pCreate;
+	LONG_PTR ptr;
 
 	switch (uMsg)
 	{
 	case WM_NCCREATE:
-		pVKeyboardWindow = (CVKeyboardWindow *)((LPCREATESTRUCTW)lParam)->lpCreateParams;
+		pCreate = reinterpret_cast<LPCREATESTRUCTW>(lParam);
+		pVKeyboardWindow = reinterpret_cast<CVKeyboardWindow *>(pCreate->lpCreateParams);
 		SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)pVKeyboardWindow);
 		break;
 	default:
-		pVKeyboardWindow = (CVKeyboardWindow *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		ptr = GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+		pVKeyboardWindow = reinterpret_cast<CVKeyboardWindow *>(ptr);
 		break;
 	}
 
