@@ -324,7 +324,7 @@ Distributable Code for Visual Studio 2022
 
 Surrounding Text functions in imcrvtip/mozc/* from mozc.
 
-// Copyright 2010-2013, Google Inc.
+// Copyright 2010-2018, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
