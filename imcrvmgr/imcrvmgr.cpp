@@ -12,6 +12,7 @@ FILETIME ftConfig = {};
 FILETIME ftSKKDic = {};
 HWND hWndMgr;
 #ifdef _DEBUG
+CRITICAL_SECTION csEdit;
 HWND hWndEdit;
 HFONT hFont;
 #endif
@@ -125,6 +126,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		InitializeCriticalSection(&csUserData);	// !
 		InitializeCriticalSection(&csSaveUserDic);	// !
 		InitializeCriticalSection(&csSKKSocket);	// !
+#ifdef _DEBUG
+		InitializeCriticalSection(&csEdit);	// !
+#endif
 
 		if (IsFileModified(pathconfigxml, &ftConfig))
 		{
@@ -154,6 +158,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 		GetClientRect(hWnd, &r);
 		MoveWindow(hWndEdit, 0, 0, r.right, r.bottom, TRUE);
+		break;
+
+	case WM_USER_SETTEXT:
+		EnterCriticalSection(&csEdit);	// !
+		SetWindowTextW((HWND)wParam, (LPCWSTR)lParam);
+		LeaveCriticalSection(&csEdit);	// !
+		SendMessageW((HWND)wParam, WM_VSCROLL, SB_BOTTOM, 0);
 		break;
 #endif
 

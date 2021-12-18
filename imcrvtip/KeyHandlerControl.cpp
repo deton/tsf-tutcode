@@ -31,7 +31,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				}
 
 				//ひらがな/カタカナに変換
-				_ConvKanaToKana(kana, inputmode, kana, (inputmode == im_hiragana ? im_katakana : im_hiragana));
+				_ConvKanaToKana(kana, inputmode, kana, ((inputmode == im_hiragana) ? im_katakana : im_hiragana));
 				_HandleCharReturn(ec, pContext);
 			}
 			else
@@ -42,10 +42,10 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 					_HandleCharReturn(ec, pContext);
 				}
 
-				if (cx_entogglekana || inputmode == im_hiragana)
+				if (cx_entogglekana || (inputmode == im_hiragana))
 				{
 					//ひらがな/カタカナモードへ
-					inputmode = (inputmode == im_hiragana ? im_katakana : im_hiragana);
+					inputmode = ((inputmode == im_hiragana) ? im_katakana : im_hiragana);
 				}
 				_UpdateLanguageBar();
 			}
@@ -164,7 +164,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			}
 
 			//アスキー/全英モードへ
-			inputmode = (sf == SKK_ASCII ? im_ascii : im_jlatin);
+			inputmode = ((sf == SKK_ASCII) ? im_ascii : im_jlatin);
 			_UpdateLanguageBar();
 			return S_OK;
 			break;
@@ -358,7 +358,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 			if (purgedicmode)
 			{
 				purgedicmode = FALSE;
-				_DelUserDic((okuriidx == 0 ? REQ_USER_DEL_N : REQ_USER_DEL_A),
+				_DelUserDic(((okuriidx == 0) ? REQ_USER_DEL_N : REQ_USER_DEL_A),
 					((candorgcnt <= candidx) ? searchkey : searchkeyorg),
 					candidates[candidx].second.first);
 				showentry = FALSE;
@@ -577,7 +577,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 		if (inputkey || !kana.empty() || !roman.empty())
 		{
 			_ConvRoman();
-			_HandleCharReturn(ec, pContext, (_GetSf(0, ch) == SKK_BACK ? TRUE : FALSE));
+			_HandleCharReturn(ec, pContext, ((_GetSf(0, ch) == SKK_BACK) ? TRUE : FALSE));
 		}
 		return S_OK;
 		break;
@@ -637,7 +637,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 				if (reconversion)
 				{
-					kana = reconvsrc;
+					kana = reconvtext;
 				}
 				else
 				{
@@ -1048,6 +1048,15 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 				}
 				CloseClipboard();
 			}
+		}
+		return S_OK;
+		break;
+
+	case SKK_RECONVERT:
+		if (!inputkey && !showentry)
+		{
+			_Reconv(ec, pContext);
+			return S_OK;
 		}
 		break;
 

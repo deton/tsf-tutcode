@@ -6,11 +6,20 @@
 
 //ユーザー辞書
 SKKDIC userdic;
+//ユーザー辞書送りブロック
 USEROKURI userokuri;
 //送りなし、補完あり
 KEYORDER keyorder_n;
 //送りあり、補完なし
 KEYORDER keyorder_a;
+
+//ユーザー辞書保存データ
+typedef struct {
+	SKKDIC userdic;
+	USEROKURI userokuri;
+	KEYORDER keyorder_n;
+	KEYORDER keyorder_a;
+} USERDATA;
 
 std::wstring SearchUserDic(const std::wstring &searchkey, const std::wstring &okuri)
 {
@@ -159,6 +168,36 @@ void SearchComplementSearchCandidate(SKKDICCANDIDATES &sc, int max)
 			}
 		}
 	}
+}
+
+void SearchReverse(const std::wstring &candidate, std::wstring &key)
+{
+	EnterCriticalSection(&csUserData);	// !
+
+	key.clear();
+
+	if (!keyorder_n.empty())
+	{
+		REVERSE_ITERATION_I(keyorder_ritr, keyorder_n)
+		{
+			auto userdic_itr = userdic.find(*keyorder_ritr);
+			if (userdic_itr != userdic.end())
+			{
+				REVERSE_ITERATION_I(candidate_ritr, userdic_itr->second)
+				{
+					if (candidate == candidate_ritr->first)
+					{
+						key = *keyorder_ritr;
+						break;
+					}
+				}
+			}
+
+			if (!key.empty()) break;
+		}
+	}
+
+	LeaveCriticalSection(&csUserData);	// !
 }
 
 void DelKeyOrder(const std::wstring &searchkey, KEYORDER &keyorder)
@@ -640,7 +679,7 @@ exit:
 
 unsigned __stdcall SaveUserDicThread(void *p)
 {
-	USERDATA *userdata = (USERDATA *)p;
+	USERDATA *userdata = reinterpret_cast<USERDATA *>(p);
 
 	if (userdata != nullptr)
 	{
@@ -718,15 +757,15 @@ void StartSaveUserDic(BOOL bThread)
 
 void BackUpUserDic()
 {
-	WCHAR path[MAX_PATH];
+	WCHAR path[MAX_PATH] = {};
 	LPCWSTR ext = L"bak";
 
 	EnterCriticalSection(&csUserDict);	// !
 
 	// バックアップディレクトリ作成
 
-	WCHAR drive[_MAX_DRIVE];
-	WCHAR dir[_MAX_DIR];
+	WCHAR drive[_MAX_DRIVE] = {};
+	WCHAR dir[_MAX_DIR] = {};
 	_wsplitpath_s(pathbackup, drive, _countof(drive), dir, _countof(dir), nullptr, 0, nullptr, 0);
 	_wmakepath_s(path, drive, dir, nullptr, nullptr);
 	SHCreateDirectoryExW(nullptr, path, nullptr);

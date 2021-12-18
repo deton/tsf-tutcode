@@ -97,13 +97,13 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 			}
 			else
 			{
-				_NextComp();
+				_NextCompPage();
 			}
 			break;
 		case SKK_PREV_COMP:
 			if (candidx != (size_t)-1)
 			{
-				_PrevComp();
+				_PrevCompPage();
 			}
 			break;
 		default:
@@ -134,11 +134,11 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 
 	case SKK_BACK:
 	case SKK_PREV_CAND:
-		_PrevPage();
+		_PrevConvPage();
 		break;
 
 	case SKK_NEXT_CAND:
-		_NextPage();
+		_NextConvPage();
 		break;
 
 	case SKK_LEFT: //後置型交ぜ書き変換の読みを縮める
@@ -159,10 +159,13 @@ HRESULT CCandidateWindow::_OnKeyDown(UINT uVKey)
 
 		for (i = 0; i < MAX_SELKEY_C; i++)
 		{
+			WCHAR dsph = _pTextService->selkey[i].disp[0];
+			WCHAR dspl = _pTextService->selkey[i].disp[1];
+			WCHAR sp1 = _pTextService->selkey[i].spare1;
+			WCHAR sp2 = _pTextService->selkey[i].spare2;
+
 			if (ch == (L'1' + i) ||
-				(ch == _pTextService->selkey[i][0][0] && _pTextService->selkey[i][0][0] != L'\0') ||
-				(ch == _pTextService->selkey[i][1][0] && _pTextService->selkey[i][1][0] != L'\0') ||
-				(ch == _pTextService->selkey[i][2][0] && _pTextService->selkey[i][2][0] != L'\0'))
+				(ch != L'\0' && ((ch == dsph && dspl == L'\0') || ch == sp1 || ch == sp2)))
 			{
 				GetCurrentPage(&page);
 				if (i < _CandCount[page])
@@ -364,7 +367,7 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 		}
 		else
 		{
-			std::wstring conv;
+			std::wstring convcand;
 			std::wstring candidate;
 			std::wstring annotation;
 			std::wsmatch result;
@@ -398,22 +401,24 @@ void CCandidateWindow::_OnKeyDownRegword(UINT uVKey)
 			}
 
 			//候補変換
-			_pTextService->_ConvertWord(REQ_CONVERTCND, _pTextService->searchkeyorg, candidate, okurikey, conv);
+			_pTextService->_ConvertWord(REQ_CONVERTCND, _pTextService->searchkeyorg, candidate, okurikey);
 
-			if (_pTextService->searchkey.empty() || conv.empty())
+			convcand = _pTextService->convword;
+
+			if (_pTextService->searchkey.empty() || convcand.empty())
 			{
 				//変換見出し語が空文字列または
 				//変換済み候補が空文字列であれば未変換見出し語を見出し語とする
 				_pTextService->searchkey = _pTextService->searchkeyorg;
 			}
 
-			if (conv.empty())
+			if (convcand.empty())
 			{
-				conv = candidate;
+				convcand = candidate;
 			}
 
 			_pTextService->candidates.push_back(std::make_pair(
-				std::make_pair(conv, annotation),
+				std::make_pair(convcand, annotation),
 				std::make_pair(candidate, annotation)));
 			_pTextService->candidx = _pTextService->candidates.size() - 1;
 			_pTextService->candorgcnt = 0;

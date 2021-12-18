@@ -19,20 +19,11 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 ### 対応OS
 
-* Windows Vista (32-bit / 64-bit)
-
-    * Service Pack 2
-    * プラットフォーム更新プログラム ( [KB971644](https://support.microsoft.com/en-us/kb/971644) または [KB971512](https://support.microsoft.com/en-us/kb/971512) )
-
-* Windows 7     (32-bit / 64-bit)
-
-    * Service Pack 1
-
 * Windows 8     (32-bit / 64-bit)
 
 * Windows 8.1   (32-bit / 64-bit)
 
-    * S14 Update ( [KB2919355](https://support.microsoft.com/en-us/kb/2919355) )
+    * S14 Update ( KB2919355 )
 
 * Windows 10    (32-bit / 64-bit)
 
@@ -549,6 +540,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 | 候補一覧の色                              | 候補一覧の色を指定します。 |
 | 候補一覧の描画API                         | 候補一覧の描画をおこなうAPIを指定します。<br>Direct2Dと彩色の指定でカラーフォントを表示します。(Windows8.1以降) |
 | 候補一覧表示に要する変換回数(0は表示無し) | 指定した回数変換すると候補一覧が表示されます。 |
+| 候補一覧表示のページ当たり表示数          | 一度に表示される候補の数を指定します。 |
 | 候補一覧が表示無しのとき候補数を表示する  | (<現在の候補の番号>/<候補数>) の形式を追加して表示します。 |
 | 候補一覧を縦に表示する                    | 候補一覧で候補を縦に並べて表示します。 |
 | 注釈を表示する                            | <候補><セミコロン><注釈> の形式で注釈を表示します。<br>「候補一覧」の指定で候補一覧に限定されます。 |
@@ -586,9 +578,15 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 ![](installer/resource-md/109_select_key.png)
 
-候補一覧での確定は、デフォルトで 1〜7 と ASDFJKL と asdfjkl を使用します。
+候補一覧に表示する文字とキーを設定します。数字、表示、予備1,2 のいずれかの入力で選択された候補が確定されます。
 
-コマンドプロンプト等では、デフォルトで 1〜9 と ASDFJKLGH と asdfjklgh を使用します。
+「表示」にはUnicodeの基本多言語面と追加面の文字が使用可能です。追加面の文字の場合は、その文字で候補を確定することはできません。
+
+「予備1」「予備2」にはUnicodeの基本多言語面の文字のみ使用可能です。
+
+[表示１](#表示)の「候補一覧表示のページ当たり表示数」の設定によって一度に表示される数が決められます。
+
+レガシータイプのコマンドプロンプト等の自前で候補を表示するアプリケーションでは、アプリケーション側が要求した数に従います。
 
 候補一覧が表示されているとき、KANAキーロックは無視されます。
 
@@ -596,7 +594,21 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 | --- | --- |
 | 数字 | 選択キー (1〜9で固定) |
 | 表示 | 選択キー (必須、候補一覧の表示にも使用) |
-| 予備1,2 | 選択キー (空でもOK) |
+| 予備1,2 | 選択キー (空でも可) |
+
+フォントによっては固定幅を持つ以下の文字が表示としては見易いようです。
+
+| 名称 | 範囲 | 文字 | 備考 |
+| --- | --- | --- | --- |
+| PARENTHESIZED <br> LATIN SMALL LETTER      | U+249C<br>～U+24B5   | ⒜⒝⒞⒟⒠⒡⒢⒣⒤⒥⒦⒧⒨⒩⒪⒫⒬⒭⒮⒯⒰⒱⒲⒳⒴⒵ |  |
+| CIRCLED <br> LATIN CAPITAL LETTER          | U+24B6<br>～U+24CF   | ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ | Mは地下鉄の絵文字？ |
+| CIRCLED <br> LATIN SMALL LETTER            | U+24D0<br>～U+24E9   | ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ | JIS X 0213<br>1-12-33～1-12-58 |
+| FULLWIDTH <br> LATIN CAPITAL LETTER        | U+FF21<br>～U+FF3A   | ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ | JIS X 0208<br>3-33～3-58 |
+| FULLWIDTH <br> LATIN SMALL LETTER          | U+FF41<br>～U+FF5A   | ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ | JIS X 0208<br>3-65～3-90 |
+| PARENTHESIZED <br> LATIN CAPITAL LETTER    | U+1F110<br>～U+1F129 | 🄐🄑🄒🄓🄔🄕🄖🄗🄘🄙🄚🄛🄜🄝🄞🄟🄠🄡🄢🄣🄤🄥🄦🄧🄨🄩 |  |
+| SQUARED <br> LATIN CAPITAL LETTER          | U+1F130<br>～U+1F149 | 🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉 |  |
+| NEGATIVE CIRCLED <br> LATIN CAPITAL LETTER | U+1F150<br>～U+1F169 | 🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩 |  |
+| NEGATIVE SQUARED <br> LATIN CAPITAL LETTER | U+1F170<br>～U+1F189 | 🅰🅱🅲🅳🅴🅵🅶🅷🅸🅹🅺🅻🅼🅽🅾🅿🆀🆁🆂🆃🆄🆅🆆🆇🆈🆉 | ABOは血液型の絵文字<br>Pは駐車場の絵文字 |
 
 
 ### キー設定（ON/OFF）
@@ -625,9 +637,9 @@ IME OFFにして大文字入力直後にIME ONにしようとした時に、意�
 
 各機能に対してキーを正規表現で設定してください。
 
-Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用しています。
+Visual C++ 2022 の 正規表現で、文法は ECMAScript を使用しています。
 
-正規表現の詳細はこちらを参照してください。 https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=msvc-160
+正規表現の詳細はこちらを参照してください。 https://docs.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp?view=msvc-170
 
 無効な正規表現で設定するとその機能は無効となります。警告等は表示されません。
 
@@ -684,6 +696,7 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 | 右移動     | Ctrl + f                      |  |
 | 末尾移動   | Ctrl + e                      |  |
 | 貼付       | Ctrl + y  Ctrl + v            | クリップボードの文字列を貼り付け |
+| 再変換     |                               | 選択された文字列でユーザー辞書の送りなしエントリを<br>逆引きしてから通常の辞書検索 |
 | 他IME切替  |                               | 他IMEに切り替え |
 | Vi Esc     |                               | アスキーモードにするとともに指定キーをアプリにも渡す |
 
@@ -717,6 +730,7 @@ Visual C++ 2019 の 正規表現で、文法は ECMAScript を使用していま
 | 右移動     | 0x27 (カーソル右)             |  |
 | 末尾移動   | 0x28 (カーソル下)             |  |
 | 貼付       |                               | クリップボードの文字列を貼り付け |
+| 再変換     |                               | 選択された文字列でユーザー辞書の送りなしエントリを<br>逆引きしてから通常の辞書検索 |
 | 他IME切替  |                               | 他IMEに切り替え |
 | Vi Esc     |                               | アスキーモードにするとともに指定キーをアプリにも渡す |
 
@@ -961,14 +975,14 @@ skk-omikuji 辞書 https://github.com/nathancorvussolis/corvusskk/blob/master/in
 
 skk-strftime 辞書 https://github.com/nathancorvussolis/corvusskk/blob/master/installer/config-sample/skk-strftime.txt
 
-strftime 関数 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?view=msvc-160
+strftime 関数 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?view=msvc-170
 
 
 ### 数値変換
 
 ![](installer/resource-md/202_convert_number.png)
 
-タイプ0〜3,5,8,9に対応しています。
+タイプ0,1,2,3,4,5,8,9に対応しています。
 
 タイプ3と5での数値は0〜10^72-1の整数に対応しています。
 
@@ -982,10 +996,25 @@ strftime 関数 https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference
 | #1 | タイプ１ 全角              |「1234567890」→「１２３４５６７８９０」 |
 | #2 | タイプ２ 漢数字 位取りあり |「1234567890」→「一二三四五六七八九〇」 |
 | #3 | タイプ３ 漢数字 位取りなし |「1234567890」→「十二億三千四百五十六万七千八百九十」 |
+| #4 | タイプ４ 数値再変換        |「123」→見出し語「123」の候補1つ目 |
 | #5 | タイプ５ 大字              |「1234567890」→「拾弐億参千四百五拾六万七千八百九拾」 |
 | #6 | タイプ６ ローマ数字(独自)  |「1234」→「MCCXXXIV」 |
 | #8 | タイプ８ 桁区切り          |「1234567890」→「1,234,567,890」 |
 | #9 | タイプ９ 将棋              |「12kin」→「１二金」 |
+
+タイプ４には DDSKK と以下の相違があります。
+辞書に以下のようなエントリがあり「p125」を見出し語として変換したとき、数値エントリの1つ目だけ使用されます。
+
+    ;; 数値変換タイプ４辞書
+    ;; okuri-ari entries.
+    ;; okuri-nasi entries.
+    p# /#4/＠#4/
+    125 /東京都葛飾区/葛飾区/
+
+| ＼ | 数値変換タイプ４変換結果 |
+| --- | --- |
+| DDSKK    | /東京都葛飾区/葛飾区/＠東京都葛飾区/＠葛飾区/ |
+| 本ソフト | /東京都葛飾区/＠東京都葛飾区/ |
 
 
 ### Unicodeコードポイント変換
@@ -1118,16 +1147,20 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2019 16.11.5
+Visual Studio Community 2022 17.0.2
 
 * Desktop development with C++
-* MSVC v142 - VS 2019 C++ x64/x86 build tools (Latest)
-* C++ ATL for latest v142 build tools (x86 & x64)
-* Windows 11 SDK (10.0.22000.0)
+
+* Indivisual components
+    * Compilers, build tools, and runtimes
+        * MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
+    * SDKs, libraries, and frameworks
+        * C++ ATL for latest v143 build tools (x86 & x64)
+        * Windows 11 SDK (10.0.22000.0)
 
 WiX Toolset v3.11.2
 
-pandoc 2.16.1
+pandoc 2.16.2
 
 ### ビルド手順
 

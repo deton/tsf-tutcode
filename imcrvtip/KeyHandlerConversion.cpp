@@ -5,11 +5,14 @@
 
 WCHAR CTextService::_GetCh(BYTE vk, BYTE vkoff)
 {
-	BYTE keystate[256];
+	BYTE keystate[256] = {};
 	WCHAR ubuff;
 	WCHAR u = L'\0';
 
-	GetKeyboardState(keystate);
+	if (GetKeyboardState(keystate) == FALSE)
+	{
+		return u;
+	}
 
 	switch (inputmode)
 	{
@@ -187,7 +190,7 @@ HRESULT CTextService::_SearchRomanKanaNode(const ROMAN_KANA_NODE &tree, ROMAN_KA
 	}
 
 	auto v_itr = std::lower_bound(tree.nodes.begin(), tree.nodes.end(),
-		pconv->roman[depth], [] (ROMAN_KANA_NODE m, WCHAR v) { return (m.ch < v); });
+		pconv->roman[depth], [] (const ROMAN_KANA_NODE &m, const WCHAR &v) { return (m.ch < v); });
 
 	if (v_itr != tree.nodes.end() && v_itr->ch == pconv->roman[depth])
 	{
@@ -228,7 +231,7 @@ HRESULT CTextService::_ConvAsciiJLatin(ASCII_JLATIN_CONV *pconv)
 	}
 
 	auto v_itr = std::lower_bound(ascii_jlatin_conv.begin(), ascii_jlatin_conv.end(),
-		pconv->ascii[0], [] (ASCII_JLATIN_CONV m, WCHAR v) { return (m.ascii[0] < v); });
+		pconv->ascii[0], [] (const ASCII_JLATIN_CONV &m, const WCHAR &v) { return (m.ascii[0] < v); });
 
 	if (v_itr != ascii_jlatin_conv.end() && v_itr->ascii[0] == pconv->ascii[0])
 	{
@@ -343,8 +346,6 @@ void CTextService::_StartSubConv(WCHAR command)
 		_ConvKanaToKana(kana, inputmode, searchkey, im_hiragana);
 	}
 
-	candidates.clear();
-	candidates.shrink_to_fit();
 	candorgcnt = 0;
 
 	searchkeyorg = searchkey;
@@ -355,8 +356,6 @@ void CTextService::_StartSubConv(WCHAR command)
 	if (cx_srchallokuri && okuriidx != 0)
 	{
 		candidates_bak = candidates;
-		candidates.clear();
-		candidates.shrink_to_fit();
 
 		searchkey.pop_back();
 
@@ -430,8 +429,6 @@ void CTextService::_StartSubConv(WCHAR command)
 	candorgcnt = candidates.size();
 
 	candidates_bak = candidates;
-	candidates.clear();
-	candidates.shrink_to_fit();
 
 	searchkeyorg = searchkey;	//オリジナルバックアップ
 
@@ -450,15 +447,18 @@ void CTextService::_StartSubConv(WCHAR command)
 	}
 
 	//見出し語変換
-	_ConvertWord(REQ_CONVERTKEY, searchkeyorg, std::wstring(L""), okurikey, searchkey);
+	_ConvertWord(REQ_CONVERTKEY, searchkeyorg, L"", okurikey);
+
+	searchkey = convword;
 
 	if (!searchkey.empty() && searchkey != searchkeyorg)
 	{
 		//変換済み見出し語検索
 		_SearchDic(command);
+
+		candidates_num = candidates;
 	}
 
-	candidates_num = candidates;
 	candidates.clear();
 	candidates.shrink_to_fit();
 
@@ -466,6 +466,7 @@ void CTextService::_StartSubConv(WCHAR command)
 	{
 		candidates.insert(candidates.end(), candidates_bak.begin(), candidates_bak.end());
 	}
+
 	if (!candidates_num.empty())
 	{
 		candidates.insert(candidates.end(), candidates_num.begin(), candidates_num.end());
@@ -534,9 +535,6 @@ void CTextService::_NextComp()
 		{
 			_ConvKanaToKana(kana, inputmode, searchkey, im_hiragana);
 		}
-
-		candidates.clear();
-		candidates.shrink_to_fit();
 
 		//候補の表示数は「候補一覧表示に要する変換回数」-1 個まで
 		WCHAR c = L'0';
@@ -779,11 +777,11 @@ BOOL CTextService::_ConvShift(WCHAR ch)
 				// ローマ字に格納されている仮名をキーに、変換位置指定の「代替」を検索する。
 				// ヒットしたエントリの「送り」を送りローマ字とする。
 				auto va_itr = std::lower_bound(conv_point_a.begin(), conv_point_a.end(),
-					chN, [] (CONV_POINT m, WCHAR v) { return (m.ch[1] < v); });
+					chN, [] (const CONV_POINT &m, const WCHAR &v) { return (m.al < v); });
 
-				if (va_itr != conv_point_a.end() && chN == va_itr->ch[1])
+				if (va_itr != conv_point_a.end() && chN == va_itr->al)
 				{
-					chO = va_itr->ch[2];
+					chO = va_itr->ok;
 				}
 
 				if (chO == L'\0')
@@ -1112,11 +1110,11 @@ void CTextService::_ConvOkuriRoman()
 			// 送り仮名の先頭をキーに、変換位置指定の「代替」を検索する。
 			// ヒットしたエントリの「送り」を送りローマ字とする。
 			auto va_itr = std::lower_bound(conv_point_a.begin(), conv_point_a.end(),
-				chN, [](CONV_POINT m, WCHAR v) { return (m.ch[1] < v); });
+				chN, [](const CONV_POINT &m, const WCHAR &v) { return (m.al < v); });
 
-			if (va_itr != conv_point_a.end() && chN == va_itr->ch[1])
+			if (va_itr != conv_point_a.end() && chN == va_itr->al)
 			{
-				chO = va_itr->ch[2];
+				chO = va_itr->ok;
 			}
 
 			if (chO == L'\0')
@@ -1133,6 +1131,108 @@ void CTextService::_ConvOkuriRoman()
 				kana.replace(okuriidx, 1, 1, chO);	//送りローマ字
 			}
 		}
+	}
+}
+
+void CTextService::_Reconv(TfEditCookie ec, ITfContext *pContext)
+{
+	if (pContext == nullptr)
+	{
+		return;
+	}
+
+	TF_SELECTION tfSelection = {};
+	ULONG cFetched = 0;
+	if (FAILED(pContext->GetSelection(ec, TF_DEFAULT_SELECTION, 1, &tfSelection, &cFetched)))
+	{
+		return;
+	}
+
+	CComPtr<ITfRange> pRangeSelection;
+	pRangeSelection.Attach(tfSelection.range);
+
+	if (cFetched != 1)
+	{
+		return;
+	}
+
+	CComPtr<ITfRange> pRange;
+	BOOL fConvertable = FALSE;
+	if (FAILED(QueryRange(pRangeSelection, &pRange, &fConvertable)) || !fConvertable)
+	{
+		return;
+	}
+
+	HWND hwnd = nullptr;
+	BOOL fEmpty = FALSE;
+	if (SUCCEEDED(pRange->IsEmpty(ec, &fEmpty)) && fEmpty)
+	{
+		CComPtr<ITfContextView> pContextView;
+		if (SUCCEEDED(pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
+		{
+			pContextView->GetWnd(&hwnd);
+		}
+	}
+
+	if (hwnd != nullptr)
+	{
+		DWORD size = (DWORD)SendMessageW(hwnd, WM_IME_REQUEST, IMR_RECONVERTSTRING, 0);
+
+		if (size > sizeof(RECONVERTSTRING))
+		{
+			CComHeapPtr<BYTE> rsbuf;
+			rsbuf.Allocate(size);
+
+			PRECONVERTSTRING rs = reinterpret_cast<PRECONVERTSTRING>((PBYTE)rsbuf);
+			rs->dwSize = size;
+			rs->dwVersion = 0;
+
+			size = (DWORD)SendMessageW(hwnd, WM_IME_REQUEST, IMR_RECONVERTSTRING, reinterpret_cast<LPARAM>(rs));
+
+			if (size > sizeof(RECONVERTSTRING))
+			{
+				DWORD ofs = rs->dwStrOffset + rs->dwCompStrOffset;
+				DWORD len = rs->dwCompStrLen;
+
+				if ((ofs + len) <= size)
+				{
+					CComBSTR text;
+
+					if (IsWindowUnicode(hwnd))
+					{
+						text = CComBSTR(len, reinterpret_cast<PWCHAR>(&rsbuf[ofs]));
+					}
+					else
+					{
+						int wlen = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS,
+							reinterpret_cast<LPCCH>(&rsbuf[ofs]), len, nullptr, 0);
+
+						if (wlen > 0)
+						{
+							CComHeapPtr<WCHAR> wbuf;
+							wbuf.Allocate(wlen);
+
+							if (MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS,
+								reinterpret_cast<LPCCH>(&rsbuf[ofs]), len, wbuf, wlen) > 0)
+							{
+								text = CComBSTR(wlen, wbuf);
+							}
+						}
+					}
+
+					if (text.Length() > 0)
+					{
+						pRange->SetText(ec, 0, text, text.Length());
+					}
+				}
+			}
+		}
+	}
+
+	fEmpty = TRUE;
+	if (SUCCEEDED(pRange->IsEmpty(ec, &fEmpty)) && !fEmpty)
+	{
+		Reconvert(pRange);
 	}
 }
 

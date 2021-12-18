@@ -4,7 +4,16 @@ SKK_VERSION="CorvusSKK X.Y.Z"
 local _M = {}
 
 function _M.search_user_dictionary(key, okuri)
-	return ""
+	local ret = ""
+
+	if (key == "p#") then
+		ret = "/#4/\n"
+	elseif (key == "125") then
+		ret = "/東京都葛飾区;サンプル/\n"
+	else
+	end
+
+	return ret
 end
 
 function _M.search_skk_dictionary(key, okuri)
@@ -16,6 +25,13 @@ function _M.search_skk_dictionary(key, okuri)
 		ret = "/切;紙を-/着;服を-/斬;人を-/伐;木を-/剪;盆栽を-/截;布地を-/(skk-ignore-dic-word \"斬\")/\n"
 	elseif (key == "き") then
 		ret = "/気/機/器/木/\n"
+
+	elseif (key == "p#") then
+		ret = "/#4/\n"
+	elseif (key == "125") then
+		ret = "/東京都葛飾区(テスト);サンプル/\n"
+
+	else
 	end
 
 	return ret
@@ -47,6 +63,10 @@ end
 
 function _M.complement(key)
 	return "/きあい/きけん/きき/きかい/\n"
+end
+
+function _M.reverse(candidate)
+	return ""
 end
 
 function _M.add(okuriari, key, candidate, annotation, okuri)

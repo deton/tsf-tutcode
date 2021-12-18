@@ -122,6 +122,7 @@ LPCWSTR ValueColorNO = L"colorno";
 LPCWSTR ValueDrawAPI = L"drawapi";
 LPCWSTR ValueColorFont = L"colorfont";
 LPCWSTR ValueUntilCandList = L"untilcandlist";
+LPCWSTR ValuePageCandNum = L"pagecandnum";
 LPCWSTR ValueDispCandNo = L"dispcandno";
 LPCWSTR ValueVerticalCand = L"verticalcand";
 LPCWSTR ValueAnnotation = L"annotation";
@@ -214,6 +215,7 @@ LPCWSTR ValueKeyMapUp = L"up";
 LPCWSTR ValueKeyMapRight = L"right";
 LPCWSTR ValueKeyMapDown = L"down";
 LPCWSTR ValueKeyMapPaste = L"paste";
+LPCWSTR ValueKeyMapReconvert = L"reconvert";
 LPCWSTR ValueKeyMapOtherIme = L"otherime";
 LPCWSTR ValueKeyMapViEsc = L"viesc";
 

@@ -7,7 +7,7 @@
     Id="*"
     Name="tsf-tutcode (x64)"
     Version="$(var.version)"
-    Manufacturer="nathancorvussolis"
+    Manufacturer="KIHARA Hideto"
     Language="1033"
     UpgradeCode="8EC1F2D0-BE94-43E6-9C74-6CA6ADA9737E">
 
@@ -66,15 +66,15 @@
     <DirectoryRef Id="IMTSFTUTCODE_X64">
       <Component Id="MSVCP140_X64" Guid="*" Win64="yes">
         <File Id="F_msvcp140_x64" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\msvcp140.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC143.CRT\msvcp140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_X64" Guid="*" Win64="yes">
         <File Id="F_vcruntime140_x64" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\vcruntime140.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC143.CRT\vcruntime140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_1_X64" Guid="360E0C73-7555-413C-AE3D-2E943CF1A382" Win64="yes">
         <File Id="F_vcruntime140_1_x64" Name="vcruntime140_1.dll"
-          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC142.CRT\vcruntime140_1.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)x64\Microsoft.VC143.CRT\vcruntime140_1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 

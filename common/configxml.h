@@ -117,6 +117,7 @@ extern LPCWSTR ValueColorNO;
 extern LPCWSTR ValueDrawAPI;
 extern LPCWSTR ValueColorFont;
 extern LPCWSTR ValueUntilCandList;
+extern LPCWSTR ValuePageCandNum;
 extern LPCWSTR ValueDispCandNo;
 extern LPCWSTR ValueVerticalCand;
 extern LPCWSTR ValueAnnotation;
@@ -209,6 +210,7 @@ extern LPCWSTR ValueKeyMapUp;
 extern LPCWSTR ValueKeyMapRight;
 extern LPCWSTR ValueKeyMapDown;
 extern LPCWSTR ValueKeyMapPaste;
+extern LPCWSTR ValueKeyMapReconvert;
 extern LPCWSTR ValueKeyMapOtherIme;
 extern LPCWSTR ValueKeyMapViEsc;
 

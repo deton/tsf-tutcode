@@ -7,7 +7,7 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	SKKDICCANDIDATES sc;
 	std::wstring key, keyorg, okuri, candidate, annotation, conv;
 
-	// search, complement, convert key, convert candidate
+	// search, complement, convert key, convert candidate, reverse
 	static const std::wregex research(L"(.*)\t(.*)\t(.*)\n");
 	// add candidate
 	static const std::wregex readd(L"(.*)\t(.*)\t(.*)\t(.*)\n");
@@ -165,6 +165,45 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		}
 		break;
 
+	case REQ_REVERSE:
+		if (!std::regex_match(argument, research)) break;
+
+		candidate = std::regex_replace(argument, research, L"$1");
+
+		result = REP_OK;
+
+		if (lua != nullptr)
+		{
+			lua_getglobal(lua, u8"lua_skk_reverse");
+			lua_pushstring(lua, WCTOU8(candidate));
+
+			if (lua_pcall(lua, 1, 1, 0) == LUA_OK)
+			{
+				if (lua_isstring(lua, -1))
+				{
+					key = U8TOWC(lua_tostring(lua, -1));
+				}
+				lua_pop(lua, 1);
+			}
+		}
+		else
+		{
+			SearchReverse(candidate, key);
+		}
+
+		if (!key.empty())
+		{
+			result = REP_OK;
+			result += L"\n";
+			result += L"\t" + key + L"\t\t\n";
+		}
+		else
+		{
+			result = REP_FALSE;
+			result += L"\n";
+		}
+		break;
+
 	case REQ_USER_ADD_A:
 	case REQ_USER_ADD_N:
 		if (!std::regex_match(argument, readd)) break;
@@ -289,7 +328,7 @@ unsigned __stdcall SrvThread(void *p)
 	HANDLE hPipe = (HANDLE)p;
 	DWORD bytesRead, bytesWrite;
 	BOOL bRet;
-	WCHAR command;
+	WCHAR command = L'\0';
 	std::wstring argument;
 	std::wstring wspipebuf;
 
@@ -342,6 +381,29 @@ unsigned __stdcall SrvThread(void *p)
 		}
 
 #ifdef _DEBUG
+		EnterCriticalSection(&csEdit);	// !
+
+		if (dedit.size() > SHRT_MAX) dedit.clear();
+
+		switch (command)
+		{
+		case REQ_USER_SAVE:
+			dedit.clear();
+			break;
+		default:
+			break;
+		}
+
+		LeaveCriticalSection(&csEdit);	// !
+#endif
+
+		command = pipebuf[0];
+		if (pipebuf[1] != L'\n') command = L'\0';
+		argument.assign(&pipebuf[2]);
+
+		wspipebuf.clear();
+
+#ifdef _DEBUG
 		tedit.assign(pipebuf);
 		re.assign(L"\n");
 		fmt.assign(L"↲\r\n");
@@ -350,15 +412,14 @@ unsigned __stdcall SrvThread(void *p)
 		fmt.assign(L"»\u00A0");
 		tedit = std::regex_replace(tedit, re, fmt);
 
+		EnterCriticalSection(&csEdit);	// !
+
 		dedit.append(tedit);
-		SetWindowTextW(hWndEdit, dedit.c_str());
+
+		LeaveCriticalSection(&csEdit);	// !
+
+		PostMessageW(hWndMgr, WM_USER_SETTEXT, (WPARAM)hWndEdit, (LPARAM)dedit.c_str());
 #endif
-
-		command = pipebuf[0];
-		if (pipebuf[1] != L'\n') command = L'\0';
-		argument.assign(&pipebuf[2]);
-
-		wspipebuf.clear();
 
 		SrvProc(command, argument, wspipebuf);
 
@@ -373,18 +434,13 @@ unsigned __stdcall SrvThread(void *p)
 		fmt.assign(L"»\u00A0");
 		tedit = std::regex_replace(tedit, re, fmt);
 
-		dedit.append(tedit);
-		SetWindowTextW(hWndEdit, dedit.c_str());
-		SendMessageW(hWndEdit, WM_VSCROLL, SB_BOTTOM, 0);
+		EnterCriticalSection(&csEdit);	// !
 
-		switch (command)
-		{
-		case REQ_USER_SAVE:
-			dedit.clear();
-			break;
-		default:
-			break;
-		}
+		dedit.append(tedit);
+
+		LeaveCriticalSection(&csEdit);	// !
+
+		PostMessageW(hWndMgr, WM_USER_SETTEXT, (WPARAM)hWndEdit, (LPARAM)dedit.c_str());
 #endif
 
 		bytesWrite = (DWORD)((wcslen(pipebuf) + 1) * sizeof(WCHAR));
@@ -451,22 +507,29 @@ HANDLE SrvStart()
 		request
 			"4\n<key prefix>\t<candidate max>\t\n"
 		reply
-			"T\n<key>\t\t<candidates>\t\n...\n":hit
-			"F\n":nothing
+			"T\n<key>\t\t<candidates>\t\n...\n" : hit
+			"F\n" : nothing
 
 	convert key
 		request
 			"5\n<key>\t\t<okuri>\n"
 		reply
-			"T\n<key converted>\n...\n":hit
-			"F\n":nothing
+			"T\n<key converted>\n...\n" : hit
+			"F\n" : nothing
 
 	convert candidate
 		request
 			"6\n<key>\t<candidate>\t<okuri>\n"
 		reply
-			"T\n<candidate converted>\n":hit
-			"F\n":nothing
+			"T\n<candidate converted>\n" : hit
+			"F\n" : nothing
+
+	reverse
+		request
+			"7\n<candidate>\t\t\n"
+		reply
+			"T\n\t<key>\t\t\n" : hit
+			"F\n" : nothing
 
 	add candidate (complement off)
 		request

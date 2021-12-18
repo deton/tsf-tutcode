@@ -33,13 +33,13 @@
     <!-- ARM32 : %windir%\SysArm32 -->
     <!-- x86   : %windir%\SysWOW64 -->
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="WindowsFolder" Name="Windows">
-        <Directory Id="SYSTEM64BIT" Name="System32">
-          <Directory Id="IME_ARM64" Name="IME">
-            <Directory Id="IMTSFTUTCODE_ARM64" Name="IMTSFTUTCODE" />
-          </Directory>
+      <Directory Id="System64Folder" Name="System64">
+        <Directory Id="IME_ARM64" Name="IME">
+          <Directory Id="IMTSFTUTCODE_ARM64" Name="IMTSFTUTCODE" />
         </Directory>
-        <Directory Id="SYSTEM32BIT" Name="SysArm32">
+      </Directory>
+      <Directory Id="WindowsFolder" Name="Windows">
+        <Directory Id="SYSTEMFOLDER_ARM32" Name="SysArm32">
           <Directory Id="IME_ARM32" Name="IME">
             <Directory Id="IMTSFTUTCODE_ARM32" Name="IMTSFTUTCODE" />
           </Directory>
@@ -80,15 +80,15 @@
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
       <Component Id="MSVCP140_ARM64" Guid="*" Win64="yes">
         <File Id="F_msvcp140_arm64" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\msvcp140.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\msvcp140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_ARM64" Guid="*" Win64="yes">
         <File Id="F_vcruntime140_arm64" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\vcruntime140.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\vcruntime140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_1_ARM64" Guid="607AA8F2-0D79-4E95-892E-4A1C22588A0F" Win64="yes">
         <File Id="F_vcruntime140_1_arm64" Name="vcruntime140_1.dll"
-          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC142.CRT\vcruntime140_1.dll" KeyPath="yes" />
+          Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\vcruntime140_1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 

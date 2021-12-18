@@ -14,6 +14,13 @@ WCHAR pathinitlua[MAX_PATH];	//init.lua
 WCHAR pathbackup[MAX_PATH];		//ユーザー辞書バックアップレフィックス
 WCHAR pathbushudic[MAX_PATH];	//部首合成変換ユーザー辞書
 
+WCHAR radconfigxml[MAX_PATH];	//設定 FOLDERID_RoamingAppData
+WCHAR sysconfigxml[MAX_PATH];	//設定 FOLDERID_Windows\IME
+INT csidlconfigxml;				//設定 CSIDL_APPDATA/CSIDL_WINDOWS
+WCHAR radskkdic[MAX_PATH];		//取込SKK辞書 FOLDERID_RoamingAppData
+WCHAR sysskkdic[MAX_PATH];		//取込SKK辞書 FOLDERID_Windows\IME
+INT csidlskkdic;				//取込SKK辞書 CSIDL_APPDATA/CSIDL_WINDOWS
+
 WCHAR krnlobjsddl[MAX_SECURITYDESC];	//SDDL
 WCHAR mgrpipename[MAX_PIPENAME];	//名前付きパイプ
 WCHAR mgrmutexname[MAX_PATH];		//ミューテックス
@@ -41,6 +48,7 @@ const luaL_Reg luaFuncs[] =
 	{u8"search_jisx0208", lua_search_jisx0208},
 	{u8"search_character_code", lua_search_character_code},
 	{u8"complement", lua_complement},
+	{u8"reverse", lua_reverse},
 	{u8"add", lua_add},
 	{u8"delete", lua_delete},
 	{u8"save", lua_save},
@@ -56,6 +64,14 @@ void CreateConfigPath()
 	ZeroMemory(pathskkdic, sizeof(pathskkdic));
 	ZeroMemory(pathinitlua, sizeof(pathinitlua));
 	ZeroMemory(pathbushudic, sizeof(pathbushudic));
+
+	ZeroMemory(radconfigxml, sizeof(radconfigxml));
+	ZeroMemory(sysconfigxml, sizeof(sysconfigxml));
+	ZeroMemory(radskkdic, sizeof(radskkdic));
+	ZeroMemory(sysskkdic, sizeof(sysskkdic));
+
+	csidlconfigxml = CSIDL_APPDATA;
+	csidlskkdic = CSIDL_APPDATA;
 
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
@@ -74,6 +90,7 @@ void CreateConfigPath()
 		_snwprintf_s(pathinitlua, _TRUNCATE, L"%s\\%s", appdir, fninitlua);
 		_snwprintf_s(pathbushudic, _TRUNCATE, L"%s\\%s", appdir, fnbushudic);
 
+#if FALSE
 		//for compatibility
 		if (GetFileAttributesW(pathskkdic) == INVALID_FILE_ATTRIBUTES)
 		{
@@ -83,69 +100,86 @@ void CreateConfigPath()
 			_snwprintf_s(skkdict, _TRUNCATE, L"%s\\%s", appdir, L"skkdict.idx");
 			DeleteFileW(skkdict);
 		}
+#endif
 	}
-}
-
-void UpdateConfigPath()
-{
-	PWSTR knownfolderpath = nullptr;
 
 	//%APPDATA%\\CorvusSKK\\config.xml
 	//%APPDATA%\\CorvusSKK\\skkdict.txt
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
 	{
-		_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnconfigxml);
-		_snwprintf_s(pathskkdic, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnskkdic);
+		_snwprintf_s(radconfigxml, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnconfigxml);
+		_snwprintf_s(radskkdic, _TRUNCATE, L"%s\\%s\\%s", knownfolderpath, TextServiceDesc, fnskkdic);
 
 		CoTaskMemFree(knownfolderpath);
 	}
 
-	if (GetFileAttributesW(pathconfigxml) == INVALID_FILE_ATTRIBUTES)
-	{
 #ifdef _DEBUG
-		//<module directory>\\config.xml
-		if (GetModuleFileNameW(hInst, pathconfigxml, _countof(pathconfigxml)) != 0)
-		{
-			WCHAR *pdir = wcsrchr(pathconfigxml, L'\\');
-			if (pdir != nullptr)
-			{
-				*(pdir + 1) = L'\0';
-				wcsncat_s(pathconfigxml, fnconfigxml, _TRUNCATE);
-			}
-		}
-#else
-		//%SystemRoot%\\IME\\IMCRVSKK\\config.xml
-		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
-		{
-			_snwprintf_s(pathconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fnconfigxml);
+	WCHAR modulename[MAX_PATH] = {};
 
-			CoTaskMemFree(knownfolderpath);
+	//<module directory>\\config.xml
+	//<module directory>\\skkdict.txt
+	if (GetModuleFileNameW(hInst, modulename, _countof(modulename)) != 0)
+	{
+		WCHAR *pdir = wcsrchr(modulename, L'\\');
+		if (pdir != nullptr)
+		{
+			*pdir = L'\0';
+
+			_snwprintf_s(sysconfigxml, _TRUNCATE, L"%s\\%s", modulename, fnconfigxml);
+			_snwprintf_s(sysskkdic, _TRUNCATE, L"%s\\%s", modulename, fnskkdic);
 		}
+	}
+#else
+	//%SystemRoot%\\IME\\IMCRVSKK\\config.xml
+	//%SystemRoot%\\IME\\IMCRVSKK\\skkdict.txt
+	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
+	{
+		_snwprintf_s(sysconfigxml, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fnconfigxml);
+		_snwprintf_s(sysskkdic, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fnskkdic);
+
+		CoTaskMemFree(knownfolderpath);
+	}
 #endif
+}
+
+void UpdateConfigPath()
+{
+	LPCWSTR p_pathconfigxml = radconfigxml;
+	LPCWSTR p_pathskkdic = radskkdic;
+
+	INT n_csidlconfigxml = CSIDL_APPDATA;
+	INT n_csidlskkdic = CSIDL_APPDATA;
+
+	if (GetFileAttributesW(radconfigxml) == INVALID_FILE_ATTRIBUTES)
+	{
+		n_csidlconfigxml = CSIDL_WINDOWS;
+		p_pathconfigxml = sysconfigxml;
 	}
 
-	if (GetFileAttributesW(pathskkdic) == INVALID_FILE_ATTRIBUTES)
+	if (GetFileAttributesW(radskkdic) == INVALID_FILE_ATTRIBUTES)
 	{
-#ifdef _DEBUG
-		//<module directory>\\skkdict.txt
-		if (GetModuleFileNameW(hInst, pathskkdic, _countof(pathskkdic)) != 0)
-		{
-			WCHAR *pdir = wcsrchr(pathskkdic, L'\\');
-			if (pdir != nullptr)
-			{
-				*(pdir + 1) = L'\0';
-				wcsncat_s(pathskkdic, fnskkdic, _TRUNCATE);
-			}
-		}
-#else
-		//%SystemRoot%\\IME\\IMCRVSKK\\skkdict.txt
-		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DONT_VERIFY, nullptr, &knownfolderpath)))
-		{
-			_snwprintf_s(pathskkdic, _TRUNCATE, L"%s\\%s\\%s\\%s", knownfolderpath, SYSTEMROOT_IME_DIR, TEXTSERVICE_DIR, fnskkdic);
+		n_csidlskkdic = CSIDL_WINDOWS;
+		p_pathskkdic = sysskkdic;
+	}
 
-			CoTaskMemFree(knownfolderpath);
-		}
-#endif
+	//ファイルが切り替わったら再読み込み
+
+	if (csidlconfigxml != n_csidlconfigxml)
+	{
+		csidlconfigxml = n_csidlconfigxml;
+		wcsncpy_s(pathconfigxml, p_pathconfigxml, _TRUNCATE);
+
+		ftConfig.dwLowDateTime = 0;
+		ftConfig.dwHighDateTime = 0;
+	}
+
+	if (csidlskkdic != n_csidlskkdic)
+	{
+		csidlskkdic = n_csidlskkdic;
+		wcsncpy_s(pathskkdic, p_pathskkdic, _TRUNCATE);
+
+		ftSKKDic.dwLowDateTime = 0;
+		ftSKKDic.dwHighDateTime = 0;
 	}
 }
 
@@ -285,18 +319,19 @@ BOOL IsFileModified(LPCWSTR path, FILETIME *ft)
 {
 	BOOL ret = FALSE;
 	HANDLE hFile;
-	FILETIME ftn;
+	FILETIME ftN;
 
 	if (path != nullptr && ft != nullptr)
 	{
 		hFile = CreateFileW(path, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
-			if (GetFileTime(hFile, nullptr, nullptr, &ftn))
+			if (GetFileTime(hFile, nullptr, nullptr, &ftN))
 			{
-				if (((ULARGE_INTEGER *)ft)->QuadPart != ((ULARGE_INTEGER *)&ftn)->QuadPart)
+				if ((ft->dwLowDateTime != ftN.dwLowDateTime) ||
+					(ft->dwHighDateTime != ftN.dwHighDateTime))
 				{
-					*ft = ftn;
+					*ft = ftN;
 					ret = TRUE;
 				}
 			}

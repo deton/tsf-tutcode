@@ -16,7 +16,7 @@ BOOL CommandDic(WCHAR command);
 INT_PTR CALLBACK DlgProcDictionary2(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	std::wstring strxmlval;
-	WCHAR num[16];
+	WCHAR num[16] = {};
 	INT n;
 	UINT u;
 
@@ -62,9 +62,9 @@ INT_PTR CALLBACK DlgProcDictionary2(HWND hDlg, UINT message, WPARAM wParam, LPAR
 		ReadValue(pathconfigxml, SectionUserDict, ValuePrivateOnMKey, strxmlval);
 		u = (strxmlval.empty() ?
 			(TF_MOD_CONTROL | TF_MOD_SHIFT) : wcstoul(strxmlval.c_str(), nullptr, 0));
-		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_ON_MKEY_ALT, ((u& TF_MOD_ALT) ? BST_CHECKED : BST_UNCHECKED));
-		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_ON_MKEY_CTRL, ((u& TF_MOD_CONTROL) ? BST_CHECKED : BST_UNCHECKED));
-		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_ON_MKEY_SHIFT, ((u& TF_MOD_SHIFT) ? BST_CHECKED : BST_UNCHECKED));
+		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_ON_MKEY_ALT, ((u & TF_MOD_ALT) ? BST_CHECKED : BST_UNCHECKED));
+		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_ON_MKEY_CTRL, ((u & TF_MOD_CONTROL) ? BST_CHECKED : BST_UNCHECKED));
+		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_ON_MKEY_SHIFT, ((u & TF_MOD_SHIFT) ? BST_CHECKED : BST_UNCHECKED));
 
 		ReadValue(pathconfigxml, SectionUserDict, ValuePrivateOffVKey, strxmlval);
 		u = (strxmlval.empty() ?
@@ -75,9 +75,9 @@ INT_PTR CALLBACK DlgProcDictionary2(HWND hDlg, UINT message, WPARAM wParam, LPAR
 		ReadValue(pathconfigxml, SectionUserDict, ValuePrivateOffMKey, strxmlval);
 		u = (strxmlval.empty() ?
 			(TF_MOD_CONTROL | TF_MOD_SHIFT) : wcstoul(strxmlval.c_str(), nullptr, 0));
-		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_OFF_MKEY_ALT, ((u& TF_MOD_ALT) ? BST_CHECKED : BST_UNCHECKED));
-		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_OFF_MKEY_CTRL, ((u& TF_MOD_CONTROL) ? BST_CHECKED : BST_UNCHECKED));
-		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_OFF_MKEY_SHIFT, ((u& TF_MOD_SHIFT) ? BST_CHECKED : BST_UNCHECKED));
+		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_OFF_MKEY_ALT, ((u & TF_MOD_ALT) ? BST_CHECKED : BST_UNCHECKED));
+		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_OFF_MKEY_CTRL, ((u & TF_MOD_CONTROL) ? BST_CHECKED : BST_UNCHECKED));
+		CheckDlgButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_OFF_MKEY_SHIFT, ((u & TF_MOD_SHIFT) ? BST_CHECKED : BST_UNCHECKED));
 
 		LoadCheckButton(hDlg, IDC_CHECKBOX_PRIVATEMODE_AUTO, SectionUserDict, ValuePrivateModeAuto, L"1");
 
@@ -259,8 +259,8 @@ INT_PTR CALLBACK DlgProcDictionary2(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
 void SaveDictionary2(IXmlWriter *pWriter, HWND hDlg)
 {
-	WCHAR path[MAX_PATH];
-	WCHAR num[16];
+	WCHAR path[MAX_PATH] = {};
+	WCHAR num[16] = {};
 	INT n;
 	UINT u;
 
