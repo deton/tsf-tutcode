@@ -5,7 +5,7 @@ tsf-tutcode
 
 The MIT License
 
-Copyright (C) 2013-2021 KIHARA, Hideto
+Copyright (C) 2013-2022 KIHARA, Hideto
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ CorvusSKK
 
 The MIT License
 
-Copyright (C) 2011-2021 SASAKI Nobuyuki
+Copyright (C) 2011-2022 SASAKI Nobuyuki
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -118,7 +118,7 @@ Lua
 
 The MIT License
 
-Copyright (C) 1994-2021 Lua.org, PUC-Rio.
+Copyright (C) 1994-2022 Lua.org, PUC-Rio.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -146,7 +146,7 @@ zlib
 
 The zlib/libpng License
 
-Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages
