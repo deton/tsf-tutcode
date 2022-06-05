@@ -88,8 +88,8 @@ int CTextService::_IsKeyEaten(ITfContext *pContext, WPARAM wParam, LPARAM lParam
 		}
 	}
 
-	SHORT vk_ctrl = GetKeyState(VK_CONTROL) & 0x8000;
-	SHORT vk_kana = GetKeyState(VK_KANA) & 0x0001;
+	BYTE vk_ctrl = keystate[VK_CONTROL] & 0x80;
+	BYTE vk_kana = keystate[VK_KANA] & 0x01;
 
 	WCHAR ch = _GetCh((BYTE)wParam);
 	BYTE sf = _GetSf((BYTE)wParam, ch);
@@ -238,6 +238,8 @@ STDAPI CTextService::OnTestKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam
 		return E_INVALIDARG;
 	}
 
+	_GetKeyboardState();
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, TRUE);
 	if (eaten == -1)
 	{
@@ -269,6 +271,8 @@ STDAPI CTextService::OnKeyDown(ITfContext *pic, WPARAM wParam, LPARAM lParam, BO
 		return E_INVALIDARG;
 	}
 
+	_GetKeyboardState();
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, TRUE, FALSE);
 	if (eaten == -1)
 	{
@@ -292,6 +296,8 @@ STDAPI CTextService::OnTestKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, 
 		return E_INVALIDARG;
 	}
 
+	_GetKeyboardState();
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, TRUE);
 	if (eaten == -1)
 	{
@@ -310,6 +316,8 @@ STDAPI CTextService::OnKeyUp(ITfContext *pic, WPARAM wParam, LPARAM lParam, BOOL
 		return E_INVALIDARG;
 	}
 
+	_GetKeyboardState();
+
 	int eaten = _IsKeyEaten(pic, wParam, lParam, FALSE, FALSE);
 	if (eaten == -1)
 	{
@@ -327,6 +335,8 @@ STDAPI CTextService::OnPreservedKey(ITfContext *pic, REFGUID rguid, BOOL *pfEate
 	{
 		return E_INVALIDARG;
 	}
+
+	_GetKeyboardState();
 
 	BOOL fOpen = _IsKeyboardOpen();
 

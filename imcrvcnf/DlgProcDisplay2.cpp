@@ -57,7 +57,7 @@ INT_PTR CALLBACK DlgProcDisplay2(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 	int n;
 	std::wstring strxmlval;
 	CHOOSECOLORW cc = {};
-	static COLORREF customColor[16];
+	static COLORREF customColor[16] = {};
 	HWND hCombo;
 
 	switch (message)

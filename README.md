@@ -1147,7 +1147,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.1.3
+Visual Studio Community 2022 17.2.3
 
 * Desktop development with C++
 

@@ -381,7 +381,7 @@ void CTextService::_LoadDisplayAttr()
 {
 	std::wstring strxmlval;
 	BOOL se;
-	TF_DISPLAYATTRIBUTE da;
+	TF_DISPLAYATTRIBUTE da = {};
 
 	//DisplayAttr
 
@@ -406,8 +406,8 @@ void CTextService::_LoadDisplayAttr()
 
 void CTextService::_LoadSelKey()
 {
-	WCHAR num[2 + 1];
-	WCHAR key[4 + 1];
+	WCHAR num[2 + 1] = {};
+	WCHAR key[4 + 1] = {};
 	std::wstring strxmlval;
 
 	ZeroMemory(selkey, sizeof(selkey));
@@ -504,8 +504,8 @@ void CTextService::_LoadPreservedKey()
 
 void CTextService::_LoadCKeyMap()
 {
-	WCHAR key[2];
-	WCHAR keyre[MAX_KEYRE];
+	WCHAR key[2] = {};
+	WCHAR keyre[MAX_KEYRE] = {};
 	std::wstring s;
 	std::wregex re;
 	std::wstring strxmlval;
@@ -628,8 +628,8 @@ void CTextService::_LoadCKeyMap()
 
 void CTextService::_LoadVKeyMap()
 {
-	WCHAR key[3];
-	WCHAR keyre[MAX_KEYRE];
+	WCHAR key[3] = {};
+	WCHAR keyre[MAX_KEYRE] = {};
 	std::wstring s;
 	std::wregex re;
 	std::wstring strxmlval;

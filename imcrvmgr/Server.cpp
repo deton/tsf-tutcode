@@ -462,8 +462,8 @@ unsigned __stdcall SrvThread(void *p)
 
 HANDLE SrvStart()
 {
-	PSECURITY_DESCRIPTOR psd;
-	SECURITY_ATTRIBUTES sa;
+	PSECURITY_DESCRIPTOR psd = nullptr;
+	SECURITY_ATTRIBUTES sa = {};
 	HANDLE hPipe = INVALID_HANDLE_VALUE;
 	HANDLE hThread = nullptr;
 
