@@ -121,19 +121,19 @@ BOOL GetDigest(LPCWSTR pszAlgId, CONST PBYTE data, DWORD datalen, PBYTE digest, 
 
 	ZeroMemory(digest, digestlen);
 
-	BCRYPT_ALG_HANDLE  hAlg;
+	BCRYPT_ALG_HANDLE hAlg = nullptr;
 	NTSTATUS status = BCryptOpenAlgorithmProvider(&hAlg, pszAlgId, nullptr, 0);
 	if (BCRYPT_SUCCESS(status))
 	{
-		DWORD cbHashObject;
-		ULONG cbResult;
+		DWORD cbHashObject = 0;
+		ULONG cbResult = 0;
 		status = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH, (PBYTE)&cbHashObject, sizeof(DWORD), &cbResult, 0);
 		if (BCRYPT_SUCCESS(status))
 		{
 			PBYTE pbHashObject = (PBYTE)LocalAlloc(LPTR, cbHashObject);
 			if (pbHashObject != nullptr)
 			{
-				BCRYPT_HASH_HANDLE hHash;
+				BCRYPT_HASH_HANDLE hHash = nullptr;
 				status = BCryptCreateHash(hAlg, &hHash, pbHashObject, cbHashObject, nullptr, 0, 0);
 				if (BCRYPT_SUCCESS(status))
 				{
@@ -168,7 +168,7 @@ ULONG htonlc(ULONG h)
 	if (IsLittleEndian())
 	{
 		h = (h << 24) | ((h & 0x0000FF00) << 8) |
-			((h >> 8) & 0x0000FF00) | (h >> 24);
+			((h & 0x00FF0000) >> 8) | (h >> 24);
 	}
 	return h;
 }
@@ -195,7 +195,7 @@ USHORT ntohsc(USHORT n)
 BOOL GetUUID5(REFGUID rguid, CONST PBYTE name, DWORD namelen, LPGUID puuid)
 {
 	BOOL bRet = FALSE;
-	CONST LPCWSTR pszAlgId = BCRYPT_SHA1_ALGORITHM;
+	LPCWSTR pszAlgId = BCRYPT_SHA1_ALGORITHM;
 	CONST DWORD dwDigestLen = 20;
 	CONST USHORT maskVersion = 0x5000;
 	GUID lguid = rguid;
@@ -283,13 +283,13 @@ BOOL GetLogonInfo(PBYTE *ppLogonInfo)
 
 		if (bRet)
 		{
-			TOKEN_ELEVATION_TYPE tokenElevationType;
+			TOKEN_ELEVATION_TYPE tokenElevationType = TokenElevationTypeDefault;
 			if (GetTokenInformation(hToken, TokenElevationType,
 				&tokenElevationType, sizeof(tokenElevationType), &dwLength))
 			{
 				if (tokenElevationType == TokenElevationTypeFull)
 				{
-					TOKEN_LINKED_TOKEN tokenLinkedToken;
+					TOKEN_LINKED_TOKEN tokenLinkedToken = {};
 					if (GetTokenInformation(hToken, TokenLinkedToken,
 						&tokenLinkedToken, sizeof(tokenLinkedToken), &dwLength))
 					{
@@ -299,7 +299,7 @@ BOOL GetLogonInfo(PBYTE *ppLogonInfo)
 				}
 			}
 
-			TOKEN_STATISTICS tokenStatistics;
+			TOKEN_STATISTICS tokenStatistics = {};
 			if (GetTokenInformation(hToken, TokenStatistics,
 				&tokenStatistics, sizeof(tokenStatistics), &dwLength))
 			{

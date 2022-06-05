@@ -399,7 +399,7 @@ HRESULT CTextService::_ConvRomanKanaWithWait(WCHAR ch, std::wstring *pRoman, ROM
 					break;
 				}
 
-				ROMAN_KANA_CONV rkcn;
+				ROMAN_KANA_CONV rkcn = {};
 				wcsncpy_s(rkcn.roman, roman_conv.c_str(), _TRUNCATE);
 				ret = _ConvRomanKana(&rkcn);
 				switch (ret)

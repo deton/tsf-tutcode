@@ -102,7 +102,17 @@ public:
 			return S_OK;
 		}
 
-		while (cFetched < ulCount)
+		for (ULONG i = 0; i < ulCount; i++)
+		{
+			*(ppCand + i) = nullptr;
+		}
+
+		if (pcFetched != nullptr)
+		{
+			*pcFetched = 0;
+		}
+
+		while(cFetched < ulCount)
 		{
 			if (_nIndex >= (ULONG)_candidates.size())
 			{
@@ -117,7 +127,12 @@ public:
 			{
 				for (ULONG i = 0; i < cFetched; i++)
 				{
-					delete *(ppCand + i);
+					ITfCandidateString *pcs = *(ppCand + i);
+					if (pcs != nullptr)
+					{
+						pcs->Release();
+						*(ppCand + i) = nullptr;
+					}
 				}
 				return E_OUTOFMEMORY;
 			}

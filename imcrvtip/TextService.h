@@ -145,7 +145,7 @@ public:
 
 	// KeyHandler
 	HRESULT _InvokeKeyHandler(ITfContext *pContext, WPARAM wParam, LPARAM lParam, BYTE bSf);
-	HRESULT _HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, BYTE bSf);
+	HRESULT _HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM wParam, BYTE bSf, WCHAR wCh);
 	void _KeyboardOpenCloseChanged(BOOL showinputmode = TRUE);
 	void _KeyboardInputConversionChanged();
 	BOOL _KeyboardSetDefaultMode();
@@ -184,6 +184,7 @@ public:
 	void _HandleVkbdToggle(TfEditCookie ec, ITfContext *pContext, int n);
 
 	// KeyHandlerConversion
+	BOOL _GetKeyboardState();
 	WCHAR _GetCh(BYTE vk, BYTE vkoff = 0);
 	BYTE _GetSf(BYTE vk, WCHAR ch);
 	WORD _GetModifiers();
@@ -370,6 +371,9 @@ private:
 	//ミューテックス
 	WCHAR mgrmutexname[MAX_PATH];
 	WCHAR cnfmutexname[MAX_PATH];
+
+	//GetKeyboardState引数
+	BYTE keystate[256];
 
 	//キーマップ
 	CKEYMAP ckeymap;		//文字
