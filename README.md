@@ -1147,7 +1147,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.2.3
+Visual Studio Community 2022 17.3.6
 
 * Desktop development with C++
 
@@ -1156,11 +1156,11 @@ Visual Studio Community 2022 17.2.3
         * MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
     * SDKs, libraries, and frameworks
         * C++ ATL for latest v143 build tools (x86 & x64)
-        * Windows 11 SDK (10.0.22000.0)
+        * Windows 11 SDK (10.0.22621.0)
 
 WiX Toolset v3.11.2
 
-pandoc 2.18
+pandoc 2.19.2
 
 ### ビルド手順
 
