@@ -11,7 +11,7 @@
     <key name="timeout" value="1000" />
   </section>
   <section name="userdict">
-    <key name="backupdir" value="%APPDATA%\CorvusSKK" />
+    <key name="backupdir" value="%APPDATA%\tsf-tutcode" />
     <key name="backupgen" value="7" />
     <key name="privateonvkey" value="0x79" />
     <key name="privateonmkey" value="6" />
@@ -234,12 +234,12 @@
       <row ro="l4" hi="Kata>4" ka="Kata>4" an="Kata>4" so="4" />
       <row ro="l5" hi="Kata>5" ka="Kata>5" an="Kata>5" so="4" />
       <row ro="l6" hi="Kata>6" ka="Kata>6" an="Kata>6" so="4" />
-      <row ro="h1" hi="Kata<1" ka="Kata<1" an="Kata<1" so="4" />
-      <row ro="h2" hi="Kata<2" ka="Kata<2" an="Kata<2" so="4" />
-      <row ro="h3" hi="Kata<3" ka="Kata<3" an="Kata<3" so="4" />
-      <row ro="h4" hi="Kata<4" ka="Kata<4" an="Kata<4" so="4" />
-      <row ro="h5" hi="Kata<5" ka="Kata<5" an="Kata<5" so="4" />
-      <row ro="h6" hi="Kata<6" ka="Kata<6" an="Kata<6" so="4" />
+      <row ro="h1" hi="Kata&lt;1" ka="Kata&lt;1" an="Kata&lt;1" so="4" />
+      <row ro="h2" hi="Kata&lt;2" ka="Kata&lt;2" an="Kata&lt;2" so="4" />
+      <row ro="h3" hi="Kata&lt;3" ka="Kata&lt;3" an="Kata&lt;3" so="4" />
+      <row ro="h4" hi="Kata&lt;4" ka="Kata&lt;4" an="Kata&lt;4" so="4" />
+      <row ro="h5" hi="Kata&lt;5" ka="Kata&lt;5" an="Kata&lt;5" so="4" />
+      <row ro="h6" hi="Kata&lt;6" ka="Kata&lt;6" an="Kata&lt;6" so="4" />
       <row ro="z0" hi="StoK0" ka="StoK0" an="StoK0" so="4" />
       <row ro="z1" hi="StoK1" ka="StoK1" an="StoK1" so="4" />
       <row ro="z2" hi="StoK2" ka="StoK2" an="StoK2" so="4" />
