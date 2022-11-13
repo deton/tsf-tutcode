@@ -248,15 +248,21 @@ void LoadConfigConvPoint()
 			i++;
 		}
 	}
-	else if (FAILED(hr))
-	{
-		for (int i = 0; i < 26; i++)
-		{
-			conv_point[i][0][0] = L'A' + (WCHAR)i;
-			conv_point[i][1][0] = L'a' + (WCHAR)i;
-			conv_point[i][2][0] = L'a' + (WCHAR)i;
-		}
-	}
+	//sysconfigxmlの内容に合わせて空にする。一部の大文字はカタカナ用に使用する。
+	//%SystemRoot%\IME\IMTSFTUTCODE\config.xml ← ..\installer\config-share\config.xml
+	//radconfigxml(%APPDATA%\tsf-tutcode\config.xml)が無い時は、
+	//  tsf-tutcodeはsysconfigxmlの設定内容で動作。
+	//  この時、imtutcnf.exe起動時に表示される(ハードコードされたデフォルトの)設定内容を、
+	//  動作中の設定内容(sysconfigxml)と合わせておく。でないと、ずれが生じる。
+	//else if (FAILED(hr))
+	//{
+	//	for (int i = 0; i < 26; i++)
+	//	{
+	//		conv_point[i][0][0] = L'A' + (WCHAR)i;
+	//		conv_point[i][1][0] = L'a' + (WCHAR)i;
+	//		conv_point[i][2][0] = L'a' + (WCHAR)i;
+	//	}
+	//}
 }
 
 void LoadConvPoint(HWND hDlg)
