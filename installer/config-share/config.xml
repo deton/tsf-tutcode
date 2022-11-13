@@ -66,7 +66,7 @@
     <key name="annotatlst" value="1" />
     <key name="showmodemark" value="0" />
     <key name="showroman" value="1" />
-    <key name="showromanjlat" value="0" />
+    <key name="showromanjlat" value="1" />
     <key name="showromancomp" value="0" />
     <key name="showmodeinl" value="1" />
     <key name="showmodeinltm" value="3000" />
