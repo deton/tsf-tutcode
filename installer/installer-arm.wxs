@@ -51,42 +51,49 @@
     </Directory>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
-      <Component Id="CNF_ARM64" Guid="*" Win64="yes">
-        <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe" Source="..\ARM64\Release\imtutcnf.exe" KeyPath="yes">
+      <Component Id="CNF_ARM64" Guid="*">
+        <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe"
+          Source="..\ARM64\Release\imtutcnf.exe" KeyPath="yes">
           <!-- overwrite x86 shortcut -->
-          <Shortcut Id="S_imtutcnf_arm64" Name="CONFIG" Directory="IMTSFTUTCODE_MENU"
-            WorkingDirectory="IMTSFTUTCODE_WIN" Show="normal" Advertise="yes" />
+          <Shortcut Id="S_imtutcnf_arm64" Name="CONFIG"
+            Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_ARM64"
+            Show="normal" Advertise="yes" />
         </File>
         <RemoveFolder Id="RF_imtutcnf_arm64" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
-      <Component Id="MGR_ARM64" Guid="*" Win64="yes">
-        <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe" Source="..\ARM64\Release\imtutmgr.exe" KeyPath="yes" />
+      <Component Id="MGR_ARM64" Guid="*">
+        <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe"
+          Source="..\ARM64\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
-      <Component Id="TIP_ARM64" Guid="*" Win64="yes">
+      <Component Id="TIP_ARM64" Guid="*">
         <!-- ARM64EC -->
-        <File Id="F_imcrvtip_arm64" Name="imcrvtip.dll" Source="..\ARM64EC\Release\imcrvtip.dll" KeyPath="yes" SelfRegCost="1" />
+        <File Id="F_imcrvtip_arm64" Name="imcrvtip.dll"
+          Source="..\ARM64EC\Release\imcrvtip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
-      <Component Id="LUAEXE_ARM64" Guid="*" Win64="yes">
-        <File Id="F_luaexe_arm64" Name="lua.exe" Source="..\ARM64\Release\lua.exe" KeyPath="yes" />
+      <Component Id="LUAEXE_ARM64" Guid="*">
+        <File Id="F_luaexe_arm64" Name="lua.exe"
+          Source="..\ARM64\Release\lua.exe" KeyPath="yes" />
       </Component>
-      <Component Id="LUADLL_ARM64" Guid="*" Win64="yes">
-        <File Id="F_luadll_arm64" Name="lua54.dll" Source="..\ARM64\Release\lua54.dll" KeyPath="yes" />
+      <Component Id="LUADLL_ARM64" Guid="*">
+        <File Id="F_luadll_arm64" Name="lua54.dll"
+          Source="..\ARM64\Release\lua54.dll" KeyPath="yes" />
       </Component>
-      <Component Id="ZLIBDLL_ARM64" Guid="*" Win64="yes">
-        <File Id="F_zlibdll_ARM64" Name="zlib1.dll" Source="..\ARM64\Release\zlib1.dll" KeyPath="yes" />
+      <Component Id="ZLIBDLL_ARM64" Guid="*">
+        <File Id="F_zlibdll_ARM64" Name="zlib1.dll"
+          Source="..\ARM64\Release\zlib1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
-      <Component Id="MSVCP140_ARM64" Guid="*" Win64="yes">
+      <Component Id="MSVCP140_ARM64" Guid="*">
         <File Id="F_msvcp140_arm64" Name="msvcp140.dll"
           Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\msvcp140.dll" KeyPath="yes" />
       </Component>
-      <Component Id="VCRUNTIME140_ARM64" Guid="*" Win64="yes">
+      <Component Id="VCRUNTIME140_ARM64" Guid="*">
         <File Id="F_vcruntime140_arm64" Name="vcruntime140.dll"
           Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\vcruntime140.dll" KeyPath="yes" />
       </Component>
-      <Component Id="VCRUNTIME140_1_ARM64" Guid="607AA8F2-0D79-4E95-892E-4A1C22588A0F" Win64="yes">
+      <Component Id="VCRUNTIME140_1_ARM64" Guid="607AA8F2-0D79-4E95-892E-4A1C22588A0F">
         <File Id="F_vcruntime140_1_arm64" Name="vcruntime140_1.dll"
           Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\vcruntime140_1.dll" KeyPath="yes" />
       </Component>
@@ -94,13 +101,14 @@
 
     <!-- TIP only for ARM32 -->
     <DirectoryRef Id="IMTSFTUTCODE_ARM32">
-      <Component Id="TIP_ARM32" Guid="*">
+      <Component Id="TIP_ARM32" Guid="*" Win64="no">
         <!-- self registration arm32 dll fails. use regsvr32 command in custom action. -->
-        <File Id="F_imtuttip_arm32" Name="imtuttip.dll" Source="..\ARM\Release\imtuttip.dll" KeyPath="yes" />
+        <File Id="F_imtuttip_arm32" Name="imtuttip.dll"
+          Source="..\ARM\Release\imtuttip.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
-    <Component Id="REG_ARM64" Guid="*" Directory="TARGETDIR" Win64="yes">
+    <Component Id="REG_ARM64" Guid="*" Directory="TARGETDIR">
       <RegistryValue Id="RV_run_arm64" Action="write"
         Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
         Type="string" Name="imtutmgr" Value="&quot;[#F_imtutmgr_arm64]&quot;" KeyPath="yes" />
@@ -145,10 +153,6 @@
       <Custom Action="UNREGARM32DLL" Before="RemoveFiles">Installed</Custom>
       <Custom Action="REGARM32DLL" After="InstallFiles">NOT REMOVE</Custom>
     </InstallExecuteSequence>
-
-    <Condition Message="This application does not support this version of Windows.">
-      <![CDATA[VersionNT >= 603]]>
-    </Condition>
 
   </Product>
 
