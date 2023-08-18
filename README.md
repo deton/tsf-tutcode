@@ -455,11 +455,9 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 同時に１つのみ使用可能です。IPv4、IPv6 に対応しています。
 
-通信に使用する文字コードは、EUC-JIS-2004、UTF-8 に対応しています。
+通信に使用する文字コードは、EUC-JIS-2004 / EUC-JP、UTF-8 に対応しています。
 
-通常のSKK辞書サーバーではデフォルトの EUC-JIS-2004 を使用してください。
-
-設定を EUC-JIS-2004 にしたとき、Unicode に変換できない場合は候補毎に EUC-JP にフォールバックします。
+通常のSKK辞書サーバーではデフォルトの EUC-JIS-2004 / EUC-JP を使用してください。
 
 サーバーコンプリーション機能は未実装です。
 
@@ -893,7 +891,7 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.4.4です。
+現在使用しているLuaのバージョンは5.4.6です。
 
 詳細はこちらを参照してください。https://www.lua.org/manual/5.4/manual.html
 
@@ -1145,7 +1143,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.4.4
+Visual Studio Community 2022 17.7.0
 
 * Desktop development with C++
 
@@ -1158,7 +1156,7 @@ Visual Studio Community 2022 17.4.4
 
 WiX Toolset v3.11.2
 
-pandoc 2.19.2
+pandoc 3.1.6.1
 
 ### ビルド手順
 
