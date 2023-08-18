@@ -2,7 +2,7 @@
   Lua with UTF-8 Wrapper for Windows
 
   Released under the MIT license
-  Copyright (C) 2014-2020 SASAKI Nobuyuki
+  Copyright (C) 2014-2023 SASAKI Nobuyuki
 */
 
 #include "lprefix.h"
@@ -48,6 +48,34 @@ char *u8wstos(const wchar_t *s)
 
 	/* call free function to deallocate */
 	return buf;
+}
+
+char **make_u8argv(int argc, wchar_t **wargv)
+{
+	char **argv = (char **)calloc(argc + 1, sizeof(void *));
+	if (argv == NULL) {
+		return NULL;
+	}
+	else {
+		for (int i = 0; i < argc; i++) {
+			argv[i] = u8wstos(wargv[i]);
+			if (argv[i] == NULL) {
+				free_u8argv(argc, argv);
+				return NULL;
+			}
+		}
+	}
+	return argv;
+}
+
+void free_u8argv(int argc, char **argv)
+{
+	if (argv) {
+		for (int i = 0; i < argc; i++) {
+			free(argv[i]);
+		}
+	}
+	free(argv);
 }
 
 DWORD u8GetModuleFileName(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
