@@ -1,46 +1,37 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+  xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <?include installer-version.wxi ?>
 
-  <Product
-    Id="*"
+  <Package
     Name="tsf-tutcode (x86)"
     Version="$(var.version)"
     Manufacturer="KIHARA Hideto"
     Language="1033"
+    Scope="perMachine"
+    InstallerVersion="500"
     UpgradeCode="31DA56FD-D180-4C9B-8F1E-AA935A0119B4">
 
-    <Package
-      Id="*"
-      Compressed="yes"
-      Description="tsf-tutcode (x86)"
-      Comments="ver. $(var.version)"
-      Platform="x86"
-      InstallerVersion="500"
-      InstallScope="perMachine"
-      InstallPrivileges="elevated" />
+    <SummaryInformation Description="tsf-tutcode (x86)" />
 
     <Media Id="1" Cabinet="x86.cab" CompressionLevel="high" EmbedCab="yes" />
 
     <!-- disable advertised shortcuts -->
     <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
 
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="SystemFolder" Name="System">
-        <Directory Id="IME_X86" Name="IME">
-          <Directory Id="IMTSFTUTCODE_X86" Name="IMTSFTUTCODE" />
-        </Directory>
+    <StandardDirectory Id="SystemFolder">
+      <Directory Id="IME_X86" Name="IME">
+        <Directory Id="IMTSFTUTCODE_X86" Name="IMTSFTUTCODE" />
       </Directory>
-      <Directory Id="WindowsFolder" Name="Windows">
-        <Directory Id="IME_WIN" Name="IME">
-          <Directory Id="IMTSFTUTCODE_WIN" Name="IMTSFTUTCODE" />
-        </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="WindowsFolder">
+      <Directory Id="IME_WIN" Name="IME">
+        <Directory Id="IMTSFTUTCODE_WIN" Name="IMTSFTUTCODE" />
       </Directory>
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="IMTSFTUTCODE_MENU" Name="tsf-tutcode" />
-      </Directory>
-    </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="IMTSFTUTCODE_MENU" Name="tsf-tutcode" />
+    </StandardDirectory>
 
     <DirectoryRef Id="IMTSFTUTCODE_X86">
       <Component Id="CNF_X86" Guid="*">
@@ -118,12 +109,11 @@
       </Component>
     </DirectoryRef>
 
-    <Component Id="REG_X86" Guid="*" Directory="TARGETDIR">
+    <Component Id="REG_X86" Guid="*" Directory="TARGETDIR"
+      Condition="ARCH_NAME = &quot;x86&quot;">
       <RegistryValue Id="RV_run_x86" Action="write"
-        Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
-        Type="string" Name="imtutmgr" Value="&quot;[#F_imtutmgr_x86]&quot;" KeyPath="yes" />
-      <!-- enabled autorun only on 32-bit Windows. -->
-      <Condition><![CDATA[ARCH_NAME = "x86"]]></Condition>
+        Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Type="string"
+        Name="imtutmgr" Value="&quot;[#F_imtutmgr_x86]&quot;" KeyPath="yes" />
     </Component>
 
     <Feature Id="Default" Title="Main" Level="1">
@@ -143,7 +133,7 @@
       <ComponentRef Id="REG_X86" />
     </Feature>
 
-    <UIRef Id="WixUI_Minimal" />
+    <ui:WixUI Id="WixUI_Minimal" />
     <WixVariable Id="WixUILicenseRtf" Value="theme-bundle\license.rtf" />
     <WixVariable Id="WixUIBannerBmp" Value="theme-bundle\banner.bmp" />
     <WixVariable Id="WixUIDialogBmp" Value="theme-bundle\dialog.bmp" />
@@ -157,6 +147,6 @@
       <ScheduleReboot After="InstallFinalize" />
     </InstallExecuteSequence>
 
-  </Product>
+  </Package>
 
 </Wix>

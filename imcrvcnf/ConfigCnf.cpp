@@ -109,20 +109,20 @@ BOOL SetFileDacl(LPWSTR path)
 int GetDpi(HWND hwnd)
 {
 	HDC hdc = GetDC(hwnd);
-	int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
+	int dpi = GetDeviceCaps(hdc, LOGPIXELSY);
 	ReleaseDC(hwnd, hdc);
 
 	// Windows 10 ver.1703 supports Per-Monitor DPI Awareness V2
 	if (IsWindowsVersion100RS2OrLater())
 	{
-		// try delay load api-ms-win-shcore-scaling-l1-1-1.dll
+		// try delay load user32.dll
 		__try
 		{
-			HMONITOR hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-			UINT dpiX, dpiY;
-			if (SUCCEEDED(GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY)))
+			// Windows 10 ver.1607 or later supported
+			UINT wdpi = GetDpiForWindow(hwnd);
+			if (wdpi != 0)
 			{
-				dpi = (int)dpiX;
+				dpi = (int)wdpi;
 			}
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER)
@@ -133,7 +133,7 @@ int GetDpi(HWND hwnd)
 	return dpi;
 }
 
-int GetScaledSizeX(HWND hwnd, int size)
+int GetScaledSize(HWND hwnd, int size)
 {
 	return MulDiv(size, GetDpi(hwnd), C_USER_DEFAULT_SCREEN_DPI);
 }
