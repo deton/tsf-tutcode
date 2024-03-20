@@ -3,21 +3,35 @@ setlocal
 
 pushd "%~dp0"
 
-if not exist "%USERPROFILE%\.dotnet\tools\wix.exe" (
-  dotnet tool install --global wix
+dotnet tool update --global wix
+
+echo [Tool]
+wix --version
+
+set EXTENSIONS= ^
+WixToolset.Bal.wixext ^
+WixToolset.ComPlus.wixext ^
+WixToolset.Dependency.wixext ^
+WixToolset.DifxApp.wixext ^
+WixToolset.DirectX.wixext ^
+WixToolset.Firewall.wixext ^
+WixToolset.Http.wixext ^
+WixToolset.Iis.wixext ^
+WixToolset.Msmq.wixext ^
+WixToolset.Netfx.wixext ^
+WixToolset.PowerShell.wixext ^
+WixToolset.Sql.wixext ^
+WixToolset.UI.wixext ^
+WixToolset.Util.wixext ^
+WixToolset.VisualStudio.wixext
+
+for %%i in (%EXTENSIONS%) do (
+  wix extension remove --global %%i
+  wix extension add --global %%i
 )
 
-if not exist "%USERPROFILE%\.wix\extensions\WixToolset.UI.wixext" (
-  wix extension add --global WixToolset.UI.wixext
-)
-
-if not exist "%USERPROFILE%\.wix\extensions\WixToolset.Bal.wixext" (
-  wix extension add --global WixToolset.Bal.wixext
-)
-
-if not exist "%USERPROFILE%\.wix\extensions\WixToolset.Util.wixext" (
-  wix extension add --global WixToolset.Util.wixext
-)
+echo [Extensions]
+wix extension list --global
 
 popd
 

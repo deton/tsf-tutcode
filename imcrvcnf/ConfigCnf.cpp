@@ -1,12 +1,12 @@
 ﻿
 #include "configxml.h"
+#include "utf8.h"
 #include "imcrvcnf.h"
 #include "resource.h"
 
 LPCWSTR TextServiceDesc = TEXTSERVICE_DESC;
 WCHAR cnfmutexname[MAX_PATH];	//ミューテックス
 WCHAR cnfcanceldiceventname[MAX_PATH];	//辞書取込キャンセルイベント
-WCHAR krnlobjsddl[MAX_SECURITYDESC];	//SDDL
 WCHAR mgrpipename[MAX_PIPENAME];	//名前付きパイプ
 WCHAR pathconfigxml[MAX_PATH];	//設定
 WCHAR pathskkdic[MAX_PATH];		//取込SKK辞書
@@ -39,22 +39,7 @@ void CreateIpcName()
 	ZeroMemory(cnfmutexname, sizeof(cnfmutexname));
 	ZeroMemory(cnfcanceldiceventname, sizeof(cnfcanceldiceventname));
 
-	ZeroMemory(krnlobjsddl, sizeof(krnlobjsddl));
 	ZeroMemory(mgrpipename, sizeof(mgrpipename));
-
-	LPWSTR pszUserSid = nullptr;
-
-	if (GetUserSid(&pszUserSid))
-	{
-		// SDDL_ALL_APP_PACKAGES / SDDL_RESTRICTED_CODE / SDDL_LOCAL_SYSTEM / SDDL_BUILTIN_ADMINISTRATORS / User SID
-		_snwprintf_s(krnlobjsddl, _TRUNCATE, L"D:%s(A;;GA;;;RC)(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;%s)",
-			(IsWindowsVersion62OrLater() ? L"(A;;GA;;;AC)" : L""), pszUserSid);
-
-		// (SDDL_MANDATORY_LABEL, SDDL_NO_WRITE_UP, SDDL_ML_LOW)
-		wcsncat_s(krnlobjsddl, L"S:(ML;;NW;;;LW)", _TRUNCATE);
-
-		LocalFree(pszUserSid);
-	}
 
 	LPWSTR pszUserUUID = nullptr;
 
@@ -345,4 +330,9 @@ BOOL SaveConfigXml(HWND hPropSheetDlg)
 	}
 
 	return TRUE;
+}
+
+void ReplaceWellFormed(LPWSTR str, SIZE_T size)
+{
+	wcsncpy_s(str, size, TOWELLFORMED(str), _TRUNCATE);
 }

@@ -1,6 +1,7 @@
 ﻿
 #include "common.h"
 #include "configxml.h"
+#include "utf8.h"
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "xmllite.lib")
@@ -623,7 +624,7 @@ HRESULT WriterStartElement(IXmlWriter *pWriter, LPCWSTR element)
 
 	if (pWriter != nullptr)
 	{
-		hr = pWriter->WriteStartElement(nullptr, element, nullptr);
+		hr = pWriter->WriteStartElement(nullptr, TOWELLFORMED(element), nullptr);
 	}
 
 	return hr;
@@ -647,7 +648,7 @@ HRESULT WriterAttribute(IXmlWriter *pWriter, LPCWSTR name, LPCWSTR value)
 
 	if (pWriter != nullptr)
 	{
-		hr = pWriter->WriteAttributeString(nullptr, name, nullptr, value);
+		hr = pWriter->WriteAttributeString(nullptr, TOWELLFORMED(name), nullptr, TOWELLFORMED(value));
 	}
 
 	return hr;
