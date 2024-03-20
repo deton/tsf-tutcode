@@ -173,6 +173,9 @@
     <ClCompile Include="..\common\configxml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\utf8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\common\moji.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

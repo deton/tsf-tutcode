@@ -1143,7 +1143,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.7.6
+Visual Studio Community 2022 17.9.2
 
 * Desktop development with C++
 
@@ -1154,22 +1154,32 @@ Visual Studio Community 2022 17.7.6
         * C++ ATL for latest v143 build tools (x86 & x64)
         * Windows 11 SDK (10.0.22621.0)
 
-WiX Toolset v4.0.2
+WiX Toolset v4.0.4
 
-* 要 .NET SDK 6.0 またはそれ以降
+* requires the .NET SDK, version 6 or later.
 
-pandoc 3.1.9
+pandoc 3.1.12.2
 
 ### ビルド手順
+
+WiX Toolset のインストール/アップデート
+
+    > installer\_wix_install.cmd
+
+WiX Toolset のアンインストール
+
+    > installer\_wix_uninstall.cmd
 
 ビルド
 
     > installer\_solution_build.cmd
+
     > installer\_build.cmd
 
 ビルド ＆ 署名 ＆ 検証
 
     > installer\_solution_build.cmd
+
     > installer\_sign.cmd <SHA-1> <URL>
 
         * <SHA-1> : SHA-1 thumbprint of certificate
@@ -1180,6 +1190,7 @@ pandoc 3.1.9
 クリア
 
     > installer\_solution_clean.cmd
+
     > installer\_clean.cmd
 
 ### 履歴
@@ -1262,12 +1273,12 @@ pandoc 3.1.9
 
 ---
 
-Copyright (C) 2013-2023 KIHARA, Hideto
+Copyright (C) 2013-2024 KIHARA, Hideto
 https://github.com/deton/tsf-tutcode
 
 以下CorvusSKKのCopyright:
 
-Copyright (C) 2011-2023 SASAKI Nobuyuki
+Copyright (C) 2011-2024 SASAKI Nobuyuki
 
 nathancorvussolis@gmail.com
 
