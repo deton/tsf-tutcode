@@ -27,7 +27,7 @@ WixToolset.VisualStudio.wixext
 
 for %%i in (%EXTENSIONS%) do (
   wix extension remove --global %%i
-  wix extension add --global %%i
+  wix extension add --global %%i/4.0.4
 )
 
 echo [Extensions]
