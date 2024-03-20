@@ -3,7 +3,7 @@ setlocal
 
 pushd "%~dp0"
 
-dotnet tool update --global wix
+dotnet tool update --global --version 4.0.4 wix
 
 echo [Tool]
 wix --version
