@@ -2,17 +2,17 @@
   xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
   xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
-  <?include installer-version.wxi ?>
-
   <Bundle
-    Name="tsf-tutcode $(var.version) (x86/x64)"
-    Version="$(var.version)"
+    Name="tsf-tutcode $(env.VERSION)"
+    Version="$(env.VERSION)"
     UpgradeCode="6EFC7861-51C4-4BCF-88E6-67687FABFAE5"
     Manufacturer="KIHARA Hideto"
     Copyright="© 2021 KIHARA Hideto"
     AboutUrl="https://github.com/deton/tsf-tutcode"
     DisableModify="button"
-    Condition="VersionNT &gt;= v6.1">
+    Condition="(VersionNT = v10.0 AND WindowsBuildNumber &gt;= 14393) OR (VersionNT &gt; v10.0)">
+
+    <!-- Windows 10 version 1607 build 14393 or later -->
 
     <BootstrapperApplication>
       <bal:WixStandardBootstrapperApplication
@@ -23,34 +23,6 @@
         SuppressOptionsUI="yes"
         ShowVersion="yes" />
     </BootstrapperApplication>
-
-    <!-- v6.1 Service Pack 1 -->
-    <bal:Condition
-      Message="This application requires Service Pack 1 for Windows 7 / Server 2008 R2."
-      Condition="NOT ((VersionNT = v6.1) AND (ServicePackLevel &lt; 1))" />
-
-    <!-- v6.3 KB2919355 -->
-    <util:FileSearch
-      Id="HAL.DLL"
-      Path="[WindowsFolder]System32\hal.dll"
-      Result="version"
-      Variable="NT603HALVER"
-      Condition="VersionNT = v6.3" />
-    <bal:Condition
-      Message="This application requires S14 Update (KB2919355) for Windows 8.1 / Server 2012 R2."
-      Condition="NOT ((VersionNT = v6.3) AND (NT603HALVER &lt; v6.3.9600.17031))" />
-
-    <!-- ucrtbase.dll version -->
-    <util:FileSearch
-      Id="UCRTBASE.DLL"
-      Path="[WindowsFolder]System32\ucrtbase.dll"
-      Result="version"
-      Variable="UCRTBASEVER" />
-    <!-- universal crt version -->
-    <Variable
-      Name="UCRTVER"
-      Type="version"
-      Value="10.0.10240.0" />
 
     <!-- processor architecture -->
     <util:RegistrySearch
@@ -63,23 +35,18 @@
 
     <Chain>
 
-      <?include installer-bundle-ucrt.wxi ?>
-
       <!-- x86 modules -->
       <MsiPackage
         Id="X86_MSI"
-        SourceFile="build\x86.msi"
+        SourceFile="$(env.OutDir)\x86.msi"
         DisplayName="x86 modules"
         Compressed="yes"
-        InstallCondition="VersionNT">
-        <!-- enabled autorun x86 imcrvmgr.exe only on 32-bit Windows. -->
-        <MsiProperty Name="ARCH_NAME" Value="[ARCH_NAME]" />
-      </MsiPackage>
+        InstallCondition="VersionNT" />
 
       <!-- x64 modules -->
       <MsiPackage
         Id="X64_MSI"
-        SourceFile="build\x64.msi"
+        SourceFile="$(env.OutDir)\x64.msi"
         DisplayName="x64 modules"
         Compressed="yes"
         InstallCondition="VersionNT64 AND (ARCH_NAME = &quot;AMD64&quot;)"

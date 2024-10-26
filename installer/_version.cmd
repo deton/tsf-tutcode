@@ -1,6 +1,0 @@
-
-set VERSION=0.9.2
-
-set TARGETDIR=build
-
-set ENABLE_PLATFORM_ARM=0

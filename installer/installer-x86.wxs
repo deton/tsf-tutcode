@@ -1,11 +1,9 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
   xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
-  <?include installer-version.wxi ?>
-
   <Package
     Name="tsf-tutcode (x86)"
-    Version="$(var.version)"
+    Version="$(env.VERSION)"
     Manufacturer="KIHARA Hideto"
     Language="1033"
     Scope="perMachine"
@@ -18,6 +16,15 @@
 
     <!-- disable advertised shortcuts -->
     <Property Id="DISABLEADVTSHORTCUTS" Value="1" />
+
+    <!-- processor architecture -->
+    <Property Id="ARCH_NAME">
+      <RegistrySearch Id="REG_ARCH_X86"
+        Root="HKLM"
+        Key="SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+        Name="PROCESSOR_ARCHITECTURE"
+        Type="raw" />
+    </Property>
 
     <StandardDirectory Id="SystemFolder">
       <Directory Id="IME_X86" Name="IME">
@@ -36,7 +43,7 @@
     <DirectoryRef Id="IMTSFTUTCODE_X86">
       <Component Id="CNF_X86" Guid="*">
         <File Id="F_imtutcnf_x86" Name="imtutcnf.exe"
-          Source="..\Win32\Release\imtutcnf.exe" KeyPath="yes">
+          Source="..\build\Win32\Release\imtutcnf.exe" KeyPath="yes">
           <Shortcut Id="S_imtutcnf_x86" Name="CONFIG"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_X86"
             Show="normal" Advertise="yes" />
@@ -45,23 +52,23 @@
       </Component>
       <Component Id="MGR_X86" Guid="*">
         <File Id="F_imtutmgr_x86" Name="imtutmgr.exe"
-          Source="..\Win32\Release\imtutmgr.exe" KeyPath="yes" />
+          Source="..\build\Win32\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
       <Component Id="TIP_X86" Guid="*">
         <File Id="F_imtuttip_x86" Name="imtuttip.dll"
-          Source="..\Win32\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
+          Source="..\build\Win32\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
       <Component Id="LUAEXE_X86" Guid="*">
         <File Id="F_luaexe_x86" Name="lua.exe"
-          Source="..\Win32\Release\lua.exe" KeyPath="yes" />
+          Source="..\build\Win32\Release\lua.exe" KeyPath="yes" />
       </Component>
       <Component Id="LUADLL_X86" Guid="*">
         <File Id="F_luadll_x86" Name="lua54.dll"
-          Source="..\Win32\Release\lua54.dll" KeyPath="yes" />
+          Source="..\build\Win32\Release\lua54.dll" KeyPath="yes" />
       </Component>
       <Component Id="ZLIBDLL_X86" Guid="*">
         <File Id="F_zlibdll_x86" Name="zlib1.dll"
-          Source="..\Win32\Release\zlib1.dll" KeyPath="yes" />
+          Source="..\build\Win32\Release\zlib1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
@@ -79,19 +86,19 @@
     <DirectoryRef Id="IMTSFTUTCODE_WIN">
       <Component Id="CONFIG_XML" Guid="*">
         <File Id="F_config_xml" Name="config.xml"
-          Source="build\config.xml" KeyPath="yes" />
+          Source="$(env.OutDir)\config.xml" KeyPath="yes" />
       </Component>
       <Component Id="INIT_LUA" Guid="*">
         <File Id="F_init_lua" Name="init.lua"
-          Source="build\init.lua" KeyPath="yes" />
+          Source="$(env.OutDir)\init.lua" KeyPath="yes" />
       </Component>
       <Component Id="SKKDICT_TXT" Guid="*">
         <File Id="F_skkdict_txt" Name="skkdict.txt"
-          Source="build\skkdict.txt" KeyPath="yes" />
+          Source="$(env.OutDir)\skkdict.txt" KeyPath="yes" />
       </Component>
       <Component Id="README_HTML" Guid="*">
         <File Id="F_readme_html" Name="README.html"
-          Source="build\README.html" KeyPath="yes">
+          Source="$(env.OutDir)\README.html" KeyPath="yes">
           <Shortcut Id="S_readme_html" Name="README.html"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_WIN"
             Show="normal" Advertise="yes" />
@@ -100,7 +107,7 @@
       </Component>
       <Component Id="LICENSE_TXT" Guid="*">
         <File Id="F_license_txt" Name="LICENSE.txt"
-          Source="build\LICENSE.txt" KeyPath="yes">
+          Source="$(env.OutDir)\LICENSE.txt" KeyPath="yes">
           <Shortcut Id="S_license_txt" Name="LICENSE.txt"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_WIN"
             Show="normal" Advertise="yes" />
@@ -109,12 +116,15 @@
       </Component>
     </DirectoryRef>
 
-    <Component Id="REG_X86" Guid="*" Directory="TARGETDIR"
-      Condition="ARCH_NAME = &quot;x86&quot;">
-      <RegistryValue Id="RV_run_x86" Action="write"
-        Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Type="string"
-        Name="imtutmgr" Value="&quot;[#F_imtutmgr_x86]&quot;" KeyPath="yes" />
-    </Component>
+    <DirectoryRef Id="IMTSFTUTCODE_X86">
+      <Component Id="REG_X86" Guid="*"
+        Condition="ARCH_NAME = &quot;x86&quot;">
+        <!-- enabled autorun only on 32-bit Windows. -->
+        <RegistryValue Id="R_run_x86" Action="write"
+          Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Type="string"
+          Name="imtutmgr" Value="&quot;[#F_imtutmgr_x86]&quot;" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
 
     <Feature Id="Default" Title="Main" Level="1">
       <ComponentRef Id="CNF_X86" />

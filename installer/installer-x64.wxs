@@ -1,11 +1,9 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
   xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
-  <?include installer-version.wxi ?>
-
   <Package
     Name="tsf-tutcode (x64)"
-    Version="$(var.version)"
+    Version="$(env.VERSION)"
     Manufacturer="KIHARA Hideto"
     Language="1033"
     Scope="perMachine"
@@ -31,7 +29,7 @@
     <DirectoryRef Id="IMTSFTUTCODE_X64">
       <Component Id="CNF_X64" Guid="*">
         <File Id="F_imtutcnf_x64" Name="imtutcnf.exe"
-          Source="..\x64\Release\imtutcnf.exe" KeyPath="yes">
+          Source="..\build\x64\Release\imtutcnf.exe" KeyPath="yes">
           <!-- overwrite x86 shortcut -->
           <Shortcut Id="S_imtutcnf_x64" Name="CONFIG"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_X64"
@@ -41,23 +39,23 @@
       </Component>
       <Component Id="MGR_X64" Guid="*">
         <File Id="F_imtutmgr_x64" Name="imtutmgr.exe"
-          Source="..\x64\Release\imtutmgr.exe" KeyPath="yes" />
+          Source="..\build\x64\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
       <Component Id="TIP_X64" Guid="*">
         <File Id="F_imtuttip_x64" Name="imtuttip.dll"
-          Source="..\x64\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
+          Source="..\build\x64\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
       <Component Id="LUAEXE_X64" Guid="*">
         <File Id="F_luaexe_x64" Name="lua.exe"
-          Source="..\x64\Release\lua.exe" KeyPath="yes" />
+          Source="..\build\x64\Release\lua.exe" KeyPath="yes" />
       </Component>
       <Component Id="LUADLL_X64" Guid="*">
         <File Id="F_luadll_x64" Name="lua54.dll"
-          Source="..\x64\Release\lua54.dll" KeyPath="yes" />
+          Source="..\build\x64\Release\lua54.dll" KeyPath="yes" />
       </Component>
       <Component Id="ZLIBDLL_X64" Guid="*">
         <File Id="F_zlibdll_x64" Name="zlib1.dll"
-          Source="..\x64\Release\zlib1.dll" KeyPath="yes" />
+          Source="..\build\x64\Release\zlib1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
@@ -76,11 +74,13 @@
       </Component>
     </DirectoryRef>
 
-    <Component Id="REG_X64" Guid="*" Directory="TARGETDIR">
-      <RegistryValue Id="RV_run_x64" Action="write"
-        Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Type="string"
-        Name="imtutmgr" Value="&quot;[#F_imtutmgr_x64]&quot;" KeyPath="yes" />
-    </Component>
+    <DirectoryRef Id="IMTSFTUTCODE_X64">
+      <Component Id="REG_X64" Guid="*">
+        <RegistryValue Id="R_run_x64" Action="write"
+          Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Type="string"
+          Name="imtutmgr" Value="&quot;[#F_imtutmgr_x64]&quot;" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
 
     <Feature Id="Default" Title="Main" Level="1">
       <ComponentRef Id="CNF_X64" />
