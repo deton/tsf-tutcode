@@ -1,0 +1,46 @@
+﻿<Project Sdk="WixToolset.Sdk/$(WIXTOOLSET_VERSION)">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <DebugType>none</DebugType>
+    <Configuration>Release</Configuration>
+    <SuppressValidation>true</SuppressValidation>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <!--
+    <InstallerPlatform />
+    <BaseIntermediateOutputPath />
+    <OutDir />
+    <SignOutput />
+    -->
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackagePlatform)'=='x86'">
+    <OutputName>x86</OutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackagePlatform)'=='x64'">
+    <OutputName>x64</OutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackagePlatform)'=='arm32'">
+    <OutputName>arm32</OutputName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PackagePlatform)'=='arm64'">
+    <OutputName>arm64</OutputName>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(PackagePlatform)'=='x86'">
+    <Compile Include="installer-x86.wxs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(PackagePlatform)'=='x64'">
+    <Compile Include="installer-x64.wxs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(PackagePlatform)'=='arm32'">
+    <Compile Include="installer-arm32.wxs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(PackagePlatform)'=='arm64'">
+    <Compile Include="installer-arm64.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="$(WIXTOOLSET_VERSION)" />
+  </ItemGroup>
+  <Target Name="SignMsi">
+    <Message Importance="high" Text="SignMsi: @(SignMsi)" />
+    <Exec Command="$(SIGNCOMMAND) &quot;%(SignMsi.FullPath)&quot;" />
+  </Target>
+</Project>

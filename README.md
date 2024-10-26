@@ -1,5 +1,5 @@
 
-# tsf-tutcode ver. 0.9.2
+# tsf-tutcode ver. 0.9.3
 
 Windowsで動作する漢字直接入力用のIMEです。
 
@@ -19,11 +19,9 @@ CorvusSKK に手を入れて以下の機能を追加しています。
 
 ### 対応OS
 
-* Windows 8.1   (32-bit / 64-bit)
-
-    * S14 Update ( KB2919355 )
-
 * Windows 10    (32-bit / 64-bit)
+
+    * バージョン 1607 (Anniversary Update) ビルド 14393 以降
 
 * Windows 11    (64-bit)
 
@@ -891,7 +889,7 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.4.6です。
+現在使用しているLuaのバージョンは5.4.7です。
 
 詳細はこちらを参照してください。https://www.lua.org/manual/5.4/manual.html
 
@@ -1068,31 +1066,6 @@ ASCII, JIS X 0201, JIS X 0213に変換できない文字が含まれていた場
     * 「;;セミコロン」と入力する。
 
 
-### Windows 8, 8.1, 10, 11 のタッチキーボード
-
-タッチパネルを搭載したマシンでハードウェアキーボードに準拠したレイアウトを使用するには、以下の操作をおこなってください。
-
-* Windows 8 の場合
-    * 「PC設定」の画面 → 「全般」を選択 → 「タッチキーボード」の項目 → 「ハードウェアキーボードに準拠したレイアウトを使えるようにする」をオン
-
-* Windows 8.1 の場合
-    * 「PC設定」の画面 → 「PCとデバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
-
-* Windows 10 (Ver.1703 まで) の場合
-    * 「デバイス」の画面 → 「入力」を選択 → 「ハードウェアキーボードに準拠したレイアウトをタッチキーボードオプションとして追加する」をオン
-
-タッチパネルを搭載していないマシンでハードウェアキーボードに準拠したレイアウトを使用するには、レジストリに以下の値を設定してください。
-
-Windows 10 (Ver.1703 まで) の場合
-
-    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\TabletTip\1.7]
-    "EnableCompatibilityKeyboard"=dword:00000001
-
-Windows 10 (Ver.1709 から)、Windows 11 の場合
-
-    [HKEY_CURRENT_USER\SOFTWARE\Microsoft\TabletTip\1.7]
-    "DisableNewKeyboardExperience"=dword:00000001
-
 ### 漢直Winよりもtsf-tutcodeを選ぶ状況
 
 * Windows 8のストアアプリに入力したい場合。漢直Winでは入力不可。
@@ -1143,7 +1116,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.9.2
+Visual Studio Community 2022 17.10.5
 
 * Desktop development with C++
 
@@ -1152,23 +1125,17 @@ Visual Studio Community 2022 17.9.2
         * MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
     * SDKs, libraries, and frameworks
         * C++ ATL for latest v143 build tools (x86 & x64)
-        * Windows 11 SDK (10.0.22621.0)
+        * Windows 11 SDK (10.0.26100.0)
 
-WiX Toolset v4.0.4
+WiX Toolset v5.0.1
 
-* requires the .NET SDK, version 6 or later.
+* 要 .NET SDK 6 以降
 
-pandoc 3.1.12.2
+* ビルド用バッチファイル内の dotnet build コマンドによって暗黙的に復元
+
+pandoc 3.3
 
 ### ビルド手順
-
-WiX Toolset のインストール/アップデート
-
-    > installer\_wix_install.cmd
-
-WiX Toolset のアンインストール
-
-    > installer\_wix_uninstall.cmd
 
 ビルド
 
@@ -1187,7 +1154,19 @@ WiX Toolset のアンインストール
 
     > installer\_verify.cmd
 
-クリア
+デバッグビルド
+
+    > installer\_solution_build_debug.cmd
+
+デバッグビルド IME の登録 (x86, x64)
+
+    > installer\_debug_reg.cmd
+
+デバッグビルド IME の登録解除 (x86, x64)
+
+    > installer\_debug_unreg.cmd
+
+クリーン
 
     > installer\_solution_clean.cmd
 
