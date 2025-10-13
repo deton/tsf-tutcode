@@ -370,8 +370,7 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 	std::wstring ca = candidates[count + _uShowedCount + idx].first.first;
 	std::wstring an = candidates[count + _uShowedCount + idx].first.second;
 
-	static const std::wregex resp(markSP);
-	static const std::wstring snbsp(markNBSP);
+	const std::wregex &resp = RegExp(markSP);
 
 	int color_cycle = cycle;
 	if ((_mode == wm_complement) && (ca.compare(0, searchkey.size(), searchkey) != 0))
@@ -410,7 +409,7 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 	case CL_COLOR_CA:
 		if (_mode == wm_candidate)
 		{
-			s.append(std::regex_replace(ca, resp, snbsp));
+			s.append(std::regex_replace(ca, resp, markNBSP));
 		}
 		else
 		{
@@ -419,12 +418,12 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 				if (ca.compare(0, searchkey.size(), searchkey) == 0)
 				{
 					//前方一致
-					s.append(std::regex_replace(ca.substr(searchkey.size()), resp, snbsp));
+					s.append(std::regex_replace(ca.substr(searchkey.size()), resp, markNBSP));
 				}
 				else
 				{
 					//後方一致
-					s.append(std::regex_replace(ca.substr(0, ca.size() - searchkey.size()), resp, snbsp));
+					s.append(std::regex_replace(ca.substr(0, ca.size() - searchkey.size()), resp, markNBSP));
 				}
 			}
 		}
@@ -452,14 +451,14 @@ std::wstring CCandidateWindow::_MakeCandidateString(UINT page, UINT count, UINT 
 		{
 			if (_pTextService->cx_annotation && !an.empty())
 			{
-				s.append(std::regex_replace(an, resp, snbsp));
+				s.append(std::regex_replace(an, resp, markNBSP));
 			}
 		}
 		else
 		{
 			if (!an.empty())
 			{
-				s.append(std::regex_replace(an, resp, snbsp));
+				s.append(std::regex_replace(an, resp, markNBSP));
 			}
 		}
 		break;

@@ -1,5 +1,5 @@
 
-# tsf-tutcode ver. 0.9.3
+# tsf-tutcode ver. 0.9.4
 
 Windowsで動作する漢字直接入力用のIMEです。
 
@@ -889,7 +889,7 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.4.7です。
+現在使用しているLuaのバージョンは5.4.8です。
 
 詳細はこちらを参照してください。https://www.lua.org/manual/5.4/manual.html
 
@@ -1116,7 +1116,9 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.10.5
+Visual Studio Community 2022 17.14.15
+
+* .NET desktop development
 
 * Desktop development with C++
 
@@ -1125,15 +1127,12 @@ Visual Studio Community 2022 17.10.5
         * MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)
     * SDKs, libraries, and frameworks
         * C++ ATL for latest v143 build tools (x86 & x64)
-        * Windows 11 SDK (10.0.26100.0)
 
-WiX Toolset v5.0.1
-
-* 要 .NET SDK 6 以降
+WiX Toolset v6.0.2
 
 * ビルド用バッチファイル内の dotnet build コマンドによって暗黙的に復元
 
-pandoc 3.3
+pandoc 3.8
 
 ### ビルド手順
 
@@ -1252,12 +1251,12 @@ pandoc 3.3
 
 ---
 
-Copyright (C) 2013-2024 KIHARA, Hideto
+Copyright (C) 2013-2025 KIHARA, Hideto
 https://github.com/deton/tsf-tutcode
 
 以下CorvusSKKのCopyright:
 
-Copyright (C) 2011-2024 SASAKI Nobuyuki
+Copyright (C) 2011-2025 SASAKI Nobuyuki
 
 nathancorvussolis@gmail.com
 

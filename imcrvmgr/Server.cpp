@@ -8,12 +8,12 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	std::wstring key, keyorg, okuri, candidate, annotation, conv;
 
 	// search, complement, convert key, convert candidate, reverse
-	static const std::wregex research(L"(.*)\t(.*)\t(.*)\n");
+	const std::wregex &research = RegExp(L"(.*)\t(.*)\t(.*)\n");
 	// add candidate
-	static const std::wregex readd(L"(.*)\t(.*)\t(.*)\t(.*)\n");
+	const std::wregex &readd = RegExp(L"(.*)\t(.*)\t(.*)\t(.*)\n");
 	// delete candidate
-	static const std::wregex redel(L"(.*)\t(.*)\n");
-	static const std::wregex re1(L"(.*)\n");
+	const std::wregex &redel = RegExp(L"(.*)\t(.*)\n");
+	const std::wregex &re1 = RegExp(L"(.*)\n");
 
 	result.clear();
 
@@ -334,8 +334,6 @@ unsigned __stdcall SrvThread(void *p)
 
 #ifdef _DEBUG
 	std::wstring dedit, tedit;
-	std::wregex re;
-	std::wstring fmt;
 #endif
 
 	PWCHAR pipebuf = (PWCHAR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WCHAR) * PIPEBUFSIZE);
@@ -405,12 +403,8 @@ unsigned __stdcall SrvThread(void *p)
 
 #ifdef _DEBUG
 		tedit.assign(pipebuf);
-		re.assign(L"\n");
-		fmt.assign(L"↲\r\n");
-		tedit = std::regex_replace(tedit, re, fmt);
-		re.assign(L"\t");
-		fmt.assign(L"»\u00A0");
-		tedit = std::regex_replace(tedit, re, fmt);
+		tedit = std::regex_replace(tedit, RegExp(L"\n"), L"↲\r\n");
+		tedit = std::regex_replace(tedit, RegExp(L"\t"), L"»\u00A0");
 
 		EnterCriticalSection(&csEdit);	// !
 
@@ -427,12 +421,8 @@ unsigned __stdcall SrvThread(void *p)
 
 #ifdef _DEBUG
 		tedit.assign(pipebuf);
-		re.assign(L"\n");
-		fmt.assign(L"↲\r\n");
-		tedit = std::regex_replace(tedit, re, fmt);
-		re.assign(L"\t");
-		fmt.assign(L"»\u00A0");
-		tedit = std::regex_replace(tedit, re, fmt);
+		tedit = std::regex_replace(tedit, RegExp(L"\n"), L"↲\r\n");
+		tedit = std::regex_replace(tedit, RegExp(L"\t"), L"»\u00A0");
 
 		EnterCriticalSection(&csEdit);	// !
 
