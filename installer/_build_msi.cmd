@@ -19,9 +19,6 @@ echo build x64.msi
 %BUILDCOMMAND% -property:PackagePlatform=x64 -property:InstallerPlatform=x64 -property:BaseIntermediateOutputPath=%OutDir%\x64\
 
 if "%ENABLE_PLATFORM_ARM%" neq "0" (
-echo build arm32.msi
-%BUILDCOMMAND% -property:PackagePlatform=arm32 -property:InstallerPlatform=arm64 -property:BaseIntermediateOutputPath=%OutDir%\arm32\
-
 echo build arm64.msi
 %BUILDCOMMAND% -property:PackagePlatform=arm64 -property:InstallerPlatform=arm64 -property:BaseIntermediateOutputPath=%OutDir%\arm64\
 )

@@ -17,9 +17,6 @@ rem x64
 
 if "%ENABLE_PLATFORM_ARM%" neq "0" (
 
-rem ARM32
-%BUILDCOMMAND% -property:Platform=ARM -property:WindowsTargetPlatformVersion=10.0.22621.0
-
 rem ARM64
 %BUILDCOMMAND% -property:Platform=ARM64
 
