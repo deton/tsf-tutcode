@@ -1,5 +1,5 @@
 
-# tsf-tutcode ver. 0.9.4
+# tsf-tutcode ver. 0.9.5
 
 Windowsで動作する漢字直接入力用のIMEです。
 
@@ -521,6 +521,7 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 | 複数動的補完を使用する               | 見出し語が入力されたとき、ユーザー辞書から補完された見出し語を一覧で表示します。<br>補完対象は「候補一覧の色」の「選択」、補完部分は「候補」の色が使用されます。 |
 | 補完された見出し語の候補を表示する   | 補完/複数補完/動的補完/複数動的補完のとき、ユーザー辞書の検索結果を追加して表示します。<br>表示する候補の数は最大で「候補一覧表示に要する変換回数」-1 です。<br>補完/動的補完では「▽表示属性」の「\*送り」の色が使用されます。<br>複数補完/複数動的補完では「候補一覧の色」の「注釈」の色が使用されます。 |
 | 前方一致と後方一致で補完する         | 通常の前方一致での補完に加えて後方一致でも補完します。 |
+| 全ての辞書ファイルで補完する         | 通常のユーザー辞書に加えて取込済SKK辞書でも補完します。 |
 
 
 ### 表示
@@ -889,9 +890,9 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.4.8です。
+現在使用しているLuaのバージョンは5.5.0です。
 
-詳細はこちらを参照してください。https://www.lua.org/manual/5.4/manual.html
+詳細はこちらを参照してください。https://www.lua.org/manual/5.5/manual.html
 
 Lua内部の文字コードをUTF-8に決め打ちして、Unicode版のWindowsAPIとCランタイム関数を呼ぶようにパッチを当てています。
 
@@ -1116,7 +1117,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.14.15
+Visual Studio Community 2022 17.14.30
 
 * .NET desktop development
 
@@ -1132,7 +1133,7 @@ WiX Toolset v6.0.2
 
 * ビルド用バッチファイル内の dotnet build コマンドによって暗黙的に復元
 
-pandoc 3.8
+pandoc 3.9.0.2
 
 ### ビルド手順
 
@@ -1251,12 +1252,12 @@ pandoc 3.8
 
 ---
 
-Copyright (C) 2013-2025 KIHARA, Hideto
+Copyright (C) 2013-2026 KIHARA, Hideto
 https://github.com/deton/tsf-tutcode
 
 以下CorvusSKKのCopyright:
 
-Copyright (C) 2011-2025 SASAKI Nobuyuki
+Copyright (C) 2011-2026 SASAKI Nobuyuki
 
 nathancorvussolis@gmail.com
 

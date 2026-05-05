@@ -17,12 +17,11 @@ rem x64
 
 if "%ENABLE_PLATFORM_ARM%" neq "0" (
 
-rem ARM64
-%BUILDCOMMAND% -property:Platform=ARM64
-
 rem ARM64EC
 %BUILDCOMMAND% -property:Platform=ARM64EC
 
+rem ARM64
+%BUILDCOMMAND% -property:Platform=ARM64
 )
 
 popd

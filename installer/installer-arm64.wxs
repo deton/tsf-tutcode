@@ -28,58 +28,58 @@
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
       <Component Id="CNF_ARM64" Guid="*">
-        <File Id="F_imtutcnf_arm64" Name="imtutcnf.exe"
+        <File Id="F_IMTUTCNF_ARM64" Name="imtutcnf.exe"
           Source="..\build\ARM64\Release\imtutcnf.exe" KeyPath="yes">
           <!-- overwrite x86 shortcut -->
-          <Shortcut Id="S_imtutcnf_arm64" Name="CONFIG"
+          <Shortcut Id="S_IMTUTCNF_ARM64" Name="CONFIG"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_ARM64"
             Show="normal" Advertise="yes" />
         </File>
-        <RemoveFolder Id="RF_imtutcnf_arm64" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
+        <RemoveFolder Id="RF_IMTUTCNF_ARM64" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
       <Component Id="MGR_ARM64" Guid="*">
-        <File Id="F_imtutmgr_arm64" Name="imtutmgr.exe"
+        <File Id="F_IMTUTMGR_ARM64" Name="imtutmgr.exe"
           Source="..\build\ARM64\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
       <Component Id="TIP_ARM64" Guid="*">
         <!-- ARM64EC -->
-        <File Id="F_imcrvtip_arm64" Name="imcrvtip.dll"
+        <File Id="F_IMCRVTIP_ARM64" Name="imcrvtip.dll"
           Source="..\build\ARM64EC\Release\imcrvtip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
       <Component Id="LUAEXE_ARM64" Guid="*">
-        <File Id="F_luaexe_arm64" Name="lua.exe"
+        <File Id="F_LUAEXE_ARM64" Name="lua.exe"
           Source="..\build\ARM64\Release\lua.exe" KeyPath="yes" />
       </Component>
       <Component Id="LUADLL_ARM64" Guid="*">
-        <File Id="F_luadll_arm64" Name="lua54.dll"
+        <File Id="F_LUADLL_ARM64" Name="lua54.dll"
           Source="..\build\ARM64\Release\lua54.dll" KeyPath="yes" />
       </Component>
       <Component Id="ZLIBDLL_ARM64" Guid="*">
-        <File Id="F_zlibdll_arm64" Name="zlib1.dll"
+        <File Id="F_ZLIBDLL_ARM64" Name="zlib1.dll"
           Source="..\build\ARM64\Release\zlib1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
       <Component Id="MSVCP140_ARM64" Guid="*">
-        <File Id="F_msvcp140_arm64" Name="msvcp140.dll"
+        <File Id="F_MSVCP140_ARM64" Name="msvcp140.dll"
           Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\msvcp140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_ARM64" Guid="*">
-        <File Id="F_vcruntime140_arm64" Name="vcruntime140.dll"
+        <File Id="F_VCRUNTIME140_ARM64" Name="vcruntime140.dll"
           Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\vcruntime140.dll" KeyPath="yes" />
       </Component>
       <Component Id="VCRUNTIME140_1_ARM64" Guid="607AA8F2-0D79-4E95-892E-4A1C22588A0F">
-        <File Id="F_vcruntime140_1_arm64" Name="vcruntime140_1.dll"
+        <File Id="F_VCRUNTIME140_1_ARM64" Name="vcruntime140_1.dll"
           Source="$(env.VCToolsRedistDir)arm64\Microsoft.VC143.CRT\vcruntime140_1.dll" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_ARM64">
       <Component Id="REG_ARM64" Guid="*">
-        <RegistryValue Id="R_run_arm64" Action="write"
+        <RegistryValue Id="R_RUN_ARM64" Action="write"
           Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Type="string"
-          Name="imtutmgr" Value="&quot;[#F_imtutmgr_arm64]&quot;" KeyPath="yes" />
+          Name="imtutmgr" Value="&quot;[#F_IMTUTMGR_ARM64]&quot;" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 

@@ -307,7 +307,7 @@ HRESULT CCandidateList::_StartCandidateList(TfClientId tfClientId, ITfDocumentMg
 		CComPtr<ITfContextView> pContextView;
 		if (SUCCEEDED(pContext->GetActiveView(&pContextView)) && (pContextView != nullptr))
 		{
-			if (!_pTextService->_UILessMode && _pCandidateWindow->_CanShowUIElement())
+			if (!_pTextService->_UILessMode || _pCandidateWindow->_CanShowUIElement())
 			{
 				if (FAILED(pContextView->GetWnd(&hwnd)) || hwnd == nullptr)
 				{
@@ -316,7 +316,7 @@ HRESULT CCandidateList::_StartCandidateList(TfClientId tfClientId, ITfDocumentMg
 			}
 		}
 
-		if (!_pCandidateWindow->_Create(hwnd, nullptr, 0, 0, mode))
+		if (!_pCandidateWindow->_Create(hwnd, nullptr, TF_INVALID_UIELEMENTID, 0, mode))
 		{
 			goto exit;
 		}

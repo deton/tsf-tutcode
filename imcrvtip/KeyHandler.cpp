@@ -82,8 +82,6 @@ HRESULT CTextService::_HandleKey(TfEditCookie ec, ITfContext *pContext, WPARAM w
 		return S_FALSE;
 	}
 
-	_GetActiveFlags();
-
 	//補完
 	switch (sf)
 	{
@@ -621,29 +619,118 @@ void CTextService::_ResetStatus()
 
 void CTextService::_GetActiveFlags()
 {
-	_dwActiveFlags = 0;
-	_ImmersiveMode = FALSE;
 	_UILessMode = FALSE;
-	_ShowInputMode = FALSE;
+
+	DWORD dwActiveFlags = 0;
 
 	CComPtr<ITfThreadMgrEx> pThreadMgrEx;
 	if (SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pThreadMgrEx))) && (pThreadMgrEx != nullptr))
 	{
-		pThreadMgrEx->GetActiveFlags(&_dwActiveFlags);
+		pThreadMgrEx->GetActiveFlags(&dwActiveFlags);
 	}
 
-	if ((_dwActiveFlags & TF_TMF_IMMERSIVEMODE) != 0)
+	if ((dwActiveFlags & TF_TMF_IMMERSIVEMODE) != 0)
 	{
 		_ImmersiveMode = TRUE;
 	}
 
-	if ((_dwActiveFlags & TF_TMF_UIELEMENTENABLEDONLY) != 0)
+	if ((dwActiveFlags & TF_TMF_UIELEMENTENABLEDONLY) != 0)
 	{
 		_UILessMode = TRUE;
 	}
+}
 
-	if (cx_showmodeinl && !_UILessMode)
+class CGetShowUIElement : public ITfUIElement
+{
+public:
+	CGetShowUIElement()
 	{
-		_ShowInputMode = TRUE;
+		DllAddRef();
+		_cRef = 1;
+	};
+	~CGetShowUIElement()
+	{
 	}
+
+	// IUnknown
+	STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj)
+	{
+		if (ppvObj == nullptr)
+		{
+			return E_INVALIDARG;
+		}
+
+		*ppvObj = nullptr;
+
+		if (IsEqualIID(riid, IID_IUnknown) ||
+			IsEqualIID(riid, IID_ITfUIElement))
+		{
+			*ppvObj = static_cast<ITfUIElement*>(this);
+		}
+
+		if (*ppvObj)
+		{
+			AddRef();
+			return S_OK;
+		}
+
+		return E_NOINTERFACE;
+	}
+	STDMETHODIMP_(ULONG) AddRef(void)
+	{
+		return ++_cRef;
+	}
+	STDMETHODIMP_(ULONG) Release(void)
+	{
+		if (--_cRef == 0)
+		{
+			delete this;
+			return 0;
+		}
+
+		return _cRef;
+	}
+
+	// ITfUIElement
+	STDMETHODIMP GetDescription(BSTR* bstr)
+	{
+		return E_NOTIMPL;
+	}
+	STDMETHODIMP GetGUID(GUID* pguid)
+	{
+		return E_NOTIMPL;
+	}
+	STDMETHODIMP Show(BOOL bShow)
+	{
+		return E_NOTIMPL;
+	}
+	STDMETHODIMP IsShown(BOOL* pbShow)
+	{
+		return E_NOTIMPL;
+	}
+
+private:
+	LONG _cRef;
+};
+
+BOOL CTextService::_CanShowUIElement()
+{
+	BOOL bUIShow = TRUE;
+
+	CComPtr<ITfUIElementMgr> pUIElementMgr;
+	if (SUCCEEDED(_pThreadMgr->QueryInterface(IID_PPV_ARGS(&pUIElementMgr))) && (pUIElementMgr != nullptr))
+	{
+		CComPtr<CGetShowUIElement> pUIElement;
+		pUIElement.Attach(new CGetShowUIElement());
+
+		BOOL bShow = TRUE;
+		DWORD dwUIElementId = TF_INVALID_UIELEMENTID;
+		if (SUCCEEDED(pUIElementMgr->BeginUIElement(pUIElement, &bShow, &dwUIElementId)))
+		{
+			bUIShow = bShow;
+			pUIElementMgr->EndUIElement(dwUIElementId);
+		}
+	}
+
+	return bUIShow;
 }

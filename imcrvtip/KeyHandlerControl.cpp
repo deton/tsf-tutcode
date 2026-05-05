@@ -1061,14 +1061,7 @@ HRESULT CTextService::_HandleControl(TfEditCookie ec, ITfContext *pContext, BYTE
 
 	case SKK_OTHERIME:
 		_ConvRoman();
-		if (_ShowInputMode)
-		{
-			_HandleCharShift(ec, pContext);
-		}
-		else
-		{
-			_HandleCharReturn(ec, pContext);
-		}
+		_HandleCharReturn(ec, pContext);
 		_ClearComposition();
 		postbuf.clear();
 		_SetKeyboardOpen(FALSE);
