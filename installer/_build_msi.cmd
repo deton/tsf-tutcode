@@ -8,19 +8,17 @@ call _env.cmd
 
 call _build_doc.cmd
 
-if not defined SIGNCOMMAND set SignOutput=false
-
-set BUILDCOMMAND=dotnet build installer-msi.wixproj -nologo -verbosity:normal -target:Build
+set BUILDCOMMAND=dotnet build installer-msi.wixproj -nologo -verbosity:normal
 
 echo build x86.msi
-%BUILDCOMMAND% -property:PackagePlatform=x86 -property:InstallerPlatform=x86 -property:BaseIntermediateOutputPath=%OutDir%\x86\
+%BUILDCOMMAND% -property:OutputName=x86 -property:InstallerPlatform=x86 -property:BaseIntermediateOutputPath=%OutDir%\x86\
 
 echo build x64.msi
-%BUILDCOMMAND% -property:PackagePlatform=x64 -property:InstallerPlatform=x64 -property:BaseIntermediateOutputPath=%OutDir%\x64\
+%BUILDCOMMAND% -property:OutputName=x64 -property:InstallerPlatform=x64 -property:BaseIntermediateOutputPath=%OutDir%\x64\
 
 if "%ENABLE_PLATFORM_ARM%" neq "0" (
 echo build arm64.msi
-%BUILDCOMMAND% -property:PackagePlatform=arm64 -property:InstallerPlatform=arm64 -property:BaseIntermediateOutputPath=%OutDir%\arm64\
+%BUILDCOMMAND% -property:OutputName=arm64 -property:InstallerPlatform=arm64 -property:BaseIntermediateOutputPath=%OutDir%\arm64\
 )
 
 popd

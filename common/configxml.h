@@ -87,6 +87,7 @@ extern LPCWSTR ValueDynamicComp;
 extern LPCWSTR ValueDynCompMulti;
 extern LPCWSTR ValueCompUserDic;
 extern LPCWSTR ValueCompIncBack;
+extern LPCWSTR ValueCompWithAll;
 
 //font section
 

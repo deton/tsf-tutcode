@@ -2,7 +2,7 @@
 #include "utf8.h"
 #include "imcrvmgr.h"
 
-void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
+void ServerProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 {
 	SKKDICCANDIDATES sc;
 	std::wstring key, keyorg, okuri, candidate, annotation, conv;
@@ -34,10 +34,14 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 			result += L"\n";
 			FORWARD_ITERATION_I(sc_itr, sc)
 			{
-				result += ConvertCandidate(keyorg, sc_itr->first, okuri) + L"\t" +
+				conv = ConvertCandidate(keyorg, sc_itr->first, okuri) + L"\t" +
 					sc_itr->first + L"\t" +
 					ConvertCandidate(keyorg, sc_itr->second, okuri) + L"\t" +
 					sc_itr->second + L"\n";
+
+				if (PIPEBUFSIZE <= (result.size() + conv.size())) break;
+
+				result += conv;
 			}
 		}
 		else
@@ -122,7 +126,11 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 			result += L"\n";
 			FORWARD_ITERATION_I(sc_itr, sc)
 			{
-				result += sc_itr->first + L"\t\t" + sc_itr->second + L"\t\n";
+				conv = sc_itr->first + L"\t\t" + sc_itr->second + L"\t\n";
+
+				if (PIPEBUFSIZE <= (result.size() + conv.size())) break;
+
+				result += conv;
 			}
 		}
 		else
@@ -310,8 +318,7 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 		break;
 
 	case REQ_EXIT:
-		SendMessageW(hWndMgr, WM_CLOSE, 0, 0);
-
+		//応答後に終了
 		result = REP_OK;
 		result += L"\n";
 		break;
@@ -323,9 +330,8 @@ void SrvProc(WCHAR command, const std::wstring &argument, std::wstring &result)
 	}
 }
 
-unsigned __stdcall SrvThread(void *p)
+void ServerThread(HANDLE hPipe)
 {
-	HANDLE hPipe = (HANDLE)p;
 	DWORD bytesRead, bytesWrite;
 	BOOL bRet;
 	WCHAR command = L'\0';
@@ -336,21 +342,26 @@ unsigned __stdcall SrvThread(void *p)
 	std::wstring dedit, tedit;
 #endif
 
+	if (hPipe == INVALID_HANDLE_VALUE)
+	{
+		return;
+	}
+
 	PWCHAR pipebuf = (PWCHAR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WCHAR) * PIPEBUFSIZE);
 	if (pipebuf == nullptr)
 	{
-		return -1;
+		CloseHandle(hPipe);
+		return;
 	}
 
-	while (true)
+	while (!bSrvExit)
 	{
 		if (ConnectNamedPipe(hPipe, nullptr) == FALSE)
 		{
-			DisconnectNamedPipe(hPipe);
 			break;
 		}
 
-		if (bSrvThreadExit)
+		if (bSrvExit)
 		{
 			DisconnectNamedPipe(hPipe);
 			break;
@@ -415,7 +426,7 @@ unsigned __stdcall SrvThread(void *p)
 		PostMessageW(hWndMgr, WM_USER_SETTEXT, (WPARAM)hWndEdit, (LPARAM)dedit.c_str());
 #endif
 
-		SrvProc(command, argument, wspipebuf);
+		ServerProc(command, argument, wspipebuf);
 
 		wcsncpy_s(pipebuf, PIPEBUFSIZE, wspipebuf.c_str(), _TRUNCATE);
 
@@ -441,21 +452,24 @@ unsigned __stdcall SrvThread(void *p)
 		}
 
 		DisconnectNamedPipe(hPipe);
+
+		if (command == REQ_EXIT)
+		{
+			DestroyWindow(hWndMgr);
+			break;
+		}
 	}
 
 	CloseHandle(hPipe);
 
 	HeapFree(GetProcessHeap(), 0, pipebuf);
-
-	return 0;
 }
 
-HANDLE SrvStart()
+std::thread ServerStart()
 {
 	PSECURITY_DESCRIPTOR psd = nullptr;
 	SECURITY_ATTRIBUTES sa = {};
 	HANDLE hPipe = INVALID_HANDLE_VALUE;
-	HANDLE hThread = nullptr;
 
 	if (ConvertStringSecurityDescriptorToSecurityDescriptorW(krnlobjsddl, SDDL_REVISION_1, &psd, nullptr))
 	{
@@ -470,17 +484,7 @@ HANDLE SrvStart()
 		LocalFree(psd);
 	}
 
-	if (hPipe != INVALID_HANDLE_VALUE)
-	{
-		hThread = reinterpret_cast<HANDLE>(
-			_beginthreadex(nullptr, 0, SrvThread, hPipe, 0, nullptr));
-		if (hThread == nullptr)
-		{
-			CloseHandle(hPipe);
-		}
-	}
-
-	return hThread;
+	return std::thread(ServerThread, hPipe);
 }
 
 /*

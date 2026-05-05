@@ -42,77 +42,77 @@
 
     <DirectoryRef Id="IMTSFTUTCODE_X86">
       <Component Id="CNF_X86" Guid="*">
-        <File Id="F_imtutcnf_x86" Name="imtutcnf.exe"
+        <File Id="F_IMTUTCNF_X86" Name="imtutcnf.exe"
           Source="..\build\Win32\Release\imtutcnf.exe" KeyPath="yes">
-          <Shortcut Id="S_imtutcnf_x86" Name="CONFIG"
+          <Shortcut Id="S_IMTUTCNF_X86" Name="CONFIG"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_X86"
             Show="normal" Advertise="yes" />
         </File>
-        <RemoveFolder Id="RF_imtutcnf_x86" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
+        <RemoveFolder Id="RF_IMTUTCNF_X86" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
       <Component Id="MGR_X86" Guid="*">
-        <File Id="F_imtutmgr_x86" Name="imtutmgr.exe"
+        <File Id="F_IMTUTMGR_X86" Name="imtutmgr.exe"
           Source="..\build\Win32\Release\imtutmgr.exe" KeyPath="yes" />
       </Component>
       <Component Id="TIP_X86" Guid="*">
-        <File Id="F_imtuttip_x86" Name="imtuttip.dll"
+        <File Id="F_IMTUTTIP_X86" Name="imtuttip.dll"
           Source="..\build\Win32\Release\imtuttip.dll" KeyPath="yes" SelfRegCost="1" />
       </Component>
-      <Component Id="LUAEXE_X86" Guid="*">
-        <File Id="F_luaexe_x86" Name="lua.exe"
-          Source="..\build\Win32\Release\lua.exe" KeyPath="yes" />
+      <Component Id="LUAEXE_X86" Guid="288FF289-0EAA-405B-87ED-4F367D40546F">
+        <File Id="F_LUAEXE_X86" Name="lua.exe"
+          Source="..\build\Win32\Release\lua.exe" CompanionFile="F_IMTUTMGR_X86" />
       </Component>
-      <Component Id="LUADLL_X86" Guid="*">
-        <File Id="F_luadll_x86" Name="lua54.dll"
-          Source="..\build\Win32\Release\lua54.dll" KeyPath="yes" />
+      <Component Id="LUADLL_X86" Guid="84898511-4C96-4114-A7EE-8F32E260D28A">
+        <File Id="F_LUADLL_X86" Name="lua55.dll"
+          Source="..\build\Win32\Release\lua55.dll" CompanionFile="F_IMTUTMGR_X86" />
       </Component>
-      <Component Id="ZLIBDLL_X86" Guid="*">
-        <File Id="F_zlibdll_x86" Name="zlib1.dll"
-          Source="..\build\Win32\Release\zlib1.dll" KeyPath="yes" />
+      <Component Id="ZLIBDLL_X86" Guid="190D4F82-EFE6-4907-8DD6-B53E771D781E">
+        <File Id="F_ZLIBDLL_X86" Name="zlib1.dll"
+          Source="..\build\Win32\Release\zlib1.dll" CompanionFile="F_IMTUTCNF_X86" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_X86">
-      <Component Id="MSVCP140_X86" Guid="*">
-        <File Id="F_msvcp140_x86" Name="msvcp140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC143.CRT\msvcp140.dll" KeyPath="yes" />
+      <Component Id="MSVCP140_X86" Guid="4484CE80-10EA-42B9-96DA-9922CAB7EC32">
+        <File Id="F_MSVCP140_X86" Name="msvcp140.dll"
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC143.CRT\msvcp140.dll" CompanionFile="F_IMTUTCNF_X86" />
       </Component>
-      <Component Id="VCRUNTIME140_X86" Guid="*">
-        <File Id="F_vcruntime140_x86" Name="vcruntime140.dll"
-          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC143.CRT\vcruntime140.dll" KeyPath="yes" />
+      <Component Id="VCRUNTIME140_X86" Guid="A6C80254-BC21-41A9-9C36-A90A7EB33655">
+        <File Id="F_VCRUNTIME140_X86" Name="vcruntime140.dll"
+          Source="$(env.VCToolsRedistDir)x86\Microsoft.VC143.CRT\vcruntime140.dll" CompanionFile="F_IMTUTCNF_X86" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="IMTSFTUTCODE_WIN">
       <Component Id="CONFIG_XML" Guid="*">
-        <File Id="F_config_xml" Name="config.xml"
+        <File Id="F_CONFIG_XML" Name="config.xml"
           Source="$(env.OutDir)\config.xml" KeyPath="yes" />
       </Component>
       <Component Id="INIT_LUA" Guid="*">
-        <File Id="F_init_lua" Name="init.lua"
+        <File Id="F_INIT_LUA" Name="init.lua"
           Source="$(env.OutDir)\init.lua" KeyPath="yes" />
       </Component>
       <Component Id="SKKDICT_TXT" Guid="*">
-        <File Id="F_skkdict_txt" Name="skkdict.txt"
+        <File Id="F_SKKDICT_TXT" Name="skkdict.txt"
           Source="$(env.OutDir)\skkdict.txt" KeyPath="yes" />
       </Component>
       <Component Id="README_HTML" Guid="*">
-        <File Id="F_readme_html" Name="README.html"
+        <File Id="F_README_HTML" Name="README.html"
           Source="$(env.OutDir)\README.html" KeyPath="yes">
-          <Shortcut Id="S_readme_html" Name="README.html"
+          <Shortcut Id="S_README_HTML" Name="README.html"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_WIN"
             Show="normal" Advertise="yes" />
         </File>
-        <RemoveFolder Id="RF_readme_html" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
+        <RemoveFolder Id="RF_README_HTML" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
       <Component Id="LICENSE_TXT" Guid="*">
-        <File Id="F_license_txt" Name="LICENSE.txt"
+        <File Id="F_LICENSE_TXT" Name="LICENSE.txt"
           Source="$(env.OutDir)\LICENSE.txt" KeyPath="yes">
-          <Shortcut Id="S_license_txt" Name="LICENSE.txt"
+          <Shortcut Id="S_LICENSE_TXT" Name="LICENSE.txt"
             Directory="IMTSFTUTCODE_MENU" WorkingDirectory="IMTSFTUTCODE_WIN"
             Show="normal" Advertise="yes" />
         </File>
-        <RemoveFolder Id="RF_license_txt" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
+        <RemoveFolder Id="RF_LICENSE_TXT" Directory="IMTSFTUTCODE_MENU" On="uninstall" />
       </Component>
     </DirectoryRef>
 
@@ -120,9 +120,9 @@
       <Component Id="REG_X86" Guid="*"
         Condition="ARCH_NAME = &quot;x86&quot;">
         <!-- enabled autorun only on 32-bit Windows. -->
-        <RegistryValue Id="R_run_x86" Action="write"
+        <RegistryValue Id="R_RUN_X86" Action="write"
           Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Type="string"
-          Name="imtutmgr" Value="&quot;[#F_imtutmgr_x86]&quot;" KeyPath="yes" />
+          Name="imtutmgr" Value="&quot;[#F_IMTUTMGR_X86]&quot;" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
