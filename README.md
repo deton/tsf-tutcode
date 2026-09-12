@@ -1,5 +1,5 @@
 
-# tsf-tutcode ver. 0.9.5
+# tsf-tutcode ver. 0.9.6
 
 Windowsで動作する漢字直接入力用のIMEです。
 
@@ -39,7 +39,7 @@ https://ci.appveyor.com/project/deton/tsf-tutcode/build/artifacts からtsftutco
 
 tsftutcode-X.Y.Z.exe を実行してください。 (X, Y, Z はバージョン番号)
 
-アップデートの後はOSを再起動しておくと安全です。
+インストールやアップデートの後はOSを再起動する必要があります。
 
 インストール先
 
@@ -59,11 +59,9 @@ tsftutcode-X.Y.Z.exe を実行してください。 (X, Y, Z はバージョン�
 
 ### アンインストール
 
-コントロールパネルの「プログラムと機能」からアンインストールしてください。
+コントロールパネルや設定アプリからアンインストールしてください。
 
-または、インストールに使用した exe ファイルを再度実行し「Uninstall」を選択してください。
-
-アンインストールの後はOSを再起動しておくと安全です。
+アンインストールの後はOSを再起動する必要があります。
 
 
 ### Windows ストアアプリ、Microsoft Edge
@@ -498,7 +496,8 @@ SKK辞書のダウンロード機能では HTTP, HTTPS が使用可能です。�
 
 | 機能 | 説明 |
 | --- | --- |
-| 初期入力モード                       | プログラム起動時の入力モードを指定します。 |
+| 初期入力モード                       | プログラムが起動したときの入力モードを指定します。 |
+| 開始入力モード                       | IME を ON にしたときの入力モードを指定します。 <br>OFF はひらがなモードです。<br>ON かつ「復元」は IME を OFFにしたときの入力モードです。 |
 | 送り仮名が決定したとき変換を開始する | 送り仮名を入力したとき自動的に変換を開始します。接頭辞も同様です。 |
 | 送り仮名が一致した候補を優先する     | 送り仮名ブロックの送り仮名が一致する候補を優先して出力します。 |
 | 送り仮名で撥音を送り出す             | 送り仮名入力開始後の変換位置指定を含む「な/にゃ」行の入力で「ん」を送り出します。<br>例) ON:「NoNO」→「▽の\*んお」/ OFF:「NoNO」→「▽の\*の」 |
@@ -890,7 +889,7 @@ ASCII、全英文字の組み合せを指定します。最大で128行です。
 
 辞書管理プロセス (imtutmgr.exe) の各機能の拡張、プログラム実行変換もどき、数値変換をLuaスクリプトで実装しています。
 
-現在使用しているLuaのバージョンは5.5.0です。
+現在使用しているLuaのバージョンは5.5.1です。
 
 詳細はこちらを参照してください。https://www.lua.org/manual/5.5/manual.html
 
@@ -1117,9 +1116,7 @@ tsf-tutcodeは未実装機能が多いため。
 
 ### 開発環境
 
-Visual Studio Community 2022 17.14.30
-
-* .NET desktop development
+Visual Studio Community 2022 17.14.38
 
 * Desktop development with C++
 
@@ -1129,11 +1126,9 @@ Visual Studio Community 2022 17.14.30
     * SDKs, libraries, and frameworks
         * C++ ATL for latest v143 build tools (x86 & x64)
 
-WiX Toolset v6.0.2
+Inno Setup 7.1.0
 
-* ビルド用バッチファイル内の dotnet build コマンドによって暗黙的に復元
-
-pandoc 3.9.0.2
+pandoc 3.10.2
 
 ### ビルド手順
 
@@ -1153,6 +1148,10 @@ pandoc 3.9.0.2
         * <URL> : RFC-3161 timestamp server
 
     > installer\_verify.cmd
+
+VirusTotalによる検査
+
+    > installer\_sigcheck.cmd
 
 デバッグビルド
 

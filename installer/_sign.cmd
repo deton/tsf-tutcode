@@ -2,22 +2,31 @@
 setlocal
 pushd "%~dp0"
 
+call _clean.cmd
+
 call _vsdev.cmd
 
 call _env.cmd
 
+call _build_doc.cmd
 
+
+
+if "%1"=="" goto usage
+if "%2"=="" goto usage
 
 rem > _sign.cmd  <SHA-1> <URL>
 rem     * <SHA-1> : SHA-1 thumbprint of certificate
 rem     * <URL> : RFC-3161 timestamp server
 
-set DESCRIPTION="tsf-tutcode"
+set DESCRIPTION=tsf-tutcode
 
 set SHA1HASH=%1
 set TIMESTAMPSERVER=%2
 
-set SIGNCOMMAND=signtool sign /v /d %DESCRIPTION% /sha1 %SHA1HASH% /fd sha256 /tr %TIMESTAMPSERVER% /td sha256
+set SIGNCOMMANDBIN=signtool sign /v /d "%DESCRIPTION%"   /sha1 %SHA1HASH% /fd sha256 /tr %TIMESTAMPSERVER% /td sha256
+set SIGNCOMMANDISS=signtool sign /v /d $q%DESCRIPTION%$q /sha1 %SHA1HASH% /fd sha256 /tr %TIMESTAMPSERVER% /td sha256 $f
+set COPYCOMMANDISS=xcopy $f $q%~dp0%OUTDIR%\tmp\$q /y /i
 
 
 
@@ -31,47 +40,30 @@ set BINFILES=%BINFILES% "..\build\ARM64EC\Release\*.dll"
 rem ARM64
 set BINFILES=%BINFILES% "..\build\ARM64\Release\*.dll" "..\build\ARM64\Release\*.exe"
 
-set MSIFILES=
-rem x86
-set MSIFILES=%MSIFILES% "%OutDir%\x86.msi"
-rem x64
-set MSIFILES=%MSIFILES% "%OutDir%\x64.msi"
-rem ARM64
-set MSIFILES=%MSIFILES% "%OutDir%\arm64.msi"
-
-rem bundle
-set BEFILE="%OutDir%\corvusskk-%VERSION%-engine.exe"
-set BSFILE="%OutDir%\corvusskk-%VERSION%.exe"
+%SIGNCOMMANDBIN% %BINFILES%
 
 
 
-dotnet tool restore
+set PATH=%PATH%;%ProgramFiles%\Inno Setup 7
+set PATH=%PATH%;%LocalAppData%\Programs\Inno Setup 7
+set PATH=%PATH%;%ProgramFiles(x86)%\Inno Setup 7
+set PATH=%PATH%;%LocalAppData%\Programs\Inno Setup 7 (32-bit)
 
-call _clean.cmd
+ISCC.exe /DSIGN /SMySignTool="%SIGNCOMMANDISS%" /SMyCopyTool="%COPYCOMMANDISS%" installer.iss
 
-echo sign binary files
-%SIGNCOMMAND% %BINFILES%
+copy /b /y "%OUTDIR%\tmp\uninst.e32.tmp" "%OUTDIR%"
 
-call _build_msi.cmd
-
-echo sign msi files
-%SIGNCOMMAND% %MSIFILES%
-
-call _build_bundle.cmd
-
-echo detach engine
-dotnet wix burn detach %BSFILE% -engine %BEFILE%
-
-echo sign engine
-%SIGNCOMMAND% %BEFILE%
-
-echo reattach engine
-dotnet wix burn reattach %BSFILE% -engine %BEFILE%
-
-echo sign bundle
-%SIGNCOMMAND% %BSFILE%
+rd /s /q "%OUTDIR%\tmp"
 
 
 
+goto end
+
+:usage
+echo Usage: _sign.cmd  ^<SHA-1^> ^<URL^>
+echo   * ^<SHA-1^> : SHA-1 thumbprint of certificate
+echo   * ^<URL^> : RFC-3161 timestamp server
+
+:end
 popd
 endlocal

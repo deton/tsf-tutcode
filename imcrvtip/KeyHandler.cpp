@@ -422,12 +422,12 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 		_InitD2D();
 
 		//OnPreservedKey(), CLangBarItemButton::OnClick(),
-		//CLangBarItemButton::OnMenuSelect() 経由ならひらがなモード
+		//CLangBarItemButton::OnMenuSelect() 経由ならひらがな/復元/ASCII
 		//それ以外なら現在のモード
 		switch (inputmode)
 		{
 		case im_disable:
-			inputmode = im_hiragana;
+			_KeyboardSetOpenInputMode();
 			_StartManager();
 			break;
 		default:
@@ -437,6 +437,23 @@ void CTextService::_KeyboardOpenCloseChanged(BOOL showinputmode)
 	}
 	else
 	{
+		switch (inputmode)
+		{
+		case im_direct:
+			switch (exinputmode)
+			{
+			case im_direct:
+				exinputmode = im_hiragana;
+				break;
+			default:
+				break;
+			}
+			break;
+		default:
+			exinputmode = inputmode;
+			break;
+		}
+
 		inputmode = im_direct;
 
 		_SaveUserDic();
@@ -549,6 +566,30 @@ BOOL CTextService::_KeyboardSetDefaultMode()
 	}
 
 	return open;
+}
+
+void CTextService::_KeyboardSetOpenInputMode()
+{
+	BOOL open = FALSE;
+	BOOL mode = FALSE;
+
+	_ReadBoolValue(SectionBehavior, ValueKbdOpenMode, open, FALSE);
+	if (open)
+	{
+		_ReadBoolValue(SectionBehavior, ValueKOpModeAscii, mode, FALSE);
+		if (mode)
+		{
+			inputmode = im_ascii;
+		}
+		else
+		{
+			inputmode = exinputmode;
+		}
+	}
+	else
+	{
+		inputmode = im_hiragana;
+	}
 }
 
 BOOL CTextService::_IsKeyVoid(WCHAR ch, BYTE vk)
